@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a018e45864cd95648ad626302055526a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 236566
+  packageName: Smart Console
+  packageVersion: 2.4.0
+  assetPath: Assets/Plugins/EdgarDev/Smart Console/Data/SC.Cache.asset
+  uploadId: 702428

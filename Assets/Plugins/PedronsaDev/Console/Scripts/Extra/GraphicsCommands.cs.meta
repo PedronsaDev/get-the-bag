@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: de0323a96e3358342b8593821ddaf861
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 236566
+  packageName: Smart Console
+  packageVersion: 2.4.0
+  assetPath: Assets/Plugins/EdgarDev/Smart Console/Scripts/Extra/GraphicsCommands.cs
+  uploadId: 702428

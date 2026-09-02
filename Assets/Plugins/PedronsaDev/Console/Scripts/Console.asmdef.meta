@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d07bd10557ab7264c844e44a19c75838
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 236566
+  packageName: Smart Console
+  packageVersion: 2.4.0
+  assetPath: Assets/Plugins/PedronsaDev/Smart Console/Scripts/SmartConsole.asmdef
+  uploadId: 702428

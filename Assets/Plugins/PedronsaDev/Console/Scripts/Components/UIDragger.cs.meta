@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d37074ad570d39748b3858afea82a570
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 236566
+  packageName: Smart Console
+  packageVersion: 2.4.0
+  assetPath: Assets/Plugins/EdgarDev/Smart Console/Scripts/Components/UIDragger.cs
+  uploadId: 702428

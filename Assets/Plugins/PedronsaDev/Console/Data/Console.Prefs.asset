@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c67112ec745e7b4cb42433f2d676b0f, type: 3}
+  m_Name: Console.Prefs
+  m_EditorClassIdentifier: 
+  GlobalFont: {fileID: 11400000, guid: f3eaa9d832e80044a8a20aa5ee0f8a7b, type: 2}
+  Opacity: 0.99
+  LogTextFontSize: 17
+  AutocompleteTextFontSize: 16
+  LogTextColor: {r: 0.867, g: 0.867, b: 0.867, a: 1}
+  CommandTextColor: {r: 0.4251958, g: 0.8456311, b: 0.8584906, a: 1}
+  AutocompleteTextColor: {r: 0.764151, g: 0.764151, b: 0.764151, a: 1}
+  AutocompleteParameterTextColor: {r: 0.867, g: 0.867, b: 0.867, a: 0.5}
+  WarningTextColor: {r: 0.9, g: 0.8, b: 0.02352941, a: 1}
+  ErrorTextColor: {r: 0.8396226, g: 0.27822402, b: 0.25743148, a: 1}
+  HighlightTextColor: {r: 0, g: 0.99607843, b: 0.50227475, a: 1}
+  BackgroundMainColor: {r: 0.14117648, g: 0.14117648, b: 0.15686275, a: 1}
+  BackgroundEvenColor: {r: 0.14449094, g: 0.14846255, b: 0.16037738, a: 1}
+  BackgroundHoverTextColor: {r: 0.22806162, g: 0.2311766, b: 0.23584908, a: 1}
+  BackgroundSelectionColor: {r: 0.03137255, g: 0.20000002, b: 0.36862746, a: 1}
+  BackgroundHeaderColor: {r: 0.11764707, g: 0.121568635, b: 0.13333334, a: 1}
+  BackgroundBottomColor: {r: 0.11764706, g: 0.12156863, b: 0.13333334, a: 1}
+  BackgroundAutocompleteColor: {r: 0.16862746, g: 0.1764706, b: 0.18823531, a: 1}
+  SeparatorColor: {r: 0.12615697, g: 0.1299951, b: 0.14150941, a: 1}
+  SaveConsoleOutput: 0
+  CacheReloadOnPlayMode: 1
+  PersistConsole: 0
+  PauseGameOnConsole: 0

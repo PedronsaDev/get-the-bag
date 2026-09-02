@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f3eaa9d832e80044a8a20aa5ee0f8a7b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 236566
+  packageName: Smart Console
+  packageVersion: 2.4.0
+  assetPath: Assets/Plugins/PedronsaDev/Smart Console/Fonts/Inconsolata SDF.asset
+  uploadId: 702428

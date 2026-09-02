@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0b078c25882fbb14b82fafdec9f46193
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 236566
+  packageName: Smart Console
+  packageVersion: 2.4.0
+  assetPath: Assets/Plugins/EdgarDev/Smart Console/Prefabs/SmartConsole.prefab
+  uploadId: 702428

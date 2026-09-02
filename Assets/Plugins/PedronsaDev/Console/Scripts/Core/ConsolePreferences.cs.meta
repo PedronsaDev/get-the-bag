@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6c67112ec745e7b4cb42433f2d676b0f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 236566
+  packageName: Smart Console
+  packageVersion: 2.4.0
+  assetPath: Assets/Plugins/EdgarDev/Smart Console/Scripts/Core/SmartConsolePreferences.cs
+  uploadId: 702428
