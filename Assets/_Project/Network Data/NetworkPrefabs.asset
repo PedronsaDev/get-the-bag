@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66869b09091574e4c972f42f5ae2268e, type: 3}
   m_Name: NetworkPrefabs
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkPrefabs
-  autoGenerate: 0
+  autoGenerate: 1
   networkOnly: 1
   poolByDefault: 0
   folder: {fileID: 102900000, guid: 912ca67209596fb4893123c9eff6fc5e, type: 3}
   searchAllIfNoFolder: 1
   linkedNetworkPrefabs: []
-  prefabs: []
+  prefabs:
+  - guid: 250a1cfce71e44e419251729c0a6bc6f
+    prefab: {fileID: 1094660744987473108, guid: 250a1cfce71e44e419251729c0a6bc6f, type: 3}
+    pooled: 0
+    warmupCount: 5

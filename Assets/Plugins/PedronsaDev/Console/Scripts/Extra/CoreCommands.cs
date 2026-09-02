@@ -36,5 +36,74 @@ namespace PedronsaDev.Console.Extra
 			Console.LogCustom("Client", "This is a Console Custom Log", new Color(0.47f,0.92f,0.3f));
 			Console.LogCustom("Server", "This is another Console Custom Log", new Color(0.859f,0.431f,0.675f));
 		}
+
+		[Command("filter", "Filter visible logs: all, log, warning, error, custom", Aliases = new[] { "f" })]
+		public static void SetLogFilter(string mode = "all")
+		{
+			switch (mode.ToLowerInvariant())
+			{
+				case "log":
+				case "logs":
+					Console.SetFilter(Console.LogFilterMode.Log);
+					Console.Log("[Filter] Displaying standard logs only.");
+					break;
+				case "warn":
+				case "warning":
+				case "warnings":
+					Console.SetFilter(Console.LogFilterMode.Warning);
+					Console.Log("[Filter] Displaying warning logs only.");
+					break;
+				case "error":
+				case "errors":
+					Console.SetFilter(Console.LogFilterMode.Error);
+					Console.Log("[Filter] Displaying error logs only.");
+					break;
+				case "custom":
+				case "net":
+					Console.SetFilter(Console.LogFilterMode.Custom);
+					Console.Log("[Filter] Displaying custom/network logs only.");
+					break;
+				default:
+					Console.SetFilter(Console.LogFilterMode.All);
+					Console.Log("[Filter] Displaying all logs.");
+					break;
+			}
+		}
+
+		[Command("search", "Searches log history for a keyword", Aliases = new[] { "find" })]
+		public static void SearchLogs(string keyword)
+		{
+			if (string.IsNullOrWhiteSpace(keyword))
+			{
+				Console.LogWarning("Usage: search <keyword>");
+				return;
+			}
+
+			int matches = 0;
+			for (int i = 0; i < Console.LogMessages.Count; i++)
+			{
+				var msg = Console.LogMessages[i];
+				if (msg.Text != null && msg.Text.IndexOf(keyword, System.StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+					matches++;
+					Console.Log($"  [{msg.Type}] {msg.Text}");
+				}
+			}
+
+			Console.Log($"Found {matches} matching log(s) for '{keyword}'.");
+		}
+
+		[Command("copy", "Copies all current logs to the system clipboard", Aliases = new[] { "copy_logs" })]
+		public static void CopyLogsToClipboard()
+		{
+			var sb = new System.Text.StringBuilder();
+			for (int i = 0; i < Console.LogMessages.Count; i++)
+			{
+				var msg = Console.LogMessages[i];
+				sb.AppendLine($"[{msg.Type}] {msg.Text}");
+			}
+			GUIUtility.systemCopyBuffer = sb.ToString();
+			Console.Log($"Copied {Console.LogMessages.Count} logs to clipboard!");
+		}
 	}
 }

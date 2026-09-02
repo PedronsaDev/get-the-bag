@@ -33,6 +33,12 @@ namespace Project.Networking.Bootstrapping
 
         [Header("Debug Overlay")]
         [SerializeField] private bool _showDebugGui = true;
+        
+        public bool ShowDebugGui
+        {
+            get => _showDebugGui;
+            set => _showDebugGui = value;
+        }
 
         private NetworkManager _networkManager;
 

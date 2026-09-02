@@ -1,4 +1,5 @@
 using PedronsaDev.Console;
+using Project.Networking.Bootstrapping;
 using Project.Networking.Scenes;
 using PurrNet;
 using UnityEngine;
@@ -12,7 +13,13 @@ namespace Project.Networking.Commands
         // PUBLIC DIAGNOSTIC COMMANDS (Safe for release, all players)
         // -------------------------------------------------------------
 
-        [Command("net_status", "Displays current network session status, latency, and role")]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InitHostChecker()
+        {
+            Console.IsHostChecker = () => NetworkManager.main != null && NetworkManager.main.isServer;
+        }
+
+        [Command("net_status", "Displays current network session status, latency, and role", Aliases = new[] { "net", "ping" })]
         public static void PrintNetworkStatus()
         {
             var net = NetworkManager.main;
@@ -54,12 +61,29 @@ namespace Project.Networking.Commands
                 }
             }
         }
+        
+        [Command("show_net_debug_gui", "Shows or hides the debug GUI")]
+        private static void ShowDebugGUI(int mode)
+        {
+            var net = NetworkManager.main;
+            if (mode == 1)
+            {
+                net.gameObject.GetComponent<QuickPlayBootstrapper>().ShowDebugGui = true;
+            } else if (mode == 0)
+            {
+                net.gameObject.GetComponent<QuickPlayBootstrapper>().ShowDebugGui = false;
+            }
+            else
+            {
+                Console.LogWarning($"[show_debug_gui] Invalid mode {mode}. Use 1 to show, 0 to hide.");
+            }
+        }
 
         // -------------------------------------------------------------
         // HOST-AUTHORITATIVE / DEV COMMANDS (Restricted to Host)
         // -------------------------------------------------------------
 
-        [Command("host_scene", "Loads a new scene across all connected players (Host only)")]
+        [Command("host_scene", "Loads a new scene across all connected players (Host only)", HostOnly = true)]
         public static void ChangeScene(string sceneName)
         {
             if (!ValidateHostAuthority("host_scene")) return;
@@ -74,7 +98,7 @@ namespace Project.Networking.Commands
             NetworkSceneCoordinator.Instance.TransitionToScene(sceneName);
         }
 
-        [Command("host_kick", "Kicks a player from the session (Host only)")]
+        [Command("host_kick", "Kicks a player from the session (Host only)", HostOnly = true)]
         public static void KickPlayer(int playerId)
         {
             if (!ValidateHostAuthority("host_kick")) return;

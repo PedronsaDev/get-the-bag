@@ -12,7 +12,47 @@ namespace PedronsaDev.Console
 		/// <summary>
 		/// Current version of the Smart Console.
 		/// </summary>
-		public const string Version = "1.1.0";
+		public const string Version = "1.2.0";
+
+		/// <summary>
+		/// Optional delegate to check if the local player has Host/Server authority.
+		/// Used by [Command(HostOnly = true)] commands.
+		/// </summary>
+		public static Func<bool> IsHostChecker;
+
+		public enum LogFilterMode
+		{
+			All,
+			Log,
+			Warning,
+			Error,
+			Custom
+		}
+
+		public static LogFilterMode ActiveFilter { get; private set; } = LogFilterMode.All;
+		public static event Action<LogFilterMode> OnFilterChanged;
+
+		public static void SetFilter(LogFilterMode filter)
+		{
+			ActiveFilter = filter;
+			OnFilterChanged?.Invoke(filter);
+		}
+
+		/// <summary>
+		/// Returns true if the developer console UI is currently open on screen.
+		/// </summary>
+		public static bool IsOpen { get; internal set; }
+
+		/// <summary>
+		/// Event raised when the developer console opens (true) or closes (false).
+		/// </summary>
+		public static event Action<bool> OnToggle;
+
+		internal static void NotifyToggle(bool isOpen)
+		{
+			IsOpen = isOpen;
+			OnToggle?.Invoke(isOpen);
+		}
 
 		/// <summary>
 		/// Delegate method that takes in a LogMessage object and returns nothing.
@@ -245,13 +285,17 @@ namespace PedronsaDev.Console
 				return;
 			}
 
+			OnClear?.Invoke();
+
 			for (int i = 0; i < LogMessages.Count; i++)
 			{
-				GameObject.Destroy(LogMessages[i].LogMessageSetup.gameObject);
+				if (LogMessages[i].LogMessageSetup != null && LogMessages[i].LogMessageSetup.gameObject != null && LogMessages[i].LogMessageSetup.gameObject.activeSelf)
+				{
+					GameObject.Destroy(LogMessages[i].LogMessageSetup.gameObject);
+				}
 			}
 
 			LogMessages.Clear();
-			OnClear?.Invoke();
 		}
 
 		/// <summary>
@@ -264,13 +308,17 @@ namespace PedronsaDev.Console
 				return;
 			}
 
+			OnClearAutocompletions?.Invoke();
+
 			for (int i = 0; i < AutocompletionLogMessages.Count; i++)
 			{
-				GameObject.Destroy(AutocompletionLogMessages[i].LogMessageSetup.gameObject);
+				if (AutocompletionLogMessages[i].LogMessageSetup != null && AutocompletionLogMessages[i].LogMessageSetup.gameObject != null && AutocompletionLogMessages[i].LogMessageSetup.gameObject.activeSelf)
+				{
+					GameObject.Destroy(AutocompletionLogMessages[i].LogMessageSetup.gameObject);
+				}
 			}
 
 			AutocompletionLogMessages.Clear();
-			OnClearAutocompletions?.Invoke();
 		}
 
 		/// <summary>

@@ -12,17 +12,21 @@ namespace PedronsaDev.Console
 		public string Description;
 		public MonoTargetType TargetType;
 		public string Group;
+		public bool HostOnly;
+		public string[] Aliases;
 		[SerializeField] private SerializableMethodInfo SerializableMethod;
 
 		public MethodInfo Method => SerializableMethod.MethodInfo;
 
-		public Command(string name, string description, MonoTargetType targetType, string group, SerializableMethodInfo serializableMethod)
+		public Command(string name, string description, MonoTargetType targetType, string group, SerializableMethodInfo serializableMethod, bool hostOnly = false, string[] aliases = null)
 		{
 			Name = name;
 			Description = description;
 			TargetType = targetType;
 			Group = group;
 			SerializableMethod = serializableMethod;
+			HostOnly = hostOnly;
+			Aliases = aliases ?? Array.Empty<string>();
 		}
 
 		public object Use(object target, object[] parameters = null)

@@ -30,6 +30,10 @@ A profile-based save system was integrated into the project featuring file seria
 - Removed the 300s auto-save coroutine per multiplayer co-op design requirements.
 - Saves are triggered on definitive milestones: mission completion, extraction, hub upgrades, and manual console command (`save_game`).
 
+### 5. Lazy Auto-Instantiation Fallback
+- `DataPersistenceManager.Instance` automatically spawns a `[DataPersistenceManager]` `DontDestroyOnLoad` GameObject using modern Unity 6 `FindAnyObjectByType<DataPersistenceManager>()` if none exists in the scene hierarchy.
+- This ensures test sandbox scenes and isolated prototype levels never fail with `NullReferenceException`.
+
 ## Consequences
-- **Positive**: Zero coupling between save manager and gameplay components. No circular references across assemblies. Procedural loot systems can store arbitrary data without modifying `GameData.cs`.
+- **Positive**: Zero coupling between save manager and gameplay components. No circular references across assemblies. Procedural loot systems can store arbitrary data without modifying `GameData.cs`. Seamless sandbox development with auto-instantiated singleton.
 - **Considerations**: Components that need persistence must invoke `DataPersistenceManager.Instance.Register(this)` in `OnEnable`/`Start` and `Unregister(this)` in `OnDisable`.

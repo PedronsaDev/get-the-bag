@@ -17,6 +17,8 @@ MonoBehaviour:
     Description: Captures a screenshot and saves it to the supplied file path as a PNG.
     TargetType: 0
     Group: Screen
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -28,16 +30,45 @@ MonoBehaviour:
     Description: Clears the console
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0060506564726f6e73614465762e436f6e736f6c652e436f6e736f6c652c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       MethodName: Clear
       Parameters: []
       Flags: 24
+  - Name: copy
+    Description: Copies all current logs to the system clipboard
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases:
+    - copy_logs
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: CopyLogsToClipboard
+      Parameters: []
+      Flags: 24
+  - Name: copy_logs
+    Description: (Alias for copy) Copies all current logs to the system clipboard
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: CopyLogsToClipboard
+      Parameters: []
+      Flags: 24
   - Name: delete_playerprefs
     Description: Deletes all the players prefs
     TargetType: 0
     Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -48,6 +79,8 @@ MonoBehaviour:
     Description: Deletes a players prefs key
     TargetType: 0
     Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -55,10 +88,65 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: f
+    Description: '(Alias for filter) Filter visible logs: all, log, warning, error, custom'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogFilter
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: filter
+    Description: 'Filter visible logs: all, log, warning, error, custom'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases:
+    - f
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogFilter
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: find
+    Description: (Alias for search) Searches log history for a keyword
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SearchLogs
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: fontsize
+    Description: '(Alias for set_font_size) Sets the font size for console log messages (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
   - Name: get_active_scene
     Description: Gets the name and index of the current active scene
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -69,6 +157,8 @@ MonoBehaviour:
     Description: Gets all commands
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -79,6 +169,8 @@ MonoBehaviour:
     Description: Gets the name and index of every scene currently loaded
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -89,6 +181,8 @@ MonoBehaviour:
     Description: Gets the name and index of every scene included in the build
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -99,6 +193,8 @@ MonoBehaviour:
     Description: Gets available commands
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -109,6 +205,8 @@ MonoBehaviour:
     Description: Gets available commands from a group
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -120,6 +218,8 @@ MonoBehaviour:
     Description: Gets the frame rate at which Unity tries to render on the application
     TargetType: 0
     Group: Graphics
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006f506564726f6e73614465762e436f6e736f6c652e45787472612e4772617068696373436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -130,6 +230,8 @@ MonoBehaviour:
     Description: Gets the value of a players prefs key
     TargetType: 0
     Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -141,6 +243,8 @@ MonoBehaviour:
     Description: Gets the current screen resolution
     TargetType: 0
     Group: Screen
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -151,6 +255,8 @@ MonoBehaviour:
     Description: Gets the scale at which time passes
     TargetType: 0
     Group: Time
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e54696d65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -161,6 +267,8 @@ MonoBehaviour:
     Description: Displays information about the Console
     TargetType: 0
     Group: Core
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -171,6 +279,8 @@ MonoBehaviour:
     Description: Kicks a player from the session (Host only)
     TargetType: 0
     Group: Network
+    HostOnly: 1
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -182,6 +292,8 @@ MonoBehaviour:
     Description: Loads a new scene across all connected players (Host only)
     TargetType: 0
     Group: Network
+    HostOnly: 1
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -189,10 +301,25 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: input_fontsize
+    Description: '(Alias for set_input_font_size) Sets the font size for the search/input bar (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetInputFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
   - Name: load_game
     Description: Loads the game data from the active profile
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 007650726f6a6563742e50657273697374656e63652e4461746150657273697374656e63654d616e616765722c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -203,6 +330,8 @@ MonoBehaviour:
     Description: Loads a scene by name
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -214,6 +343,8 @@ MonoBehaviour:
     Description: Loads a scene by index
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -221,10 +352,24 @@ MonoBehaviour:
       Parameters:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: net
+    Description: (Alias for net_status) Displays current network session status, latency, and role
+    TargetType: 0
+    Group: Network
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintNetworkStatus
+      Parameters: []
+      Flags: 24
   - Name: net_players
     Description: Lists all connected player IDs in the current session
     TargetType: 0
     Group: Network
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -235,16 +380,35 @@ MonoBehaviour:
     Description: Displays current network session status, latency, and role
     TargetType: 0
     Group: Network
+    HostOnly: 0
+    Aliases:
+    - net
+    - ping
     SerializableMethod:
       Type:
         Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       MethodName: PrintNetworkStatus
       Parameters: []
       Flags: 24
+  - Name: opacity
+    Description: (Alias for set_console_opacity) Sets console opacity from 0.1 to 1.0
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetConsoleOpacity
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
   - Name: pause_game_on_open_console
     Description: Choose if opening the console the game will pause the game
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -252,10 +416,24 @@ MonoBehaviour:
       Parameters:
       - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 20
+  - Name: ping
+    Description: (Alias for net_status) Displays current network session status, latency, and role
+    TargetType: 0
+    Group: Network
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintNetworkStatus
+      Parameters: []
+      Flags: 24
   - Name: quit
     Description: Quits the application
     TargetType: 0
     Group: Core
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -266,6 +444,8 @@ MonoBehaviour:
     Description: Reloads the current active scene
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -276,16 +456,34 @@ MonoBehaviour:
     Description: Saves the game data to the active profile
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 007650726f6a6563742e50657273697374656e63652e4461746150657273697374656e63654d616e616765722c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       MethodName: SaveGame
       Parameters: []
       Flags: 20
+  - Name: search
+    Description: Searches log history for a keyword
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases:
+    - find
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SearchLogs
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
   - Name: set_active_scene
     Description: Sets the active scene by name
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -294,9 +492,12 @@ MonoBehaviour:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
   - Name: set_console_opacity
-    Description: Sets console opacity from 0 to 1
+    Description: Sets console opacity from 0.1 to 1.0
     TargetType: 0
     Group: Default
+    HostOnly: 0
+    Aliases:
+    - opacity
     SerializableMethod:
       Type:
         Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -304,10 +505,26 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 20
+  - Name: set_font_size
+    Description: 'Sets the font size for console log messages (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - fontsize
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
   - Name: set_fullscreen
     Description: Sets the fullscreen state of the application
     TargetType: 0
     Group: Screen
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -315,10 +532,26 @@ MonoBehaviour:
       Parameters:
       - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: set_input_font_size
+    Description: 'Sets the font size for the search/input bar (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - input_fontsize
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetInputFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
   - Name: set_max_fps
     Description: Sets the frame rate at which Unity tries to render on the application. Set to -1 for unlimited
     TargetType: 0
     Group: Graphics
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006f506564726f6e73614465762e436f6e736f6c652e45787472612e4772617068696373436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -330,6 +563,8 @@ MonoBehaviour:
     Description: Sets the value of a players prefs float key
     TargetType: 0
     Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -342,6 +577,8 @@ MonoBehaviour:
     Description: Sets the value of a players prefs int key
     TargetType: 0
     Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -354,6 +591,8 @@ MonoBehaviour:
     Description: Sets the value of a players prefs string key
     TargetType: 0
     Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -366,6 +605,8 @@ MonoBehaviour:
     Description: Sets the current screen resolution to main screen native resolution
     TargetType: 0
     Group: Screen
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -376,6 +617,8 @@ MonoBehaviour:
     Description: Sets the current screen resolution in the range of supported resolutions
     TargetType: 0
     Group: Screen
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -384,10 +627,26 @@ MonoBehaviour:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: set_theme
+    Description: 'Changes console theme preset: default, matrix, cyberpunk, dracula, amber'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - theme
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetTheme
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
   - Name: set_time_scale
     Description: Sets the scale at which time passes
     TargetType: 0
     Group: Time
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e54696d65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -399,6 +658,8 @@ MonoBehaviour:
     Description: Enables or disables vsync for the application
     TargetType: 0
     Group: Graphics
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006f506564726f6e73614465762e436f6e736f6c652e45787472612e4772617068696373436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -406,20 +667,50 @@ MonoBehaviour:
       Parameters:
       - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: show_net_debug_gui
+    Description: Shows or hides the debug GUI
+    TargetType: 0
+    Group: Network
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ShowDebugGUI
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 40
   - Name: test_logs
     Description: Tests all kinds of logs available
     TargetType: 0
     Group: Core
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       MethodName: TestLogs
       Parameters: []
       Flags: 24
+  - Name: theme
+    Description: '(Alias for set_theme) Changes console theme preset: default, matrix, cyberpunk, dracula, amber'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetTheme
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
   - Name: toggle_fullscreen
     Description: Toggles the fullscreen state of the application
     TargetType: 0
     Group: Screen
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -430,6 +721,8 @@ MonoBehaviour:
     Description: Unloads a scene by name
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -441,6 +734,8 @@ MonoBehaviour:
     Description: Unloads a scene by index
     TargetType: 0
     Group: Scene
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -452,6 +747,8 @@ MonoBehaviour:
     Description: Displays the Smart Console version
     TargetType: 0
     Group: Core
+    HostOnly: 0
+    Aliases: []
     SerializableMethod:
       Type:
         Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy

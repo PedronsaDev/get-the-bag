@@ -8,6 +8,8 @@ namespace PedronsaDev.Console
 		public string Name;
 		public string Description;
 		public MonoTargetType MonoTargetType;
+		public string[] Aliases;
+		public bool HostOnly;
 
 		public CommandAttribute() : this("", "", MonoTargetType.Single)
 		{

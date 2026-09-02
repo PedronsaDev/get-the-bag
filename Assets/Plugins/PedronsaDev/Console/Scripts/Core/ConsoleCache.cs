@@ -174,7 +174,7 @@ namespace PedronsaDev.Console
 			string currentAssemblyName = Assembly.GetExecutingAssembly().GetName().FullName;
 
 			// find methods in all assemblies that has the [Command] attribute
-			CommandRegistry = AppDomain.CurrentDomain.GetAssemblies()
+			var methods = AppDomain.CurrentDomain.GetAssemblies()
 				.Where(assembly => IsAssemblyConcerned(assembly, currentAssemblyName))
 				.SelectMany(assembly => assembly.GetTypes())
 				.SelectMany(type => type.GetMethods(
@@ -183,9 +183,30 @@ namespace PedronsaDev.Console
 					BindingFlags.Static |
 					BindingFlags.Instance))
 				.Where(IsValidMethod)
-				.Select(CreateCommand)
-				.ToArray();
+				.ToList();
 
+			var commands = new List<Command>();
+			foreach (var method in methods)
+			{
+				var mainCmd = CreateCommand(method);
+				commands.Add(mainCmd);
+
+				if (mainCmd.Aliases != null && mainCmd.Aliases.Length > 0)
+				{
+					foreach (var alias in mainCmd.Aliases)
+					{
+						if (string.IsNullOrWhiteSpace(alias)) continue;
+						string cleanAlias = alias.Replace(" ", "");
+						if (!m_CommandRegistryNames.Contains(cleanAlias))
+						{
+							m_CommandRegistryNames.Add(cleanAlias);
+							commands.Add(new Command(cleanAlias, $"(Alias for {mainCmd.Name}) {mainCmd.Description}", mainCmd.TargetType, mainCmd.Group, new SerializableMethodInfo(method), mainCmd.HostOnly));
+						}
+					}
+				}
+			}
+
+			CommandRegistry = commands.ToArray();
 			Array.Sort(CommandRegistry, (Command cmd1, Command cmd2) => string.Compare(cmd1.Name, cmd2.Name, true));
 
 			watch.Stop();
@@ -273,7 +294,7 @@ namespace PedronsaDev.Console
 
 			m_CommandRegistryNames.Add(commandName);
 
-			return new Command(commandName, commandAttribute.Description, commandAttribute.MonoTargetType, group, new SerializableMethodInfo(methodInfo));
+			return new Command(commandName, commandAttribute.Description, commandAttribute.MonoTargetType, group, new SerializableMethodInfo(methodInfo), commandAttribute.HostOnly, commandAttribute.Aliases);
 		}
 
 		private string GetCommandName(CommandAttribute commandAttribute, string defaultName)

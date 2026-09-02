@@ -6,6 +6,8 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using PedronsaDev.Console.Utils;
+using Cysharp.Threading.Tasks;
 
 namespace PedronsaDev.Console.Components
 {
@@ -157,8 +159,8 @@ namespace PedronsaDev.Console.Components
 				return;
 			}
 			
-			// find the command by input text
-			string[] inputParts = inputText.Split(' ');
+			// find the command by input text (supporting quoted multi-word strings)
+			string[] inputParts = StringUtil.TokenizeInput(inputText);
 			Command command = FindCommandByText(inputParts[0]);
 
 			// create and log the log message
@@ -169,6 +171,14 @@ namespace PedronsaDev.Console.Components
 			// try to execute the command if exists
 			if (command != null)
 			{
+				if (command.HostOnly && Console.IsHostChecker != null && !Console.IsHostChecker())
+				{
+					Console.LogWarning($"[Console] Command '{command.Name}' requires Host privileges.");
+					Console.Reset();
+					m_LogMessageCopiedIndex = -1;
+					return;
+				}
+
 				if (command.Method.GetParameters().Length > 0)
 				{
 					Exception exception = null;
@@ -305,7 +315,8 @@ namespace PedronsaDev.Console.Components
 			if (command.Method.IsStatic)
 			{
 				// command is static and must not have target
-				command.Use(null, parameters);
+				var result = command.Use(null, parameters);
+				HandleCommandResult(result);
 				return;
 			}
 
@@ -313,12 +324,35 @@ namespace PedronsaDev.Console.Components
 			for (int i = 0; i < targets.Length; i++)
 			{
 				var result = command.Use(targets[i], parameters);
+				HandleCommandResult(result);
+			}
+		}
 
-				if (typeof(IEnumerator).IsAssignableFrom(command.Method.ReturnType))
+		private void HandleCommandResult(object result)
+		{
+			if (result == null) return;
+
+			if (result is IEnumerator coroutine)
+			{
+				StartCoroutine(coroutine);
+			}
+			else if (result is UniTask uniTask)
+			{
+				uniTask.Forget(ex => Console.LogError($"[Async Command Error] {ex.Message}"));
+			}
+			else if (result is System.Threading.Tasks.Task task)
+			{
+				task.ContinueWith(t =>
 				{
-					// If the method returns a coroutine, start it using StartCoroutine
-					StartCoroutine((IEnumerator)result);
-				}
+					if (t.IsFaulted && t.Exception != null)
+					{
+						Console.LogError($"[Async Command Error] {t.Exception.InnerException?.Message ?? t.Exception.Message}");
+					}
+				}, System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());
+			}
+			else
+			{
+				Console.Log($"=> {result}");
 			}
 		}
 
@@ -409,9 +443,7 @@ namespace PedronsaDev.Console.Components
 				m_canvasGroup.interactable = true;
 				m_canvasGroup.blocksRaycasts = true;
 				
-				// else
-				// 	Console.LogWarning("GameManager Missing");
-				
+				Console.NotifyToggle(true);
 				OnActivate?.Invoke();
 			}
 			else
@@ -424,9 +456,7 @@ namespace PedronsaDev.Console.Components
 				m_canvasGroup.interactable = false;
 				m_canvasGroup.blocksRaycasts = false;
 				
-				// else
-				// 	Console.LogWarning("GameManager Missing");
-				
+				Console.NotifyToggle(false);
 				OnDeactivate?.Invoke();
 			}
 		}

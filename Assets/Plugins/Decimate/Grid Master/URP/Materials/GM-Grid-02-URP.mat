@@ -64,7 +64,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothness: 0
-    - _Tiling: 2
+    - _Tiling: 1
     m_Colors:
     - _Base_Color: {r: 0, g: 0, b: 0, a: 0}
     - _Emission_Color: {r: 0.0754717, g: 0.0754717, b: 0.0754717, a: 0}

@@ -13,24 +13,25 @@ MonoBehaviour:
   m_Name: Console.Prefs
   m_EditorClassIdentifier: 
   GlobalFont: {fileID: 11400000, guid: f3eaa9d832e80044a8a20aa5ee0f8a7b, type: 2}
-  Opacity: 0.99
-  LogTextFontSize: 17
-  AutocompleteTextFontSize: 16
-  LogTextColor: {r: 0.867, g: 0.867, b: 0.867, a: 1}
-  CommandTextColor: {r: 0.4251958, g: 0.8456311, b: 0.8584906, a: 1}
+  Opacity: 1
+  LogTextFontSize: 20
+  InputTextFontSize: 22
+  AutocompleteTextFontSize: 20
+  LogTextColor: {r: 0.87, g: 0.87, b: 0.87, a: 1}
+  CommandTextColor: {r: 0.02, g: 0.6, b: 1, a: 1}
   AutocompleteTextColor: {r: 0.764151, g: 0.764151, b: 0.764151, a: 1}
   AutocompleteParameterTextColor: {r: 0.867, g: 0.867, b: 0.867, a: 0.5}
-  WarningTextColor: {r: 0.9, g: 0.8, b: 0.02352941, a: 1}
-  ErrorTextColor: {r: 0.8396226, g: 0.27822402, b: 0.25743148, a: 1}
-  HighlightTextColor: {r: 0, g: 0.99607843, b: 0.50227475, a: 1}
-  BackgroundMainColor: {r: 0.14117648, g: 0.14117648, b: 0.15686275, a: 1}
-  BackgroundEvenColor: {r: 0.14449094, g: 0.14846255, b: 0.16037738, a: 1}
+  WarningTextColor: {r: 0.95, g: 0.8, b: 0.02, a: 1}
+  ErrorTextColor: {r: 1, g: 0.26, b: 0.23, a: 1}
+  HighlightTextColor: {r: 1, g: 0.71, b: 0, a: 1}
+  BackgroundMainColor: {r: 0.12, g: 0.12, b: 0.12, a: 1}
+  BackgroundEvenColor: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
   BackgroundHoverTextColor: {r: 0.22806162, g: 0.2311766, b: 0.23584908, a: 1}
   BackgroundSelectionColor: {r: 0.03137255, g: 0.20000002, b: 0.36862746, a: 1}
-  BackgroundHeaderColor: {r: 0.11764707, g: 0.121568635, b: 0.13333334, a: 1}
-  BackgroundBottomColor: {r: 0.11764706, g: 0.12156863, b: 0.13333334, a: 1}
+  BackgroundHeaderColor: {r: 0.08, g: 0.08, b: 0.08, a: 1}
+  BackgroundBottomColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   BackgroundAutocompleteColor: {r: 0.16862746, g: 0.1764706, b: 0.18823531, a: 1}
-  SeparatorColor: {r: 0.12615697, g: 0.1299951, b: 0.14150941, a: 1}
+  SeparatorColor: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
   SaveConsoleOutput: 0
   CacheReloadOnPlayMode: 1
   PersistConsole: 0

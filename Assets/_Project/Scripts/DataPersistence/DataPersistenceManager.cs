@@ -16,7 +16,26 @@ namespace Project.Persistence
     [DefaultExecutionOrder(-1000)]
     public class DataPersistenceManager : MonoBehaviour
     {
-        public static DataPersistenceManager Instance { get; private set; }
+        private static DataPersistenceManager _instance;
+
+        public static DataPersistenceManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindAnyObjectByType<DataPersistenceManager>();
+                    if (_instance == null)
+                    {
+                        var go = new GameObject("[DataPersistenceManager]");
+                        _instance = go.AddComponent<DataPersistenceManager>();
+                        DontDestroyOnLoad(go);
+                    }
+                }
+                return _instance;
+            }
+            private set => _instance = value;
+        }
 
         [Header("Debugging")]
         [SerializeField] private bool _disableDataPersistence;
@@ -37,13 +56,13 @@ namespace Project.Persistence
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
 
-            Instance = this;
+            _instance = this;
             DontDestroyOnLoad(gameObject);
 
             if (_disableDataPersistence)
