@@ -89,6 +89,7 @@ MonoBehaviour:
   _invertedPathToNearestParent: 
   _directChildren: []
   _inputProvider: {fileID: 3432939826793728204}
+  _locomotionController: {fileID: 7482482855676676148}
   _remotePlayerLayerIndex: 8
 --- !u!114 &3432939826793728204
 MonoBehaviour:
@@ -102,6 +103,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeca8cc52ff5d8340837bb029fed1ee8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Input.LocalPlayerInputProvider
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
   _lookSensitivity: 0.5
   _invertY: 0
   _enableCursorLock: 1
@@ -322,7 +332,7 @@ MonoBehaviour:
   _networkTransform: {fileID: 1117931757033441777}
   _playerFacade: {fileID: 3916750346549361147}
   _fpsCameraController: {fileID: 1197550716529269032}
-  _maxStableMoveSpeed: 10
+  _maxStableMoveSpeed: 6
   _sprintSpeedMultiplier: 1.5
   _crouchSpeedMultiplier: 0.5
   _stableMovementSharpness: 15
@@ -333,33 +343,33 @@ MonoBehaviour:
   _wallJumpLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  _allowJumpingWhenSliding: 0
+  _allowJumpingWhenSliding: 1
   _allowDoubleJump: 1
   _allowWallJump: 0
-  _jumpSpeed: 10
-  _doubleJumpSpeed: 12
+  _jumpSpeed: 9
+  _doubleJumpSpeed: 8
   _jumpPreGroundingGraceTime: 0
   _jumpPostGroundingGraceTime: 0
   _jumpBufferTime: 0.15
   _standingHeight: 2
-  _crouchingHeight: 1
+  _crouchingHeight: 1.2
   _crouchTransitionSpeed: 10
   _ceilingCheckLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
-  _slideEntryBoost: 5
-  _slideFriction: 2
-  _minSpeedToSlide: 6
-  _slideStopSpeed: 1
+    m_Bits: 1
+  _slideEntryBoost: 2
+  _slideFriction: 1
+  _minSpeedToSlide: 6.2
+  _slideStopSpeed: 5
   _vaultLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
-  _vaultCheckDistance: 1
-  _maxVaultHeight: 1.5
-  _vaultDuration: 0.35
+    m_Bits: 1
+  _vaultCheckDistance: 2
+  _maxVaultHeight: 2
+  _vaultDuration: 0.7
   _fallGravityMultiplier: 0.9
-  _slideGravityMultiplier: 1.5
-  _gravity: {x: 0, y: -30, z: 0}
+  _slideGravityMultiplier: 2.5
+  _gravity: {x: 0, y: -23, z: 0}
 --- !u!1 &2579901062761265217
 GameObject:
   m_ObjectHideFlags: 0
@@ -391,6 +401,96 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4059090198446306671}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4995782390965970213
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4562228432453047905}
+  - component: {fileID: 978580811758011914}
+  - component: {fileID: 8746114712533094318}
+  m_Layer: 7
+  m_Name: Capsule
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4562228432453047905
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995782390965970213}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3908915232247080255}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &978580811758011914
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995782390965970213}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &8746114712533094318
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4995782390965970213}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5623175284018484902
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,6 +545,13 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _baseFOV: 90
+  _sprintFOV: 100
+  _fovSmoothness: 8
+  _standingHeight: 1.75
+  _crouchingHeight: 1.1
+  _slidingHeight: 0.8
+  _heightSmoothness: 10
   _maxPitch: 85
   _minPitch: -85
   _pitchPivot: {fileID: 960240798095504355}
@@ -477,7 +584,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4562228432453047905}
   m_Father: {fileID: 6549506811574553554}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8703997978576323725

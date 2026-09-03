@@ -1,4 +1,3 @@
-using System;
 using Project.Core.Input;
 using Project.Player.Input;
 using PurrNet;
@@ -11,23 +10,19 @@ public class PlayerFacade : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private LocalPlayerInputProvider _inputProvider;
+    [SerializeField] private LocomotionController _locomotionController;
     [SerializeField] private int _remotePlayerLayerIndex;
     
+    public LocomotionState LocomotionState { get; private set; }
     public PlayerInputData CurrentInput { get; private set; }
-
-    private void Awake()
-    {
-        if (!_inputProvider)
-            _inputProvider = GetComponent<LocalPlayerInputProvider>();
-    }
-    
 
     protected override void OnSpawned()
     {
+        this.enabled = isOwner;
+        
         if (!isOwner)
         {
             this.gameObject.layer = _remotePlayerLayerIndex;
-            DisableLocalComponents();
             return;
         }
         
@@ -48,13 +43,7 @@ public class PlayerFacade : NetworkBehaviour
             return;
 
         CurrentInput = _inputProvider.GetCurrentInput();
-    }
-
-
-    private void DisableLocalComponents()
-    {
-        if (_inputProvider)
-            _inputProvider.enabled = false;
+        LocomotionState = _locomotionController.State;
     }
 }
 }

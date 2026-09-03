@@ -1,4 +1,5 @@
 using Project.Core.Input;
+using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,7 +10,7 @@ namespace Project.Player.Input
 /// Converts hardware inputs into a pure PlayerInputData struct every frame/tick.
 /// Remote players should instead use RemotePlayerInputProvider.
 /// </summary>
-public class LocalPlayerInputProvider : MonoBehaviour, IPlayerInputProvider
+public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 {
     [Header("Settings")]
     [SerializeField] private float _lookSensitivity = 0.5f;
@@ -57,10 +58,29 @@ public class LocalPlayerInputProvider : MonoBehaviour, IPlayerInputProvider
     private InputAction _slot2Action;
     private InputAction _slot3Action;
     private InputAction _slot4Action;
-
-    private void Awake()
+    
+    protected override void OnSpawned()
     {
+        this.enabled = isOwner;
+        if (!isOwner)
+            return;
+        
+        if (_enableCursorLock)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        
         InitializeActions();
+        _playerMap?.Enable();
+    }
+
+    protected override void OnDespawned()
+    {
+        if (!isOwner)
+            return;
+        
+        _playerMap?.Disable();
     }
 
     private void InitializeActions()
@@ -98,25 +118,6 @@ public class LocalPlayerInputProvider : MonoBehaviour, IPlayerInputProvider
         _slot2Action = _playerMap.FindAction("WeaponSlot2");
         _slot3Action = _playerMap.FindAction("WeaponSlot3");
         _slot4Action = _playerMap.FindAction("WeaponSlot4");
-    }
-
-    private void Start()
-    {
-        if (_enableCursorLock)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-    }
-
-    private void OnEnable()
-    {
-        _playerMap?.Enable();
-    }
-
-    private void OnDisable()
-    {
-        _playerMap?.Disable();
     }
 
     public PlayerInputData GetCurrentInput()

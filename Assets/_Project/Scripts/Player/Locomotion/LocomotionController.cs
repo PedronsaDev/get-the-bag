@@ -1,6 +1,3 @@
-using KinematicCharacterController;
-using PurrNet;
-using UnityEngine;
 
 namespace Project.Player
 {
@@ -273,7 +270,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [SerializeField] private FPSCameraController _fpsCameraController;
     
     [Header("Stable Movement")] 
-    [SerializeField] private float _maxStableMoveSpeed = 10f;
+    [SerializeField] private float _maxStableMoveSpeed = 6f;
     [SerializeField] private float _sprintSpeedMultiplier = 1.5f;
     [SerializeField] private float _crouchSpeedMultiplier = 0.5f;
     [SerializeField] private float _stableMovementSharpness = 15f;
@@ -287,40 +284,40 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     [Header("Jumping")] 
     [SerializeField] private LayerMask _wallJumpLayerMask = ~0;
-    [SerializeField] private bool _allowJumpingWhenSliding = false;
+    [SerializeField] private bool _allowJumpingWhenSliding = true;
     [SerializeField] private bool _allowDoubleJump = true;
-    [SerializeField] private bool _allowWallJump = true;
-    [SerializeField] private float _jumpSpeed = 10f;
-    [SerializeField] private float _doubleJumpSpeed = 12f;
+    [SerializeField] private bool _allowWallJump = false;
+    [SerializeField] private float _jumpSpeed = 9f;
+    [SerializeField] private float _doubleJumpSpeed = 8f;
     [SerializeField] private float _jumpPreGroundingGraceTime = 0f;
     [SerializeField] private float _jumpPostGroundingGraceTime = 0f;
     [SerializeField] private float _jumpBufferTime = 0.15f;
 
     [Header("Crouch & Dimensions")] 
     [SerializeField] private float _standingHeight = 2f;
-    [SerializeField] private float _crouchingHeight = 1f;
+    [SerializeField] private float _crouchingHeight = 1.2f;
     [SerializeField] private float _crouchTransitionSpeed = 10f;
     [SerializeField] private LayerMask _ceilingCheckLayerMask = ~0;
 
     [Header("Ground Sliding")] 
-    [SerializeField] private float _slideEntryBoost = 5f;
-    [SerializeField] private float _slideFriction = 2f;
-    [SerializeField] private float _minSpeedToSlide = 6f;
-    [SerializeField] private float _slideStopSpeed = 1f;
+    [SerializeField] private float _slideEntryBoost = 2f;
+    [SerializeField] private float _slideFriction = 1f;
+    [SerializeField] private float _minSpeedToSlide = 6.2f;
+    [SerializeField] private float _slideStopSpeed = 5f;
 
     //[Header("Wall Sliding")] 
     //[SerializeField] private float _maxWallSlideSpeed = 3f;
     
     [Header("Vaulting & Ledge Grab")]
     [SerializeField] private LayerMask _vaultLayerMask = ~0;
-    [SerializeField] private float _vaultCheckDistance = 1f;
-    [SerializeField] private float _maxVaultHeight = 1.5f;
-    [SerializeField] private float _vaultDuration = 0.35f;
+    [SerializeField] private float _vaultCheckDistance = 2f;
+    [SerializeField] private float _maxVaultHeight = 2f;
+    [SerializeField] private float _vaultDuration = 0.7f;
 
     [Header("Dynamic Gravity")] 
     [SerializeField] private float _fallGravityMultiplier = 0.9f;
-    [SerializeField] private float _slideGravityMultiplier = 1.5f;
-    [SerializeField] private Vector3 _gravity = new(0, -30f, 0);
+    [SerializeField] private float _slideGravityMultiplier = 2.5f;
+    [SerializeField] private Vector3 _gravity = new(0, -23f, 0);
 
     private readonly Dictionary<LocomotionPhase, ILocomotionPhaseHandler> _phaseHandlers = new();
     private ILocomotionPhaseHandler _currentPhaseHandler;
@@ -362,8 +359,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             return;
 
         _networkTransform.enabled = false;
-        Vector3 spawnPos = transform.parent ? transform.parent.position : transform.position;
-        _motor.SetPosition(spawnPos);
+        _motor.SetPosition(transform.parent.position);
         _networkTransform.enabled = true;
 
         State = new LocomotionState
@@ -475,7 +471,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
     {
-        if (_fpsCameraController != null)
+        if (_fpsCameraController)
         {
             currentRotation = Quaternion.Euler(0f, _fpsCameraController.CurrentYaw, 0f);
         }

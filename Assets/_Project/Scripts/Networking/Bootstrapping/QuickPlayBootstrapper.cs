@@ -55,7 +55,6 @@ namespace Project.Networking.Bootstrapping
                 return;
             }
 
-            // If already connected (e.g. entered scene via LobbyManager), do nothing
             if (!_networkManager.isOffline)
             {
                 return;

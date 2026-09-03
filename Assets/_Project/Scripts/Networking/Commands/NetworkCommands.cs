@@ -16,7 +16,7 @@ namespace Project.Networking.Commands
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitHostChecker()
         {
-            Console.IsHostChecker = () => NetworkManager.main != null && NetworkManager.main.isServer;
+            Console.IsHostChecker = () => NetworkManager.main && NetworkManager.main.isServer;
         }
 
         [Command("net_status", "Displays current network session status, latency, and role", Aliases = new[] { "net", "ping" })]
