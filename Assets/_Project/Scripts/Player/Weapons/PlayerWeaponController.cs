@@ -10,7 +10,7 @@ namespace Project.Player.Weapons
     /// Drives player firearm input, weapon swapping between 2 slots, trigger execution,
     /// dynamic recoil/spread recovery, and reloading.
     /// </summary>
-    public class PlayerWeaponController : NetworkBehaviour
+    public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     {
         [Header("Weapon Sockets & Visuals")]
         [SerializeField] private WeaponVisualAssembler _visualAssembler;
@@ -69,14 +69,14 @@ namespace Project.Player.Weapons
             {
                 _slot1Weapon = ItemRegistry.Instance 
                     ? ItemRegistry.Instance.GenerateWeapon(_defaultSlot1Core, (uint)UnityEngine.Random.Range(1, 99999), 1, ItemRarity.Common)
-                    : new WeaponInstance(_defaultSlot1Core, null, 1);
+                    : new WeaponInstance(_defaultSlot1Core, seed: 1);
             }
 
             if (_defaultSlot2Core)
             {
                 _slot2Weapon = ItemRegistry.Instance 
                     ? ItemRegistry.Instance.GenerateWeapon(_defaultSlot2Core, (uint)UnityEngine.Random.Range(1, 99999), 1, ItemRarity.Uncommon)
-                    : new WeaponInstance(_defaultSlot2Core, null, 2);
+                    : new WeaponInstance(_defaultSlot2Core, seed: 2);
             }
 
             EquipSlot(1);
@@ -97,12 +97,6 @@ namespace Project.Player.Weapons
             // 1. Slot swapping
             if (input.WeaponSlotPressed == 1 && _activeSlotIndex != 1) EquipSlot(1);
             if (input.WeaponSlotPressed == 2 && _activeSlotIndex != 2) EquipSlot(2);
-
-            // 2. Interaction: Pick up nearby world weapons
-            if (input.InteractPressed)
-            {
-                TryInteractWithNearbyPickup();
-            }
 
             if (currentWeapon == null) return;
 
@@ -275,6 +269,20 @@ namespace Project.Player.Weapons
             EquipWeapon(newWeapon, _activeSlotIndex);
         }
 
+        public void ReceiveWeaponPickup(WeaponInstance weapon, ItemNetSnapshot snapshot, bool isHold)
+        {
+            if (isHold)
+            {
+                // Force equip into active slot (drop currently held if active is full)
+                EquipOrSwapWeapon(weapon, snapshot);
+            }
+            else
+            {
+                // Tap pickup: equip or store
+                EquipOrSwapWeapon(weapon, snapshot);
+            }
+        }
+
         /// <summary>
         /// Drops the currently held weapon into the world as a WorldWeaponPickup.
         /// </summary>
@@ -333,46 +341,7 @@ namespace Project.Player.Weapons
             pickup.Initialize(snapshot, throwVelocity);
         }
 
-        private void TryInteractWithNearbyPickup()
-        {
-            Transform aimOrigin = _cameraController ? _cameraController.PitchPivot : transform;
-            Vector3 origin = aimOrigin.position;
-            Vector3 forward = aimOrigin.forward;
 
-            // 1. Raycast check looking at pickup
-            if (Physics.Raycast(origin, forward, out var hit, 4.0f))
-            {
-                var pickup = hit.collider.GetComponentInParent<WorldWeaponPickup>();
-                if (pickup != null)
-                {
-                    pickup.RequestPickup();
-                    return;
-                }
-            }
-
-            // 2. Proximity overlap check
-            var hits = Physics.OverlapSphere(origin, 2.5f);
-            WorldWeaponPickup closestPickup = null;
-            float closestDist = float.MaxValue;
-            for (int i = 0; i < hits.Length; i++)
-            {
-                var pickup = hits[i].GetComponentInParent<WorldWeaponPickup>();
-                if (pickup != null)
-                {
-                    float d = Vector3.Distance(origin, pickup.transform.position);
-                    if (d < closestDist)
-                    {
-                        closestDist = d;
-                        closestPickup = pickup;
-                    }
-                }
-            }
-
-            if (closestPickup != null)
-            {
-                closestPickup.RequestPickup();
-            }
-        }
 
         public void SetSlotWeapon(int slotIndex, WeaponInstance weapon)
         {

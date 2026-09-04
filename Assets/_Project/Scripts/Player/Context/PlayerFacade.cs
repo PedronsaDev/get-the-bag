@@ -1,5 +1,6 @@
 using Project.Core.Input;
 using Project.Player.Input;
+using Project.Player.Interaction;
 using PurrNet;
 using UnityEngine;
 
@@ -11,9 +12,11 @@ public class PlayerFacade : NetworkBehaviour
     [Header("References")]
     [SerializeField] private LocalPlayerInputProvider _inputProvider;
     [SerializeField] private LocomotionController _locomotionController;
+    [SerializeField] private PlayerInteractor _interactor;
     [SerializeField] private int _remotePlayerLayerIndex;
     
     
+    public PlayerInteractor Interactor => _interactor;
     public LocomotionState LocomotionState { get; private set; }
     public PlayerInputData CurrentInput { get; private set; }
 

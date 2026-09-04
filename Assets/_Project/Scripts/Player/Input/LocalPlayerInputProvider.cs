@@ -151,11 +151,13 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             SecondaryFireHeld = _aimAction != null && _aimAction.IsPressed(),
 
             ReloadPressed = _reloadAction != null && _reloadAction.WasPressedThisFrame(),
-            InteractPressed = _interactAction != null && _interactAction.WasPressedThisFrame(),
             GrenadePressed = _grenadeAction != null && _grenadeAction.WasPressedThisFrame(),
             SkillPressed = _skillAction != null && _skillAction.WasPressedThisFrame(),
             MeleePressed = _meleeAction != null && _meleeAction.WasPressedThisFrame(),
             PingPressed = _pingAction != null && _pingAction.WasPressedThisFrame(),
+            
+            InteractPressed = _interactAction != null && _interactAction.WasPressedThisFrame(),
+            InteractHeld = _interactAction != null && _interactAction.IsPressed(),
             WeaponSlotPressed = GetWeaponSlotPressed()
         };
     }

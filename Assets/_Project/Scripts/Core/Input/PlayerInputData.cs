@@ -22,11 +22,13 @@ namespace Project.Core.Input
         public bool SecondaryFireHeld;
         
         public bool ReloadPressed;
-        public bool InteractPressed;
         public bool GrenadePressed;
         public bool SkillPressed;
         public bool MeleePressed;
         public bool PingPressed;
+        
+        public bool InteractPressed;
+        public bool InteractHeld;
         
         /// <summary>
         /// 0 = None, 1 = Slot 1, 2 = Slot 2, 3 = Slot 3, 4 = Slot 4

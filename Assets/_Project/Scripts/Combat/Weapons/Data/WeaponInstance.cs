@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace Project.Combat
 {
     /// <summary>
-    /// Live runtime instance of an assembled weapon.
-    /// Manages compiled stats, ammo state, procedural name generation, and red-text perks.
+    /// Live runtime instance of an assembled weapon in the Gunsmith Circuit system.
+    /// Tracks individual part levels, signature locking on legendary components,
+    /// physical slot scaling (Barrel + Receiver), and real-time part swapping.
     /// </summary>
     [Serializable]
     public class WeaponInstance
     {
         [SerializeField] private WeaponCoreDefinition _core;
-        [SerializeField] private List<WeaponPartDefinition> _parts = new();
+        [SerializeField] private List<WeaponPartInstance> _parts = new();
         [SerializeField] private uint _seed;
         [SerializeField] private byte _level = 1;
         [SerializeField] private ItemRarity _rarity = ItemRarity.Common;
@@ -24,7 +24,7 @@ namespace Project.Combat
         [SerializeField] private List<string> _uniqueBehaviorIds = new();
 
         public WeaponCoreDefinition Core => _core;
-        public IReadOnlyList<WeaponPartDefinition> Parts => _parts;
+        public IReadOnlyList<WeaponPartInstance> PartInstances => _parts;
         public uint Seed => _seed;
         public byte Level => _level;
         public ItemRarity Rarity => _rarity;
@@ -34,17 +34,43 @@ namespace Project.Combat
         public string RedText => _redText;
         public IReadOnlyList<string> UniqueBehaviorIds => _uniqueBehaviorIds;
 
-        public WeaponInstance(WeaponCoreDefinition core, IEnumerable<WeaponPartDefinition> parts, uint seed, byte level = 1, ItemRarity rarity = ItemRarity.Common, string customDisplayName = null)
+        public event Action<WeaponInstance> OnWeaponAssembled;
+
+        /// <summary>
+        /// Backward-compatible list of part definitions.
+        /// </summary>
+        public IReadOnlyList<WeaponPartDefinition> Parts
+        {
+            get
+            {
+                var list = new List<WeaponPartDefinition>(_parts.Count);
+                for (int i = 0; i < _parts.Count; i++)
+                {
+                    if (_parts[i].IsValid) list.Add(_parts[i].Definition);
+                }
+                return list;
+            }
+        }
+
+        public WeaponInstance(WeaponCoreDefinition core, uint seed = 1, byte level = 1, ItemRarity rarity = ItemRarity.Common, string customDisplayName = null)
+            : this(core, (IEnumerable<WeaponPartInstance>)null, seed, level, rarity, customDisplayName)
+        {
+        }
+
+        public WeaponInstance(WeaponCoreDefinition core, IEnumerable<WeaponPartInstance> partInstances, uint seed, byte level = 1, ItemRarity rarity = ItemRarity.Common, string customDisplayName = null)
         {
             _core = core;
             _seed = seed;
-            _level = level;
+            _level = (byte)Mathf.Clamp(level, 1, 100);
             _rarity = rarity;
 
             _parts.Clear();
-            if (parts != null)
+            if (partInstances != null)
             {
-                _parts.AddRange(parts);
+                foreach (var p in partInstances)
+                {
+                    if (p.IsValid) _parts.Add(p);
+                }
             }
 
             CompileStats();
@@ -53,13 +79,165 @@ namespace Project.Combat
         }
 
         /// <summary>
+        /// Backward-compatible constructor for part definitions (e.g. from legacy generators or inspectors).
+        /// Signature/unique parts automatically initialize with IsLocked = true.
+        /// </summary>
+        public WeaponInstance(WeaponCoreDefinition core, IEnumerable<WeaponPartDefinition> parts, uint seed, byte level = 1, ItemRarity rarity = ItemRarity.Common, string customDisplayName = null)
+        {
+            _core = core;
+            _seed = seed;
+            _level = (byte)Mathf.Clamp(level, 1, 100);
+            _rarity = rarity;
+
+            _parts.Clear();
+            if (parts != null)
+            {
+                foreach (var def in parts)
+                {
+                    if (def != null)
+                    {
+                        _parts.Add(new WeaponPartInstance(def, _level, isLocked: def.IsUnique));
+                    }
+                }
+            }
+
+            CompileStats();
+            _currentAmmoInMag = _compiledStats.MagazineSize;
+            GenerateDisplayNameAndPerks(customDisplayName);
+        }
+
+        // ================= PART SLOT ACCESSORS =================
+
+        public WeaponPartInstance GetPart(WeaponPartType slot)
+        {
+            for (int i = 0; i < _parts.Count; i++)
+            {
+                if (_parts[i].IsValid && _parts[i].PartType == slot)
+                    return _parts[i];
+            }
+            return default;
+        }
+
+        public bool TryGetPart(WeaponPartType slot, out WeaponPartInstance part)
+        {
+            part = GetPart(slot);
+            return part.IsValid;
+        }
+
+        public byte GetPartLevel(WeaponPartType slot)
+        {
+            if (TryGetPart(slot, out var part))
+                return part.Level;
+            return _level; // Fallback to core level if slot is empty
+        }
+
+        public bool IsPartLocked(WeaponPartType slot)
+        {
+            return TryGetPart(slot, out var part) && part.IsLocked;
+        }
+
+        public bool CanDetachPart(WeaponPartType slot)
+        {
+            if (!TryGetPart(slot, out var part))
+                return false;
+
+            return !part.IsLocked;
+        }
+
+        public bool CanAttachPart(WeaponPartType slot, WeaponPartInstance part)
+        {
+            if (!part.IsValid)
+                return false;
+
+            if (part.PartType != slot)
+                return false;
+
+            if (!_core || !_core.SupportsPartSlot(slot))
+                return false;
+
+            return part.IsCompatibleWith(_core.WeaponType);
+        }
+
+        // ================= GUNSMITH SWAPPING & MUTATION =================
+
+        /// <summary>
+        /// Attempts to swap or insert a part into the designated slot.
+        /// Validates archetype compatibility and signature locks.
+        /// </summary>
+        public bool TrySwapPart(WeaponPartType slot, WeaponPartInstance newPart, out WeaponPartInstance oldPart)
+        {
+            oldPart = default;
+
+            if (!CanAttachPart(slot, newPart))
+                return false;
+
+            int existingIndex = -1;
+            for (int i = 0; i < _parts.Count; i++)
+            {
+                if (_parts[i].IsValid && _parts[i].PartType == slot)
+                {
+                    existingIndex = i;
+                    break;
+                }
+            }
+
+            if (existingIndex >= 0)
+            {
+                if (_parts[existingIndex].IsLocked)
+                    return false; // Signature legendary parts cannot be detached
+
+                oldPart = _parts[existingIndex];
+                _parts[existingIndex] = newPart;
+            }
+            else
+            {
+                _parts.Add(newPart);
+            }
+
+            CompileStats();
+            GenerateDisplayNameAndPerks();
+            OnWeaponAssembled?.Invoke(this);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to detach an unlocked part from the weapon, leaving the slot empty.
+        /// </summary>
+        public bool TryDetachPart(WeaponPartType slot, out WeaponPartInstance detachedPart)
+        {
+            detachedPart = default;
+
+            for (int i = 0; i < _parts.Count; i++)
+            {
+                if (_parts[i].IsValid && _parts[i].PartType == slot)
+                {
+                    if (_parts[i].IsLocked)
+                        return false;
+
+                    detachedPart = _parts[i];
+                    _parts.RemoveAt(i);
+
+                    CompileStats();
+                    GenerateDisplayNameAndPerks();
+                    OnWeaponAssembled?.Invoke(this);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // ================= COMPILE STATS & LEVEL SCALING =================
+
+        /// <summary>
         /// Compiles all base stats and part modifiers into a single final runtime stat sheet.
+        /// Physical Slot Scaling: Damage scales from Barrel Level and Receiver Level.
         /// </summary>
         public void CompileStats()
         {
             if (!_core) return;
 
-            // Start with base unmodded stats
+            // 1. Base Unmodded Stats
             float damage = _core.BaseDamage;
             float fireRate = _core.BaseFireRate;
             float magSize = _core.BaseMagazineSize;
@@ -75,22 +253,28 @@ namespace Project.Combat
             int burstCount = _core.BaseBurstCount;
             float burstInterval = _core.BaseBurstInterval;
 
-            // Level scaling determined by Core archetype configuration (Exponential, Linear, or Custom Curve)
-            damage *= _core.CalculateLevelMultiplier(_level);
+            // 2. Physical Slot Level Scaling (Receiver Level + Barrel Level)
+            byte barrelLevel = GetPartLevel(WeaponPartType.Barrel);
+            float receiverMultiplier = _core.CalculateLevelMultiplier(_level);
+            float barrelMultiplier = _core.CalculateLevelMultiplier(barrelLevel);
+            float effectiveLevelMultiplier = (receiverMultiplier + barrelMultiplier) * 0.5f;
 
-            // Apply Part Modifiers
+            damage *= effectiveLevelMultiplier;
+
+            // 3. Apply Part Modifiers
             for (int p = 0; p < _parts.Count; p++)
             {
-                var part = _parts[p];
-                if (!part) continue;
+                var partInst = _parts[p];
+                if (!partInst.IsValid) continue;
+                var def = partInst.Definition;
 
-                if (part.OverridesElement)
-                    element = part.ElementOverride;
+                if (def.OverridesElement)
+                    element = def.ElementOverride;
 
-                if (part.OverridesFiringMode)
-                    firingMode = part.FiringModeOverride;
+                if (def.OverridesFiringMode)
+                    firingMode = def.FiringModeOverride;
 
-                var mods = part.Modifiers;
+                var mods = def.Modifiers;
                 for (int m = 0; m < mods.Count; m++)
                 {
                     var mod = mods[m];
@@ -155,51 +339,44 @@ namespace Project.Combat
 
             _uniqueBehaviorIds.Clear();
             _redText = string.Empty;
-
             string prefix = string.Empty;
 
             for (int i = 0; i < _parts.Count; i++)
             {
-                var part = _parts[i];
-                if (!part) continue;
+                var partInst = _parts[i];
+                if (!partInst.IsValid) continue;
+                var def = partInst.Definition;
 
                 // Dynamic rarity promotion: If any part is Unique or higher rarity, upgrade weapon
-                if (part.IsUnique)
+                if (def.IsUnique)
                 {
                     if (_rarity < ItemRarity.Legendary)
                         _rarity = ItemRarity.Legendary;
 
-                    if (!string.IsNullOrEmpty(part.RedText))
-                        _redText = part.RedText;
+                    if (!string.IsNullOrEmpty(def.RedText))
+                        _redText = def.RedText;
 
-                    if (!string.IsNullOrEmpty(part.UniqueBehaviorId))
-                        _uniqueBehaviorIds.Add(part.UniqueBehaviorId);
+                    if (!string.IsNullOrEmpty(def.UniqueBehaviorId))
+                        _uniqueBehaviorIds.Add(def.UniqueBehaviorId);
                 }
-                else if (part.Rarity > _rarity)
+                else if (def.Rarity > _rarity)
                 {
-                    _rarity = part.Rarity;
+                    _rarity = def.Rarity;
                 }
 
                 // Accessories and Barrels provide weapon title prefixes (e.g. "Double Penetrating")
-                if (part.PartType == WeaponPartType.Accessory && !string.IsNullOrEmpty(part.DisplayName))
+                if (def.PartType == WeaponPartType.Accessory && !string.IsNullOrEmpty(def.DisplayName))
                 {
-                    prefix = part.DisplayName;
+                    prefix = def.DisplayName;
                 }
-                else if (string.IsNullOrEmpty(prefix) && part.PartType == WeaponPartType.Barrel && !string.IsNullOrEmpty(part.DisplayName))
+                else if (string.IsNullOrEmpty(prefix) && def.PartType == WeaponPartType.Barrel && !string.IsNullOrEmpty(def.DisplayName))
                 {
-                    prefix = part.DisplayName;
+                    prefix = def.DisplayName;
                 }
             }
 
             string baseTitle = !string.IsNullOrWhiteSpace(customDisplayName) ? customDisplayName : _core.BaseWeaponName;
-            if (!string.IsNullOrEmpty(prefix))
-            {
-                _displayName = $"{prefix} {baseTitle}";
-            }
-            else
-            {
-                _displayName = baseTitle;
-            }
+            _displayName = !string.IsNullOrEmpty(prefix) ? $"{prefix} {baseTitle}" : baseTitle;
         }
     }
 }

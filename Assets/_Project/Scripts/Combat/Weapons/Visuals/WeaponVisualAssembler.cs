@@ -75,6 +75,41 @@ namespace Project.Combat
             _discoveredSockets.TryGetValue(WeaponSocketNames.Ejector, out _ejectorSocket);
         }
 
+        /// <summary>
+        /// Hot-swaps the visual mesh for a specific part slot without rebuilding the entire weapon hierarchy.
+        /// </summary>
+        public void ReassembleSlot(WeaponPartType slot, WeaponPartDefinition newPart)
+        {
+            if (!_spawnedBodyInstance) return;
+
+            string targetSocketName = newPart ? newPart.TargetSocketName : GetDefaultSocketForPartType(slot);
+
+            if (_discoveredSockets.TryGetValue(targetSocketName, out var socketTransform) && socketTransform)
+            {
+                // Remove existing visual mesh under this socket
+                for (int i = socketTransform.childCount - 1; i >= 0; i--)
+                {
+                    var child = socketTransform.GetChild(i).gameObject;
+                    if (Application.isPlaying) Destroy(child);
+                    else DestroyImmediate(child);
+                }
+
+                // Mount new part mesh if assigned
+                if (newPart && newPart.MeshPrefab)
+                {
+                    var spawnedPart = Instantiate(newPart.MeshPrefab, socketTransform);
+                    spawnedPart.transform.localPosition = Vector3.zero;
+                    spawnedPart.transform.localRotation = Quaternion.identity;
+                    spawnedPart.transform.localScale = Vector3.one;
+
+                    DiscoverSockets(spawnedPart.transform);
+                }
+
+                _discoveredSockets.TryGetValue(WeaponSocketNames.Muzzle, out _muzzleSocket);
+                _discoveredSockets.TryGetValue(WeaponSocketNames.Ejector, out _ejectorSocket);
+            }
+        }
+
         public void ClearVisuals()
         {
             if (_spawnedBodyInstance)

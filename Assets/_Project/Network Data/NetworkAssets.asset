@@ -13,13 +13,180 @@ MonoBehaviour:
   m_Name: NetworkAssets
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAssets
   autoGenerate: 0
-  folder: {fileID: 0}
+  folder: {fileID: 102900000, guid: 8700605f02a2b5c47b174805cb37d501, type: 3}
   searchAllIfNoFolder: 1
   linkedNetworkAssets: []
-  _enabledTypeNames: []
-  assets: []
-  _availableTypeNames: []
-  _assetGuids: []
-  _bakedIds: 
-  _bakedAssets: []
-  _bakedPersistentIds: []
+  _enabledTypeNames:
+  - UnityEngine.ScriptableObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  assets:
+  - {fileID: 11400000, guid: 1e88cbac3c50df049b887e38c4b32069, type: 2}
+  - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
+  - {fileID: 11400000, guid: 68b17b61eb0c3eb4e9c89dc40bfc6a97, type: 2}
+  - {fileID: 11400000, guid: 74828dc434a1b6f4f9b1fc0d2a15f383, type: 2}
+  - {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
+  - {fileID: 11400000, guid: b729a9493b12bca4e9fd78c2e70a0be5, type: 2}
+  - {fileID: 11400000, guid: d31ce95759af5b6439c714b627750cbb, type: 2}
+  _availableTypeNames:
+  - UnityEngine.AnimationClip, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Animator, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditorInternal.AssemblyDefinitionAsset, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.Rendering.Universal.AssetVersion, Unity.RenderPipelines.Universal.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.Rendering.BuiltIn.AssetVersion, Unity.ShaderGraph.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.Autocompletor, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Avatar, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.EventSystems.BaseRaycaster, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Behaviour, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.Bloom, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.BoxCollider, UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.Build.Profile.BuildProfile, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.Rendering.BuiltIn.ShaderGraph.BuiltInMetadata, Unity.ShaderGraph.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.Button, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Canvas, UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.CanvasGroup, UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.CanvasRenderer, UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.CanvasScaler, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.CapsuleCollider, UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ChannelMixer, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ChromaticAberration, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Collider, UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ColorAdjustments, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ColorCurves, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ColorLookup, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Component, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.ConsoleCache, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.ConsoleInputHandler, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.ConsolePreferences, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.ConsoleSystem, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.ContentSizeFitter, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.DepthOfField, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.FilmGrain, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Font, UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Player.FPSCameraController, Project.Player, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrLobby.FriendEntry, PurrNetLobbySetup, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.Graphic, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.GraphicRaycaster, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.Highlighter, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.HorizontalLayoutGroup, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.HorizontalOrVerticalLayoutGroup, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.Image, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.InputSystem.InputActionAsset, Unity.InputSystem, Version=1.20.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.InputSystem.InputActionReference, Unity.InputSystem, Version=1.20.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Combat.ItemScalingSettings, Project.Combat, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - KinematicCharacterController.KinematicCharacterMotor, KinematicCharacterController, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.LayoutElement, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.LayoutGroup, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.LensDistortion, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.LiftGammaGain, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrLobby.LobbyEntry, PurrNetLobbySetup, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Player.Input.LocalPlayerInputProvider, Project.Player, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Player.LocomotionController, Project.Player, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.LogMessageSelector, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.LogMessageSetup, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Combat.ManufacturerDefinition, Project.Combat, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.Mask, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.MaskableGraphic, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Material, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrLobby.MemberEntry, PurrNetLobbySetup, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.MeshCollider, UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.MeshFilter, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.MeshRenderer, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.MonoBehaviour, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.MonoScript, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Motion, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.MotionBlur, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.NetworkAssets, PurrNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.NetworkBehaviour, PurrNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.NetworkIdentity, PurrNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.NetworkPrefabs, PurrNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.NetworkTransform, PurrNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Object, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.PaniniProjection, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Player.PlayerFacade, Project.Player, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Player.Interaction.PlayerInteractor, Project.Player, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.PrefabProviderScriptable, PurrNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.Presets.Preset, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PrimeTween.PrimeTweenInstaller, PrimeTween.Installer, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.ProbeVolumesOptions, Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.RawImage, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.RectMask2D, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.RectTransform, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Renderer, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.RenderPipelineAsset, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.RenderPipelineAsset`1[[UnityEngine.Rendering.Universal.UniversalRenderPipeline, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.RenderPipelineGlobalSettings, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.RenderPipelineGlobalSettings`2[[UnityEngine.Rendering.Universal.UniversalRenderPipelineGlobalSettings, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[UnityEngine.Rendering.Universal.UniversalRenderPipeline, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ScreenSpaceLensFlare, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.ScriptableObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ScriptableRendererData, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ScriptableRendererFeature, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.Scrollbar, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.ScrollRect, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.ScrollRectNoDrag, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.Selectable, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Shader, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.ShaderGraph.ShaderGraphIndexedData, Unity.ShaderGraph.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.ShaderGraph.ShaderGraphMetadata, Unity.ShaderGraph.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.ShaderInclude, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.ShaderApiReflection.ShaderIncludeReflection, UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.ShaderGraph.ShaderSubGraphMetadata, Unity.ShaderGraph.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.ShadowsMidtonesHighlights, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.SkinnedMeshRenderer, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.SplitToning, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.ShaderGraph.SubGraphAsset, Unity.ShaderGraph.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.TextAsset, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - TMPro.TextMeshProUGUI, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Texture, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Texture2D, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - TMPro.TMP_Asset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - TMPro.TMP_InputField, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - TMPro.TMP_Settings, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - TMPro.TMP_StyleSheet, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - TMPro.TMP_Text, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.Tonemapping, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Transform, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.UIBackgroundSetter, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.EventSystems.UIBehaviour, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.UIDragger, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.UIFontSetter, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PedronsaDev.Console.Components.UIGenerator, SmartConsole, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEditor.Rendering.Universal.ShaderGraph.UniversalMetadata, Unity.RenderPipelines.Universal.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.UniversalRendererData, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.UniversalRenderPipelineGlobalSettings, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.UI.VerticalLayoutGroup, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.Vignette, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.VolumeComponent, Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.VolumeProfile, Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Combat.WeaponCoreDefinition, Project.Combat, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Project.Combat.WeaponPartDefinition, Project.Combat, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - UnityEngine.Rendering.Universal.WhiteBalance, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  _assetGuids:
+  - 1e88cbac3c50df049b887e38c4b32069
+  - 20274205e6c45a64f9e5e2d175a65331
+  - 68b17b61eb0c3eb4e9c89dc40bfc6a97
+  - 74828dc434a1b6f4f9b1fc0d2a15f383
+  - 83da2f8f17bcc744da3d65139025f40b
+  - b729a9493b12bca4e9fd78c2e70a0be5
+  - d31ce95759af5b6439c714b627750cbb
+  _bakedIds: 00000000010000000200000003000000040000000500000006000000i
+  _bakedAssets:
+  - {fileID: 11400000, guid: 1e88cbac3c50df049b887e38c4b32069, type: 2}
+  - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
+  - {fileID: 11400000, guid: 68b17b61eb0c3eb4e9c89dc40bfc6a97, type: 2}
+  - {fileID: 11400000, guid: 74828dc434a1b6f4f9b1fc0d2a15f383, type: 2}
+  - {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
+  - {fileID: 11400000, guid: b729a9493b12bca4e9fd78c2e70a0be5, type: 2}
+  - {fileID: 11400000, guid: d31ce95759af5b6439c714b627750cbb, type: 2}
+  _bakedPersistentIds:
+  - 1e88cbac3c50df049b887e38c4b32069
+  - 20274205e6c45a64f9e5e2d175a65331
+  - 68b17b61eb0c3eb4e9c89dc40bfc6a97
+  - 74828dc434a1b6f4f9b1fc0d2a15f383
+  - 83da2f8f17bcc744da3d65139025f40b
+  - b729a9493b12bca4e9fd78c2e70a0be5
+  - d31ce95759af5b6439c714b627750cbb

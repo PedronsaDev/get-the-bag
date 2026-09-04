@@ -8,10 +8,13 @@ using UnityEngine.UIElements;
 namespace Project.Combat.Editor
 {
     /// <summary>
-    /// Comprehensive UI Toolkit custom editor window for visually authoring, editing,
-    /// inspecting, and procedurally generating Borderlands-style modular weapons.
-    /// Allows live in-window stat editing for Cores and Parts, instant 3D viewport previewing,
-    /// DPS analytics, and one-click asset creation.
+    /// Weapon Designer 2.0: Modern, lightning-fast UI Toolkit editor window.
+    /// Features:
+    /// 1. Gunsmith Assembler with physical part-level scaling and signature locking.
+    /// 2. Interactive 3D Weapon Viewport with real-time mesh hot-swapping.
+    /// 3. Workbench Station Simulator (Weapon A vs Weapon B swap test).
+    /// 4. Circuit Synergies visualizer.
+    /// 5. Master-Detail Asset Catalog with zero-lag InspectorElement data binding.
     /// </summary>
     public class WeaponDesignerWindow : EditorWindow
     {
@@ -20,109 +23,1071 @@ namespace Project.Combat.Editor
         public static void Open()
         {
             var window = GetWindow<WeaponDesignerWindow>();
-            window.titleContent = new GUIContent("Weapon Designer");
-            window.minSize = new Vector2(880, 680);
+            window.titleContent = new GUIContent("Weapon Designer", EditorGUIUtility.IconContent("CustomTool").image);
+            window.minSize = new Vector2(980, 720);
         }
 
-        private enum EditorTab { AssembleAndRoll, EditCore, EditPart }
-        private EditorTab _currentTab = EditorTab.AssembleAndRoll;
+        private enum WindowTab { Assembler, WorkbenchSimulator, CircuitSynergies, AssetCatalog }
+        private WindowTab _currentTab = WindowTab.Assembler;
 
-        // Current Weapon State
+        // Active Assembled Weapon State
         private WeaponCoreDefinition _selectedCore;
-        private WeaponPartDefinition _selectedBarrel;
-        private WeaponPartDefinition _selectedGrip;
-        private WeaponPartDefinition _selectedStock;
-        private WeaponPartDefinition _selectedSight;
-        private WeaponPartDefinition _selectedMagazine;
-        private WeaponPartDefinition _selectedAccessory;
+        private readonly Dictionary<WeaponPartType, WeaponPartDefinition> _selectedParts = new();
+        private readonly Dictionary<WeaponPartType, byte> _partLevels = new();
+        private readonly Dictionary<WeaponPartType, bool> _partLocks = new();
+        private byte _receiverLevel = 1;
+        private ItemRarity _activeRarity = ItemRarity.Rare;
+        private uint _activeSeed = 1337;
 
-        private WeaponPartDefinition _inspectedPart;
-        private bool _isRebuildingUI;
-        private WeaponCoreDefinition _builtCoreTarget;
-        private WeaponPartDefinition _builtPartTarget;
+        // Workbench Simulator State (Weapon A vs Weapon B)
+        private WeaponInstance _benchWeaponA;
+        private WeaponInstance _benchWeaponB;
+        private WeaponCoreDefinition _benchCoreA;
+        private WeaponCoreDefinition _benchCoreB;
+        private VisualElement _benchComparisonContainer;
 
-        private uint _proceduralSeed = 1337;
-        private ItemRarity _proceduralRarity = ItemRarity.Rare;
-        private byte _itemLevel = 1;
+        // Asset Catalog State
+        private string _catalogSearchQuery = string.Empty;
+        private string _catalogFilterType = "All";
+        private UnityEngine.Object _inspectedAsset;
+        private VisualElement _catalogListContainer;
+        private VisualElement _catalogInspectorContainer;
 
         // 3D Viewport State
         private PreviewRenderUtility _previewUtility;
         private Image _previewImage;
         private float _previewRotX = 15f;
         private float _previewRotY = -45f;
-        private float _previewZoom = 1.4f;
+        private float _previewZoom = 1.35f;
         private bool _isDragging;
         private Vector2 _lastPointerPos;
         private GameObject _previewRootObject;
-        private static readonly Rect FixedPreviewRect = new Rect(0, 0, 512, 256);
+        private static readonly Rect FixedPreviewRect = new Rect(0, 0, 512, 280);
 
-        // UI References - Navigation & Tabs
-        private Button _tabAssembleBtn;
-        private Button _tabCoreBtn;
-        private Button _tabPartBtn;
-        private VisualElement _tabAssembleContent;
-        private VisualElement _tabCoreContent;
-        private VisualElement _tabPartContent;
+        // UI Root References
+        private VisualElement _tabAssemblerContent;
+        private VisualElement _tabWorkbenchContent;
+        private VisualElement _tabCircuitContent;
+        private VisualElement _tabCatalogContent;
+        private Button _tabAssemblerBtn;
+        private Button _tabWorkbenchBtn;
+        private Button _tabCircuitBtn;
+        private Button _tabCatalogBtn;
 
-        // UI References - Slot Fields & Rows
-        private ObjectField _coreObjectField;
-        private ObjectField _barrelObjectField;
-        private ObjectField _gripObjectField;
-        private ObjectField _stockObjectField;
-        private ObjectField _sightObjectField;
-        private ObjectField _magObjectField;
-        private ObjectField _accessoryObjectField;
+        // Assembler Slot Field UI References
+        private readonly Dictionary<WeaponPartType, ObjectField> _slotObjectFields = new();
+        private readonly Dictionary<WeaponPartType, IntegerField> _slotLevelFields = new();
+        private readonly Dictionary<WeaponPartType, Label> _slotLockLabels = new();
+        private readonly Dictionary<WeaponPartType, VisualElement> _slotRows = new();
 
-        private VisualElement _barrelRow;
-        private VisualElement _gripRow;
-        private VisualElement _stockRow;
-        private VisualElement _sightRow;
-        private VisualElement _magRow;
-        private VisualElement _accessoryRow;
-
-        // UI References - Live Card & DPS
+        // Live Weapon Card UI References
         private VisualElement _cardRoot;
         private Label _weaponNameLabel;
-        private Label _rarityLabel;
+        private Label _rarityBadge;
         private Label _redTextLabel;
-        private VisualElement _statsContainer;
-        private VisualElement _dpsContainer;
+        private VisualElement _statsList;
+        private VisualElement _dpsList;
 
         private void OnEnable()
         {
             InitializePreviewUtility();
+            InitDefaultSlotLevels();
+            ItemRegistry.OnRegistryUpdated += HandleRegistryUpdated;
         }
 
         private void OnDisable()
         {
+            ItemRegistry.OnRegistryUpdated -= HandleRegistryUpdated;
             CleanupPreviewUtility();
         }
+
+        private void HandleRegistryUpdated()
+        {
+            if (_catalogListContainer != null)
+            {
+                BuildCatalogList();
+            }
+        }
+
+        private void InitDefaultSlotLevels()
+        {
+            foreach (WeaponPartType type in Enum.GetValues(typeof(WeaponPartType)))
+            {
+                if (type == WeaponPartType.Receiver) continue;
+                if (!_partLevels.ContainsKey(type)) _partLevels[type] = 1;
+                if (!_partLocks.ContainsKey(type)) _partLocks[type] = false;
+            }
+        }
+
+        public void CreateGUI()
+        {
+            var root = rootVisualElement;
+            root.style.flexDirection = FlexDirection.Column;
+            root.style.backgroundColor = new Color(0.14f, 0.14f, 0.16f);
+
+            // 1. Top Navigation Toolbar
+            var topToolbar = CreateTopToolbar();
+            root.Add(topToolbar);
+
+            // 2. Main Content Body
+            var body = new VisualElement { style = { flexGrow = 1, flexDirection = FlexDirection.Row } };
+
+            _tabAssemblerContent = new VisualElement { style = { flexGrow = 1, flexDirection = FlexDirection.Row } };
+            _tabWorkbenchContent = new VisualElement { style = { flexGrow = 1, flexDirection = FlexDirection.Column } };
+            _tabCircuitContent = new VisualElement { style = { flexGrow = 1, flexDirection = FlexDirection.Column } };
+            _tabCatalogContent = new VisualElement { style = { flexGrow = 1, flexDirection = FlexDirection.Row } };
+
+            BuildAssemblerTab(_tabAssemblerContent);
+            BuildWorkbenchTab(_tabWorkbenchContent);
+            BuildCircuitTab(_tabCircuitContent);
+            BuildCatalogTab(_tabCatalogContent);
+
+            body.Add(_tabAssemblerContent);
+            body.Add(_tabWorkbenchContent);
+            body.Add(_tabCircuitContent);
+            body.Add(_tabCatalogContent);
+
+            root.Add(body);
+
+            SwitchTab(WindowTab.Assembler);
+            RefreshWeaponCard();
+        }
+
+        // ================= NAVIGATION TOOLBAR =================
+
+        private VisualElement CreateTopToolbar()
+        {
+            var bar = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    justifyContent = Justify.SpaceBetween,
+                    backgroundColor = new Color(0.10f, 0.10f, 0.12f),
+                    borderBottomWidth = 1,
+                    borderBottomColor = new Color(0.24f, 0.24f, 0.28f),
+                    paddingLeft = 12,
+                    paddingRight = 12,
+                    paddingTop = 6,
+                    paddingBottom = 6
+                }
+            };
+
+            // Left: Title Brand
+            var brandBox = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
+            var title = new Label("GUNSMITH CIRCUIT") { style = { fontSize = 14, unityFontStyleAndWeight = FontStyle.Bold, color = new Color(0.95f, 0.85f, 0.35f) } };
+            var ver = new Label(" v2.0") { style = { fontSize = 10, color = Color.gray, marginRight = 16 } };
+            brandBox.Add(title);
+            brandBox.Add(ver);
+            bar.Add(brandBox);
+
+            // Center: Navigation Tabs
+            var tabsBox = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+            _tabAssemblerBtn = CreateNavButton("🛠️ Gunsmith & Roll", WindowTab.Assembler);
+            _tabWorkbenchBtn = CreateNavButton("🔄 Workbench Simulator", WindowTab.WorkbenchSimulator);
+            _tabCircuitBtn = CreateNavButton("⚡ Circuit Synergies", WindowTab.CircuitSynergies);
+            _tabCatalogBtn = CreateNavButton("📚 Asset Catalog", WindowTab.AssetCatalog);
+
+            tabsBox.Add(_tabAssemblerBtn);
+            tabsBox.Add(_tabWorkbenchBtn);
+            tabsBox.Add(_tabCircuitBtn);
+            tabsBox.Add(_tabCatalogBtn);
+            bar.Add(tabsBox);
+
+            // Right: Fast Actions
+            var actionBox = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
+            var scanBtn = new Button(() =>
+            {
+                var reg = ItemRegistry.Instance;
+                if (reg)
+                {
+                    reg.ScanProjectAssets();
+                    BuildCatalogList();
+                    EditorUtility.DisplayDialog("Registry Scan", $"Item Registry scanned successfully!\n{reg.WeaponCores.Count} Cores, {reg.WeaponParts.Count} Parts, {reg.WeaponPresets.Count} Presets, {reg.Manufacturers.Count} Manufacturers.", "OK");
+                }
+            }) { text = "🔄 Re-scan Project" };
+            scanBtn.style.height = 24;
+            scanBtn.style.fontSize = 11;
+            actionBox.Add(scanBtn);
+            bar.Add(actionBox);
+
+            return bar;
+        }
+
+        private Button CreateNavButton(string text, WindowTab tab)
+        {
+            var btn = new Button(() => SwitchTab(tab)) { text = text };
+            btn.style.height = 28;
+            btn.style.paddingLeft = 14;
+            btn.style.paddingRight = 14;
+            btn.style.unityFontStyleAndWeight = FontStyle.Bold;
+            btn.style.fontSize = 12;
+            btn.style.borderTopLeftRadius = 4;
+            btn.style.borderTopRightRadius = 4;
+            btn.style.borderBottomLeftRadius = 4;
+            btn.style.borderBottomRightRadius = 4;
+            btn.style.marginLeft = 2;
+            btn.style.marginRight = 2;
+            return btn;
+        }
+
+        private void SwitchTab(WindowTab tab)
+        {
+            _currentTab = tab;
+
+            _tabAssemblerBtn.style.backgroundColor = tab == WindowTab.Assembler ? new Color(0.20f, 0.42f, 0.72f) : new Color(0.18f, 0.18f, 0.20f);
+            _tabWorkbenchBtn.style.backgroundColor = tab == WindowTab.WorkbenchSimulator ? new Color(0.20f, 0.42f, 0.72f) : new Color(0.18f, 0.18f, 0.20f);
+            _tabCircuitBtn.style.backgroundColor = tab == WindowTab.CircuitSynergies ? new Color(0.20f, 0.42f, 0.72f) : new Color(0.18f, 0.18f, 0.20f);
+            _tabCatalogBtn.style.backgroundColor = tab == WindowTab.AssetCatalog ? new Color(0.20f, 0.42f, 0.72f) : new Color(0.18f, 0.18f, 0.20f);
+
+            _tabAssemblerContent.style.display = tab == WindowTab.Assembler ? DisplayStyle.Flex : DisplayStyle.None;
+            _tabWorkbenchContent.style.display = tab == WindowTab.WorkbenchSimulator ? DisplayStyle.Flex : DisplayStyle.None;
+            _tabCircuitContent.style.display = tab == WindowTab.CircuitSynergies ? DisplayStyle.Flex : DisplayStyle.None;
+            _tabCatalogContent.style.display = tab == WindowTab.AssetCatalog ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (tab == WindowTab.Assembler)
+            {
+                RebuildPreviewModel();
+                RefreshWeaponCard();
+            }
+            else if (tab == WindowTab.WorkbenchSimulator)
+            {
+                RefreshWorkbenchUI();
+            }
+            else if (tab == WindowTab.CircuitSynergies)
+            {
+                RefreshCircuitView();
+            }
+            else if (tab == WindowTab.AssetCatalog)
+            {
+                BuildCatalogList();
+            }
+        }
+
+        // ================= TAB 1: GUNSMITH ASSEMBLER =================
+
+        private void BuildAssemblerTab(VisualElement container)
+        {
+            container.Clear();
+
+            // Left Sub-Column: Slot Controls (Scrollable)
+            var leftScroll = new ScrollView { style = { width = new Length(48, LengthUnit.Percent), paddingLeft = 12, paddingRight = 12, paddingTop = 12 } };
+
+            // 1. Core Receiver Configuration
+            var coreBox = CreateCardPanel("1. Receiver / Core Archetype");
+            var coreRow = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
+
+            var coreField = new ObjectField("Core Asset") { objectType = typeof(WeaponCoreDefinition), value = _selectedCore, style = { flexGrow = 1 } };
+            coreField.RegisterValueChangedCallback(evt =>
+            {
+                _selectedCore = evt.newValue as WeaponCoreDefinition;
+                OnCoreChanged();
+            });
+            coreRow.Add(coreField);
+
+            var newCoreBtn = new Button(CreateNewCoreAsset) { text = "+" };
+            newCoreBtn.tooltip = "Create a new WeaponCoreDefinition ScriptableObject";
+            newCoreBtn.style.width = 26;
+            newCoreBtn.style.height = 24;
+            newCoreBtn.style.marginLeft = 4;
+            newCoreBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
+            coreRow.Add(newCoreBtn);
+            coreBox.Add(coreRow);
+
+            var recLvlRow = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.SpaceBetween, marginTop = 6 } };
+            var recLvlSlider = new SliderInt("Receiver Level", 1, 100) { value = _receiverLevel, showInputField = true, style = { flexGrow = 1 } };
+            recLvlSlider.RegisterValueChangedCallback(evt =>
+            {
+                _receiverLevel = (byte)evt.newValue;
+                RefreshWeaponCard();
+            });
+            recLvlRow.Add(recLvlSlider);
+            coreBox.Add(recLvlRow);
+
+            leftScroll.Add(coreBox);
+
+            // 2. Physical Part Sockets (With Individual Levels & Locks)
+            var partsBox = CreateCardPanel("2. Physical Part Sockets");
+            var infoLabel = new Label("Barrel & Receiver levels drive base damage. Signature parts on Legendaries cannot be detached.")
+            {
+                style = { fontSize = 10, color = Color.gray, marginBottom = 8, whiteSpace = WhiteSpace.Normal }
+            };
+            partsBox.Add(infoLabel);
+
+            BuildSlotRow(partsBox, WeaponPartType.Barrel);
+            BuildSlotRow(partsBox, WeaponPartType.Grip);
+            BuildSlotRow(partsBox, WeaponPartType.Stock);
+            BuildSlotRow(partsBox, WeaponPartType.Sight);
+            BuildSlotRow(partsBox, WeaponPartType.Magazine);
+            BuildSlotRow(partsBox, WeaponPartType.Accessory);
+
+            leftScroll.Add(partsBox);
+
+            // 3. Roll & Dedicated Preset Exporter
+            var rollBox = CreateCardPanel("3. Procedural Roll & Preset Exporter");
+            var rollRow = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 6 } };
+
+            var rarityField = new EnumField("Target Rarity", _activeRarity) { style = { flexGrow = 1 } };
+            rarityField.RegisterValueChangedCallback(evt =>
+            {
+                _activeRarity = (ItemRarity)evt.newValue;
+                RefreshWeaponCard();
+            });
+            rollRow.Add(rarityField);
+
+            var rollBtn = new Button(RollRandomWeapon) { text = "🎲 Roll Random Parts" };
+            rollBtn.style.height = 26;
+            rollBtn.style.marginLeft = 8;
+            rollBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
+            rollBtn.style.backgroundColor = new Color(0.20f, 0.48f, 0.80f);
+            rollRow.Add(rollBtn);
+            rollBox.Add(rollRow);
+
+            var exportPresetBtn = new Button(ExportCurrentAsDedicatedPreset)
+            {
+                text = "💾 Export As Dedicated Boss Drop Preset"
+            };
+            exportPresetBtn.style.height = 28;
+            exportPresetBtn.style.backgroundColor = new Color(0.65f, 0.38f, 0.12f);
+            exportPresetBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
+            exportPresetBtn.tooltip = "Saves this weapon as a dedicated preset with its signature components permanently locked.";
+            rollBox.Add(exportPresetBtn);
+
+            leftScroll.Add(rollBox);
+            container.Add(leftScroll);
+
+            // Right Sub-Column: 3D Viewport & Live Weapon Card
+            var rightScroll = new ScrollView { style = { width = new Length(52, LengthUnit.Percent), paddingLeft = 12, paddingRight = 12, paddingTop = 12 } };
+
+            // 3D Viewport
+            var vpCard = CreateCardPanel("3D REAL-TIME VIEWPORT");
+            var vpTopBar = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.SpaceBetween, marginBottom = 4 } };
+            var vpHint = new Label("Left-Drag: Orbit | Scroll: Zoom") { style = { fontSize = 10, color = Color.gray } };
+            var resetCamBtn = new Button(() =>
+            {
+                _previewRotX = 15f;
+                _previewRotY = -45f;
+                _previewZoom = 1.35f;
+                Render3DPreview();
+            }) { text = "↺ Reset Camera" };
+            resetCamBtn.style.height = 18;
+            resetCamBtn.style.fontSize = 10;
+            vpTopBar.Add(vpHint);
+            vpTopBar.Add(resetCamBtn);
+            vpCard.Add(vpTopBar);
+
+            _previewImage = new Image
+            {
+                style =
+                {
+                    height = 250,
+                    backgroundColor = new Color(0.10f, 0.10f, 0.12f),
+                    borderTopLeftRadius = 6,
+                    borderTopRightRadius = 6,
+                    borderBottomLeftRadius = 6,
+                    borderBottomRightRadius = 6,
+                    marginBottom = 8
+                }
+            };
+
+            SetupViewportDragControls(_previewImage);
+            vpCard.Add(_previewImage);
+            rightScroll.Add(vpCard);
+
+            // Live Weapon Card
+            BuildWeaponCardUI(rightScroll);
+
+            container.Add(rightScroll);
+            UpdateSlotVisibility();
+        }
+
+        private void BuildSlotRow(VisualElement parent, WeaponPartType slot)
+        {
+            var row = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    marginBottom = 6,
+                    backgroundColor = new Color(0.11f, 0.11f, 0.13f),
+                    paddingLeft = 8,
+                    paddingRight = 6,
+                    paddingTop = 4,
+                    paddingBottom = 4,
+                    borderTopLeftRadius = 4,
+                    borderTopRightRadius = 4,
+                    borderBottomLeftRadius = 4,
+                    borderBottomRightRadius = 4
+                }
+            };
+
+            _slotRows[slot] = row;
+
+            var field = new ObjectField(slot.ToString())
+            {
+                objectType = typeof(WeaponPartDefinition),
+                value = _selectedParts.TryGetValue(slot, out var p) ? p : null,
+                style = { flexGrow = 1, minWidth = 140 }
+            };
+
+            field.RegisterValueChangedCallback(evt =>
+            {
+                var part = evt.newValue as WeaponPartDefinition;
+                _selectedParts[slot] = part;
+                if (part != null && part.IsUnique) _partLocks[slot] = true;
+                UpdateSlotLockLabel(slot);
+                RebuildPreviewModel();
+                RefreshWeaponCard();
+            });
+            _slotObjectFields[slot] = field;
+            row.Add(field);
+
+            // Level field for this part
+            var lvlField = new IntegerField("Lvl")
+            {
+                value = _partLevels.TryGetValue(slot, out byte l) ? l : 1,
+                style = { width = 75, marginLeft = 4 }
+            };
+            lvlField.RegisterValueChangedCallback(evt =>
+            {
+                _partLevels[slot] = (byte)Mathf.Clamp(evt.newValue, 1, 100);
+                RefreshWeaponCard();
+            });
+            _slotLevelFields[slot] = lvlField;
+            row.Add(lvlField);
+
+            // Lock / Unlock Indicator
+            var lockLabel = new Label("🔓")
+            {
+                tooltip = "Lock state. Signature components on Legendaries are locked (🔒) and cannot be removed.",
+                style = { fontSize = 14, marginLeft = 6, marginRight = 4, cursor = StyleKeyword.Auto }
+            };
+            _slotLockLabels[slot] = lockLabel;
+            row.Add(lockLabel);
+
+            // Quick Create Part Button
+            var createPartBtn = new Button(() => CreateNewPartAsset(slot)) { text = "+" };
+            createPartBtn.tooltip = $"Create new {slot} definition";
+            createPartBtn.style.width = 22;
+            createPartBtn.style.height = 22;
+            createPartBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
+            row.Add(createPartBtn);
+
+            parent.Add(row);
+            UpdateSlotLockLabel(slot);
+        }
+
+        private void UpdateSlotLockLabel(WeaponPartType slot)
+        {
+            if (!_slotLockLabels.TryGetValue(slot, out var label)) return;
+
+            bool isLocked = _partLocks.TryGetValue(slot, out bool l) && l;
+            if (_selectedParts.TryGetValue(slot, out var p) && p != null && p.IsUnique)
+            {
+                isLocked = true;
+                _partLocks[slot] = true;
+            }
+
+            label.text = isLocked ? "🔒" : "🔓";
+            label.style.color = isLocked ? new Color(1f, 0.4f, 0.4f) : new Color(0.5f, 0.9f, 0.5f);
+        }
+
+        private void OnCoreChanged()
+        {
+            UpdateSlotVisibility();
+            RebuildPreviewModel();
+            RefreshWeaponCard();
+        }
+
+        private void UpdateSlotVisibility()
+        {
+            if (!_selectedCore) return;
+
+            foreach (var kvp in _slotRows)
+            {
+                bool supported = _selectedCore.SupportsPartSlot(kvp.Key);
+                kvp.Value.style.display = supported ? DisplayStyle.Flex : DisplayStyle.None;
+                if (!supported)
+                {
+                    _selectedParts[kvp.Key] = null;
+                    if (_slotObjectFields.TryGetValue(kvp.Key, out var field))
+                        field.SetValueWithoutNotify(null);
+                }
+            }
+        }
+
+        private void RollRandomWeapon()
+        {
+            if (!_selectedCore) return;
+
+            _activeSeed = (uint)UnityEngine.Random.Range(1, 999999);
+            var weapon = ItemRegistry.Instance
+                ? ItemRegistry.Instance.GenerateWeapon(_selectedCore, _activeSeed, _receiverLevel, _activeRarity)
+                : null;
+
+            if (weapon == null) return;
+
+            foreach (WeaponPartType slot in Enum.GetValues(typeof(WeaponPartType)))
+            {
+                if (slot == WeaponPartType.Receiver) continue;
+
+                if (weapon.TryGetPart(slot, out var inst))
+                {
+                    _selectedParts[slot] = inst.Definition;
+                    _partLevels[slot] = inst.Level;
+                    _partLocks[slot] = inst.IsLocked;
+
+                    if (_slotObjectFields.TryGetValue(slot, out var f)) f.SetValueWithoutNotify(inst.Definition);
+                    if (_slotLevelFields.TryGetValue(slot, out var lf)) lf.SetValueWithoutNotify(inst.Level);
+                }
+                else
+                {
+                    _selectedParts[slot] = null;
+                    _partLocks[slot] = false;
+                    if (_slotObjectFields.TryGetValue(slot, out var f)) f.SetValueWithoutNotify(null);
+                }
+                UpdateSlotLockLabel(slot);
+            }
+
+            RebuildPreviewModel();
+            RefreshWeaponCard();
+        }
+
+        private void ExportCurrentAsDedicatedPreset()
+        {
+            if (!_selectedCore)
+            {
+                EditorUtility.DisplayDialog("Export Preset", "Please select a Weapon Core first!", "OK");
+                return;
+            }
+
+            string path = EditorUtility.SaveFilePanelInProject(
+                "Save Dedicated Drop Preset",
+                $"Preset_{_selectedCore.BaseWeaponName.Replace(" ", "_")}_Legendary",
+                "asset",
+                "Select where to save the weapon preset");
+
+            if (string.IsNullOrEmpty(path)) return;
+
+            var preset = CreateInstance<WeaponPresetDefinition>();
+
+            // Lock signature parts
+            var so = new SerializedObject(preset);
+            so.FindProperty("_presetId").stringValue = $"preset_{System.IO.Path.GetFileNameWithoutExtension(path).ToLower()}";
+            so.FindProperty("_presetDisplayName").stringValue = $"Named {_selectedCore.BaseWeaponName}";
+            so.FindProperty("_core").objectReferenceValue = _selectedCore;
+            so.FindProperty("_rarity").enumValueIndex = (int)ItemRarity.Legendary;
+
+            if (_selectedParts.TryGetValue(WeaponPartType.Barrel, out var b) && b) so.FindProperty("_lockedBarrel").objectReferenceValue = b;
+            if (_selectedParts.TryGetValue(WeaponPartType.Grip, out var g) && g) so.FindProperty("_lockedGrip").objectReferenceValue = g;
+            if (_selectedParts.TryGetValue(WeaponPartType.Stock, out var st) && st) so.FindProperty("_lockedStock").objectReferenceValue = st;
+            if (_selectedParts.TryGetValue(WeaponPartType.Sight, out var si) && si) so.FindProperty("_lockedSight").objectReferenceValue = si;
+            if (_selectedParts.TryGetValue(WeaponPartType.Magazine, out var m) && m) so.FindProperty("_lockedMagazine").objectReferenceValue = m;
+            if (_selectedParts.TryGetValue(WeaponPartType.Accessory, out var a) && a) so.FindProperty("_lockedAccessory").objectReferenceValue = a;
+
+            so.ApplyModifiedProperties();
+
+            AssetDatabase.CreateAsset(preset, path);
+            AssetDatabase.SaveAssets();
+
+            if (ItemRegistry.Instance) ItemRegistry.Instance.RegisterPreset(preset);
+
+            EditorUtility.FocusProjectWindow();
+            Selection.activeObject = preset;
+            EditorUtility.DisplayDialog("Export Preset", $"Saved dedicated drop preset successfully at:\n{path}", "OK");
+        }
+
+        // ================= TAB 2: WORKBENCH SIMULATOR =================
+
+        private void BuildWorkbenchTab(VisualElement container)
+        {
+            container.Clear();
+
+            var topBar = CreateCardPanel("Workbench Station Simulator (Dual Weapon Side-by-Side)");
+            var desc = new Label("Simulates the in-game extraction workbench. Select two weapons, inspect compatible slots, and transfer parts. Signature parts on Legendaries cannot be detached.")
+            {
+                style = { fontSize = 11, color = Color.gray, marginBottom = 8, whiteSpace = WhiteSpace.Normal }
+            };
+            topBar.Add(desc);
+
+            var selectRow = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.SpaceBetween } };
+
+            // Left selector (Weapon A)
+            var aBox = new VisualElement { style = { flexGrow = 1, marginRight = 8 } };
+            var coreAField = new ObjectField("Weapon A Core") { objectType = typeof(WeaponCoreDefinition), value = _benchCoreA };
+            coreAField.RegisterValueChangedCallback(evt =>
+            {
+                _benchCoreA = evt.newValue as WeaponCoreDefinition;
+                if (_benchCoreA) _benchWeaponA = ItemRegistry.Instance ? ItemRegistry.Instance.GenerateWeapon(_benchCoreA, 111, 10, ItemRarity.Legendary) : new WeaponInstance(_benchCoreA, seed: 111, level: 10, rarity: ItemRarity.Legendary);
+                RefreshWorkbenchUI();
+            });
+            aBox.Add(coreAField);
+            selectRow.Add(aBox);
+
+            // Right selector (Weapon B)
+            var bBox = new VisualElement { style = { flexGrow = 1, marginLeft = 8 } };
+            var coreBField = new ObjectField("Weapon B Core") { objectType = typeof(WeaponCoreDefinition), value = _benchCoreB };
+            coreBField.RegisterValueChangedCallback(evt =>
+            {
+                _benchCoreB = evt.newValue as WeaponCoreDefinition;
+                if (_benchCoreB) _benchWeaponB = ItemRegistry.Instance ? ItemRegistry.Instance.GenerateWeapon(_benchCoreB, 222, 12, ItemRarity.Rare) : new WeaponInstance(_benchCoreB, seed: 222, level: 12, rarity: ItemRarity.Rare);
+                RefreshWorkbenchUI();
+            });
+            bBox.Add(coreBField);
+            selectRow.Add(bBox);
+
+            topBar.Add(selectRow);
+            container.Add(topBar);
+
+            _benchComparisonContainer = new ScrollView { style = { flexGrow = 1, paddingLeft = 12, paddingRight = 12, paddingTop = 8 } };
+            container.Add(_benchComparisonContainer);
+        }
+
+        private void RefreshWorkbenchUI()
+        {
+            if (_benchComparisonContainer == null) return;
+            _benchComparisonContainer.Clear();
+
+            if (_benchWeaponA == null || _benchWeaponB == null)
+            {
+                var prompt = new Label("Select both Weapon A and Weapon B above to begin workbench part swapping simulation.")
+                {
+                    style = { color = new Color(0.9f, 0.7f, 0.2f), fontSize = 12, paddingTop = 20, alignSelf = Align.Center }
+                };
+                _benchComparisonContainer.Add(prompt);
+                return;
+            }
+
+            // Summary Header
+            var summaryRow = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.SpaceBetween, marginBottom = 10 } };
+            summaryRow.Add(CreateWeaponMiniSummary("WEAPON A (Player Primary)", _benchWeaponA));
+            summaryRow.Add(CreateWeaponMiniSummary("WEAPON B (Scavenged Drop)", _benchWeaponB));
+            _benchComparisonContainer.Add(summaryRow);
+
+            // Slot Comparison Rows
+            var slotsPanel = CreateCardPanel("Modular Part Slots & Transfer Actions");
+
+            foreach (WeaponPartType slot in Enum.GetValues(typeof(WeaponPartType)))
+            {
+                if (slot == WeaponPartType.Receiver) continue;
+                BuildBenchSlotRow(slotsPanel, slot);
+            }
+
+            _benchComparisonContainer.Add(slotsPanel);
+        }
+
+        private VisualElement CreateWeaponMiniSummary(string title, WeaponInstance weapon)
+        {
+            var box = new VisualElement
+            {
+                style =
+                {
+                    flexGrow = 1,
+                    backgroundColor = new Color(0.11f, 0.11f, 0.13f),
+                    paddingLeft = 10,
+                    paddingRight = 10,
+                    paddingTop = 8,
+                    paddingBottom = 8,
+                    borderLeftWidth = 3,
+                    borderLeftColor = RarityUtility.GetColor(weapon.Rarity),
+                    marginLeft = 4,
+                    marginRight = 4
+                }
+            };
+
+            var t = new Label(title) { style = { fontSize = 10, color = Color.gray } };
+            var name = new Label(weapon.DisplayName) { style = { fontSize = 13, unityFontStyleAndWeight = FontStyle.Bold, color = Color.white } };
+            var stat = new Label($"Lvl {weapon.Level} • DPS {weapon.CompiledStats.Damage * weapon.CompiledStats.FireRate:F0} • Mag {weapon.CompiledStats.MagazineSize}")
+            {
+                style = { fontSize = 11, color = new Color(0.8f, 0.8f, 0.8f) }
+            };
+
+            box.Add(t);
+            box.Add(name);
+            box.Add(stat);
+            return box;
+        }
+
+        private void BuildBenchSlotRow(VisualElement parent, WeaponPartType slot)
+        {
+            var row = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    justifyContent = Justify.SpaceBetween,
+                    backgroundColor = new Color(0.13f, 0.13f, 0.15f),
+                    paddingLeft = 10,
+                    paddingRight = 10,
+                    paddingTop = 6,
+                    paddingBottom = 6,
+                    marginBottom = 4,
+                    borderTopLeftRadius = 4,
+                    borderTopRightRadius = 4,
+                    borderBottomLeftRadius = 4,
+                    borderBottomRightRadius = 4
+                }
+            };
+
+            // Part A
+            bool hasA = _benchWeaponA.TryGetPart(slot, out var partA);
+            string textA = hasA ? $"{partA.DisplayName} (Lvl {partA.Level})" : "[Empty]";
+            if (hasA && partA.IsLocked) textA += " 🔒";
+
+            var labelA = new Label(textA) { style = { width = new Length(35, LengthUnit.Percent), fontSize = 11, color = hasA ? (partA.IsLocked ? new Color(1f, 0.5f, 0.5f) : Color.white) : Color.gray } };
+            row.Add(labelA);
+
+            // Center Swap Buttons & Status
+            var actionCenter = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
+
+            var canTransfer = GunsmithBenchService.CanTransferOrSwap(_benchWeaponA, _benchWeaponB, slot);
+            var swapBtn = new Button(() =>
+            {
+                var res = GunsmithBenchService.TryTransferOrSwap(_benchWeaponA, _benchWeaponB, slot);
+                if (res != GunsmithSwapResult.Success)
+                {
+                    EditorUtility.DisplayDialog("Workbench Transfer", $"Cannot swap {slot}:\n{res}", "OK");
+                }
+                RefreshWorkbenchUI();
+            }) { text = $"⇄ Swap {slot}" };
+
+            swapBtn.style.height = 24;
+            swapBtn.style.fontSize = 11;
+
+            if (canTransfer == GunsmithSwapResult.Success)
+            {
+                swapBtn.style.backgroundColor = new Color(0.2f, 0.5f, 0.2f);
+                swapBtn.tooltip = "Compatible! Tap to swap parts between Weapon A and Weapon B.";
+            }
+            else
+            {
+                swapBtn.style.backgroundColor = new Color(0.35f, 0.2f, 0.2f);
+                swapBtn.tooltip = $"Transfer blocked: {canTransfer}";
+            }
+
+            actionCenter.Add(swapBtn);
+            row.Add(actionCenter);
+
+            // Part B
+            bool hasB = _benchWeaponB.TryGetPart(slot, out var partB);
+            string textB = hasB ? $"{partB.DisplayName} (Lvl {partB.Level})" : "[Empty]";
+            if (hasB && partB.IsLocked) textB += " 🔒";
+
+            var labelB = new Label(textB) { style = { width = new Length(35, LengthUnit.Percent), fontSize = 11, color = hasB ? (partB.IsLocked ? new Color(1f, 0.5f, 0.5f) : Color.white) : Color.gray, unityTextAlign = TextAnchor.MiddleRight } };
+            row.Add(labelB);
+
+            parent.Add(row);
+        }
+
+        // ================= TAB 3: CIRCUIT SYNERGIES =================
+
+        private void BuildCircuitTab(VisualElement container)
+        {
+            container.Clear();
+
+            var panel = CreateCardPanel("Active Weapon Circuit Synergies");
+            var desc = new Label("Visualizes the event execution chain of the currently assembled weapon.")
+            {
+                style = { fontSize = 11, color = Color.gray, marginBottom = 12 }
+            };
+            panel.Add(desc);
+
+            var weapon = GetCurrentWeaponInstance();
+            if (weapon == null || !weapon.Core)
+            {
+                panel.Add(new Label("Select a Weapon Core in the Gunsmith Assembler tab to view its circuit logic.") { style = { color = Color.gray } });
+                container.Add(panel);
+                return;
+            }
+
+            var chainBox = new VisualElement { style = { flexDirection = FlexDirection.Column, marginBottom = 12 } };
+
+            AddCircuitNode(chainBox, "1. TRIGGER GATE (Grip)", weapon.TryGetPart(WeaponPartType.Grip, out var g) ? g.DisplayName : "Default Mechanical Trigger", "Dictates WHEN current cycles (Click, Slide, Empty Mag)");
+            AddCircuitNode(chainBox, "2. POWER CAPACITOR (Receiver)", $"{weapon.Core.BaseWeaponName} (Lvl {weapon.Level})", "Dictates wattage capacity, base damage, and cyclic rate");
+            AddCircuitNode(chainBox, "3. DELIVERY CONDUIT (Barrel)", weapon.TryGetPart(WeaponPartType.Barrel, out var b) ? $"{b.DisplayName} (Lvl {b.Level}){(b.IsLocked ? " [LOCKED]" : "")}" : "Standard Rifled Barrel", "Dictates trajectory shaping (Hitscan, Multi-pellet, Accelerating, Split)");
+            AddCircuitNode(chainBox, "4. PAYLOAD SUBROUTINE (Accessory)", weapon.TryGetPart(WeaponPartType.Accessory, out var a) ? a.DisplayName : "Kinetic Chamber", "Dictates elemental damage, status procs, and chain reactions");
+            AddCircuitNode(chainBox, "5. FEEDBACK REBOUND (Stock)", weapon.TryGetPart(WeaponPartType.Stock, out var st) ? st.DisplayName : "Counter-Weight Stock", "Converts recoil energy into player speed or shield recharge");
+
+            panel.Add(chainBox);
+            container.Add(panel);
+        }
+
+        private void RefreshCircuitView()
+        {
+            BuildCircuitTab(_tabCircuitContent);
+        }
+
+        private void AddCircuitNode(VisualElement parent, string stage, string component, string description)
+        {
+            var node = new VisualElement
+            {
+                style =
+                {
+                    backgroundColor = new Color(0.12f, 0.12f, 0.14f),
+                    paddingLeft = 12,
+                    paddingRight = 12,
+                    paddingTop = 8,
+                    paddingBottom = 8,
+                    marginBottom = 6,
+                    borderLeftWidth = 4,
+                    borderLeftColor = new Color(0.3f, 0.6f, 1.0f),
+                    borderTopLeftRadius = 4,
+                    borderTopRightRadius = 4,
+                    borderBottomLeftRadius = 4,
+                    borderBottomRightRadius = 4
+                }
+            };
+
+            var sLabel = new Label(stage) { style = { fontSize = 10, color = new Color(0.4f, 0.8f, 1f), unityFontStyleAndWeight = FontStyle.Bold } };
+            var cLabel = new Label(component) { style = { fontSize = 13, color = Color.white, unityFontStyleAndWeight = FontStyle.Bold } };
+            var dLabel = new Label(description) { style = { fontSize = 10, color = Color.gray } };
+
+            node.Add(sLabel);
+            node.Add(cLabel);
+            node.Add(dLabel);
+            parent.Add(node);
+        }
+
+        // ================= TAB 4: ASSET CATALOG (MASTER-DETAIL) =================
+
+        private void BuildCatalogTab(VisualElement container)
+        {
+            container.Clear();
+
+            // Left: Master List
+            var masterCol = new VisualElement
+            {
+                style =
+                {
+                    width = new Length(40, LengthUnit.Percent),
+                    borderRightWidth = 1,
+                    borderRightColor = new Color(0.25f, 0.25f, 0.28f),
+                    paddingLeft = 10,
+                    paddingRight = 10,
+                    paddingTop = 10
+                }
+            };
+
+            // Search Bar & Filter Bar
+            var searchField = new ToolbarSearchField { value = _catalogSearchQuery, style = { marginBottom = 6 } };
+            searchField.RegisterValueChangedCallback(evt =>
+            {
+                _catalogSearchQuery = evt.newValue;
+                BuildCatalogList();
+            });
+            masterCol.Add(searchField);
+
+            var filterBar = new VisualElement { style = { flexDirection = FlexDirection.Row, flexWrap = Wrap.Wrap, marginBottom = 8 } };
+            string[] filters = { "All", "Cores", "Barrels", "Grips", "Stocks", "Sights", "Magazines", "Accessories", "Presets", "Brands" };
+            foreach (var f in filters)
+            {
+                var btn = new Button(() => { _catalogFilterType = f; BuildCatalogList(); }) { text = f };
+                btn.style.height = 20;
+                btn.style.fontSize = 10;
+                btn.style.paddingLeft = 6;
+                btn.style.paddingRight = 6;
+                btn.style.marginRight = 2;
+                btn.style.marginBottom = 2;
+                filterBar.Add(btn);
+            }
+            masterCol.Add(filterBar);
+
+            _catalogListContainer = new ScrollView { style = { flexGrow = 1 } };
+            masterCol.Add(_catalogListContainer);
+
+            // Create Buttons Toolbar
+            var createBar = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 6 } };
+            var addCoreBtn = new Button(CreateNewCoreAsset) { text = "+ New Core", style = { flexGrow = 1, fontSize = 10 } };
+            var addPartBtn = new Button(() => CreateNewPartAsset(WeaponPartType.Barrel)) { text = "+ New Part", style = { flexGrow = 1, fontSize = 10 } };
+            var addBrandBtn = new Button(CreateNewBrandAsset) { text = "+ New Brand", style = { flexGrow = 1, fontSize = 10 } };
+            createBar.Add(addCoreBtn);
+            createBar.Add(addPartBtn);
+            createBar.Add(addBrandBtn);
+            masterCol.Add(createBar);
+
+            container.Add(masterCol);
+
+            // Right: Detail Inspector
+            _catalogInspectorContainer = new ScrollView
+            {
+                style =
+                {
+                    width = new Length(60, LengthUnit.Percent),
+                    paddingLeft = 14,
+                    paddingRight = 14,
+                    paddingTop = 10
+                }
+            };
+            container.Add(_catalogInspectorContainer);
+
+            BuildCatalogList();
+        }
+
+        private void BuildCatalogList()
+        {
+            if (_catalogListContainer == null) return;
+            _catalogListContainer.Clear();
+
+            var reg = ItemRegistry.Instance;
+            if (!reg)
+            {
+                _catalogListContainer.Add(new Label("ItemRegistry asset not found in Resources.") { style = { color = Color.red } });
+                return;
+            }
+
+            // Cores
+            if (_catalogFilterType == "All" || _catalogFilterType == "Cores")
+            {
+                foreach (var core in reg.WeaponCores)
+                {
+                    if (!core) continue;
+                    if (MatchesSearch(core.BaseWeaponName, core.CoreId))
+                        AddCatalogItem(core.BaseWeaponName, $"Core • {core.WeaponType}", core, new Color(0.4f, 0.7f, 1f));
+                }
+            }
+
+            // Parts
+            if (_catalogFilterType == "All" || (_catalogFilterType != "Presets" && _catalogFilterType != "Brands"))
+            {
+                foreach (var part in reg.WeaponParts)
+                {
+                    if (!part) continue;
+                    if (_catalogFilterType != "All" && _catalogFilterType != "Cores" && _catalogFilterType != $"{part.PartType}s")
+                        continue;
+
+                    if (MatchesSearch(part.DisplayName, part.PartId))
+                    {
+                        Color c = RarityUtility.GetColor(part.Rarity);
+                        string tag = $"{part.PartType} • {part.Rarity}" + (part.IsUnique ? " [UNIQUE]" : "");
+                        AddCatalogItem(part.DisplayName, tag, part, c);
+                    }
+                }
+            }
+
+            // Presets
+            if (_catalogFilterType == "All" || _catalogFilterType == "Presets")
+            {
+                foreach (var preset in reg.WeaponPresets)
+                {
+                    if (!preset) continue;
+                    if (MatchesSearch(preset.PresetDisplayName, preset.PresetId))
+                        AddCatalogItem(preset.PresetDisplayName, "Dedicated Drop Preset", preset, new Color(1f, 0.6f, 0.1f));
+                }
+            }
+
+            // Brands / Manufacturers
+            if (_catalogFilterType == "All" || _catalogFilterType == "Brands")
+            {
+                foreach (var mfg in reg.Manufacturers)
+                {
+                    if (!mfg) continue;
+                    if (MatchesSearch(mfg.DisplayName, mfg.ManufacturerId))
+                        AddCatalogItem(mfg.DisplayName, $"Manufacturer Brand • {mfg.ManufacturerId}", mfg, mfg.AccentColor != default ? mfg.AccentColor : new Color(0.9f, 0.4f, 0.4f));
+                }
+            }
+        }
+
+        private bool MatchesSearch(string name, string id)
+        {
+            if (string.IsNullOrEmpty(_catalogSearchQuery)) return true;
+            return (name != null && name.IndexOf(_catalogSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                   (id != null && id.IndexOf(_catalogSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private void AddCatalogItem(string title, string subtitle, UnityEngine.Object target, Color accentColor)
+        {
+            var item = new VisualElement
+            {
+                style =
+                {
+                    backgroundColor = _inspectedAsset == target ? new Color(0.24f, 0.28f, 0.36f) : new Color(0.12f, 0.12f, 0.14f),
+                    paddingLeft = 8,
+                    paddingRight = 8,
+                    paddingTop = 6,
+                    paddingBottom = 6,
+                    marginBottom = 3,
+                    borderLeftWidth = 3,
+                    borderLeftColor = accentColor,
+                    borderTopLeftRadius = 3,
+                    borderTopRightRadius = 3,
+                    borderBottomLeftRadius = 3,
+                    borderBottomRightRadius = 3,
+                    cursor = StyleKeyword.Auto
+                }
+            };
+
+            var t = new Label(title) { style = { fontSize = 12, unityFontStyleAndWeight = FontStyle.Bold, color = Color.white } };
+            var sub = new Label(subtitle) { style = { fontSize = 10, color = Color.gray } };
+
+            item.Add(t);
+            item.Add(sub);
+
+            item.RegisterCallback<ClickEvent>(evt =>
+            {
+                _inspectedAsset = target;
+                BuildCatalogList();
+                InspectAssetInDetail(target);
+            });
+
+            _catalogListContainer.Add(item);
+        }
+
+        private void InspectAssetInDetail(UnityEngine.Object asset)
+        {
+            if (_catalogInspectorContainer == null) return;
+            _catalogInspectorContainer.Clear();
+
+            if (asset == null)
+            {
+                _catalogInspectorContainer.Add(new Label("Select an asset from the catalog on the left.") { style = { color = Color.gray, marginTop = 20 } });
+                return;
+            }
+
+            // Header with Ping & Quick Action
+            var header = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.SpaceBetween, alignItems = Align.Center, marginBottom = 8 } };
+            var hLabel = new Label(asset.name) { style = { fontSize = 14, unityFontStyleAndWeight = FontStyle.Bold, color = Color.white } };
+            var pingBtn = new Button(() => EditorGUIUtility.PingObject(asset)) { text = "📍 Locate in Project" };
+            pingBtn.style.height = 22;
+            pingBtn.style.fontSize = 10;
+            header.Add(hLabel);
+            header.Add(pingBtn);
+            _catalogInspectorContainer.Add(header);
+
+            // Native, zero-lag UI Toolkit InspectorElement!
+            var so = new SerializedObject(asset);
+            var inspectorElement = new InspectorElement(so);
+            _catalogInspectorContainer.Add(inspectorElement);
+        }
+
+        // ================= 3D VIEWPORT RENDERING =================
 
         private void InitializePreviewUtility()
         {
             if (_previewUtility == null)
             {
                 _previewUtility = new PreviewRenderUtility();
-                _previewUtility.cameraFieldOfView = 30f;
+                _previewUtility.cameraFieldOfView = 28f;
                 _previewUtility.camera.nearClipPlane = 0.05f;
                 _previewUtility.camera.farClipPlane = 25f;
                 _previewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
-                _previewUtility.camera.backgroundColor = new Color(0.12f, 0.12f, 0.15f, 1f);
+                _previewUtility.camera.backgroundColor = new Color(0.10f, 0.10f, 0.12f, 1f);
                 _previewUtility.camera.allowHDR = false;
                 _previewUtility.camera.allowMSAA = false;
-                _previewUtility.camera.useOcclusionCulling = false;
 
                 if (_previewUtility.lights is { Length: > 0 })
                 {
-                    _previewUtility.lights[0].intensity = 1.3f;
-                    _previewUtility.lights[0].transform.rotation = Quaternion.Euler(35f, 40f, 0f);
+                    _previewUtility.lights[0].intensity = 1.4f;
+                    _previewUtility.lights[0].transform.rotation = Quaternion.Euler(35f, 45f, 0f);
                     _previewUtility.lights[0].color = Color.white;
 
                     if (_previewUtility.lights.Length > 1)
                     {
                         _previewUtility.lights[1].intensity = 0.7f;
-                        _previewUtility.lights[1].transform.rotation = Quaternion.Euler(-25f, -140f, 0f);
-                        _previewUtility.lights[1].color = new Color(0.7f, 0.85f, 1.0f);
+                        _previewUtility.lights[1].transform.rotation = Quaternion.Euler(-25f, -135f, 0f);
+                        _previewUtility.lights[1].color = new Color(0.7f, 0.85f, 1f);
                     }
                 }
             }
@@ -147,1318 +1112,44 @@ namespace Project.Combat.Editor
             }
         }
 
-        public void CreateGUI()
+        private void SetupViewportDragControls(Image img)
         {
-            var root = rootVisualElement;
-            root.style.flexDirection = FlexDirection.Row;
-            root.style.paddingLeft = 12;
-            root.style.paddingRight = 12;
-            root.style.paddingTop = 12;
-            root.style.paddingBottom = 12;
-            root.style.backgroundColor = new Color(0.18f, 0.18f, 0.20f);
+            img.RegisterCallback<AttachToPanelEvent>(evt => RebuildPreviewModel());
 
-            // ================= LEFT COLUMN: WORKSPACE TABS =================
-            var leftCol = new VisualElement();
-            leftCol.style.width = new Length(48, LengthUnit.Percent);
-            leftCol.style.paddingRight = 12;
-
-            // Title Header
-            var titleBox = new VisualElement();
-            titleBox.style.marginBottom = 8;
-            titleBox.style.paddingBottom = 4;
-            titleBox.style.borderBottomWidth = 1;
-            titleBox.style.borderBottomColor = new Color(0.3f, 0.3f, 0.35f);
-
-            var titleLabel = new Label("PROCEDURAL WEAPON DESIGNER");
-            titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            titleLabel.style.fontSize = 15;
-            titleLabel.style.color = new Color(0.95f, 0.85f, 0.3f);
-            titleBox.Add(titleLabel);
-
-            var subtitle = new Label("Live In-Editor Stat Authoring, Assembly & 3D Visualizer");
-            subtitle.style.fontSize = 10;
-            subtitle.style.color = Color.gray;
-            titleBox.Add(subtitle);
-            leftCol.Add(titleBox);
-
-            // Tab Navigation Bar
-            var tabBar = new VisualElement();
-            tabBar.style.flexDirection = FlexDirection.Row;
-            tabBar.style.marginBottom = 10;
-
-            _tabAssembleBtn = CreateTabButton("Assemble & Roll", EditorTab.AssembleAndRoll);
-            _tabCoreBtn = CreateTabButton("Core Stats", EditorTab.EditCore);
-            _tabPartBtn = CreateTabButton("Part Editor", EditorTab.EditPart);
-
-            tabBar.Add(_tabAssembleBtn);
-            tabBar.Add(_tabCoreBtn);
-            tabBar.Add(_tabPartBtn);
-            leftCol.Add(tabBar);
-
-            // Tab Content Containers
-            var tabContentScroll = new ScrollView();
-            tabContentScroll.style.flexGrow = 1;
-
-            _tabAssembleContent = new VisualElement();
-            _tabCoreContent = new VisualElement();
-            _tabPartContent = new VisualElement();
-
-            BuildAssembleTab(_tabAssembleContent);
-            BuildCoreEditorTab(_tabCoreContent);
-            BuildPartEditorTab(_tabPartContent);
-
-            tabContentScroll.Add(_tabAssembleContent);
-            tabContentScroll.Add(_tabCoreContent);
-            tabContentScroll.Add(_tabPartContent);
-            leftCol.Add(tabContentScroll);
-
-            root.Add(leftCol);
-
-            // ================= RIGHT COLUMN: 3D VIEWPORT & WEAPON CARD =================
-            var rightCol = new ScrollView();
-            rightCol.style.width = new Length(52, LengthUnit.Percent);
-            rightCol.style.paddingLeft = 12;
-
-            // 3D Viewport Header
-            var viewportHeader = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.SpaceBetween, marginBottom = 6 } };
-            var vpLabel = new Label("3D WEAPON VIEWPORT");
-            vpLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            vpLabel.style.fontSize = 13;
-            viewportHeader.Add(vpLabel);
-
-            var resetCamBtn = new Button(() => { _previewRotX = 15f; _previewRotY = -45f; _previewZoom = 1.4f; Render3DPreview(); }) { text = "↺ Reset Camera" };
-            resetCamBtn.style.height = 18;
-            resetCamBtn.style.fontSize = 10;
-            viewportHeader.Add(resetCamBtn);
-            rightCol.Add(viewportHeader);
-
-            // 3D Viewport Image Container
-            _previewImage = new Image();
-            _previewImage.style.height = 240;
-            _previewImage.style.backgroundColor = new Color(0.10f, 0.10f, 0.12f);
-            _previewImage.style.borderTopLeftRadius = 6;
-            _previewImage.style.borderTopRightRadius = 6;
-            _previewImage.style.borderBottomLeftRadius = 6;
-            _previewImage.style.borderBottomRightRadius = 6;
-            _previewImage.style.marginBottom = 10;
-
-            // Interactive Drag Controls for 3D Camera
-            _previewImage.RegisterCallback<AttachToPanelEvent>(evt => RebuildPreviewModel());
-
-            _previewImage.RegisterCallback<PointerDownEvent>(evt =>
+            img.RegisterCallback<PointerDownEvent>(evt =>
             {
                 _isDragging = true;
                 _lastPointerPos = (Vector2)evt.position;
-                _previewImage.CapturePointer(evt.pointerId);
+                img.CapturePointer(evt.pointerId);
             });
 
-            _previewImage.RegisterCallback<PointerMoveEvent>(evt =>
+            img.RegisterCallback<PointerMoveEvent>(evt =>
             {
                 if (_isDragging)
                 {
-                    Vector2 currentPos = (Vector2)evt.position;
-                    Vector2 delta = currentPos - _lastPointerPos;
-                    _lastPointerPos = currentPos;
+                    Vector2 delta = (Vector2)evt.position - _lastPointerPos;
+                    _lastPointerPos = (Vector2)evt.position;
                     _previewRotY += delta.x * 0.75f;
                     _previewRotX = Mathf.Clamp(_previewRotX + delta.y * 0.75f, -85f, 85f);
                     Render3DPreview();
                 }
             });
 
-            _previewImage.RegisterCallback<PointerUpEvent>(evt =>
+            img.RegisterCallback<PointerUpEvent>(evt =>
             {
                 _isDragging = false;
-                if (_previewImage.HasPointerCapture(evt.pointerId))
-                    _previewImage.ReleasePointer(evt.pointerId);
+                if (img.HasPointerCapture(evt.pointerId)) img.ReleasePointer(evt.pointerId);
             });
 
-            _previewImage.RegisterCallback<PointerCaptureOutEvent>(evt => _isDragging = false);
+            img.RegisterCallback<PointerCaptureOutEvent>(evt => _isDragging = false);
 
-            _previewImage.RegisterCallback<WheelEvent>(evt =>
+            img.RegisterCallback<WheelEvent>(evt =>
             {
                 _previewZoom = Mathf.Clamp(_previewZoom + (evt.delta.y * 0.08f), 0.35f, 4.5f);
                 Render3DPreview();
                 evt.StopPropagation();
             });
-
-            rightCol.Add(_previewImage);
-
-            // Borderlands-Style Weapon Card
-            var cardHeader = new Label("LIVE WEAPON CARD & DPS");
-            cardHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
-            cardHeader.style.fontSize = 13;
-            cardHeader.style.marginBottom = 6;
-            rightCol.Add(cardHeader);
-
-            _cardRoot = new VisualElement();
-            _cardRoot.style.backgroundColor = new Color(0.11f, 0.11f, 0.13f);
-            _cardRoot.style.borderTopWidth = 3;
-            _cardRoot.style.borderBottomWidth = 3;
-            _cardRoot.style.borderLeftWidth = 3;
-            _cardRoot.style.borderRightWidth = 3;
-            _cardRoot.style.borderTopColor = Color.white;
-            _cardRoot.style.borderBottomColor = Color.white;
-            _cardRoot.style.borderLeftColor = Color.white;
-            _cardRoot.style.borderRightColor = Color.white;
-            _cardRoot.style.borderTopLeftRadius = 8;
-            _cardRoot.style.borderTopRightRadius = 8;
-            _cardRoot.style.borderBottomLeftRadius = 8;
-            _cardRoot.style.borderBottomRightRadius = 8;
-            _cardRoot.style.paddingLeft = 14;
-            _cardRoot.style.paddingRight = 14;
-            _cardRoot.style.paddingTop = 14;
-            _cardRoot.style.paddingBottom = 14;
-
-            _weaponNameLabel = new Label("Select a Weapon Core");
-            _weaponNameLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            _weaponNameLabel.style.fontSize = 16;
-            _cardRoot.Add(_weaponNameLabel);
-
-            _rarityLabel = new Label("COMMON WEAPON");
-            _rarityLabel.style.fontSize = 11;
-            _rarityLabel.style.marginBottom = 6;
-            _cardRoot.Add(_rarityLabel);
-
-            _redTextLabel = new Label(string.Empty);
-            _redTextLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
-            _redTextLabel.style.color = new Color(0.95f, 0.25f, 0.25f);
-            _redTextLabel.style.marginBottom = 8;
-            _cardRoot.Add(_redTextLabel);
-
-            // Combat Stats
-            _statsContainer = new VisualElement();
-            _cardRoot.Add(_statsContainer);
-
-            // DPS Section Divider
-            var dpsDivider = new VisualElement();
-            dpsDivider.style.height = 1;
-            dpsDivider.style.backgroundColor = new Color(0.25f, 0.25f, 0.3f);
-            dpsDivider.style.marginTop = 8;
-            dpsDivider.style.marginBottom = 8;
-            _cardRoot.Add(dpsDivider);
-
-            _dpsContainer = new VisualElement();
-            _cardRoot.Add(_dpsContainer);
-
-            rightCol.Add(_cardRoot);
-            root.Add(rightCol);
-
-            SwitchTab(EditorTab.AssembleAndRoll);
-            RefreshWeaponCard();
         }
-
-        // ================= TAB MANAGEMENT =================
-
-        private Button CreateTabButton(string label, EditorTab tab)
-        {
-            var btn = new Button(() => SwitchTab(tab)) { text = label };
-            btn.style.flexGrow = 1;
-            btn.style.height = 28;
-            btn.style.unityFontStyleAndWeight = FontStyle.Bold;
-            return btn;
-        }
-
-        private void SwitchTab(EditorTab tab)
-        {
-            _currentTab = tab;
-
-            _tabAssembleBtn.style.backgroundColor = tab == EditorTab.AssembleAndRoll ? new Color(0.25f, 0.45f, 0.75f) : new Color(0.22f, 0.22f, 0.24f);
-            _tabCoreBtn.style.backgroundColor = tab == EditorTab.EditCore ? new Color(0.25f, 0.45f, 0.75f) : new Color(0.22f, 0.22f, 0.24f);
-            _tabPartBtn.style.backgroundColor = tab == EditorTab.EditPart ? new Color(0.25f, 0.45f, 0.75f) : new Color(0.22f, 0.22f, 0.24f);
-
-            _tabAssembleContent.style.display = tab == EditorTab.AssembleAndRoll ? DisplayStyle.Flex : DisplayStyle.None;
-            _tabCoreContent.style.display = tab == EditorTab.EditCore ? DisplayStyle.Flex : DisplayStyle.None;
-            _tabPartContent.style.display = tab == EditorTab.EditPart ? DisplayStyle.Flex : DisplayStyle.None;
-
-            if (tab == EditorTab.EditCore && _builtCoreTarget != _selectedCore)
-            {
-                BuildCoreEditorTab(_tabCoreContent);
-            }
-            else if (tab == EditorTab.EditPart && _builtPartTarget != _inspectedPart)
-            {
-                BuildPartEditorTab(_tabPartContent);
-            }
-        }
-
-        // ================= TAB 1: ASSEMBLE & ROLL =================
-
-        private void BuildAssembleTab(VisualElement container)
-        {
-            container.Clear();
-
-            // 1. Core Archetype
-            var coreSection = CreateStyledSection("1. Core Archetype");
-            var coreRow = new VisualElement { style = { flexDirection = FlexDirection.Row } };
-            _coreObjectField = new ObjectField { objectType = typeof(WeaponCoreDefinition), style = { flexGrow = 1 }, value = _selectedCore };
-            _coreObjectField.RegisterValueChangedCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                _selectedCore = evt.newValue as WeaponCoreDefinition;
-                OnCoreSelected();
-            });
-            coreRow.Add(_coreObjectField);
-
-            var editCoreBtn = new Button(() =>
-            {
-                BuildCoreEditorTab(_tabCoreContent);
-                SwitchTab(EditorTab.EditCore);
-            }) { text = "✏️" };
-            editCoreBtn.tooltip = "Edit this Core's base stats and properties";
-            editCoreBtn.style.marginLeft = 4;
-            editCoreBtn.style.width = 28;
-            coreRow.Add(editCoreBtn);
-
-            var newCoreBtn = new Button(CreateNewCoreAsset) { text = "+" };
-            newCoreBtn.tooltip = "Create a new Weapon Core asset";
-            newCoreBtn.style.marginLeft = 4;
-            newCoreBtn.style.width = 28;
-            newCoreBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
-            coreRow.Add(newCoreBtn);
-
-            coreSection.Add(coreRow);
-            container.Add(coreSection);
-
-            // 2. Modular Part Slots
-            var partsSection = CreateStyledSection("2. Modular Part Slots");
-            _barrelObjectField = CreateSlotRow(partsSection, "Barrel", WeaponPartType.Barrel, p => _selectedBarrel = p, out _barrelRow);
-            _gripObjectField = CreateSlotRow(partsSection, "Grip", WeaponPartType.Grip, p => _selectedGrip = p, out _gripRow);
-            _stockObjectField = CreateSlotRow(partsSection, "Stock", WeaponPartType.Stock, p => _selectedStock = p, out _stockRow);
-            _sightObjectField = CreateSlotRow(partsSection, "Sight", WeaponPartType.Sight, p => _selectedSight = p, out _sightRow);
-            _magObjectField = CreateSlotRow(partsSection, "Magazine", WeaponPartType.Magazine, p => _selectedMagazine = p, out _magRow);
-            _accessoryObjectField = CreateSlotRow(partsSection, "Accessory", WeaponPartType.Accessory, p => _selectedAccessory = p, out _accessoryRow);
-            container.Add(partsSection);
-
-            // 3. Procedural Generator
-            var rollSection = CreateStyledSection("3. Procedural Roll");
-            var seedField = new IntegerField("Random Seed") { value = (int)_proceduralSeed };
-            seedField.RegisterValueChangedCallback(evt => _proceduralSeed = (uint)Mathf.Max(0, evt.newValue));
-            rollSection.Add(seedField);
-
-            var rarityField = new EnumField("Rarity", _proceduralRarity);
-            rarityField.RegisterValueChangedCallback(evt => { _proceduralRarity = (ItemRarity)evt.newValue; RefreshWeaponCard(); });
-            rollSection.Add(rarityField);
-
-            var levelField = new SliderInt("Level", 1, 50) { value = _itemLevel, showInputField = true };
-            levelField.RegisterValueChangedCallback(evt => { _itemLevel = (byte)evt.newValue; RefreshWeaponCard(); });
-            rollSection.Add(levelField);
-
-            var rollBtn = new Button(RollProceduralWeapon) { text = "Roll Random Weapon" };
-            rollBtn.style.marginTop = 8;
-            rollBtn.style.height = 32;
-            rollBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
-            rollBtn.style.backgroundColor = new Color(0.2f, 0.5f, 0.8f);
-            rollSection.Add(rollBtn);
-
-            var exportPresetBtn = new Button(ExportCurrentAsPreset) { text = "Export As Dedicated Boss Drop Preset" };
-            exportPresetBtn.style.marginTop = 6;
-            exportPresetBtn.style.height = 28;
-            exportPresetBtn.style.backgroundColor = new Color(0.6f, 0.35f, 0.1f);
-            exportPresetBtn.tooltip = "Saves the currently assembled combination as a dedicated named weapon preset for boss drops or quest rewards.";
-            rollSection.Add(exportPresetBtn);
-
-            container.Add(rollSection);
-            UpdateSlotVisibility();
-        }
-
-        private ObjectField CreateSlotRow(VisualElement parent, string label, WeaponPartType partType, Action<WeaponPartDefinition> onSelected, out VisualElement createdRow)
-        {
-            var row = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 4 } };
-            createdRow = row;
-
-            var field = new ObjectField(label) { objectType = typeof(WeaponPartDefinition), style = { flexGrow = 1 } };
-            field.RegisterValueChangedCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                onSelected?.Invoke(evt.newValue as WeaponPartDefinition);
-                RebuildPreviewModel();
-                RefreshWeaponCard();
-            });
-            row.Add(field);
-
-            var editBtn = new Button(() =>
-            {
-                var currentPart = field.value as WeaponPartDefinition;
-                if (currentPart != null)
-                {
-                    _inspectedPart = currentPart;
-                    BuildPartEditorTab(_tabPartContent);
-                    SwitchTab(EditorTab.EditPart);
-                }
-            }) { text = "✏️" };
-            editBtn.tooltip = $"Edit this {label}'s stats, red text, and modifiers";
-            editBtn.style.marginLeft = 4;
-            editBtn.style.width = 28;
-            row.Add(editBtn);
-
-            var createBtn = new Button(() => CreateNewPartAsset(partType)) { text = "+" };
-            createBtn.tooltip = $"Create new {label} in Assets/_Project/Data/Weapons/Parts/";
-            createBtn.style.marginLeft = 4;
-            createBtn.style.width = 28;
-            createBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
-            row.Add(createBtn);
-
-            parent.Add(row);
-            return field;
-        }
-
-        // ================= TAB 2: EDIT CORE STATS =================
-
-        private void BuildCoreEditorTab(VisualElement container)
-        {
-            _builtCoreTarget = _selectedCore;
-            container.Clear();
-
-            if (!_selectedCore)
-            {
-                var warnBox = new Label("No Weapon Core is currently selected.\nSelect or create a core in the 'Assemble & Roll' tab first.");
-                warnBox.style.color = new Color(0.9f, 0.6f, 0.2f);
-                warnBox.style.paddingTop = 16;
-                container.Add(warnBox);
-                return;
-            }
-
-            _isRebuildingUI = true;
-            try
-            {
-                var so = new SerializedObject(_selectedCore);
-                so.Update();
-
-                // Core Switcher Header
-                var topBar = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 8 } };
-                var coreField = new ObjectField("Active Core") { objectType = typeof(WeaponCoreDefinition), value = _selectedCore, style = { flexGrow = 1 } };
-                coreField.RegisterValueChangedCallback(evt =>
-                {
-                    if (_isRebuildingUI) return;
-                    _selectedCore = evt.newValue as WeaponCoreDefinition;
-                    if (_coreObjectField != null) _coreObjectField.SetValueWithoutNotify(_selectedCore);
-                    OnCoreSelected();
-                    BuildCoreEditorTab(container);
-                });
-                topBar.Add(coreField);
-                container.Add(topBar);
-
-                // 1. Identity
-                var idSec = CreateStyledSection("Core Identity");
-                var guidLabel = new Label($"Asset GUID: {_selectedCore.Guid}") { style = { color = Color.gray, fontSize = 10, marginBottom = 4 } };
-                idSec.Add(guidLabel);
-                BindTextField(idSec, so, "_coreId", "Command ID (Console / Debug)");
-                BindTextField(idSec, so, "_baseWeaponName", "Base Weapon Name");
-                BindPropertyField(idSec, so, "_weaponType", "Weapon Type", () => { UpdateSlotVisibility(); });
-                BindPropertyField(idSec, so, "_manufacturer", "Manufacturer");
-                BindPropertyField(idSec, so, "_defaultRarity", "Default Rarity");
-                container.Add(idSec);
-
-                // 2. Base Combat Stats
-                var statSec = CreateStyledSection("Base Combat Stats");
-                BindFloatField(statSec, so, "_baseDamage", "Base Damage");
-                BindFloatField(statSec, so, "_baseFireRate", "Base Fire Rate (/sec)");
-                BindIntField(statSec, so, "_baseMagazineSize", "Magazine Size");
-                BindFloatField(statSec, so, "_baseReloadSpeed", "Reload Speed (sec)");
-                BindFloatField(statSec, so, "_baseCriticalMultiplier", "Critical Multiplier");
-                container.Add(statSec);
-
-                // 3. Handling & Ballistics
-                var handlingSec = CreateStyledSection("Handling, Recoil & Pellets");
-                BindFloatField(handlingSec, so, "_baseSpread", "Base Spread (deg)");
-                BindFloatField(handlingSec, so, "_maxSpread", "Max Spread (deg)");
-                BindFloatField(handlingSec, so, "_baseRecoilKick", "Recoil Kick");
-                BindIntField(handlingSec, so, "_basePelletsPerShot", "Pellets Per Shot");
-                BindFloatField(handlingSec, so, "_baseProjectileSpeed", "Projectile Speed (0=Hitscan)");
-                container.Add(handlingSec);
-
-                // 4. Firing Cycle & Elements
-                var fireSec = CreateStyledSection("Firing Cycle & Delivery");
-                BindPropertyField(fireSec, so, "_baseElement", "Base Element");
-                BindPropertyField(fireSec, so, "_baseFiringMode", "Firing Mode");
-                BindIntField(fireSec, so, "_baseBurstCount", "Burst Count");
-                BindFloatField(fireSec, so, "_baseBurstInterval", "Burst Interval (sec)");
-                container.Add(fireSec);
-
-                // 5. Global & Local Level Scaling
-                var scaleSec = CreateStyledSection("Level Damage Scaling");
-
-                var globalBox = new VisualElement();
-                globalBox.style.backgroundColor = new Color(0.12f, 0.12f, 0.15f);
-                globalBox.style.paddingLeft = 8;
-                globalBox.style.paddingTop = 8;
-                globalBox.style.paddingRight = 8;
-                globalBox.style.paddingBottom = 8;
-                globalBox.style.marginBottom = 8;
-                globalBox.style.borderTopLeftRadius = 4;
-                globalBox.style.borderTopRightRadius = 4;
-                globalBox.style.borderBottomLeftRadius = 4;
-                globalBox.style.borderBottomRightRadius = 4;
-
-                var globalTitle = new Label("🌐 Global Scaling (Shared by All Weapons & Items)");
-                globalTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
-                globalTitle.style.color = new Color(0.4f, 0.8f, 1f);
-                globalTitle.style.marginBottom = 6;
-                globalBox.Add(globalTitle);
-
-                var globalSettings = ItemScalingSettings.Instance;
-                if (globalSettings != null)
-                {
-                    var globalSO = new SerializedObject(globalSettings);
-                    BindPropertyField(globalBox, globalSO, "_damageScalingMode", "Global Mode (Exp / Linear)");
-                    BindFloatField(globalBox, globalSO, "_damageScalePerLevel", "Global Rate / Level (e.g. 0.08 = 8%)");
-                    BindFloatField(globalBox, globalSO, "_shieldScalePerLevel", "Global Shield Rate / Level");
-                    BindFloatField(globalBox, globalSO, "_healthScalePerLevel", "Global Enemy Health Rate");
-                    BindToggle(globalBox, globalSO, "_useCustomDamageCurve", "Use Global Custom Curve");
-                    BindPropertyField(globalBox, globalSO, "_customDamageCurve", "Global Curve");
-
-                    var pingBtn = new Button(() => EditorGUIUtility.PingObject(globalSettings)) { text = "📍 Select Global Settings Asset" };
-                    pingBtn.style.marginTop = 6;
-                    globalBox.Add(pingBtn);
-                }
-                scaleSec.Add(globalBox);
-
-                // Local Core Override
-                var overrideToggle = new Toggle("Override Global Scaling on this Core") { value = so.FindProperty("_overrideGlobalScaling").boolValue };
-                var localBox = new VisualElement();
-                localBox.style.display = overrideToggle.value ? DisplayStyle.Flex : DisplayStyle.None;
-                localBox.style.marginTop = 6;
-                localBox.style.paddingLeft = 8;
-
-                overrideToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (_isRebuildingUI) return;
-                    so.FindProperty("_overrideGlobalScaling").boolValue = evt.newValue;
-                    so.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(_selectedCore);
-                    localBox.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-                    RefreshWeaponCard();
-                });
-                scaleSec.Add(overrideToggle);
-
-                BindPropertyField(localBox, so, "_levelScalingMode", "Core Override Mode");
-                BindFloatField(localBox, so, "_damageScalePerLevel", "Core Scale Rate / Level");
-                BindToggle(localBox, so, "_useCustomLevelCurve", "Core Use Custom Curve");
-                BindPropertyField(localBox, so, "_customLevelCurve", "Core Custom Curve");
-                scaleSec.Add(localBox);
-
-                container.Add(scaleSec);
-
-                // 6. Visual Body Prefab & Sockets
-                var visualSec = CreateStyledSection("3D Visual Body & Sockets");
-                BindPropertyField(visualSec, so, "_bodyPrefab", "Body Prefab (Sockets Root)", () => RebuildPreviewModel());
-
-                var autoDetectBtn = new Button(() => AutoDetectSocketsFromPrefab(so)) { text = "Auto-Detect Sockets on Body Prefab" };
-                autoDetectBtn.style.marginTop = 6;
-                autoDetectBtn.style.marginBottom = 6;
-                visualSec.Add(autoDetectBtn);
-
-                var socketsBox = new VisualElement();
-                socketsBox.style.backgroundColor = new Color(0.12f, 0.12f, 0.14f);
-                socketsBox.style.paddingLeft = 6;
-                socketsBox.style.paddingTop = 6;
-                socketsBox.style.paddingBottom = 6;
-                socketsBox.style.paddingRight = 6;
-                socketsBox.style.borderTopLeftRadius = 4;
-                socketsBox.style.borderTopRightRadius = 4;
-                socketsBox.style.borderBottomLeftRadius = 4;
-                socketsBox.style.borderBottomRightRadius = 4;
-                var socketsTitle = new Label("Physical Slot Support on Body:");
-                socketsTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
-                socketsTitle.style.marginBottom = 4;
-                socketsBox.Add(socketsTitle);
-
-                BindToggle(socketsBox, so, "_supportsBarrel", "Barrel Slot", () => UpdateSlotVisibility());
-                BindToggle(socketsBox, so, "_supportsGrip", "Grip Slot", () => UpdateSlotVisibility());
-                BindToggle(socketsBox, so, "_supportsStock", "Stock Slot", () => UpdateSlotVisibility());
-                BindToggle(socketsBox, so, "_supportsSight", "Sight Slot", () => UpdateSlotVisibility());
-                BindToggle(socketsBox, so, "_supportsMagazine", "Magazine Slot", () => UpdateSlotVisibility());
-                BindToggle(socketsBox, so, "_supportsAccessory", "Accessory Slot", () => UpdateSlotVisibility());
-                visualSec.Add(socketsBox);
-
-                container.Add(visualSec);
-            }
-            finally
-            {
-                _isRebuildingUI = false;
-            }
-        }
-
-        private void AutoDetectSocketsFromPrefab(SerializedObject coreSO)
-        {
-            var prefabProp = coreSO.FindProperty("_bodyPrefab");
-            var prefab = prefabProp.objectReferenceValue as GameObject;
-            if (!prefab)
-            {
-                EditorUtility.DisplayDialog("Auto-Detect Sockets", "Please assign a Body Prefab first!", "OK");
-                return;
-            }
-
-            bool hasBarrel = false, hasGrip = false, hasStock = false, hasSight = false, hasMag = false, hasAcc = false;
-            foreach (var trans in prefab.GetComponentsInChildren<Transform>(true))
-            {
-                string name = trans.name.ToLower();
-                if (name.Contains("socket_barrel")) hasBarrel = true;
-                if (name.Contains("socket_grip")) hasGrip = true;
-                if (name.Contains("socket_stock")) hasStock = true;
-                if (name.Contains("socket_sight")) hasSight = true;
-                if (name.Contains("socket_mag")) hasMag = true;
-                if (name.Contains("socket_accessory")) hasAcc = true;
-            }
-
-            coreSO.FindProperty("_supportsBarrel").boolValue = hasBarrel;
-            coreSO.FindProperty("_supportsGrip").boolValue = hasGrip;
-            coreSO.FindProperty("_supportsStock").boolValue = hasStock;
-            coreSO.FindProperty("_supportsSight").boolValue = hasSight;
-            coreSO.FindProperty("_supportsMagazine").boolValue = hasMag;
-            coreSO.FindProperty("_supportsAccessory").boolValue = hasAcc;
-            coreSO.ApplyModifiedProperties();
-            EditorUtility.SetDirty(_selectedCore);
-
-            UpdateSlotVisibility();
-            BuildCoreEditorTab(_tabCoreContent);
-            EditorUtility.DisplayDialog("Auto-Detect Sockets", $"Sockets detected on '{prefab.name}':\nBarrel: {hasBarrel}, Grip: {hasGrip}, Stock: {hasStock}, Sight: {hasSight}, Mag: {hasMag}, Acc: {hasAcc}", "OK");
-        }
-
-        // ================= TAB 3: EDIT PART STATS =================
-
-        private void BuildPartEditorTab(VisualElement container)
-        {
-            _builtPartTarget = _inspectedPart;
-            container.Clear();
-
-            // Part Selector Bar
-            var topBar = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 8 } };
-            var partField = new ObjectField("Active Part") { objectType = typeof(WeaponPartDefinition), value = _inspectedPart, style = { flexGrow = 1 } };
-            partField.RegisterValueChangedCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                _inspectedPart = evt.newValue as WeaponPartDefinition;
-                BuildPartEditorTab(container);
-            });
-            topBar.Add(partField);
-            container.Add(topBar);
-
-            if (_inspectedPart == null)
-            {
-                // Display quick selection buttons from currently mounted parts
-                var selectHint = new Label("Select a part above or choose from the currently mounted weapon parts:");
-                selectHint.style.color = Color.gray;
-                selectHint.style.marginTop = 6;
-                selectHint.style.marginBottom = 6;
-                container.Add(selectHint);
-
-                AddQuickPartButton(container, "Barrel", _selectedBarrel);
-                AddQuickPartButton(container, "Grip", _selectedGrip);
-                AddQuickPartButton(container, "Stock", _selectedStock);
-                AddQuickPartButton(container, "Sight", _selectedSight);
-                AddQuickPartButton(container, "Magazine", _selectedMagazine);
-                AddQuickPartButton(container, "Accessory", _selectedAccessory);
-                return;
-            }
-
-            _isRebuildingUI = true;
-            try
-            {
-                var so = new SerializedObject(_inspectedPart);
-                so.Update();
-
-                // 1. Part Identity
-                var idSec = CreateStyledSection("Part Identity & Scoping");
-                var guidLabel = new Label($"Asset GUID: {_inspectedPart.Guid}") { style = { color = Color.gray, fontSize = 10, marginBottom = 4 } };
-                idSec.Add(guidLabel);
-                BindTextField(idSec, so, "_displayName", "Display Name");
-                BindTextField(idSec, so, "_partId", "Command ID (Console / Debug)");
-
-                var socketSectionContainer = new VisualElement();
-
-                BindPropertyField(idSec, so, "_partType", "Part Type", () =>
-                {
-                    UpdatePartSocketUI(so, socketSectionContainer);
-                    RebuildPreviewModel();
-                });
-                BindPropertyField(idSec, so, "_weaponType", "Weapon Type");
-                BindToggle(idSec, so, "_isUniversal", "Universal Compatibility (Fits Any Weapon Type)");
-                BindPropertyField(idSec, so, "_manufacturer", "Manufacturer");
-                BindPropertyField(idSec, so, "_rarity", "Part Rarity");
-                container.Add(idSec);
-
-                // 2. Visual Mounting
-                var visualSec = CreateStyledSection("Visual Mounting");
-                BindPropertyField(visualSec, so, "_meshPrefab", "Mesh Prefab", () => RebuildPreviewModel());
-                visualSec.Add(socketSectionContainer);
-                UpdatePartSocketUI(so, socketSectionContainer);
-                container.Add(visualSec);
-
-                // 3. Legendary Perks & Red Text
-                var perkSec = CreateStyledSection("Legendary Perks & Red Text");
-                BindToggle(perkSec, so, "_isUnique", "Is Unique / Legendary Part");
-                BindTextField(perkSec, so, "_redText", "Red Text Quote");
-
-                // Behavior Preset Dropdown
-                var behaviorProp = so.FindProperty("_uniqueBehaviorId");
-                var presetRow = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 4 } };
-                var presetLabel = new Label("Unique Behavior Preset") { style = { width = 150, color = new Color(0.8f, 0.8f, 0.8f) } };
-                var presetDropdown = new DropdownField(new List<string> {
-                    "[None]",
-                    "ConferenceCall_Split (Conference Call)",
-                    "SandHawk_Wave (Sand Hawk)",
-                    "Harold_AccelerateSplit (Unkempt Harold)",
-                    "TheButcher_AmmoRefund (The Butcher)",
-                    "[Custom ID]"
-                }, GetBehaviorIndex(behaviorProp.stringValue));
-
-                presetDropdown.style.flexGrow = 1;
-                presetDropdown.RegisterValueChangedCallback(evt =>
-                {
-                    if (_isRebuildingUI) return;
-                    if (evt.newValue.StartsWith("[None]")) behaviorProp.stringValue = string.Empty;
-                    else if (evt.newValue.StartsWith("ConferenceCall")) behaviorProp.stringValue = LegendaryBehaviorIds.ConferenceCall;
-                    else if (evt.newValue.StartsWith("SandHawk")) behaviorProp.stringValue = LegendaryBehaviorIds.SandHawk;
-                    else if (evt.newValue.StartsWith("Harold")) behaviorProp.stringValue = LegendaryBehaviorIds.UnkemptHarold;
-                    else if (evt.newValue.StartsWith("TheButcher")) behaviorProp.stringValue = LegendaryBehaviorIds.TheButcher;
-
-                    so.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(_inspectedPart);
-                    RefreshWeaponCard();
-                });
-
-                presetRow.Add(presetLabel);
-                presetRow.Add(presetDropdown);
-                perkSec.Add(presetRow);
-
-                BindTextField(perkSec, so, "_uniqueBehaviorId", "Custom Behavior ID");
-                container.Add(perkSec);
-
-                // 4. Overrides
-                var overrideSec = CreateStyledSection("Behavior Overrides");
-                BindToggle(overrideSec, so, "_overridesElement", "Override Element");
-                BindPropertyField(overrideSec, so, "_elementOverride", "Element Override");
-                BindToggle(overrideSec, so, "_overridesFiringMode", "Override Firing Mode");
-                BindPropertyField(overrideSec, so, "_firingModeOverride", "Firing Mode Override");
-                container.Add(overrideSec);
-
-                // 5. Stat Modifiers List
-                var modSec = CreateStyledSection("Stat Modifiers List");
-                var modListContainer = new VisualElement();
-                modSec.Add(modListContainer);
-
-                RebuildModifiersList(so, modListContainer);
-
-                var addModBtn = new Button(() =>
-                {
-                    var modProp = so.FindProperty("_modifiers");
-                    modProp.arraySize++;
-                    var newElem = modProp.GetArrayElementAtIndex(modProp.arraySize - 1);
-                    newElem.FindPropertyRelative("TargetStat").enumValueIndex = (int)StatType.Damage;
-                    newElem.FindPropertyRelative("Operation").enumValueIndex = (int)ModifierOperation.PercentageAdditive;
-                    newElem.FindPropertyRelative("Value").floatValue = 15f;
-                    so.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(_inspectedPart);
-                    RebuildModifiersList(so, modListContainer);
-                    RefreshWeaponCard();
-                }) { text = "+ Add Stat Modifier" };
-                addModBtn.style.marginTop = 6;
-                modSec.Add(addModBtn);
-
-                container.Add(modSec);
-            }
-            finally
-            {
-                _isRebuildingUI = false;
-            }
-        }
-
-        private void UpdatePartSocketUI(SerializedObject so, VisualElement socketContainer)
-        {
-            socketContainer.Clear();
-            if (_inspectedPart == null) return;
-
-            var partTypeProp = so.FindProperty("_partType");
-            WeaponPartType partType = (WeaponPartType)partTypeProp.enumValueIndex;
-
-            if (partType != WeaponPartType.Accessory)
-            {
-                var socketBadge = new VisualElement
-                {
-                    style =
-                    {
-                        flexDirection = FlexDirection.Row,
-                        alignItems = Align.Center,
-                        backgroundColor = new Color(0.18f, 0.22f, 0.26f),
-                        borderTopLeftRadius = 4,
-                        borderTopRightRadius = 4,
-                        borderBottomLeftRadius = 4,
-                        borderBottomRightRadius = 4,
-                        paddingTop = 6,
-                        paddingBottom = 6,
-                        paddingLeft = 10,
-                        paddingRight = 10,
-                        marginTop = 6
-                    }
-                };
-                var socketTitle = new Label("Target Socket:")
-                {
-                    style = { width = 150, unityFontStyleAndWeight = FontStyle.Bold, color = new Color(0.7f, 0.85f, 1f) }
-                };
-                var socketValue = new Label($"\"{_inspectedPart.TargetSocketName}\"  (Auto-routed by {partType})")
-                {
-                    style = { color = new Color(0.45f, 0.9f, 0.5f), unityFontStyleAndWeight = FontStyle.Bold }
-                };
-                socketBadge.Add(socketTitle);
-                socketBadge.Add(socketValue);
-                socketContainer.Add(socketBadge);
-            }
-            else
-            {
-                var socketRow = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 4, marginTop = 4 } };
-                var socketLabel = new Label("Accessory Socket") { style = { width = 150, color = new Color(0.8f, 0.8f, 0.8f) } };
-
-                var socketOptions = new List<string>
-                {
-                    $"{WeaponSocketNames.Accessory} (Default Body/Forebody)",
-                    $"{WeaponSocketNames.Muzzle} (Muzzle / Suppressor / Bayonet)",
-                    $"{WeaponSocketNames.Underbarrel} (Underbarrel / Grip / Bipod)",
-                    $"{WeaponSocketNames.SideRail} (Side Rail / Laser / Light)",
-                    "Custom..."
-                };
-
-                string currentSocket = _inspectedPart.CustomSocketName;
-                int defaultIndex = 0;
-                if (currentSocket == WeaponSocketNames.Muzzle) defaultIndex = 1;
-                else if (currentSocket == WeaponSocketNames.Underbarrel) defaultIndex = 2;
-                else if (currentSocket == WeaponSocketNames.SideRail) defaultIndex = 3;
-                else if (!string.IsNullOrEmpty(currentSocket) && currentSocket != WeaponSocketNames.Accessory) defaultIndex = 4;
-
-                TextField customSocketField = null;
-                var socketDropdown = new DropdownField(socketOptions, defaultIndex) { style = { flexGrow = 1 } };
-                socketDropdown.RegisterValueChangedCallback(evt =>
-                {
-                    if (_isRebuildingUI) return;
-                    string selected = evt.newValue;
-                    string resolved = WeaponSocketNames.Accessory;
-                    if (selected.StartsWith(WeaponSocketNames.Muzzle)) resolved = WeaponSocketNames.Muzzle;
-                    else if (selected.StartsWith(WeaponSocketNames.Underbarrel)) resolved = WeaponSocketNames.Underbarrel;
-                    else if (selected.StartsWith(WeaponSocketNames.SideRail)) resolved = WeaponSocketNames.SideRail;
-                    else if (selected == "Custom...")
-                    {
-                        if (customSocketField != null) customSocketField.style.display = DisplayStyle.Flex;
-                        return;
-                    }
-
-                    if (customSocketField != null)
-                    {
-                        customSocketField.SetValueWithoutNotify(resolved);
-                        customSocketField.style.display = DisplayStyle.None;
-                    }
-
-                    so.FindProperty("_customSocketName").stringValue = resolved;
-                    so.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(_inspectedPart);
-                    RebuildPreviewModel();
-                });
-
-                socketRow.Add(socketLabel);
-                socketRow.Add(socketDropdown);
-                socketContainer.Add(socketRow);
-
-                customSocketField = BindTextField(socketContainer, so, "_customSocketName", "Custom Socket Name", () => RebuildPreviewModel());
-                if (customSocketField != null)
-                {
-                    customSocketField.style.display = defaultIndex == 4 ? DisplayStyle.Flex : DisplayStyle.None;
-                }
-            }
-        }
-
-        private void RebuildModifiersList(SerializedObject so, VisualElement modListContainer)
-        {
-            modListContainer.Clear();
-            var modProp = so.FindProperty("_modifiers");
-            if (modProp == null) return;
-
-            for (int i = 0; i < modProp.arraySize; i++)
-            {
-                int index = i;
-                var elem = modProp.GetArrayElementAtIndex(i);
-                var row = new VisualElement();
-                row.style.flexDirection = FlexDirection.Row;
-                row.style.marginBottom = 4;
-                row.style.backgroundColor = new Color(0.12f, 0.12f, 0.14f);
-                row.style.paddingLeft = 4;
-                row.style.paddingRight = 4;
-                row.style.paddingTop = 2;
-                row.style.paddingBottom = 2;
-                row.style.borderTopLeftRadius = 4;
-                row.style.borderTopRightRadius = 4;
-                row.style.borderBottomLeftRadius = 4;
-                row.style.borderBottomRightRadius = 4;
-
-                var statField = new PropertyField(elem.FindPropertyRelative("TargetStat")) { style = { flexGrow = 1 } };
-                statField.RegisterValueChangeCallback(evt =>
-                {
-                    if (_isRebuildingUI) return;
-                    EditorUtility.SetDirty(so.targetObject);
-                    RefreshWeaponCard();
-                });
-                row.Add(statField);
-
-                var opField = new PropertyField(elem.FindPropertyRelative("Operation")) { style = { flexGrow = 1, marginLeft = 4 } };
-                opField.RegisterValueChangeCallback(evt =>
-                {
-                    if (_isRebuildingUI) return;
-                    EditorUtility.SetDirty(so.targetObject);
-                    RefreshWeaponCard();
-                });
-                row.Add(opField);
-
-                var valField = new PropertyField(elem.FindPropertyRelative("Value")) { style = { width = 60, marginLeft = 4 } };
-                valField.RegisterValueChangeCallback(evt =>
-                {
-                    if (_isRebuildingUI) return;
-                    EditorUtility.SetDirty(so.targetObject);
-                    RefreshWeaponCard();
-                });
-                row.Add(valField);
-
-                var delBtn = new Button(() =>
-                {
-                    modProp.DeleteArrayElementAtIndex(index);
-                    so.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(_inspectedPart);
-                    RebuildModifiersList(so, modListContainer);
-                    RefreshWeaponCard();
-                }) { text = "✕" };
-                delBtn.style.marginLeft = 4;
-                delBtn.style.color = new Color(0.9f, 0.3f, 0.3f);
-                row.Add(delBtn);
-
-                modListContainer.Add(row);
-            }
-
-            modListContainer.Bind(so);
-        }
-
-        private static int GetBehaviorIndex(string id)
-        {
-            if (string.IsNullOrEmpty(id)) return 0;
-            if (id == LegendaryBehaviorIds.ConferenceCall) return 1;
-            if (id == LegendaryBehaviorIds.SandHawk) return 2;
-            if (id == LegendaryBehaviorIds.UnkemptHarold) return 3;
-            if (id == LegendaryBehaviorIds.TheButcher) return 4;
-            return 5;
-        }
-
-        private void AddQuickPartButton(VisualElement parent, string label, WeaponPartDefinition part)
-        {
-            if (part == null) return;
-            var btn = new Button(() =>
-            {
-                _inspectedPart = part;
-                BuildPartEditorTab(_tabPartContent);
-            }) { text = $"Edit {label}: {part.DisplayName}" };
-            btn.style.marginBottom = 4;
-            btn.style.unityFontStyleAndWeight = FontStyle.Bold;
-            parent.Add(btn);
-        }
-
-        // ================= UI BINDING HELPERS =================
-
-        private static VisualElement CreateStyledSection(string title)
-        {
-            var section = new VisualElement();
-            section.style.marginBottom = 10;
-            section.style.paddingLeft = 8;
-            section.style.paddingRight = 8;
-            section.style.paddingTop = 8;
-            section.style.paddingBottom = 8;
-            section.style.backgroundColor = new Color(0.14f, 0.14f, 0.16f);
-            section.style.borderTopLeftRadius = 6;
-            section.style.borderTopRightRadius = 6;
-            section.style.borderBottomLeftRadius = 6;
-            section.style.borderBottomRightRadius = 6;
-
-            var label = new Label(title);
-            label.style.unityFontStyleAndWeight = FontStyle.Bold;
-            label.style.marginBottom = 6;
-            section.Add(label);
-            return section;
-        }
-
-        private TextField BindTextField(VisualElement parent, SerializedObject so, string propName, string label, Action onModified = null)
-        {
-            var prop = so.FindProperty(propName);
-            if (prop == null) return null;
-
-            var field = new TextField(label) { value = prop.stringValue, isDelayed = true };
-            field.RegisterValueChangedCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                prop.stringValue = evt.newValue;
-                so.ApplyModifiedProperties();
-                EditorUtility.SetDirty(so.targetObject);
-                onModified?.Invoke();
-                RefreshWeaponCard();
-            });
-            parent.Add(field);
-            return field;
-        }
-
-        private void BindFloatField(VisualElement parent, SerializedObject so, string propName, string label, Action onModified = null)
-        {
-            var prop = so.FindProperty(propName);
-            if (prop == null) return;
-
-            var field = new FloatField(label) { value = prop.floatValue, isDelayed = true };
-            field.RegisterValueChangedCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                prop.floatValue = evt.newValue;
-                so.ApplyModifiedProperties();
-                EditorUtility.SetDirty(so.targetObject);
-                onModified?.Invoke();
-                RefreshWeaponCard();
-            });
-            parent.Add(field);
-        }
-
-        private void BindIntField(VisualElement parent, SerializedObject so, string propName, string label, Action onModified = null)
-        {
-            var prop = so.FindProperty(propName);
-            if (prop == null) return;
-
-            var field = new IntegerField(label) { value = prop.intValue, isDelayed = true };
-            field.RegisterValueChangedCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                prop.intValue = evt.newValue;
-                so.ApplyModifiedProperties();
-                EditorUtility.SetDirty(so.targetObject);
-                onModified?.Invoke();
-                RefreshWeaponCard();
-            });
-            parent.Add(field);
-        }
-
-        private void BindToggle(VisualElement parent, SerializedObject so, string propName, string label, Action onModified = null)
-        {
-            var prop = so.FindProperty(propName);
-            if (prop == null) return;
-
-            var toggle = new Toggle(label) { value = prop.boolValue };
-            toggle.RegisterValueChangedCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                prop.boolValue = evt.newValue;
-                so.ApplyModifiedProperties();
-                EditorUtility.SetDirty(so.targetObject);
-                onModified?.Invoke();
-                RefreshWeaponCard();
-            });
-            parent.Add(toggle);
-        }
-
-        private void BindPropertyField(VisualElement parent, SerializedObject so, string propName, string label, Action onModified = null)
-        {
-            var prop = so.FindProperty(propName);
-            if (prop == null) return;
-
-            var field = new PropertyField(prop, label);
-            field.Bind(so);
-            field.RegisterValueChangeCallback(evt =>
-            {
-                if (_isRebuildingUI) return;
-                EditorUtility.SetDirty(so.targetObject);
-                onModified?.Invoke();
-                RefreshWeaponCard();
-            });
-            parent.Add(field);
-        }
-
-        // ================= CREATION IN DESIGNATED FOLDERS =================
-
-        private void CreateNewCoreAsset()
-        {
-            string folderPath = "Assets/_Project/Data/Weapons/Cores";
-            EnsureFolderHierarchy(folderPath);
-
-            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{folderPath}/WeaponCore_New.asset");
-            var core = ScriptableObject.CreateInstance<WeaponCoreDefinition>();
-
-            AssetDatabase.CreateAsset(core, assetPath);
-            string guid = AssetDatabase.AssetPathToGUID(assetPath);
-            string fileName = System.IO.Path.GetFileNameWithoutExtension(assetPath).ToLower();
-
-            var so = new SerializedObject(core);
-            so.FindProperty("_guid").stringValue = guid;
-            so.FindProperty("_coreId").stringValue = "core_" + fileName;
-            so.ApplyModifiedPropertiesWithoutUndo();
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            ItemRegistry.Instance?.RegisterCore(core);
-
-            _selectedCore = core;
-            if (_coreObjectField != null) _coreObjectField.SetValueWithoutNotify(core);
-
-            EditorGUIUtility.PingObject(core);
-            Selection.activeObject = core;
-            OnCoreSelected();
-            BuildCoreEditorTab(_tabCoreContent);
-            SwitchTab(EditorTab.EditCore);
-        }
-
-        private void CreateNewPartAsset(WeaponPartType partType)
-        {
-            WeaponType weaponType = _selectedCore ? _selectedCore.WeaponType : WeaponType.Pistol;
-            string weaponTypeFolder = weaponType.ToString();
-            string subfolder = partType switch
-            {
-                WeaponPartType.Barrel => "Barrels",
-                WeaponPartType.Grip => "Grips",
-                WeaponPartType.Stock => "Stocks",
-                WeaponPartType.Sight => "Sights",
-                WeaponPartType.Magazine => "Magazines",
-                WeaponPartType.Accessory => "Accessories",
-                _ => "General"
-            };
-
-            string folderPath = $"Assets/_Project/Data/Weapons/Parts/{weaponTypeFolder}/{subfolder}";
-            EnsureFolderHierarchy(folderPath);
-
-            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{folderPath}/Part_{subfolder}_{weaponType}_New.asset");
-            var part = ScriptableObject.CreateInstance<WeaponPartDefinition>();
-
-            AssetDatabase.CreateAsset(part, assetPath);
-            string guid = AssetDatabase.AssetPathToGUID(assetPath);
-            string fileName = System.IO.Path.GetFileNameWithoutExtension(assetPath).ToLower();
-
-            var so = new SerializedObject(part);
-            so.FindProperty("_guid").stringValue = guid;
-            so.FindProperty("_partId").stringValue = "part_" + fileName;
-            so.FindProperty("_partType").enumValueIndex = (int)partType;
-            so.FindProperty("_weaponType").enumValueIndex = (int)weaponType;
-            so.FindProperty("_displayName").stringValue = $"{weaponType} {subfolder}";
-            if (partType == WeaponPartType.Accessory)
-            {
-                so.FindProperty("_customSocketName").stringValue = WeaponSocketNames.Accessory;
-            }
-            so.ApplyModifiedPropertiesWithoutUndo();
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            ItemRegistry.Instance?.RegisterPart(part);
-
-            // Automatically add this new part to the selected core's compatible pool
-            if (_selectedCore != null)
-            {
-                var coreSO = new SerializedObject(_selectedCore);
-                string poolPropName = partType switch
-                {
-                    WeaponPartType.Barrel => "_compatibleBarrels",
-                    WeaponPartType.Grip => "_compatibleGrips",
-                    WeaponPartType.Stock => "_compatibleStocks",
-                    WeaponPartType.Sight => "_compatibleSights",
-                    WeaponPartType.Magazine => "_compatibleMagazines",
-                    WeaponPartType.Accessory => "_compatibleAccessories",
-                    _ => null
-                };
-
-                if (poolPropName != null)
-                {
-                    var poolProp = coreSO.FindProperty(poolPropName);
-                    if (poolProp != null)
-                    {
-                        poolProp.arraySize++;
-                        poolProp.GetArrayElementAtIndex(poolProp.arraySize - 1).objectReferenceValue = part;
-                        coreSO.ApplyModifiedProperties();
-                        EditorUtility.SetDirty(_selectedCore);
-                    }
-                }
-            }
-
-            switch (partType)
-            {
-                case WeaponPartType.Barrel: _selectedBarrel = part; _barrelObjectField?.SetValueWithoutNotify(part); break;
-                case WeaponPartType.Grip: _selectedGrip = part; _gripObjectField?.SetValueWithoutNotify(part); break;
-                case WeaponPartType.Stock: _selectedStock = part; _stockObjectField?.SetValueWithoutNotify(part); break;
-                case WeaponPartType.Sight: _selectedSight = part; _sightObjectField?.SetValueWithoutNotify(part); break;
-                case WeaponPartType.Magazine: _selectedMagazine = part; _magObjectField?.SetValueWithoutNotify(part); break;
-                case WeaponPartType.Accessory: _selectedAccessory = part; _accessoryObjectField?.SetValueWithoutNotify(part); break;
-            }
-
-            _inspectedPart = part;
-            EditorGUIUtility.PingObject(part);
-            Selection.activeObject = part;
-            RebuildPreviewModel();
-            RefreshWeaponCard();
-            BuildPartEditorTab(_tabPartContent);
-            SwitchTab(EditorTab.EditPart);
-        }
-
-        private void ExportCurrentAsPreset()
-        {
-            if (_selectedCore == null)
-            {
-                EditorUtility.DisplayDialog("Export Preset", "Please select an Active Weapon Core first.", "OK");
-                return;
-            }
-
-            string folderPath = "Assets/_Project/Data/Weapons/Presets";
-            EnsureFolderHierarchy(folderPath);
-
-            var currentWeapon = GetCurrentWeaponInstance();
-            string defaultName = currentWeapon != null ? currentWeapon.DisplayName : _selectedCore.BaseWeaponName;
-            string cleanFileName = defaultName.Replace(" ", "_").Replace("-", "_");
-
-            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{folderPath}/Preset_{cleanFileName}.asset");
-            var preset = ScriptableObject.CreateInstance<WeaponPresetDefinition>();
-
-            AssetDatabase.CreateAsset(preset, assetPath);
-            string guid = AssetDatabase.AssetPathToGUID(assetPath);
-
-            var so = new SerializedObject(preset);
-            so.FindProperty("_guid").stringValue = guid;
-            so.FindProperty("_presetId").stringValue = "preset_" + cleanFileName.ToLower();
-            so.FindProperty("_presetDisplayName").stringValue = defaultName;
-            so.FindProperty("_core").objectReferenceValue = _selectedCore;
-            so.FindProperty("_rarity").enumValueIndex = (int)(_proceduralRarity >= ItemRarity.Legendary ? _proceduralRarity : ItemRarity.Legendary);
-
-            // Pin currently mounted parts
-            if (_selectedBarrel) so.FindProperty("_lockedBarrel").objectReferenceValue = _selectedBarrel;
-            if (_selectedGrip) so.FindProperty("_lockedGrip").objectReferenceValue = _selectedGrip;
-            if (_selectedStock) so.FindProperty("_lockedStock").objectReferenceValue = _selectedStock;
-            if (_selectedSight) so.FindProperty("_lockedSight").objectReferenceValue = _selectedSight;
-            if (_selectedMagazine) so.FindProperty("_lockedMagazine").objectReferenceValue = _selectedMagazine;
-            if (_selectedAccessory) so.FindProperty("_lockedAccessory").objectReferenceValue = _selectedAccessory;
-
-            so.ApplyModifiedPropertiesWithoutUndo();
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            ItemRegistry.Instance?.RegisterPreset(preset);
-
-            EditorGUIUtility.PingObject(preset);
-            Selection.activeObject = preset;
-
-            EditorUtility.DisplayDialog("Dedicated Preset Exported!",
-                $"Preset '{defaultName}' successfully created at:\n{assetPath}\n\nSmartConsole Command:\ngive_preset preset_{cleanFileName.ToLower()}",
-                "Awesome!");
-        }
-
-        private static void EnsureFolderHierarchy(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path)) return;
-
-            string[] elements = path.Split('/');
-            string current = elements[0];
-            for (int i = 1; i < elements.Length; i++)
-            {
-                string next = current + "/" + elements[i];
-                if (!AssetDatabase.IsValidFolder(next))
-                {
-                    AssetDatabase.CreateFolder(current, elements[i]);
-                }
-                current = next;
-            }
-        }
-
-        private static string GetDefaultSocketForPartType(WeaponPartType type) => type switch
-        {
-            WeaponPartType.Barrel => WeaponSocketNames.Barrel,
-            WeaponPartType.Grip => WeaponSocketNames.Grip,
-            WeaponPartType.Stock => WeaponSocketNames.Stock,
-            WeaponPartType.Sight => WeaponSocketNames.Sight,
-            WeaponPartType.Magazine => WeaponSocketNames.Magazine,
-            WeaponPartType.Accessory => WeaponSocketNames.Accessory,
-            _ => WeaponSocketNames.Barrel
-        };
-
-        // ================= PROCEDURAL ROLLS & DATA REFRESH =================
-
-        private void OnCoreSelected()
-        {
-            UpdateSlotVisibility();
-
-            if (_selectedCore != null)
-            {
-                RollProceduralWeapon();
-            }
-            else
-            {
-                RebuildPreviewModel();
-                RefreshWeaponCard();
-            }
-        }
-
-        private void UpdateSlotVisibility()
-        {
-            if (_selectedCore == null)
-            {
-                SetRowVisible(_barrelRow, true);
-                SetRowVisible(_gripRow, true);
-                SetRowVisible(_stockRow, true);
-                SetRowVisible(_sightRow, true);
-                SetRowVisible(_magRow, true);
-                SetRowVisible(_accessoryRow, true);
-                return;
-            }
-
-            SetRowVisible(_barrelRow, _selectedCore.SupportsPartSlot(WeaponPartType.Barrel));
-            SetRowVisible(_gripRow, _selectedCore.SupportsPartSlot(WeaponPartType.Grip));
-            SetRowVisible(_stockRow, _selectedCore.SupportsPartSlot(WeaponPartType.Stock));
-            SetRowVisible(_sightRow, _selectedCore.SupportsPartSlot(WeaponPartType.Sight));
-            SetRowVisible(_magRow, _selectedCore.SupportsPartSlot(WeaponPartType.Magazine));
-            SetRowVisible(_accessoryRow, _selectedCore.SupportsPartSlot(WeaponPartType.Accessory));
-
-            if (!_selectedCore.SupportsPartSlot(WeaponPartType.Barrel)) { _selectedBarrel = null; _barrelObjectField?.SetValueWithoutNotify(null); }
-            if (!_selectedCore.SupportsPartSlot(WeaponPartType.Grip)) { _selectedGrip = null; _gripObjectField?.SetValueWithoutNotify(null); }
-            if (!_selectedCore.SupportsPartSlot(WeaponPartType.Stock)) { _selectedStock = null; _stockObjectField?.SetValueWithoutNotify(null); }
-            if (!_selectedCore.SupportsPartSlot(WeaponPartType.Sight)) { _selectedSight = null; _sightObjectField?.SetValueWithoutNotify(null); }
-            if (!_selectedCore.SupportsPartSlot(WeaponPartType.Magazine)) { _selectedMagazine = null; _magObjectField?.SetValueWithoutNotify(null); }
-            if (!_selectedCore.SupportsPartSlot(WeaponPartType.Accessory)) { _selectedAccessory = null; _accessoryObjectField?.SetValueWithoutNotify(null); }
-        }
-
-        private static void SetRowVisible(VisualElement row, bool visible)
-        {
-            if (row != null) row.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
-        }
-
-        private void RollProceduralWeapon()
-        {
-            if (!_selectedCore) return;
-
-            _proceduralSeed = (uint)UnityEngine.Random.Range(1, 999999);
-            System.Random prng = new System.Random((int)_proceduralSeed);
-
-            _selectedBarrel = _selectedCore.SupportsPartSlot(WeaponPartType.Barrel) ? RollFromPool(_selectedCore.CompatibleBarrels, prng) : null;
-            _selectedGrip = _selectedCore.SupportsPartSlot(WeaponPartType.Grip) ? RollFromPool(_selectedCore.CompatibleGrips, prng) : null;
-            _selectedStock = _selectedCore.SupportsPartSlot(WeaponPartType.Stock) ? RollFromPool(_selectedCore.CompatibleStocks, prng) : null;
-            _selectedSight = _selectedCore.SupportsPartSlot(WeaponPartType.Sight) ? RollFromPool(_selectedCore.CompatibleSights, prng) : null;
-            _selectedMagazine = _selectedCore.SupportsPartSlot(WeaponPartType.Magazine) ? RollFromPool(_selectedCore.CompatibleMagazines, prng) : null;
-
-            _selectedAccessory = (_selectedCore.SupportsPartSlot(WeaponPartType.Accessory) && _proceduralRarity >= ItemRarity.Rare && _selectedCore.CompatibleAccessories.Count > 0)
-                ? RollFromPool(_selectedCore.CompatibleAccessories, prng)
-                : null;
-
-            UpdateFieldValues();
-            RebuildPreviewModel();
-            RefreshWeaponCard();
-        }
-
-        private void UpdateFieldValues()
-        {
-            _barrelObjectField?.SetValueWithoutNotify(_selectedBarrel);
-            _gripObjectField?.SetValueWithoutNotify(_selectedGrip);
-            _stockObjectField?.SetValueWithoutNotify(_selectedStock);
-            _sightObjectField?.SetValueWithoutNotify(_selectedSight);
-            _magObjectField?.SetValueWithoutNotify(_selectedMagazine);
-            _accessoryObjectField?.SetValueWithoutNotify(_selectedAccessory);
-        }
-
-        private static WeaponPartDefinition RollFromPool(IReadOnlyList<WeaponPartDefinition> pool, System.Random prng)
-        {
-            if (pool == null || pool.Count == 0) return null;
-            return pool[prng.Next(0, pool.Count)];
-        }
-
-        // ================= 3D VIEWPORT RENDERING =================
 
         private void RebuildPreviewModel()
         {
@@ -1470,27 +1161,12 @@ namespace Project.Combat.Editor
                 return;
             }
 
-            _previewRootObject = new GameObject("Preview_Weapon_Root");
-            _previewRootObject.hideFlags = HideFlags.HideAndDontSave;
-
+            _previewRootObject = new GameObject("Preview_Weapon_Root") { hideFlags = HideFlags.HideAndDontSave };
             var assembler = _previewRootObject.AddComponent<WeaponVisualAssembler>();
             var weapon = GetCurrentWeaponInstance();
             if (weapon != null)
             {
                 assembler.AssembleVisuals(weapon);
-            }
-
-            // Fallback placeholder if no meshes exist
-            if (_previewRootObject.transform.childCount == 0)
-            {
-                var placeholderCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                placeholderCube.hideFlags = HideFlags.HideAndDontSave;
-                var col = placeholderCube.GetComponent<Collider>();
-                if (col) DestroyImmediate(col);
-
-                placeholderCube.transform.SetParent(_previewRootObject.transform, false);
-                placeholderCube.transform.localPosition = Vector3.zero;
-                placeholderCube.transform.localScale = new Vector3(0.12f, 0.22f, 0.6f);
             }
 
             InitializePreviewUtility();
@@ -1531,15 +1207,75 @@ namespace Project.Combat.Editor
         {
             if (!_selectedCore) return null;
 
-            var parts = new List<WeaponPartDefinition>();
-            if (_selectedBarrel) parts.Add(_selectedBarrel);
-            if (_selectedGrip) parts.Add(_selectedGrip);
-            if (_selectedStock) parts.Add(_selectedStock);
-            if (_selectedSight) parts.Add(_selectedSight);
-            if (_selectedMagazine) parts.Add(_selectedMagazine);
-            if (_selectedAccessory) parts.Add(_selectedAccessory);
+            List<WeaponPartInstance> list = new();
+            foreach (var kvp in _selectedParts)
+            {
+                if (kvp.Value != null)
+                {
+                    byte lvl = _partLevels.TryGetValue(kvp.Key, out byte l) ? l : _receiverLevel;
+                    bool locked = _partLocks.TryGetValue(kvp.Key, out bool lk) ? lk : kvp.Value.IsUnique;
+                    list.Add(new WeaponPartInstance(kvp.Value, lvl, locked));
+                }
+            }
 
-            return new WeaponInstance(_selectedCore, parts, _proceduralSeed, _itemLevel, _proceduralRarity);
+            return new WeaponInstance(_selectedCore, list, _activeSeed, _receiverLevel, _activeRarity);
+        }
+
+        // ================= LIVE WEAPON CARD UI =================
+
+        private void BuildWeaponCardUI(VisualElement parent)
+        {
+            var cardPanel = CreateCardPanel("LIVE WEAPON CARD & COMBAT DPS");
+
+            _cardRoot = new VisualElement
+            {
+                style =
+                {
+                    backgroundColor = new Color(0.10f, 0.10f, 0.12f),
+                    borderTopWidth = 3,
+                    borderBottomWidth = 3,
+                    borderLeftWidth = 3,
+                    borderRightWidth = 3,
+                    borderTopLeftRadius = 6,
+                    borderTopRightRadius = 6,
+                    borderBottomLeftRadius = 6,
+                    borderBottomRightRadius = 6,
+                    paddingLeft = 12,
+                    paddingRight = 12,
+                    paddingTop = 10,
+                    paddingBottom = 10
+                }
+            };
+
+            _weaponNameLabel = new Label("Select a Weapon Core")
+            {
+                style = { fontSize = 15, unityFontStyleAndWeight = FontStyle.Bold, color = Color.white }
+            };
+            _cardRoot.Add(_weaponNameLabel);
+
+            _rarityBadge = new Label("COMMON WEAPON")
+            {
+                style = { fontSize = 10, unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 4 }
+            };
+            _cardRoot.Add(_rarityBadge);
+
+            _redTextLabel = new Label(string.Empty)
+            {
+                style = { fontSize = 11, unityFontStyleAndWeight = FontStyle.Italic, color = new Color(0.95f, 0.3f, 0.3f), marginBottom = 8 }
+            };
+            _cardRoot.Add(_redTextLabel);
+
+            _statsList = new VisualElement();
+            _cardRoot.Add(_statsList);
+
+            var div = new VisualElement { style = { height = 1, backgroundColor = new Color(0.25f, 0.25f, 0.28f), marginTop = 8, marginBottom = 8 } };
+            _cardRoot.Add(div);
+
+            _dpsList = new VisualElement();
+            _cardRoot.Add(_dpsList);
+
+            cardPanel.Add(_cardRoot);
+            parent.Add(cardPanel);
         }
 
         private void RefreshWeaponCard()
@@ -1549,80 +1285,162 @@ namespace Project.Combat.Editor
             if (!_selectedCore)
             {
                 _weaponNameLabel.text = "No Weapon Core Selected";
-                _weaponNameLabel.style.color = Color.gray;
-                _rarityLabel.text = "Select or create a core on the left to begin.";
+                _rarityBadge.text = "Select or roll a weapon core on the left.";
                 _redTextLabel.text = string.Empty;
-                _cardRoot.style.borderTopColor = Color.gray;
-                _cardRoot.style.borderBottomColor = Color.gray;
-                _cardRoot.style.borderLeftColor = Color.gray;
-                _cardRoot.style.borderRightColor = Color.gray;
-                _statsContainer.Clear();
-                _dpsContainer.Clear();
+                _statsList.Clear();
+                _dpsList.Clear();
                 return;
             }
 
             var weapon = GetCurrentWeaponInstance();
             if (weapon == null) return;
 
-            Color rarityColor = RarityUtility.GetColor(_proceduralRarity);
-            _cardRoot.style.borderTopColor = rarityColor;
-            _cardRoot.style.borderBottomColor = rarityColor;
-            _cardRoot.style.borderLeftColor = rarityColor;
-            _cardRoot.style.borderRightColor = rarityColor;
+            Color c = RarityUtility.GetColor(weapon.Rarity);
+            _cardRoot.style.borderTopColor = c;
+            _cardRoot.style.borderBottomColor = c;
+            _cardRoot.style.borderLeftColor = c;
+            _cardRoot.style.borderRightColor = c;
 
             _weaponNameLabel.text = weapon.DisplayName;
-            _weaponNameLabel.style.color = Color.white;
-
-            _rarityLabel.text = $"LEVEL {_itemLevel} {_proceduralRarity.ToString().ToUpper()} {weapon.Core.WeaponType.ToString().ToUpper()}";
-            _rarityLabel.style.color = rarityColor;
-
+            _rarityBadge.text = $"LEVEL {weapon.Level} {weapon.Rarity.ToString().ToUpper()} {weapon.Core.WeaponType.ToString().ToUpper()}";
+            _rarityBadge.style.color = c;
             _redTextLabel.text = !string.IsNullOrEmpty(weapon.RedText) ? $"\"{weapon.RedText}\"" : string.Empty;
 
-            // Render stats list
-            _statsContainer.Clear();
+            _statsList.Clear();
             var stats = weapon.CompiledStats;
 
-            float totalDamagePerShot = stats.Damage * stats.PelletsPerShot;
-            string damageDisplay = stats.PelletsPerShot > 1 ? $"{stats.Damage:F1} x {stats.PelletsPerShot} ({totalDamagePerShot:F1})" : $"{stats.Damage:F1}";
+            byte barrelLvl = weapon.GetPartLevel(WeaponPartType.Barrel);
+            float recMultiplier = weapon.Core.CalculateLevelMultiplier(weapon.Level);
+            float barMultiplier = weapon.Core.CalculateLevelMultiplier(barrelLvl);
+            float effMult = (recMultiplier + barMultiplier) * 0.5f;
 
-            AddStatRow(_statsContainer, "Damage", damageDisplay);
-            AddStatRow(_statsContainer, "Fire Rate", $"{stats.FireRate:F1} /s");
-            AddStatRow(_statsContainer, "Magazine Size", $"{stats.MagazineSize}");
-            AddStatRow(_statsContainer, "Reload Speed", $"{stats.ReloadSpeed:F2} s");
-            AddStatRow(_statsContainer, "Accuracy / Spread", $"{stats.BaseSpread:F1}° - {stats.MaxSpread:F1}°");
-            AddStatRow(_statsContainer, "Recoil Kick", $"{stats.RecoilKick:F1}");
-            AddStatRow(_statsContainer, "Critical Multiplier", $"{stats.CriticalMultiplier:F1}x");
-            AddStatRow(_statsContainer, "Element", $"{stats.Element}");
-            AddStatRow(_statsContainer, "Firing Mode", $"{stats.FiringMode}" + (stats.FiringMode == FiringMode.Burst ? $" ({stats.BurstCount} rnd)" : ""));
+            AddCardRow(_statsList, "Damage", $"{stats.Damage:F1} (Base {weapon.Core.BaseDamage} × {effMult:F2})");
+            if (stats.PelletsPerShot > 1)
+                AddCardRow(_statsList, "Pellets", $"{stats.PelletsPerShot}x");
+            AddCardRow(_statsList, "Fire Rate", $"{stats.FireRate:F1} /s");
+            AddCardRow(_statsList, "Magazine Size", $"{stats.MagazineSize}");
+            AddCardRow(_statsList, "Reload Speed", $"{stats.ReloadSpeed:F2} s");
+            AddCardRow(_statsList, "Accuracy Spread", $"{stats.BaseSpread:F1}° - {stats.MaxSpread:F1}°");
+            AddCardRow(_statsList, "Recoil Kick", $"{stats.RecoilKick:F1}");
+            AddCardRow(_statsList, "Critical Multiplier", $"{stats.CriticalMultiplier:F1}x");
+            AddCardRow(_statsList, "Element", $"{stats.Element}");
 
-            // DPS Analytics Section
-            _dpsContainer.Clear();
-            float burstDPS = totalDamagePerShot * stats.FireRate;
-            float magEmptyTime = stats.FireRate > 0f ? (stats.MagazineSize / stats.FireRate) : 0f;
-            float cycleTime = magEmptyTime + stats.ReloadSpeed;
-            float sustainedDPS = cycleTime > 0f ? (totalDamagePerShot * stats.MagazineSize) / cycleTime : 0f;
+            _dpsList.Clear();
+            float burstDPS = stats.Damage * stats.PelletsPerShot * stats.FireRate;
+            float magCycle = stats.FireRate > 0 ? (stats.MagazineSize / stats.FireRate) + stats.ReloadSpeed : 1f;
+            float sustainedDPS = (stats.Damage * stats.PelletsPerShot * stats.MagazineSize) / magCycle;
 
-            AddStatRow(_dpsContainer, "Burst DPS", $"{burstDPS:F1} dps", new Color(0.95f, 0.8f, 0.3f));
-            AddStatRow(_dpsContainer, "Sustained DPS", $"{sustainedDPS:F1} dps", new Color(0.4f, 0.9f, 0.4f));
+            AddCardRow(_dpsList, "Burst DPS", $"{burstDPS:F0} dps", new Color(1f, 0.85f, 0.3f));
+            AddCardRow(_dpsList, "Sustained DPS", $"{sustainedDPS:F0} dps", new Color(0.4f, 0.9f, 0.4f));
         }
 
-        private void AddStatRow(VisualElement container, string labelText, string valueText, Color? valueColor = null)
+        private void AddCardRow(VisualElement container, string key, string value, Color? valueColor = null)
         {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.justifyContent = Justify.SpaceBetween;
-            row.style.marginBottom = 3;
-
-            var label = new Label(labelText);
-            label.style.color = new Color(0.7f, 0.7f, 0.7f);
-
-            var val = new Label(valueText);
-            val.style.unityFontStyleAndWeight = FontStyle.Bold;
-            val.style.color = valueColor ?? Color.white;
-
-            row.Add(label);
-            row.Add(val);
+            var row = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.SpaceBetween, marginBottom = 2 } };
+            var k = new Label(key) { style = { color = new Color(0.7f, 0.7f, 0.7f), fontSize = 11 } };
+            var v = new Label(value) { style = { color = valueColor ?? Color.white, fontSize = 11, unityFontStyleAndWeight = FontStyle.Bold } };
+            row.Add(k);
+            row.Add(v);
             container.Add(row);
+        }
+
+        // ================= ASSET CREATION HELPERS =================
+
+        private void CreateNewCoreAsset()
+        {
+            string path = EditorUtility.SaveFilePanelInProject("Create Weapon Core", "WeaponCore_New", "asset", "Save Weapon Core Definition");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var core = CreateInstance<WeaponCoreDefinition>();
+            AssetDatabase.CreateAsset(core, path);
+            AssetDatabase.SaveAssets();
+
+            if (ItemRegistry.Instance) ItemRegistry.Instance.RegisterCore(core);
+
+            _selectedCore = core;
+            OnCoreChanged();
+            BuildCatalogList();
+            InspectAssetInDetail(core);
+        }
+
+        private void CreateNewPartAsset(WeaponPartType slot)
+        {
+            string path = EditorUtility.SaveFilePanelInProject($"Create {slot} Part", $"Part_{slot}_New", "asset", $"Save {slot} Part Definition");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var part = CreateInstance<WeaponPartDefinition>();
+            var so = new SerializedObject(part);
+            so.FindProperty("_partType").enumValueIndex = (int)slot;
+            so.FindProperty("_displayName").stringValue = $"Standard {slot}";
+            so.ApplyModifiedProperties();
+
+            AssetDatabase.CreateAsset(part, path);
+            AssetDatabase.SaveAssets();
+
+            if (ItemRegistry.Instance) ItemRegistry.Instance.RegisterPart(part);
+
+            _selectedParts[slot] = part;
+            if (_slotObjectFields.TryGetValue(slot, out var f)) f.SetValueWithoutNotify(part);
+            BuildCatalogList();
+            InspectAssetInDetail(part);
+            RebuildPreviewModel();
+            RefreshWeaponCard();
+        }
+
+        private void CreateNewBrandAsset()
+        {
+            string path = EditorUtility.SaveFilePanelInProject("Create Manufacturer Brand", "Manufacturer_New", "asset", "Save Manufacturer Brand Definition");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var mfg = CreateInstance<ManufacturerDefinition>();
+            AssetDatabase.CreateAsset(mfg, path);
+            AssetDatabase.SaveAssets();
+
+            if (ItemRegistry.Instance) ItemRegistry.Instance.RegisterManufacturer(mfg);
+
+            BuildCatalogList();
+            InspectAssetInDetail(mfg);
+        }
+
+        private static VisualElement CreateCardPanel(string title)
+        {
+            var panel = new VisualElement
+            {
+                style =
+                {
+                    backgroundColor = new Color(0.12f, 0.12f, 0.14f),
+                    paddingLeft = 12,
+                    paddingRight = 12,
+                    paddingTop = 10,
+                    paddingBottom = 10,
+                    marginBottom = 10,
+                    borderTopLeftRadius = 6,
+                    borderTopRightRadius = 6,
+                    borderBottomLeftRadius = 6,
+                    borderBottomRightRadius = 6,
+                    borderTopWidth = 1,
+                    borderBottomWidth = 1,
+                    borderLeftWidth = 1,
+                    borderRightWidth = 1,
+                    borderTopColor = new Color(0.20f, 0.20f, 0.22f),
+                    borderBottomColor = new Color(0.20f, 0.20f, 0.22f),
+                    borderLeftColor = new Color(0.20f, 0.20f, 0.22f),
+                    borderRightColor = new Color(0.20f, 0.20f, 0.22f)
+                }
+            };
+
+            var t = new Label(title)
+            {
+                style =
+                {
+                    fontSize = 12,
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    color = new Color(0.85f, 0.85f, 0.9f),
+                    marginBottom = 8
+                }
+            };
+            panel.Add(t);
+            return panel;
         }
     }
 }

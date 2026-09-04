@@ -44,6 +44,9 @@ GameObject:
   - component: {fileID: 3649426312018013568}
   - component: {fileID: 3916750346549361147}
   - component: {fileID: 3432939826793728204}
+  - component: {fileID: 5463135704799499700}
+  - component: {fileID: 2553554251463300523}
+  - component: {fileID: 430891073094004469}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -90,6 +93,7 @@ MonoBehaviour:
   _directChildren: []
   _inputProvider: {fileID: 3432939826793728204}
   _locomotionController: {fileID: 7482482855676676148}
+  _interactor: {fileID: 5463135704799499700}
   _remotePlayerLayerIndex: 8
 --- !u!114 &3432939826793728204
 MonoBehaviour:
@@ -117,6 +121,76 @@ MonoBehaviour:
   _enableCursorLock: 1
   _inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _actionMapName: Player
+--- !u!114 &5463135704799499700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094660744987473108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 405b57a03d080614f866984e67512e40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.Interaction.PlayerInteractor
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _detectionRange: 3
+  _assistRadius: 0.4
+  _assistRange: 3
+  _interactableLayers:
+    serializedVersion: 2
+    m_Bits: 32768
+  _playerFacade: {fileID: 3916750346549361147}
+  _cameraController: {fileID: 1197550716529269032}
+--- !u!114 &2553554251463300523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094660744987473108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02a4ee92d8746c74a8ad0b20bafd6d7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.Weapons.PlayerWeaponController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _visualAssembler: {fileID: 430891073094004469}
+  _weaponMount: {fileID: 0}
+  _hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _defaultSlot1Core: {fileID: 0}
+  _defaultSlot2Core: {fileID: 0}
+--- !u!114 &430891073094004469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094660744987473108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cdff5d813b4e0248bf255ffc172abf1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Combat::Project.Combat.WeaponVisualAssembler
+  _visualContainer: {fileID: 0}
 --- !u!1 &1664979332812934402
 GameObject:
   m_ObjectHideFlags: 0
@@ -332,7 +406,7 @@ MonoBehaviour:
   _networkTransform: {fileID: 1117931757033441777}
   _playerFacade: {fileID: 3916750346549361147}
   _fpsCameraController: {fileID: 1197550716529269032}
-  _maxStableMoveSpeed: 6
+  _maxStableMoveSpeed: 5
   _sprintSpeedMultiplier: 1.5
   _crouchSpeedMultiplier: 0.5
   _stableMovementSharpness: 15
@@ -346,8 +420,8 @@ MonoBehaviour:
   _allowJumpingWhenSliding: 1
   _allowDoubleJump: 1
   _allowWallJump: 0
-  _jumpSpeed: 9
-  _doubleJumpSpeed: 8
+  _jumpSpeed: 11
+  _doubleJumpSpeed: 10
   _jumpPreGroundingGraceTime: 0
   _jumpPostGroundingGraceTime: 0
   _jumpBufferTime: 0.15
@@ -359,7 +433,7 @@ MonoBehaviour:
     m_Bits: 1
   _slideEntryBoost: 2
   _slideFriction: 1
-  _minSpeedToSlide: 6.2
+  _minSpeedToSlide: 6
   _slideStopSpeed: 5
   _vaultLayerMask:
     serializedVersion: 2
@@ -369,7 +443,7 @@ MonoBehaviour:
   _vaultDuration: 0.7
   _fallGravityMultiplier: 0.9
   _slideGravityMultiplier: 2.5
-  _gravity: {x: 0, y: -23, z: 0}
+  _gravity: {x: 0, y: -30, z: 0}
 --- !u!1 &2579901062761265217
 GameObject:
   m_ObjectHideFlags: 0
