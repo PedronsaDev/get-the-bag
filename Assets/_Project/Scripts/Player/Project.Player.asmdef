@@ -4,6 +4,7 @@
     "references": [
         "Project.Core",
         "Project.Networking",
+        "Project.Combat",
         "GUID:3d125c4ec03e5bd40ab286a1a03493a1",
         "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:6e20f757a1bae164fa42750dd2b27dcb",

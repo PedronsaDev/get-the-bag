@@ -32,10 +32,17 @@ namespace Project.Player
         private float _currentPitch;
         private float _currentYaw;
 
+        public Transform PitchPivot => _pitchPivot;
         public float CurrentYaw => _currentYaw;
         public float CurrentPitch => _currentPitch;
         public Quaternion CameraRotation => Quaternion.Euler(_currentPitch, _currentYaw, 0f);
         public Quaternion PlanarRotation => Quaternion.Euler(0f, _currentYaw, 0f);
+
+        public void AddPitchRecoil(float recoilDegrees)
+        {
+            _currentPitch -= recoilDegrees;
+            _currentPitch = Mathf.Clamp(_currentPitch, _minPitch, _maxPitch);
+        }
 
         protected override void OnSpawned()
         {

@@ -13,6 +13,7 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private LocomotionController _locomotionController;
     [SerializeField] private int _remotePlayerLayerIndex;
     
+    
     public LocomotionState LocomotionState { get; private set; }
     public PlayerInputData CurrentInput { get; private set; }
 
