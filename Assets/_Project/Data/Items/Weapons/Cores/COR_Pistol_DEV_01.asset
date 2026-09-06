@@ -60,16 +60,22 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _bodyPrefab: {fileID: 0}
+  _bodyPrefab: {fileID: 1488382250582164244, guid: 56f08cbe38ffb9f4782fdaf7951b3211, type: 3}
   _supportsBarrel: 1
   _supportsGrip: 1
   _supportsStock: 0
   _supportsSight: 1
   _supportsMagazine: 1
-  _supportsAccessory: 1
-  _compatibleBarrels: []
-  _compatibleGrips: []
+  _supportsAccessory: 0
+  _compatibleBarrels:
+  - {fileID: 11400000, guid: d31ce95759af5b6439c714b627750cbb, type: 2}
+  - {fileID: 11400000, guid: 06d0cd1f3aa443a4ba0c5744503b9c05, type: 2}
+  _compatibleGrips:
+  - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
+  - {fileID: 11400000, guid: 850157dfd2b9b0345839f8505e493f32, type: 2}
   _compatibleStocks: []
-  _compatibleSights: []
-  _compatibleMagazines: []
+  _compatibleSights:
+  - {fileID: 11400000, guid: b729a9493b12bca4e9fd78c2e70a0be5, type: 2}
+  _compatibleMagazines:
+  - {fileID: 11400000, guid: 68b17b61eb0c3eb4e9c89dc40bfc6a97, type: 2}
   _compatibleAccessories: []

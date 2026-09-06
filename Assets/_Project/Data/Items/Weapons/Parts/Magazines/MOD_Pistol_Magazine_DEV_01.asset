@@ -20,14 +20,13 @@ MonoBehaviour:
   _isUniversal: 0
   _manufacturer: {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   _rarity: 0
+  _meshPrefab: {fileID: 6475669597973405018, guid: e15b46d01f3a5814392040ed4b7df165, type: 3}
+  _customSocketName: 
   _isUnique: 0
   _redText: 
   _uniqueBehaviorId: 
-  _meshPrefab: {fileID: 0}
-  _customSocketName: ""
-  _modifiers: []
   _overridesElement: 0
   _elementOverride: 0
   _overridesFiringMode: 0
   _firingModeOverride: 1
-
+  _modifiers: []

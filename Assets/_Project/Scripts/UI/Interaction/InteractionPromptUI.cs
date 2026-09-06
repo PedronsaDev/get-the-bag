@@ -9,28 +9,19 @@ namespace Project.UI
 {
 public class InteractionPromptUI : MonoBehaviour
 {
-    [Header("Primary References")]
-    [Tooltip("Optional root container or CanvasGroup to toggle the entire prompt UI.")]
+    [Header("Primary References")] 
     [SerializeField] private GameObject _rootContainer;
-
     [SerializeField] private CanvasGroup _canvasGroup;
+    [SerializeField] private GameObject _promptTextContainer;
     [SerializeField] private TMP_Text _promptText;
+    [SerializeField] private GameObject _holdPromptTextContainer;
+    [SerializeField] private TMP_Text _holdPromptText;
     [SerializeField] private GameObject _progressBarContainer;
     [SerializeField] private Image _progressBarFill;
 
     [Header("Optional Secondary Text")] 
     [SerializeField] private TMP_Text _targetNameText;
     [SerializeField] private TMP_Text _subtextText;
-
-    [Header("Dual Interaction Prompts")]
-    [Tooltip("Optional secondary prompt text for hold actions (e.g. '[Hold F] Equip'). If unassigned, dual prompts format dynamically into _promptText.")]
-    [SerializeField] private TMP_Text _holdPromptText;
-
-    [Tooltip("Optional container GameObject for the hold prompt row.")] 
-    [SerializeField] private GameObject _holdPromptContainer;
-
-    [Header("Visual Styling")] 
-    [SerializeField] private Color _defaultAccentColor = new Color(1f, 0.85f, 0.2f, 1f);
 
     private PlayerInteractor _interactor;
 
@@ -52,7 +43,8 @@ public class InteractionPromptUI : MonoBehaviour
 
         UnbindInteractor();
     }
-
+    
+    // Player binding
     private void HandleLocalPlayerSpawned(PlayerFacade player)
     {
         if (player)
@@ -91,6 +83,12 @@ public class InteractionPromptUI : MonoBehaviour
             _interactor = null;
         }
     }
+    
+    // Interaction handling
+    private void HandleHoldProgressChanged(float progress)
+    {
+        _progressBarFill.fillAmount = Mathf.Clamp01(progress);
+    }
 
     private void HandleTargetChanged(IInteractable target)
     {
@@ -103,79 +101,19 @@ public class InteractionPromptUI : MonoBehaviour
     private void ShowPrompt(IInteractable target)
     {
         bool isDual = target.Mode == InteractionMode.DualInstantAndHold;
-        bool hasHoldPrompt =
-            !string.IsNullOrEmpty(target.HoldPrompt) && (isDual || target.Mode == InteractionMode.Hold);
+        bool isHold = target.Mode == InteractionMode.Hold;
+        bool hasHoldPrompt = isDual || target.Mode == InteractionMode.Hold;
 
-        if (_promptText)
+        if (!string.IsNullOrEmpty(target.InteractionPrompt) && !isHold)
         {
-            if (!_targetNameText && !string.IsNullOrEmpty(target.TargetName))
-            {
-                if (hasHoldPrompt && !_holdPromptText)
-                {
-                    _promptText.SetText(
-                        $"{target.InteractionPrompt} <color=white>{target.TargetName}</color>\n<size=85%><color=#D0D0D0>{target.HoldPrompt}</color></size>");
-                }
-                else
-                {
-                    _promptText.SetText($"{target.InteractionPrompt} <color=white>{target.TargetName}</color>");
-                }
-            }
-            else
-            {
-                if (hasHoldPrompt && !_holdPromptText)
-                {
-                    _promptText.SetText(
-                        $"{target.InteractionPrompt}\n<size=85%><color=#D0D0D0>{target.HoldPrompt}</color></size>");
-                }
-                else
-                {
-                    _promptText.SetText(target.InteractionPrompt);
-                }
-            }
-
-            _promptText.gameObject.SetActive(true);
+            _promptTextContainer.SetActive(true);
+            _promptText.text = target.InteractionPrompt;
         }
 
-        if (_holdPromptText)
+        if (hasHoldPrompt && !string.IsNullOrEmpty(target.HoldPrompt))
         {
-            _holdPromptText.gameObject.SetActive(hasHoldPrompt);
-            if (hasHoldPrompt)
-            {
-                _holdPromptText.SetText(target.HoldPrompt);
-            }
-        }
-
-        if (_holdPromptContainer)
-        {
-            _holdPromptContainer.SetActive(hasHoldPrompt);
-        }
-
-        if (_targetNameText)
-        {
-            bool hasName = !string.IsNullOrEmpty(target.TargetName);
-            _targetNameText.gameObject.SetActive(hasName);
-            if (hasName) _targetNameText.SetText(target.TargetName);
-        }
-
-        if (_subtextText)
-        {
-            bool hasSubtext = !string.IsNullOrEmpty(target.Subtext);
-            _subtextText.gameObject.SetActive(hasSubtext);
-            if (hasSubtext) _subtextText.SetText(target.Subtext);
-        }
-
-        bool isHoldable = target.Mode != InteractionMode.Instant && target.HoldDuration > 0f;
-        if (_progressBarContainer)
-        {
-            _progressBarContainer.SetActive(isHoldable);
-        }
-
-        if (_progressBarFill)
-        {
-            _progressBarFill.fillAmount = 0f;
-
-            Color accent = target.AccentColor;
-            _progressBarFill.color = accent.a > 0.01f ? accent : _defaultAccentColor;
+            _holdPromptTextContainer.SetActive(true);
+            _holdPromptText.text = target.HoldPrompt;
         }
 
         SetRootVisibility(true);
@@ -183,50 +121,22 @@ public class InteractionPromptUI : MonoBehaviour
 
     private void HidePrompt()
     {
-        if (_promptText)
-            _promptText.gameObject.SetActive(false);
-
-        if (_holdPromptText)
-            _holdPromptText.gameObject.SetActive(false);
-
-        if (_holdPromptContainer)
-            _holdPromptContainer.SetActive(false);
-
-        if (_targetNameText)
-            _targetNameText.gameObject.SetActive(false);
-
-        if (_subtextText)
-            _subtextText.gameObject.SetActive(false);
-
-        if (_progressBarContainer)
-            _progressBarContainer.SetActive(false);
-
-        if (_progressBarFill)
-            _progressBarFill.fillAmount = 0f;
-
+        _promptTextContainer.SetActive(false);
+        _holdPromptText.gameObject.SetActive(false);
+        _holdPromptTextContainer.SetActive(false);
+        _targetNameText.gameObject.SetActive(false);
+        _subtextText.gameObject.SetActive(false);
+        _progressBarContainer.SetActive(false);
+        
+        _progressBarFill.fillAmount = 0f;
+        
         SetRootVisibility(false);
     }
 
     private void SetRootVisibility(bool visible)
     {
-        if (_canvasGroup)
-        {
-            _canvasGroup.alpha = visible ? 1f : 0f;
-            _canvasGroup.blocksRaycasts = false;
-        }
-
-        if (_rootContainer)
-        {
-            _rootContainer.SetActive(visible);
-        }
-    }
-
-    private void HandleHoldProgressChanged(float progress)
-    {
-        if (_progressBarFill)
-        {
-            _progressBarFill.fillAmount = Mathf.Clamp01(progress);
-        }
+        _canvasGroup.alpha = visible ? 1f : 0f;
+        _rootContainer.SetActive(visible);
     }
 }
 }

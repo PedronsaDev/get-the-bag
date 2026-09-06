@@ -15,7 +15,7 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private PlayerInteractor _interactor;
     [SerializeField] private int _remotePlayerLayerIndex;
     
-    
+    public LocalPlayerInputProvider InputProvider => _inputProvider;
     public PlayerInteractor Interactor => _interactor;
     public LocomotionState LocomotionState { get; private set; }
     public PlayerInputData CurrentInput { get; private set; }

@@ -316,7 +316,7 @@ namespace Project.Combat
         {
             List<WeaponPartDefinition> temp = new(1);
             RollAndAddPart(pool, prng, temp, targetRarity);
-            if (temp.Count > 0 && temp[0] != null)
+            if (temp.Count > 0 && temp[0])
             {
                 resultList.Add(new WeaponPartInstance(temp[0], level, isLocked: temp[0].IsUnique));
             }

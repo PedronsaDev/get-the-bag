@@ -252,6 +252,12 @@ namespace Project.Player.Commands
             var pickupObj = new GameObject($"WorldPickup_{snapshot.CustomName ?? "Weapon"}");
             pickupObj.transform.position = spawnPos;
 
+            int interactableLayer = LayerMask.NameToLayer("Interactable");
+            if (interactableLayer >= 0)
+            {
+                pickupObj.layer = interactableLayer;
+            }
+
             var collider = pickupObj.AddComponent<SphereCollider>();
             collider.isTrigger = true;
             collider.radius = 1.2f;
@@ -261,6 +267,12 @@ namespace Project.Player.Commands
             visualRoot.AddComponent<WeaponVisualAssembler>();
 
             var pickup = pickupObj.AddComponent<WorldWeaponPickup>();
+
+            if (PurrNet.NetworkManager.main != null && PurrNet.NetworkManager.main.isServer)
+            {
+                PurrNet.NetworkManager.main.Spawn(pickupObj);
+            }
+
             pickup.Initialize(snapshot);
 
             PedronsaDev.Console.Console.Log($"[Weapons] Spawned 3D World Pickup: '{snapshot.CustomName}' at {spawnPos}!");

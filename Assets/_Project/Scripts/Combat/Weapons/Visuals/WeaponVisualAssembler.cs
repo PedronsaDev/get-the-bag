@@ -18,8 +18,8 @@ namespace Project.Combat
         private Transform _ejectorSocket;
         private readonly Dictionary<string, Transform> _discoveredSockets = new(StringComparer.OrdinalIgnoreCase);
 
-        public Transform MuzzleSocket => _muzzleSocket != null ? _muzzleSocket : transform;
-        public Transform EjectorSocket => _ejectorSocket != null ? _ejectorSocket : transform;
+        public Transform MuzzleSocket => _muzzleSocket ? _muzzleSocket : transform;
+        public Transform EjectorSocket => _ejectorSocket ? _ejectorSocket : transform;
 
         private void Awake()
         {

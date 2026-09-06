@@ -33,14 +33,9 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
 
     public event Action OnDestroyed;
 
-    private void Awake()
-    {
-        _currentHealth.value = _maxHealth;
-    }
-
     protected override void OnSpawned()
     {
-        if (isServer)
+        if (NetworkManager.main == null || isServer)
         {
             _currentHealth.value = _maxHealth;
             _isDestroyed = false;
@@ -130,8 +125,8 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
             float falloff = Mathf.Clamp01(1f - (distance / _explosionRadius));
             float calculatedDamage = _explosionDamage * falloff;
 
-            if (coll.TryGetComponent<IDamageable>(out var target) ||
-                (coll.transform.parent && coll.transform.parent.TryGetComponent(out target)))
+            var target = coll.GetComponentInParent<IDamageable>();
+            if (target != null)
             {
                 Vector3 direction = (coll.transform.position - origin).normalized;
                 DamagePayload aoePayload = new DamagePayload(
@@ -184,8 +179,12 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
         foreach (var c in GetComponentsInChildren<Collider>())
             c.enabled = false;
 
-        // Destroy object on server/host
-        if (NetworkManager.main == null || isServer)
+        // Despawn or destroy object
+        if (NetworkManager.main != null && isServer)
+        {
+            Despawn();
+        }
+        else if (NetworkManager.main == null)
         {
             Destroy(gameObject, 0.2f);
         }

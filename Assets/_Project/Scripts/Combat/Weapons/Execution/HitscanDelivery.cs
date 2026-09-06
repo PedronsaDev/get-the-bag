@@ -31,12 +31,7 @@ namespace Project.Combat
                     tracerTarget = hit.point;
 
                     // Evaluate damage against hit entity
-                    IDamageable damageable = hit.collider.GetComponent<IDamageable>();
-                    if (damageable == null && hit.collider.transform.parent)
-                    {
-                        damageable = hit.collider.transform.parent.GetComponentInParent<IDamageable>();
-                    }
-
+                    IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
                     if (damageable != null)
                     {
                         DamagePayload payload = new DamagePayload(

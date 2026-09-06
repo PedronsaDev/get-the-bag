@@ -13,21 +13,20 @@ MonoBehaviour:
   m_Name: MOD_Pistol_Barrel_DEV_01
   m_EditorClassIdentifier: Project.Combat::Project.Combat.WeaponPartDefinition
   _guid: d31ce95759af5b6439c714b627750cbb
-  _partId: part_standard_01
-  _displayName: Standard Barrels
+  _partId: mod_pistol_barrel_dev_01
+  _displayName: Test Barrel
   _partType: 1
   _weaponType: 0
   _isUniversal: 0
   _manufacturer: {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   _rarity: 0
+  _meshPrefab: {fileID: 163177303876556819, guid: 27cfe77a89c90094cb5bf54f553ef888, type: 3}
+  _customSocketName: 
   _isUnique: 0
   _redText: 
   _uniqueBehaviorId: 
-  _meshPrefab: {fileID: 0}
-  _customSocketName: ""
-  _modifiers: []
   _overridesElement: 0
   _elementOverride: 0
   _overridesFiringMode: 0
   _firingModeOverride: 1
-
+  _modifiers: []

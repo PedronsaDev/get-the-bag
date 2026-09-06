@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Project.Core.Input;
+using Project.Core.UI;
 using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -38,9 +40,12 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     [SerializeField] private InputActionAsset _inputActions;
 
     [Header("Action Map Configuration")] 
-    [SerializeField] private string _actionMapName = "Player";
+    [SerializeField] private string _playerActionMapName = "Player";
+    [SerializeField] private string _uiActionMapName = "UI";
 
     private InputActionMap _playerMap;
+    private InputActionMap _uiMap;
+    
     private InputAction _moveAction;
     private InputAction _lookAction;
     private InputAction _attackAction;
@@ -59,6 +64,11 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     private InputAction _slot3Action;
     private InputAction _slot4Action;
     
+    private InputAction _cancelAction;
+    
+    private List<InputBlockerUI> _activeUIBlockers = new List<InputBlockerUI>();
+    
+    
     protected override void OnSpawned()
     {
         this.enabled = isOwner;
@@ -73,6 +83,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         
         InitializeActions();
         _playerMap?.Enable();
+        _uiMap?.Enable();
     }
 
     protected override void OnDespawned()
@@ -81,6 +92,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             return;
         
         _playerMap?.Disable();
+        _uiMap?.Disable();
     }
 
     private void InitializeActions()
@@ -92,11 +104,12 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             return;
         }
 
-        _playerMap = _inputActions.FindActionMap(_actionMapName);
+        _playerMap = _inputActions.FindActionMap(_playerActionMapName);
+        _uiMap = _inputActions.FindActionMap(_uiActionMapName);
         if (_playerMap == null)
         {
             Debug.LogError(
-                $"[{nameof(LocalPlayerInputProvider)}] Action map '{_actionMapName}' not found in InputActionAsset!",
+                $"[{nameof(LocalPlayerInputProvider)}] Action map '{_playerActionMapName}' not found in InputActionAsset!",
                 this);
             return;
         }
@@ -118,6 +131,20 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         _slot2Action = _playerMap.FindAction("WeaponSlot2");
         _slot3Action = _playerMap.FindAction("WeaponSlot3");
         _slot4Action = _playerMap.FindAction("WeaponSlot4");
+        
+        _cancelAction = _uiMap?.FindAction("Cancel");
+    }
+
+    private void Update()
+    {
+        if (!isOwner) return;
+
+        bool cancelPressed = _cancelAction != null && _cancelAction.WasPressedThisFrame();
+
+        if (cancelPressed)
+        {
+            CloseLastActiveUIBlocker();
+        }
     }
 
     public PlayerInputData GetCurrentInput()
@@ -162,6 +189,15 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         };
     }
 
+    private void CloseLastActiveUIBlocker()
+    {
+        if (_activeUIBlockers.Count > 0)
+        {
+            var lastBlocker = _activeUIBlockers[^1];
+            lastBlocker.Close();
+        }
+    }
+
     private int GetWeaponSlotPressed()
     {
         if (_slot1Action != null && _slot1Action.WasPressedThisFrame()) return 1;
@@ -169,6 +205,34 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         if (_slot3Action != null && _slot3Action.WasPressedThisFrame()) return 3;
         if (_slot4Action != null && _slot4Action.WasPressedThisFrame()) return 4;
         return 0;
+    }
+    
+    public void RegisterUIBlocker(InputBlockerUI blocker)
+    {
+        if (_activeUIBlockers.Contains(blocker))
+            return;
+        
+        _activeUIBlockers.Add(blocker);
+        if (_activeUIBlockers.Count == 1)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            _playerMap?.Disable();
+        }
+    }
+
+    public void UnregisterUIBlocker(InputBlockerUI blocker)
+    {
+        if (!_activeUIBlockers.Contains(blocker))
+            return;
+        
+        _activeUIBlockers.Remove(blocker);
+        if (_activeUIBlockers.Count == 0)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            _playerMap?.Enable();
+        }
     }
 }
 }

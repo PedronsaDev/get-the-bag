@@ -20,6 +20,7 @@ namespace Project.Combat
         [SerializeField] private CompiledWeaponStats _compiledStats;
         [SerializeField] private int _currentAmmoInMag;
         [SerializeField] private string _displayName;
+        [SerializeField] private string _customDisplayName;
         [SerializeField] private string _redText;
         [SerializeField] private List<string> _uniqueBehaviorIds = new();
 
@@ -31,6 +32,7 @@ namespace Project.Combat
         public CompiledWeaponStats CompiledStats => _compiledStats;
         public int CurrentAmmoInMag { get => _currentAmmoInMag; set => _currentAmmoInMag = Mathf.Clamp(value, 0, _compiledStats.MagazineSize); }
         public string DisplayName => _displayName;
+        public string CustomDisplayName => _customDisplayName;
         public string RedText => _redText;
         public IReadOnlyList<string> UniqueBehaviorIds => _uniqueBehaviorIds;
 
@@ -63,6 +65,7 @@ namespace Project.Combat
             _seed = seed;
             _level = (byte)Mathf.Clamp(level, 1, 100);
             _rarity = rarity;
+            _customDisplayName = customDisplayName;
 
             _parts.Clear();
             if (partInstances != null)
@@ -88,6 +91,7 @@ namespace Project.Combat
             _seed = seed;
             _level = (byte)Mathf.Clamp(level, 1, 100);
             _rarity = rarity;
+            _customDisplayName = customDisplayName;
 
             _parts.Clear();
             if (parts != null)
@@ -260,6 +264,7 @@ namespace Project.Combat
             float effectiveLevelMultiplier = (receiverMultiplier + barrelMultiplier) * 0.5f;
 
             damage *= effectiveLevelMultiplier;
+            float scaledBaseDamage = _core.BaseDamage * effectiveLevelMultiplier;
 
             // 3. Apply Part Modifiers
             for (int p = 0; p < _parts.Count; p++)
@@ -281,7 +286,7 @@ namespace Project.Combat
                     switch (mod.TargetStat)
                     {
                         case StatType.Damage:
-                            damage = mod.Apply(_core.BaseDamage, damage);
+                            damage = mod.Apply(scaledBaseDamage, damage);
                             break;
                         case StatType.FireRate:
                             fireRate = mod.Apply(_core.BaseFireRate, fireRate);
@@ -375,7 +380,12 @@ namespace Project.Combat
                 }
             }
 
-            string baseTitle = !string.IsNullOrWhiteSpace(customDisplayName) ? customDisplayName : _core.BaseWeaponName;
+            if (!string.IsNullOrWhiteSpace(customDisplayName))
+            {
+                _customDisplayName = customDisplayName;
+            }
+
+            string baseTitle = !string.IsNullOrWhiteSpace(_customDisplayName) ? _customDisplayName : _core.BaseWeaponName;
             _displayName = !string.IsNullOrEmpty(prefix) ? $"{prefix} {baseTitle}" : baseTitle;
         }
     }

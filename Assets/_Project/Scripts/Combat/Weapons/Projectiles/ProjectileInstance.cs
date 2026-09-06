@@ -31,6 +31,7 @@ namespace Project.Combat
         public float DistanceTraveled => _distanceTraveled;
         public float ElapsedLife => _currentLife;
         public bool IsAlive => _isAlive;
+        public bool IsInPool { get; set; }
 
         public event Action<ProjectileInstance> OnDespawn;
 
@@ -128,12 +129,7 @@ namespace Project.Combat
             }
 
             // Deliver damage
-            IDamageable damageable = hit.collider.GetComponent<IDamageable>();
-            if (damageable == null && hit.collider.transform.parent)
-            {
-                damageable = hit.collider.transform.parent.GetComponentInParent<IDamageable>();
-            }
-
+            IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
                 _payload.HitPoint = hit.point;

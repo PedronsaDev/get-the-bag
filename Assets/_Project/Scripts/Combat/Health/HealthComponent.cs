@@ -44,16 +44,13 @@ namespace Project.Combat
 
         private void Awake()
         {
-            _currentHealth.value = _maxHealth;
-            _currentShield.value = _maxShield;
-
             _currentHealth.onChanged += (val) => OnHealthChanged?.Invoke(val, _maxHealth);
             _currentShield.onChanged += (val) => OnShieldChanged?.Invoke(val, _maxShield);
         }
 
         protected override void OnSpawned()
         {
-            if (isServer)
+            if (NetworkManager.main == null || isServer)
             {
                 _currentHealth.value = _maxHealth;
                 _currentShield.value = _maxShield;

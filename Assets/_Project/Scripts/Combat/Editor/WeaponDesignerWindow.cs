@@ -594,7 +594,7 @@ namespace Project.Combat.Editor
 
             if (ItemRegistry.Instance) ItemRegistry.Instance.RegisterPreset(preset);
 
-            EditorUtility.FocusProjectWindow();
+            EditorUtility.FocusProjectWindow(); 
             Selection.activeObject = preset;
             EditorUtility.DisplayDialog("Export Preset", $"Saved dedicated drop preset successfully at:\n{path}", "OK");
         }
@@ -1129,8 +1129,8 @@ namespace Project.Combat.Editor
                 {
                     Vector2 delta = (Vector2)evt.position - _lastPointerPos;
                     _lastPointerPos = (Vector2)evt.position;
-                    _previewRotY += delta.x * 0.75f;
-                    _previewRotX = Mathf.Clamp(_previewRotX + delta.y * 0.75f, -85f, 85f);
+                    _previewRotY -= delta.x * 0.75f;
+                    _previewRotX = Mathf.Clamp(_previewRotX - (delta.y * 0.75f), -85f, 85f);
                     Render3DPreview();
                 }
             });

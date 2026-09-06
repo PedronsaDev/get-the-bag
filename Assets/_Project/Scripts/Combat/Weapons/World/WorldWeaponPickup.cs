@@ -8,16 +8,15 @@ namespace Project.Combat
 [RequireComponent(typeof(Collider))]
 public class WorldWeaponPickup : NetworkBehaviour, IInteractable
 {
-    [Header("Visual Components")] [SerializeField]
-    private WeaponVisualAssembler _visualAssembler;
-
+    [Header("Visual Components")] 
+    [SerializeField] private WeaponVisualAssembler _visualAssembler;
     [SerializeField] private Transform _visualPivot;
     [SerializeField] private Light _rarityLight;
     [SerializeField] private LineRenderer _rarityBeam;
     [SerializeField] private Rigidbody _rigidbody;
 
-    [Header("Interaction Settings")] [SerializeField]
-    private string _interactionPrompt = "[F] Pick up";
+    [Header("Interaction Settings")] 
+    [SerializeField] private string _interactionPrompt = "[F] Pick up";
     [SerializeField] private string _holdPrompt = "[Hold F] Equip";
     [SerializeField] private string _targetName = "Weapon";
     [SerializeField] private string _subtext = "A dropped weapon";
@@ -28,11 +27,19 @@ public class WorldWeaponPickup : NetworkBehaviour, IInteractable
     private ItemNetSnapshot _snapshot;
     private WeaponInstance _cachedWeapon;
 
+    private bool _isClaimed;
+
     public ItemNetSnapshot Snapshot => _snapshot;
     public WeaponInstance Weapon => _cachedWeapon;
 
     private void Awake()
     {
+        int interactableLayer = LayerMask.NameToLayer("Interactable");
+        if (interactableLayer >= 0)
+        {
+            gameObject.layer = interactableLayer;
+        }
+
         if (!_visualPivot)
             _visualPivot = transform;
 
@@ -48,11 +55,23 @@ public class WorldWeaponPickup : NetworkBehaviour, IInteractable
             _rigidbody.linearVelocity = throwVelocity;
         }
 
-        RpcInitializePickup(snapshot);
+        if (NetworkManager.main)
+        {
+            RpcInitializePickup(snapshot);
+        }
+        else
+        {
+            ApplySnapshot(snapshot);
+        }
     }
 
-    [ObserversRpc(bufferLast: true)]
+    [ObserversRpc(runLocally: true, bufferLast: true)]
     public void RpcInitializePickup(ItemNetSnapshot snapshot)
+    {
+        ApplySnapshot(snapshot);
+    }
+
+    private void ApplySnapshot(ItemNetSnapshot snapshot)
     {
         _snapshot = snapshot;
         _cachedWeapon = ItemRegistry.Instance ? ItemRegistry.Instance.ReconstructWeapon(snapshot) : null;
@@ -65,7 +84,8 @@ public class WorldWeaponPickup : NetworkBehaviour, IInteractable
         if (_cachedWeapon != null)
         {
             _targetName = _cachedWeapon.DisplayName;
-            _subtext = $"{_cachedWeapon.Core?.Manufacturer?.DisplayName ?? "Custom"} • Level {_cachedWeapon.Level} {_cachedWeapon.Rarity} {_cachedWeapon.Core?.WeaponType}";
+            _subtext =
+                $"{_cachedWeapon.Core?.Manufacturer?.DisplayName ?? "Custom"} • Level {_cachedWeapon.Level} {_cachedWeapon.Rarity} {_cachedWeapon.Core?.WeaponType}";
             _accentColor = RarityUtility.GetColor(_cachedWeapon.Rarity);
         }
 
@@ -131,31 +151,49 @@ public class WorldWeaponPickup : NetworkBehaviour, IInteractable
 
     public bool CanInteract(IPlayerInteractor interactor)
     {
-        return interactor != null;
+        return !_isClaimed && interactor != null;
     }
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
     {
+        if (_isClaimed) return;
+
         if (interactor != null && interactor.InteractorGameObject)
         {
             var targetObj = interactor.InteractorGameObject;
-            if (targetObj.TryGetComponent<IWeaponPickupReceiver>(out var receiver))
+            if (targetObj.TryGetComponent<IWeaponPickupReceiver>(out var receiver) ||
+                (receiver = targetObj.GetComponentInParent<IWeaponPickupReceiver>()) != null)
             {
                 receiver.ReceiveWeaponPickup(_cachedWeapon, _snapshot, isHold);
             }
         }
 
+        if (NetworkManager.main != null && NetworkManager.main.isClient && !isServer)
+        {
+            _isClaimed = true;
+            RpcRequestPickup();
+        }
+        else
+        {
+            _isClaimed = true;
+            Despawn();
+        }
+    }
+
+    [ServerRpc(requireOwnership: false)]
+    private void RpcRequestPickup(RPCInfo info = default)
+    {
+        if (_isClaimed) return;
+        _isClaimed = true;
         Despawn();
     }
 
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
-        
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
-        
     }
 }
 }

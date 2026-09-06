@@ -14,20 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Combat::Project.Combat.WeaponPartDefinition
   _guid: 20274205e6c45a64f9e5e2d175a65331
   _partId: mod_pistol_grip_dev_01
-  _displayName: Test Grip
+  _displayName: Test DEV Grip
   _partType: 2
   _weaponType: 0
   _isUniversal: 0
   _manufacturer: {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   _rarity: 0
+  _meshPrefab: {fileID: 2573942943486919002, guid: a0c8285eb8ae8cc4daa12d5872a5ec8c, type: 3}
+  _customSocketName: 
   _isUnique: 0
   _redText: 
   _uniqueBehaviorId: 
-  _meshPrefab: {fileID: 0}
-  _customSocketName: ""
-  _modifiers: []
   _overridesElement: 0
   _elementOverride: 0
   _overridesFiringMode: 0
   _firingModeOverride: 1
-
+  _modifiers: []

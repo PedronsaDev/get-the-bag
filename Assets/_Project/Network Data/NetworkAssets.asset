@@ -26,6 +26,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   - {fileID: 11400000, guid: b729a9493b12bca4e9fd78c2e70a0be5, type: 2}
   - {fileID: 11400000, guid: d31ce95759af5b6439c714b627750cbb, type: 2}
+  - {fileID: 11400000, guid: 06d0cd1f3aa443a4ba0c5744503b9c05, type: 2}
+  - {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
+  - {fileID: 11400000, guid: 46d29061b97b4a2478878edfeff4cda8, type: 2}
+  - {fileID: 11400000, guid: 850157dfd2b9b0345839f8505e493f32, type: 2}
   _availableTypeNames:
   - UnityEngine.AnimationClip, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.Animator, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -173,7 +177,11 @@ MonoBehaviour:
   - 83da2f8f17bcc744da3d65139025f40b
   - b729a9493b12bca4e9fd78c2e70a0be5
   - d31ce95759af5b6439c714b627750cbb
-  _bakedIds: 00000000010000000200000003000000040000000500000006000000i
+  - 06d0cd1f3aa443a4ba0c5744503b9c05
+  - 1ce3cdb7cdef02a4285079c346dc184e
+  - 46d29061b97b4a2478878edfeff4cda8
+  - 850157dfd2b9b0345839f8505e493f32
+  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a000000i
   _bakedAssets:
   - {fileID: 11400000, guid: 1e88cbac3c50df049b887e38c4b32069, type: 2}
   - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
@@ -182,6 +190,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   - {fileID: 11400000, guid: b729a9493b12bca4e9fd78c2e70a0be5, type: 2}
   - {fileID: 11400000, guid: d31ce95759af5b6439c714b627750cbb, type: 2}
+  - {fileID: 11400000, guid: 06d0cd1f3aa443a4ba0c5744503b9c05, type: 2}
+  - {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
+  - {fileID: 11400000, guid: 46d29061b97b4a2478878edfeff4cda8, type: 2}
+  - {fileID: 11400000, guid: 850157dfd2b9b0345839f8505e493f32, type: 2}
   _bakedPersistentIds:
   - 1e88cbac3c50df049b887e38c4b32069
   - 20274205e6c45a64f9e5e2d175a65331
@@ -190,3 +202,7 @@ MonoBehaviour:
   - 83da2f8f17bcc744da3d65139025f40b
   - b729a9493b12bca4e9fd78c2e70a0be5
   - d31ce95759af5b6439c714b627750cbb
+  - 06d0cd1f3aa443a4ba0c5744503b9c05
+  - 1ce3cdb7cdef02a4285079c346dc184e
+  - 46d29061b97b4a2478878edfeff4cda8
+  - 850157dfd2b9b0345839f8505e493f32

@@ -38,6 +38,7 @@ namespace Project.Combat
             if (_availablePool.Count > 0)
             {
                 proj = _availablePool.Dequeue();
+                proj.IsInPool = false;
                 proj.gameObject.SetActive(true);
             }
             else
@@ -61,8 +62,9 @@ namespace Project.Combat
 
         private void ReturnToPool(ProjectileInstance proj)
         {
-            if (proj && !_availablePool.Contains(proj))
+            if (proj && !proj.IsInPool)
             {
+                proj.IsInPool = true;
                 _availablePool.Enqueue(proj);
             }
         }

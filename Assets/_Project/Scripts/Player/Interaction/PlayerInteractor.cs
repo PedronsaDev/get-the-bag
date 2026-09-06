@@ -35,6 +35,24 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
     public event Action<float> OnHoldProgressChanged;
     public event Action<IInteractable, bool> OnInteractionExecuted;
 
+    private void Awake()
+    {
+        if (_interactableLayers.value == 0)
+        {
+            int interactableLayer = LayerMask.NameToLayer("Interactable");
+            if (interactableLayer >= 0)
+            {
+                _interactableLayers = 1 << interactableLayer;
+            }
+        }
+
+        if (!_playerFacade)
+            _playerFacade = GetComponentInParent<PlayerFacade>();
+
+        if (!_cameraController)
+            _cameraController = GetComponentInChildren<FPSCameraController>();
+    }
+
     private void Update()
     {
         if (!isOwner)

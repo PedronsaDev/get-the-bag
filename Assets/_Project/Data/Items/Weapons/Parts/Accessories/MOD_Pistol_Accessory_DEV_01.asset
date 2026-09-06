@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Combat::Project.Combat.WeaponPartDefinition
   _guid: 1e88cbac3c50df049b887e38c4b32069
   _partId: part_standard_01
-  _displayName: Standard Accessories
+  _displayName: Test Accessorie
   _partType: 6
   _weaponType: 0
   _isUniversal: 0
