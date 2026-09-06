@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -123,7 +123,9 @@ namespace Project.Combat.Editor
                 return typeof(WeaponCoreDefinition).IsAssignableFrom(type) ||
                        typeof(WeaponPartDefinition).IsAssignableFrom(type) ||
                        typeof(WeaponPresetDefinition).IsAssignableFrom(type) ||
-                       typeof(ManufacturerDefinition).IsAssignableFrom(type);
+                       typeof(ManufacturerDefinition).IsAssignableFrom(type) ||
+                       typeof(ProjectileBehaviorDefinition).IsAssignableFrom(type) ||
+                       typeof(WeaponPerkDefinition).IsAssignableFrom(type);
             }
 
             return IsRelevantDeletedPath(path);
@@ -137,7 +139,9 @@ namespace Project.Combat.Editor
 
             return path.IndexOf("Weapon", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    path.IndexOf("Item", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   path.IndexOf("Manufacturer", StringComparison.OrdinalIgnoreCase) >= 0;
+                   path.IndexOf("Manufacturer", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   path.IndexOf("Behavior", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   path.IndexOf("Perk", StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

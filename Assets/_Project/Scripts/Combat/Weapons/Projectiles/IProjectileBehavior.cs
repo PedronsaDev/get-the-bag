@@ -10,6 +10,6 @@ namespace Project.Combat
     {
         void OnSpawn(ProjectileInstance projectile);
         void OnTravel(ProjectileInstance projectile, float deltaTime);
-        void OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload);
+        bool OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload);
     }
 }

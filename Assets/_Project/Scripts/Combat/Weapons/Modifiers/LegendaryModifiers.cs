@@ -86,7 +86,7 @@ namespace Project.Combat
             }
         }
 
-        public void OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload) { }
+        public bool OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload) { return false; }
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ namespace Project.Combat
             projectile.Velocity = modulatedDir * speed;
         }
 
-        public void OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload) { }
+        public bool OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload) { return false; }       
     }
 
     /// <summary>
@@ -173,10 +173,11 @@ namespace Project.Combat
             ProjectilePool.Instance.Spawn(projectile.Position, (rightRot * forward) * speed, projectile.Payload, projectile.HitMask, new[] { new UnkemptHaroldBehavior(true) });
         }
 
-        public void OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload)
+        public bool OnHit(ProjectileInstance projectile, RaycastHit hit, ref DamagePayload payload)
         {
             // Harold explosive payload
             payload.Type = DamageType.Explosive;
+            return false;
         }
     }
 }

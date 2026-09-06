@@ -24,7 +24,8 @@ MonoBehaviour:
   _customSocketName: 
   _isUnique: 0
   _redText: 
-  _uniqueBehaviorId: 
+  _projectileBehaviors: []
+  _weaponPerks: []
   _overridesElement: 0
   _elementOverride: 0
   _overridesFiringMode: 0

@@ -23,6 +23,8 @@ namespace Project.Combat
         [SerializeField] private string _customDisplayName;
         [SerializeField] private string _redText;
         [SerializeField] private List<string> _uniqueBehaviorIds = new();
+        [SerializeField] private List<ProjectileBehaviorDefinition> _projectileBehaviors = new();
+        [SerializeField] private List<WeaponPerkDefinition> _weaponPerks = new();
 
         public WeaponCoreDefinition Core => _core;
         public IReadOnlyList<WeaponPartInstance> PartInstances => _parts;
@@ -35,6 +37,8 @@ namespace Project.Combat
         public string CustomDisplayName => _customDisplayName;
         public string RedText => _redText;
         public IReadOnlyList<string> UniqueBehaviorIds => _uniqueBehaviorIds;
+        public IReadOnlyList<ProjectileBehaviorDefinition> ProjectileBehaviors => _projectileBehaviors;
+        public IReadOnlyList<WeaponPerkDefinition> WeaponPerks => _weaponPerks;
 
         public event Action<WeaponInstance> OnWeaponAssembled;
 
@@ -343,6 +347,8 @@ namespace Project.Combat
             if (!_core) return;
 
             _uniqueBehaviorIds.Clear();
+            _projectileBehaviors.Clear();
+            _weaponPerks.Clear();
             _redText = string.Empty;
             string prefix = string.Empty;
 
@@ -352,8 +358,40 @@ namespace Project.Combat
                 if (!partInst.IsValid) continue;
                 var def = partInst.Definition;
 
-                // Dynamic rarity promotion: If any part is Unique or higher rarity, upgrade weapon
-                if (def.IsUnique)
+                // Collect modular behaviors and perks
+                if (def.ProjectileBehaviors != null)
+                {
+                    for (int b = 0; b < def.ProjectileBehaviors.Count; b++)
+                    {
+                        var beh = def.ProjectileBehaviors[b];
+                        if (beh && !_projectileBehaviors.Contains(beh))
+                        {
+                            _projectileBehaviors.Add(beh);
+                            if (!string.IsNullOrEmpty(beh.BehaviorId) && !_uniqueBehaviorIds.Contains(beh.BehaviorId))
+                                _uniqueBehaviorIds.Add(beh.BehaviorId);
+                        }
+                    }
+                }
+
+                if (def.WeaponPerks != null)
+                {
+                    for (int p = 0; p < def.WeaponPerks.Count; p++)
+                    {
+                        var perk = def.WeaponPerks[p];
+                        if (perk && !_weaponPerks.Contains(perk))
+                        {
+                            _weaponPerks.Add(perk);
+                            if (!string.IsNullOrEmpty(perk.PerkId) && !_uniqueBehaviorIds.Contains(perk.PerkId))
+                                _uniqueBehaviorIds.Add(perk.PerkId);
+                        }
+                    }
+                }
+
+                // Dynamic rarity promotion: If any part is Unique, or has behaviors/perks, or higher rarity, upgrade weapon
+                bool hasSpecialPerks = def.ProjectileBehaviors is { Count: > 0 } ||
+                                       def.WeaponPerks is { Count: > 0 };
+
+                if (def.IsUnique || hasSpecialPerks)
                 {
                     if (_rarity < ItemRarity.Legendary)
                         _rarity = ItemRarity.Legendary;
@@ -361,8 +399,8 @@ namespace Project.Combat
                     if (!string.IsNullOrEmpty(def.RedText))
                         _redText = def.RedText;
 
-                    if (!string.IsNullOrEmpty(def.UniqueBehaviorId))
-                        _uniqueBehaviorIds.Add(def.UniqueBehaviorId);
+                    // if (!string.IsNullOrEmpty(def.UniqueBehaviorId) && !_uniqueBehaviorIds.Contains(def.UniqueBehaviorId))
+                    //     _uniqueBehaviorIds.Add(def.UniqueBehaviorId);
                 }
                 else if (def.Rarity > _rarity)
                 {

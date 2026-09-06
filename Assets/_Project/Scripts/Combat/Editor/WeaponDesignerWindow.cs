@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Project.Combat;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -805,14 +806,43 @@ namespace Project.Combat.Editor
 
             var chainBox = new VisualElement { style = { flexDirection = FlexDirection.Column, marginBottom = 12 } };
 
-            AddCircuitNode(chainBox, "1. TRIGGER GATE (Grip)", weapon.TryGetPart(WeaponPartType.Grip, out var g) ? g.DisplayName : "Default Mechanical Trigger", "Dictates WHEN current cycles (Click, Slide, Empty Mag)");
+            AddCircuitNode(chainBox, "1. TRIGGER GATE (Grip)", FormatCircuitPart(weapon, WeaponPartType.Grip, "Default Mechanical Trigger"), "Dictates WHEN current cycles (Click, Slide, Empty Mag)");
             AddCircuitNode(chainBox, "2. POWER CAPACITOR (Receiver)", $"{weapon.Core.BaseWeaponName} (Lvl {weapon.Level})", "Dictates wattage capacity, base damage, and cyclic rate");
-            AddCircuitNode(chainBox, "3. DELIVERY CONDUIT (Barrel)", weapon.TryGetPart(WeaponPartType.Barrel, out var b) ? $"{b.DisplayName} (Lvl {b.Level}){(b.IsLocked ? " [LOCKED]" : "")}" : "Standard Rifled Barrel", "Dictates trajectory shaping (Hitscan, Multi-pellet, Accelerating, Split)");
-            AddCircuitNode(chainBox, "4. PAYLOAD SUBROUTINE (Accessory)", weapon.TryGetPart(WeaponPartType.Accessory, out var a) ? a.DisplayName : "Kinetic Chamber", "Dictates elemental damage, status procs, and chain reactions");
-            AddCircuitNode(chainBox, "5. FEEDBACK REBOUND (Stock)", weapon.TryGetPart(WeaponPartType.Stock, out var st) ? st.DisplayName : "Counter-Weight Stock", "Converts recoil energy into player speed or shield recharge");
+            AddCircuitNode(chainBox, "3. DELIVERY CONDUIT (Barrel)", FormatCircuitPart(weapon, WeaponPartType.Barrel, "Standard Rifled Barrel"), "Dictates trajectory shaping (Hitscan, Multi-pellet, Accelerating, Split)");
+            AddCircuitNode(chainBox, "4. PAYLOAD SUBROUTINE (Accessory)", FormatCircuitPart(weapon, WeaponPartType.Accessory, "Kinetic Chamber"), "Dictates elemental damage, status procs, and chain reactions");
+            AddCircuitNode(chainBox, "5. FEEDBACK REBOUND (Stock)", FormatCircuitPart(weapon, WeaponPartType.Stock, "Counter-Weight Stock"), "Converts recoil energy into player speed or shield recharge");
 
             panel.Add(chainBox);
             container.Add(panel);
+        }
+
+        private static string FormatCircuitPart(WeaponInstance weapon, WeaponPartType slot, string fallback)
+        {
+            if (weapon.TryGetPart(slot, out var p))
+            {
+                var def = p.Definition;
+                string text = $"{p.DisplayName} (Lvl {p.Level}){(p.IsLocked ? " [LOCKED]" : "")}";
+                if (def.ProjectileBehaviors != null && def.ProjectileBehaviors.Count > 0)
+                {
+                    List<string> bNames = new();
+                    for (int i = 0; i < def.ProjectileBehaviors.Count; i++)
+                    {
+                        if (def.ProjectileBehaviors[i]) bNames.Add(def.ProjectileBehaviors[i].DisplayName);
+                    }
+                    text += $" • ⚡ {string.Join(", ", bNames)}";
+                }
+                if (def.WeaponPerks != null && def.WeaponPerks.Count > 0)
+                {
+                    List<string> pNames = new();
+                    for (int i = 0; i < def.WeaponPerks.Count; i++)
+                    {
+                        if (def.WeaponPerks[i]) pNames.Add(def.WeaponPerks[i].DisplayName);
+                    }
+                    text += $" • ✨ {string.Join(", ", pNames)}";
+                }
+                return text;
+            }
+            return fallback;
         }
 
         private void RefreshCircuitView()
@@ -881,7 +911,7 @@ namespace Project.Combat.Editor
             masterCol.Add(searchField);
 
             var filterBar = new VisualElement { style = { flexDirection = FlexDirection.Row, flexWrap = Wrap.Wrap, marginBottom = 8 } };
-            string[] filters = { "All", "Cores", "Barrels", "Grips", "Stocks", "Sights", "Magazines", "Accessories", "Presets", "Brands" };
+            string[] filters = { "All", "Cores", "Barrels", "Grips", "Stocks", "Sights", "Magazines", "Accessories", "Presets", "Brands", "Behaviors", "Perks" };
             foreach (var f in filters)
             {
                 var btn = new Button(() => { _catalogFilterType = f; BuildCatalogList(); }) { text = f };
@@ -899,13 +929,17 @@ namespace Project.Combat.Editor
             masterCol.Add(_catalogListContainer);
 
             // Create Buttons Toolbar
-            var createBar = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 6 } };
-            var addCoreBtn = new Button(CreateNewCoreAsset) { text = "+ New Core", style = { flexGrow = 1, fontSize = 10 } };
-            var addPartBtn = new Button(() => CreateNewPartAsset(WeaponPartType.Barrel)) { text = "+ New Part", style = { flexGrow = 1, fontSize = 10 } };
-            var addBrandBtn = new Button(CreateNewBrandAsset) { text = "+ New Brand", style = { flexGrow = 1, fontSize = 10 } };
+            var createBar = new VisualElement { style = { flexDirection = FlexDirection.Row, flexWrap = Wrap.Wrap, marginTop = 6 } };
+            var addCoreBtn = new Button(CreateNewCoreAsset) { text = "+ Core", style = { flexGrow = 1, fontSize = 10 } };
+            var addPartBtn = new Button(() => CreateNewPartAsset(WeaponPartType.Barrel)) { text = "+ Part", style = { flexGrow = 1, fontSize = 10 } };
+            var addBrandBtn = new Button(CreateNewBrandAsset) { text = "+ Brand", style = { flexGrow = 1, fontSize = 10 } };
+            var addBehBtn = new Button(ShowNewBehaviorMenu) { text = "+ Behavior", style = { flexGrow = 1, fontSize = 10 } };
+            var addPerkBtn = new Button(CreateNewPerkAsset) { text = "+ Perk", style = { flexGrow = 1, fontSize = 10 } };
             createBar.Add(addCoreBtn);
             createBar.Add(addPartBtn);
             createBar.Add(addBrandBtn);
+            createBar.Add(addBehBtn);
+            createBar.Add(addPerkBtn);
             masterCol.Add(createBar);
 
             container.Add(masterCol);
@@ -986,6 +1020,28 @@ namespace Project.Combat.Editor
                     if (!mfg) continue;
                     if (MatchesSearch(mfg.DisplayName, mfg.ManufacturerId))
                         AddCatalogItem(mfg.DisplayName, $"Manufacturer Brand • {mfg.ManufacturerId}", mfg, mfg.AccentColor != default ? mfg.AccentColor : new Color(0.9f, 0.4f, 0.4f));
+                }
+            }
+
+            // Projectile Behaviors
+            if (_catalogFilterType == "All" || _catalogFilterType == "Behaviors")
+            {
+                foreach (var beh in reg.ProjectileBehaviors)
+                {
+                    if (!beh) continue;
+                    if (MatchesSearch(beh.DisplayName, beh.BehaviorId))
+                        AddCatalogItem(beh.DisplayName, $"Behavior • {beh.GetType().Name.Replace("Definition", "")}", beh, new Color(0.2f, 0.85f, 0.95f));
+                }
+            }
+
+            // Weapon Perks
+            if (_catalogFilterType == "All" || _catalogFilterType == "Perks")
+            {
+                foreach (var perk in reg.WeaponPerks)
+                {
+                    if (!perk) continue;
+                    if (MatchesSearch(perk.DisplayName, perk.PerkId))
+                        AddCatalogItem(perk.DisplayName, $"Perk • {perk.GetType().Name.Replace("Definition", "")}", perk, new Color(0.95f, 0.85f, 0.25f));
                 }
             }
         }
@@ -1130,7 +1186,7 @@ namespace Project.Combat.Editor
                     Vector2 delta = (Vector2)evt.position - _lastPointerPos;
                     _lastPointerPos = (Vector2)evt.position;
                     _previewRotY -= delta.x * 0.75f;
-                    _previewRotX = Mathf.Clamp(_previewRotX - (delta.y * 0.75f), -85f, 85f);
+                    _previewRotX = Mathf.Clamp(_previewRotX + (delta.y * 0.75f), -85f, 85f);
                     Render3DPreview();
                 }
             });
@@ -1325,6 +1381,26 @@ namespace Project.Combat.Editor
             AddCardRow(_statsList, "Critical Multiplier", $"{stats.CriticalMultiplier:F1}x");
             AddCardRow(_statsList, "Element", $"{stats.Element}");
 
+            if (weapon.ProjectileBehaviors != null && weapon.ProjectileBehaviors.Count > 0)
+            {
+                List<string> bList = new();
+                for (int i = 0; i < weapon.ProjectileBehaviors.Count; i++)
+                {
+                    if (weapon.ProjectileBehaviors[i]) bList.Add(weapon.ProjectileBehaviors[i].DisplayName);
+                }
+                AddCardRow(_statsList, "⚡ Trajectory", string.Join(", ", bList), new Color(0.2f, 0.85f, 0.95f));
+            }
+
+            if (weapon.WeaponPerks != null && weapon.WeaponPerks.Count > 0)
+            {
+                List<string> pList = new();
+                for (int i = 0; i < weapon.WeaponPerks.Count; i++)
+                {
+                    if (weapon.WeaponPerks[i]) pList.Add(weapon.WeaponPerks[i].DisplayName);
+                }
+                AddCardRow(_statsList, "✨ Active Perks", string.Join(", ", pList), new Color(0.95f, 0.85f, 0.35f));
+            }
+
             _dpsList.Clear();
             float burstDPS = stats.Damage * stats.PelletsPerShot * stats.FireRate;
             float magCycle = stats.FireRate > 0 ? (stats.MagazineSize / stats.FireRate) + stats.ReloadSpeed : 1f;
@@ -1400,6 +1476,47 @@ namespace Project.Combat.Editor
 
             BuildCatalogList();
             InspectAssetInDetail(mfg);
+        }
+
+        private void ShowNewBehaviorMenu()
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Bouncing Projectile"), false, () => CreateNewBehaviorAsset(typeof(BouncingBehaviorDefinition), "Beh_Bouncing_New"));
+            menu.AddItem(new GUIContent("Gravity Trajectory"), false, () => CreateNewBehaviorAsset(typeof(GravityBehaviorDefinition), "Beh_Gravity_New"));
+            menu.AddItem(new GUIContent("Sine Wave Trajectory"), false, () => CreateNewBehaviorAsset(typeof(WaveBehaviorDefinition), "Beh_SineWave_New"));
+            menu.AddItem(new GUIContent("Cluster Split"), false, () => CreateNewBehaviorAsset(typeof(ClusterSplitBehaviorDefinition), "Beh_ClusterSplit_New"));
+            menu.AddItem(new GUIContent("Accelerating Flight"), false, () => CreateNewBehaviorAsset(typeof(AcceleratingBehaviorDefinition), "Beh_Accelerating_New"));
+            menu.ShowAsContext();
+        }
+
+        private void CreateNewBehaviorAsset(Type type, string defaultName)
+        {
+            string path = EditorUtility.SaveFilePanelInProject("Create Projectile Behavior", defaultName, "asset", "Save Behavior Definition");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var beh = CreateInstance(type) as ProjectileBehaviorDefinition;
+            AssetDatabase.CreateAsset(beh, path);
+            AssetDatabase.SaveAssets();
+
+            if (ItemRegistry.Instance) ItemRegistry.Instance.ScanProjectAssets(silent: true);
+
+            BuildCatalogList();
+            InspectAssetInDetail(beh);
+        }
+
+        private void CreateNewPerkAsset()
+        {
+            string path = EditorUtility.SaveFilePanelInProject("Create Weapon Perk", "Perk_AmmoRefund_New", "asset", "Save Weapon Perk Definition");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var perk = CreateInstance<AmmoRefundPerkDefinition>();
+            AssetDatabase.CreateAsset(perk, path);
+            AssetDatabase.SaveAssets();
+
+            if (ItemRegistry.Instance) ItemRegistry.Instance.ScanProjectAssets(silent: true);
+
+            BuildCatalogList();
+            InspectAssetInDetail(perk);
         }
 
         private static VisualElement CreateCardPanel(string title)

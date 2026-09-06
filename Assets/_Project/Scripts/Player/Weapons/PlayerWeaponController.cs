@@ -49,6 +49,12 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     public WeaponInstance Slot1Weapon => _slot1Weapon;
     public WeaponInstance Slot2Weapon => _slot2Weapon;
 
+    /// <summary>
+    /// The physical barrel tip / fire point transform from which projectiles, tracers, and muzzle flash originate.
+    /// </summary>
+    public Transform FirePoint => _weaponContext?.MuzzlePoint ? _weaponContext.MuzzlePoint : (_visualAssembler ? _visualAssembler.MuzzleSocket : (_cameraController ? _cameraController.PitchPivot : transform));
+    public Transform MuzzleTransform => FirePoint;
+
     private void Awake()
     {
         _playerFacade = GetComponentInParent<PlayerFacade>();
@@ -156,7 +162,10 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
             };
 
             // Select delivery strategy (Hitscan vs Ballistic/Projectile)
-            if (weapon.CompiledStats.IsHitscan && weapon.UniqueBehaviorIds.Count == 0)
+            bool hasProjectileBehaviors = (weapon.ProjectileBehaviors != null && weapon.ProjectileBehaviors.Count > 0) ||
+                                          (weapon.UniqueBehaviorIds != null && weapon.UniqueBehaviorIds.Count > 0);
+
+            if (weapon.CompiledStats.IsHitscan && !hasProjectileBehaviors)
             {
                 _deliveryStrategy = new HitscanDelivery();
             }
@@ -188,6 +197,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         else
         {
             if (_visualAssembler) _visualAssembler.ClearVisuals();
+            if (_weaponContext != null) _weaponContext.MuzzlePoint = _cameraController ? _cameraController.PitchPivot : transform;
             OnWeaponEquipped?.Invoke(null);
             OnAmmoChanged?.Invoke(0, 0);
 
@@ -376,16 +386,33 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         var weapon = ActiveWeapon;
         if (weapon == null || weapon.CurrentAmmoInMag <= 0) return;
 
-        // Check for The Butcher / ammo refund perk
+        // Check for weapon perks (e.g. ammo refund)
         bool ammoRefunded = false;
-        for (int i = 0; i < weapon.UniqueBehaviorIds.Count; i++)
+        if (weapon.WeaponPerks != null && weapon.WeaponPerks.Count > 0)
         {
-            if (weapon.UniqueBehaviorIds[i] == LegendaryBehaviorIds.TheButcher)
+            for (int i = 0; i < weapon.WeaponPerks.Count; i++)
             {
-                if (UnityEngine.Random.value < 0.35f) // 35% chance to refund
+                var perk = weapon.WeaponPerks[i];
+                if (perk && perk.OnPreFire(weapon, _weaponContext))
                 {
                     ammoRefunded = true;
                     break;
+                }
+            }
+        }
+
+        // Fallback for legacy string IDs
+        if (!ammoRefunded && weapon.UniqueBehaviorIds != null)
+        {
+            for (int i = 0; i < weapon.UniqueBehaviorIds.Count; i++)
+            {
+                if (weapon.UniqueBehaviorIds[i] == LegendaryBehaviorIds.TheButcher)
+                {
+                    if (UnityEngine.Random.value < 0.35f) // 35% chance to refund
+                    {
+                        ammoRefunded = true;
+                        break;
+                    }
                 }
             }
         }
@@ -395,16 +422,20 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
             weapon.CurrentAmmoInMag--;
         }
 
+        // Post fire perks
+        if (weapon.WeaponPerks != null)
+        {
+            for (int i = 0; i < weapon.WeaponPerks.Count; i++)
+            {
+                weapon.WeaponPerks[i]?.OnPostFire(weapon, _weaponContext);
+            }
+        }
+
         OnAmmoChanged?.Invoke(weapon.CurrentAmmoInMag, weapon.CompiledStats.MagazineSize);
 
         // Expand spread and kick recoil
         _currentSpread = Mathf.Min(weapon.CompiledStats.MaxSpread,
             _currentSpread + (weapon.CompiledStats.RecoilKick * 0.5f));
-
-        if (_cameraController)
-        {
-            _cameraController.AddPitchRecoil(weapon.CompiledStats.RecoilKick);
-        }
 
         // Deliver projectile
         _deliveryStrategy.Deliver(_weaponContext, weapon, _currentSpread);

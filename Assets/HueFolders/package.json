@@ -1,0 +1,16 @@
+{
+  "name": "www.nulltale.huefolders",
+  "displayName": "Hue Folders",
+  "version": "1.2.2",
+  "unity": "2020.3",
+  "description": "Folders colorization plugin.\n>The colors can be customized in the Edit/Preferences/Hue Folders menu.",
+  "author": {
+    "name": "NullTale",
+    "email": "nulltale@gmail.com",
+    "url": "https://nulltale.itch.io"
+  },
+  "type": "tool",
+  "dependencies": {
+  },
+  "hideInEditor": false
+}

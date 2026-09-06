@@ -16,6 +16,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
   - {fileID: 11400000, guid: 74828dc434a1b6f4f9b1fc0d2a15f383, type: 2}
   _weaponParts:
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a76, type: 2}
   - {fileID: 11400000, guid: d31ce95759af5b6439c714b627750cbb, type: 2}
   - {fileID: 11400000, guid: 06d0cd1f3aa443a4ba0c5744503b9c05, type: 2}
   - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
@@ -27,3 +28,9 @@ MonoBehaviour:
   _manufacturers:
   - {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   - {fileID: 11400000, guid: 46d29061b97b4a2478878edfeff4cda8, type: 2}
+  _projectileBehaviors:
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a72, type: 2}
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a73, type: 2}
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a75, type: 2}
+  _weaponPerks:
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a74, type: 2}

@@ -66,6 +66,8 @@ namespace Project.Combat
         [SerializeField] private List<WeaponPartDefinition> _weaponParts = new();
         [SerializeField] private List<WeaponPresetDefinition> _weaponPresets = new();
         [SerializeField] private List<ManufacturerDefinition> _manufacturers = new();
+        [SerializeField] private List<ProjectileBehaviorDefinition> _projectileBehaviors = new();
+        [SerializeField] private List<WeaponPerkDefinition> _weaponPerks = new();
 
         private readonly Dictionary<string, WeaponCoreDefinition> _coresByGuid = new();
         private readonly Dictionary<string, WeaponCoreDefinition> _coresByStringId = new(StringComparer.OrdinalIgnoreCase);
@@ -78,10 +80,15 @@ namespace Project.Combat
 
         private readonly Dictionary<string, ManufacturerDefinition> _manufacturersById = new(StringComparer.OrdinalIgnoreCase);
 
+        private readonly Dictionary<string, ProjectileBehaviorDefinition> _behaviorsById = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, WeaponPerkDefinition> _perksById = new(StringComparer.OrdinalIgnoreCase);
+
         public IReadOnlyList<WeaponCoreDefinition> WeaponCores => _weaponCores;
         public IReadOnlyList<WeaponPartDefinition> WeaponParts => _weaponParts;
         public IReadOnlyList<WeaponPresetDefinition> WeaponPresets => _weaponPresets;
         public IReadOnlyList<ManufacturerDefinition> Manufacturers => _manufacturers;
+        public IReadOnlyList<ProjectileBehaviorDefinition> ProjectileBehaviors => _projectileBehaviors;
+        public IReadOnlyList<WeaponPerkDefinition> WeaponPerks => _weaponPerks;
 
         private void OnEnable()
         {
@@ -151,6 +158,36 @@ namespace Project.Combat
                 if (!string.IsNullOrEmpty(mfg.ManufacturerId))
                     _manufacturersById[mfg.ManufacturerId] = mfg;
             }
+
+            _behaviorsById.Clear();
+            for (int i = 0; i < _projectileBehaviors.Count; i++)
+            {
+                var beh = _projectileBehaviors[i];
+                if (!beh) continue;
+                if (!string.IsNullOrEmpty(beh.BehaviorId))
+                    _behaviorsById[beh.BehaviorId] = beh;
+            }
+
+            _perksById.Clear();
+            for (int i = 0; i < _weaponPerks.Count; i++)
+            {
+                var perk = _weaponPerks[i];
+                if (!perk) continue;
+                if (!string.IsNullOrEmpty(perk.PerkId))
+                    _perksById[perk.PerkId] = perk;
+            }
+        }
+
+        public bool TryGetBehaviorById(string behaviorId, out ProjectileBehaviorDefinition behavior)
+        {
+            if (_behaviorsById.Count == 0 && _projectileBehaviors.Count > 0) InitializeLookup();
+            return _behaviorsById.TryGetValue(behaviorId, out behavior);
+        }
+
+        public bool TryGetPerkById(string perkId, out WeaponPerkDefinition perk)
+        {
+            if (_perksById.Count == 0 && _weaponPerks.Count > 0) InitializeLookup();
+            return _perksById.TryGetValue(perkId, out perk);
         }
 
         public bool TryGetManufacturer(string manufacturerId, out ManufacturerDefinition manufacturer)
@@ -444,6 +481,8 @@ namespace Project.Combat
             var foundParts = new List<WeaponPartDefinition>();
             var foundPresets = new List<WeaponPresetDefinition>();
             var foundManufacturers = new List<ManufacturerDefinition>();
+            var foundBehaviors = new List<ProjectileBehaviorDefinition>();
+            var foundPerks = new List<WeaponPerkDefinition>();
 
             string[] coreGuids = UnityEditor.AssetDatabase.FindAssets("t:WeaponCoreDefinition");
             foreach (var g in coreGuids)
@@ -473,15 +512,33 @@ namespace Project.Combat
                 if (mfg && !foundManufacturers.Contains(mfg)) foundManufacturers.Add(mfg);
             }
 
+            string[] behGuids = UnityEditor.AssetDatabase.FindAssets("t:ProjectileBehaviorDefinition");
+            foreach (var g in behGuids)
+            {
+                var beh = UnityEditor.AssetDatabase.LoadAssetAtPath<ProjectileBehaviorDefinition>(UnityEditor.AssetDatabase.GUIDToAssetPath(g));
+                if (beh && !foundBehaviors.Contains(beh)) foundBehaviors.Add(beh);
+            }
+
+            string[] perkGuids = UnityEditor.AssetDatabase.FindAssets("t:WeaponPerkDefinition");
+            foreach (var g in perkGuids)
+            {
+                var perk = UnityEditor.AssetDatabase.LoadAssetAtPath<WeaponPerkDefinition>(UnityEditor.AssetDatabase.GUIDToAssetPath(g));
+                if (perk && !foundPerks.Contains(perk)) foundPerks.Add(perk);
+            }
+
             foundCores.Sort((a, b) => string.Compare(a.CoreId, b.CoreId, StringComparison.OrdinalIgnoreCase));
             foundParts.Sort((a, b) => string.Compare(a.PartId, b.PartId, StringComparison.OrdinalIgnoreCase));
             foundPresets.Sort((a, b) => string.Compare(a.PresetId, b.PresetId, StringComparison.OrdinalIgnoreCase));
             foundManufacturers.Sort((a, b) => string.Compare(a.ManufacturerId, b.ManufacturerId, StringComparison.OrdinalIgnoreCase));
+            foundBehaviors.Sort((a, b) => string.Compare(a.BehaviorId, b.BehaviorId, StringComparison.OrdinalIgnoreCase));
+            foundPerks.Sort((a, b) => string.Compare(a.PerkId, b.PerkId, StringComparison.OrdinalIgnoreCase));
 
             bool changed = !AreAssetListsEqual(_weaponCores, foundCores) ||
                            !AreAssetListsEqual(_weaponParts, foundParts) ||
                            !AreAssetListsEqual(_weaponPresets, foundPresets) ||
-                           !AreAssetListsEqual(_manufacturers, foundManufacturers);
+                           !AreAssetListsEqual(_manufacturers, foundManufacturers) ||
+                           !AreAssetListsEqual(_projectileBehaviors, foundBehaviors) ||
+                           !AreAssetListsEqual(_weaponPerks, foundPerks);
 
             if (changed)
             {
@@ -489,6 +546,8 @@ namespace Project.Combat
                 _weaponParts = foundParts;
                 _weaponPresets = foundPresets;
                 _manufacturers = foundManufacturers;
+                _projectileBehaviors = foundBehaviors;
+                _weaponPerks = foundPerks;
 
                 UnityEditor.EditorUtility.SetDirty(this);
                 UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
@@ -497,7 +556,7 @@ namespace Project.Combat
 
                 if (!silent)
                 {
-                    Debug.Log($"[ItemRegistry] Auto-scanned project: {_weaponCores.Count} Cores, {_weaponParts.Count} Parts, {_weaponPresets.Count} Presets, {_manufacturers.Count} Manufacturers.");
+                    Debug.Log($"[ItemRegistry] Auto-scanned project: {_weaponCores.Count} Cores, {_weaponParts.Count} Parts, {_weaponPresets.Count} Presets, {_manufacturers.Count} Manufacturers, {_projectileBehaviors.Count} Behaviors, {_weaponPerks.Count} Perks.");
                 }
                 return true;
             }

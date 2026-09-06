@@ -39,6 +39,10 @@ namespace Project.Combat
         [ShowIf(nameof(IsAccessory))]
         [Tooltip("Custom socket override (e.g. socket_muzzle, socket_underbarrel_attachment). Only used for Accessories; standard parts automatically route by PartType.")]
         [SerializeField] private string _customSocketName;
+        [BoxGroup("Visual Mounting")]
+        [ShowIf(nameof(IsAccessory))]
+        [Tooltip("If true, when this accessory is mounted, its fire_point or muzzle socket will override the weapon's fire point (e.g. Silencers, Compensators, Extended Muzzles).")]
+        [SerializeField] private bool _overridesFirePoint;
 
         [BoxGroup("Unique & Legendary Flavors")]
         [SerializeField] private bool _isUnique;
@@ -46,9 +50,14 @@ namespace Project.Combat
         [ShowIf(nameof(_isUnique))]
         [ResizableTextArea]
         [SerializeField] private string _redText;
-        [BoxGroup("Unique & Legendary Flavors")]
-        [ShowIf(nameof(_isUnique))]
-        [SerializeField] private string _uniqueBehaviorId;
+        //[BoxGroup("Unique & Legendary Flavors")]
+        //[ShowIf(nameof(_isUnique))]
+        //[SerializeField] private string _uniqueBehaviorId;
+
+        [BoxGroup("Modular Behaviors & Perks")]
+        [SerializeField] private List<ProjectileBehaviorDefinition> _projectileBehaviors = new();
+        [BoxGroup("Modular Behaviors & Perks")]
+        [SerializeField] private List<WeaponPerkDefinition> _weaponPerks = new();
 
         [BoxGroup("Behavior Overrides")]
         [SerializeField] private bool _overridesElement;
@@ -104,9 +113,22 @@ namespace Project.Combat
         public ItemRarity Rarity => _rarity;
         public bool IsUnique => _isUnique;
         public string RedText => _redText;
-        public string UniqueBehaviorId => _uniqueBehaviorId;
+        //public string UniqueBehaviorId => _uniqueBehaviorId;
+        public IReadOnlyList<ProjectileBehaviorDefinition> ProjectileBehaviors => _projectileBehaviors;
+        public IReadOnlyList<WeaponPerkDefinition> WeaponPerks => _weaponPerks;
         public GameObject MeshPrefab => _meshPrefab;
         public string CustomSocketName => _customSocketName;
+        public bool OverridesFirePoint => _overridesFirePoint;
+        public bool IsMuzzleAttachment => _partType == WeaponPartType.Accessory && (_overridesFirePoint || IsMuzzleSocketName(TargetSocketName));
+
+        public static bool IsMuzzleSocketName(string socketName)
+        {
+            if (string.IsNullOrEmpty(socketName)) return false;
+            return socketName.Equals(WeaponSocketNames.Muzzle, StringComparison.OrdinalIgnoreCase) ||
+                   socketName.Equals(WeaponSocketNames.MuzzleAttachment, StringComparison.OrdinalIgnoreCase) ||
+                   socketName.Equals(WeaponSocketNames.Silencer, StringComparison.OrdinalIgnoreCase) ||
+                   socketName.Equals(WeaponSocketNames.FirePoint, StringComparison.OrdinalIgnoreCase);
+        }
 
         /// <summary>
         /// Automatically resolves the target socket transform name.

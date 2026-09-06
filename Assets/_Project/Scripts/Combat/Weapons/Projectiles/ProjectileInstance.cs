@@ -121,11 +121,13 @@ namespace Project.Combat
         {
             _position = hit.point;
             transform.position = _position;
+            var preventDespawn = false;
 
             // Notify behaviors
-            for (int i = 0; i < _behaviors.Count; i++)
+            foreach (var projectileBehavior in _behaviors)
             {
-                _behaviors[i].OnHit(this, hit, ref _payload);
+                if (projectileBehavior.OnHit(this, hit, ref _payload)) 
+                    preventDespawn = true;
             }
 
             // Deliver damage
@@ -142,6 +144,9 @@ namespace Project.Combat
             {
                 hit.rigidbody.AddForceAtPosition(_velocity.normalized * (_payload.Amount * 3f), hit.point, ForceMode.Impulse);
             }
+            
+            if (preventDespawn)
+                return;
 
             Despawn();
         }

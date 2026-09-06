@@ -176,7 +176,7 @@ MonoBehaviour:
   _weaponMount: {fileID: 3002285438313159960}
   _hitMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1
   _defaultSlot1Core: {fileID: 11400000, guid: 74828dc434a1b6f4f9b1fc0d2a15f383, type: 2}
   _defaultSlot2Core: {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
 --- !u!114 &430891073094004469
