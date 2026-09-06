@@ -58,6 +58,8 @@ namespace Project.Combat
         [SerializeField] private List<ProjectileBehaviorDefinition> _projectileBehaviors = new();
         [BoxGroup("Modular Behaviors & Perks")]
         [SerializeField] private List<WeaponPerkDefinition> _weaponPerks = new();
+        [BoxGroup("Modular Behaviors & Perks")]
+        [SerializeField] private PelletPatternDefinition _pelletPattern;
 
         [BoxGroup("Behavior Overrides")]
         [SerializeField] private bool _overridesElement;
@@ -162,5 +164,6 @@ namespace Project.Combat
         public DamageType ElementOverride => _elementOverride;
         public bool OverridesFiringMode => _overridesFiringMode;
         public FiringMode FiringModeOverride => _firingModeOverride;
+        public PelletPatternDefinition PelletPattern => _pelletPattern;
     }
 }

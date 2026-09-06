@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b1a8f90c4217e543a9b1c2d3e4f5a60, type: 3}
   m_Name: BEH_Bouncing_RubberGrenade
   m_EditorClassIdentifier: Project.Combat::Project.Combat.BouncingBehaviorDefinition
-  _behaviorId: beh_bouncing_rubber
-  _displayName: Rubber Grenade (Bouncing)
-  _description: Projectiles bounce off surfaces up to 3 times with gravity trajectory. Direct hits on enemies detonate immediately.
+  _behaviorId: beh_custom
+  _displayName: Custom Behavior
+  _description: Custom projectile modification.
   _maxBounces: 3
   _bounciness: 0.65
   _gravityMultiplier: 1.2
   _detonateOnEnemyHit: 1
+  _alignGroundBounce: 1

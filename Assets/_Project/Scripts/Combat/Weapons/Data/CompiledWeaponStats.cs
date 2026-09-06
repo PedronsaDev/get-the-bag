@@ -11,7 +11,7 @@ namespace Project.Combat
     public struct CompiledWeaponStats
     {
         public float Damage;
-        public float FireRate;           // Rounds per second
+        public int FireRate;           // Rounds per minute (RPM)
         public int MagazineSize;
         public float ReloadSpeed;        // Seconds to complete reload
         public float BaseSpread;         // Initial cone spread in degrees
@@ -28,7 +28,7 @@ namespace Project.Combat
         /// <summary>
         /// Time in seconds between consecutive shots.
         /// </summary>
-        public readonly float CycleTime => FireRate > 0.01f ? 1f / FireRate : 0.1f;
+        public readonly float CycleTime => FireRate > 0.01f ? 60f / FireRate : 0.1f;
 
         /// <summary>
         /// True if this weapon uses instant raycast rather than physical ballistic projectile.

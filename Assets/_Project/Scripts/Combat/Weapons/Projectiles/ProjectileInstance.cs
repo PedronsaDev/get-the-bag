@@ -46,6 +46,7 @@ namespace Project.Combat
             _isAlive = true;
 
             transform.position = _position;
+
             if (_velocity.sqrMagnitude > 0.01f)
             {
                 transform.rotation = Quaternion.LookRotation(_velocity.normalized);
@@ -54,6 +55,7 @@ namespace Project.Combat
             if (_trailRenderer)
             {
                 _trailRenderer.Clear();
+                _trailRenderer.emitting = true;
             }
 
             _behaviors.Clear();
@@ -155,6 +157,11 @@ namespace Project.Combat
         {
             if (!_isAlive) return;
             _isAlive = false;
+            if (_trailRenderer)
+            {
+                _trailRenderer.emitting = false;
+                _trailRenderer.Clear();
+            }
             OnDespawn?.Invoke(this);
             gameObject.SetActive(false);
         }

@@ -30,7 +30,8 @@ namespace Project.Combat
         [BoxGroup("Base Archetype Stats")]
         [SerializeField] private float _baseDamage = 25f;
         [BoxGroup("Base Archetype Stats")]
-        [SerializeField] private float _baseFireRate = 3.5f;
+        [Tooltip("Fire rate in rounds per minute (RPM). E.g., 600 RPM = 10 rounds/sec, 300 RPM = 5 rounds/sec, 210 RPM = 3.5 rounds/sec.")]
+        [SerializeField] private int _baseFireRate = 300;
         [BoxGroup("Base Archetype Stats")]
         [SerializeField] private int _baseMagazineSize = 12;
         [BoxGroup("Base Archetype Stats")]
@@ -57,6 +58,9 @@ namespace Project.Combat
         [BoxGroup("Base Archetype Stats")]
         [ShowIf(nameof(IsBurst))]
         [SerializeField] private float _baseBurstInterval = 0.08f;
+        [BoxGroup("Base Archetype Stats")]
+        [Tooltip("Optional deterministic pellet firing pattern (e.g. 3x3 matrix, horizontal line). Overrides random cone spread.")]
+        [SerializeField] private PelletPatternDefinition _basePelletPattern;
 
         [BoxGroup("Level Scaling Override")]
         [Tooltip("If true, this specific core uses its own custom scaling instead of the global ItemScalingSettings.")]
@@ -166,7 +170,7 @@ namespace Project.Combat
         public GameObject BodyPrefab => _bodyPrefab;
 
         public float BaseDamage => _baseDamage;
-        public float BaseFireRate => _baseFireRate;
+        public int BaseFireRate => _baseFireRate;
         public int BaseMagazineSize => _baseMagazineSize;
         public float BaseReloadSpeed => _baseReloadSpeed;
         public float BaseSpread => _baseSpread;
@@ -179,6 +183,7 @@ namespace Project.Combat
         public FiringMode BaseFiringMode => _baseFiringMode;
         public int BaseBurstCount => _baseBurstCount;
         public float BaseBurstInterval => _baseBurstInterval;
+        public PelletPatternDefinition BasePelletPattern => _basePelletPattern;
 
         public IReadOnlyList<WeaponPartDefinition> CompatibleBarrels => _compatibleBarrels;
         public IReadOnlyList<WeaponPartDefinition> CompatibleGrips => _compatibleGrips;

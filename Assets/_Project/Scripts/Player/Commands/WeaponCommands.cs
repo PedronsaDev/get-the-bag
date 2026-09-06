@@ -179,11 +179,11 @@ namespace Project.Player.Commands
             sb.AppendLine($"Archetype: {w.Core.BaseWeaponName} (Core ID: {w.Core.CoreId})");
             sb.AppendLine($"Core GUID: {w.Core.Guid}");
             sb.AppendLine($"Level: {w.Level} | Rarity: {w.Rarity} | Seed: {w.Seed}");
-            sb.AppendLine($"Damage: {s.Damage:F1} x {s.PelletsPerShot} | Fire Rate: {s.FireRate:F1}/s | Mag: {s.MagazineSize}");
+            sb.AppendLine($"Damage: {s.Damage:F1} x {s.PelletsPerShot} | Fire Rate: {s.FireRate:F0} RPM | Mag: {s.MagazineSize}");
             sb.AppendLine($"Reload: {s.ReloadSpeed:F2}s | Mode: {s.FiringMode} | Element: {s.Element}");
 
-            float burstDps = (s.Damage * s.PelletsPerShot) * s.FireRate;
-            float cycleTime = (s.MagazineSize / s.FireRate) + s.ReloadSpeed;
+            float burstDps = (s.Damage * s.PelletsPerShot) * (s.FireRate / 60f);
+            float cycleTime = (s.MagazineSize / (s.FireRate / 60f)) + s.ReloadSpeed;
             float sustainedDps = (s.Damage * s.PelletsPerShot * s.MagazineSize) / cycleTime;
             sb.AppendLine($"Burst DPS: {burstDps:F1} | Sustained DPS: {sustainedDps:F1}");
 

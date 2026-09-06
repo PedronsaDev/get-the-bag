@@ -125,7 +125,8 @@ namespace Project.Combat.Editor
                        typeof(WeaponPresetDefinition).IsAssignableFrom(type) ||
                        typeof(ManufacturerDefinition).IsAssignableFrom(type) ||
                        typeof(ProjectileBehaviorDefinition).IsAssignableFrom(type) ||
-                       typeof(WeaponPerkDefinition).IsAssignableFrom(type);
+                       typeof(WeaponPerkDefinition).IsAssignableFrom(type) ||
+                       typeof(PelletPatternDefinition).IsAssignableFrom(type);
             }
 
             return IsRelevantDeletedPath(path);
@@ -141,7 +142,8 @@ namespace Project.Combat.Editor
                    path.IndexOf("Item", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    path.IndexOf("Manufacturer", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    path.IndexOf("Behavior", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   path.IndexOf("Perk", StringComparison.OrdinalIgnoreCase) >= 0;
+                   path.IndexOf("Perk", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   path.IndexOf("Pattern", StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

@@ -32,6 +32,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     private IProjectileDeliveryStrategy _deliveryStrategy = new HitscanDelivery();
 
     private float _currentSpread;
+    private float _spreadRecoveryTimer;
     private float _reloadTimer;
     private bool _isReloading;
 
@@ -132,11 +133,37 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         _triggerStrategy.Tick(currentWeapon, Time.deltaTime, input.PrimaryFirePressed, input.PrimaryFireHeld,
             ExecuteFire);
 
-        // 4. Spread recovery
-        float baseSpread = currentWeapon.CompiledStats.BaseSpread;
-        if (_currentSpread > baseSpread)
+        // 4. Spread dynamics (movement inaccuracy and firing recovery)
+        float targetBaseSpread = currentWeapon.CompiledStats.BaseSpread;
+
+        if (_playerFacade != null)
         {
-            _currentSpread = Mathf.MoveTowards(_currentSpread, baseSpread, Time.deltaTime * 8.0f);
+            var locomotion = _playerFacade.LocomotionState;
+            if (locomotion.Phase == LocomotionPhase.Airborne)
+            {
+                targetBaseSpread += 2.5f; // Jump bloom
+            }
+            else if (locomotion.IsSprinting)
+            {
+                targetBaseSpread += 1.5f; // Sprinting bloom
+            }
+            else if (locomotion.MoveInputMagnitude > 0.1f)
+            {
+                targetBaseSpread += 0.8f * locomotion.MoveInputMagnitude; // Walking bloom
+            }
+        }
+
+        if (_currentSpread < targetBaseSpread)
+        {
+            _currentSpread = Mathf.MoveTowards(_currentSpread, targetBaseSpread, Time.deltaTime * 12.0f);
+        }
+        else if (_spreadRecoveryTimer > 0f)
+        {
+            _spreadRecoveryTimer -= Time.deltaTime;
+        }
+        else if (_currentSpread > targetBaseSpread)
+        {
+            _currentSpread = Mathf.MoveTowards(_currentSpread, targetBaseSpread, Time.deltaTime * 6.0f);
         }
     }
 
@@ -146,6 +173,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
         _activeSlotIndex = slotIndex;
         _isReloading = false;
+        _spreadRecoveryTimer = 0f;
         _triggerStrategy.Reset();
 
         var weapon = ActiveWeapon;
@@ -434,8 +462,10 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         OnAmmoChanged?.Invoke(weapon.CurrentAmmoInMag, weapon.CompiledStats.MagazineSize);
 
         // Expand spread and kick recoil
-        _currentSpread = Mathf.Min(weapon.CompiledStats.MaxSpread,
-            _currentSpread + (weapon.CompiledStats.RecoilKick * 0.5f));
+        float spreadRange = Mathf.Max(0f, weapon.CompiledStats.MaxSpread - weapon.CompiledStats.BaseSpread);
+        float spreadStep = Mathf.Max(weapon.CompiledStats.RecoilKick * 0.75f, spreadRange * 0.25f);
+        _currentSpread = Mathf.Min(weapon.CompiledStats.MaxSpread, _currentSpread + spreadStep);
+        _spreadRecoveryTimer = 0.18f;
 
         // Deliver projectile
         _deliveryStrategy.Deliver(_weaponContext, weapon, _currentSpread);

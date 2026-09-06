@@ -15,58 +15,67 @@ namespace Project.Combat
             if (context == null || weapon == null || !context.AimOrigin) return;
 
             int pellets = Mathf.Max(1, weapon.CompiledStats.PelletsPerShot);
-            Vector3 origin = context.MuzzlePoint ? context.MuzzlePoint.position : context.AimOrigin.position;
             Vector3 aimOrigin = context.AimOrigin.position;
             Vector3 aimForward = context.AimOrigin.forward;
+            Vector3 muzzle = context.MuzzlePoint ? context.MuzzlePoint.position : aimOrigin;
             float speed = Mathf.Max(10f, weapon.CompiledStats.ProjectileSpeed);
 
-            // Crosshair convergence: cast ray from camera/crosshair to find actual target point in the world
+            // Crosshair convergence: find authoritative target point under reticle
             Vector3 targetPoint;
             if (Physics.Raycast(aimOrigin, aimForward, out RaycastHit hit, 300f, context.HitMask, QueryTriggerInteraction.Ignore))
             {
-                // When aiming straight down at feet, the muzzle (held forward in hands) is in front of feet.
-                // Converge onto the camera crosshair line just in front of the muzzle rather than aiming backwards.
-                float muzzleViewOffset = Vector3.Dot(origin - aimOrigin, aimForward);
-                float minHitDist = Mathf.Max(0.5f, muzzleViewOffset + 0.3f);
-
-                if (hit.distance < minHitDist)
-                {
-                    targetPoint = aimOrigin + (aimForward * minHitDist);
-                }
-                else
-                {
-                    targetPoint = hit.point;
-                }
+                targetPoint = hit.point;
             }
             else
             {
                 targetPoint = aimOrigin + (aimForward * 200f);
             }
 
-            // Direct trajectory from barrel fire point towards the crosshair target point
-            Vector3 baseDirection = (targetPoint - origin).normalized;
+            // Point-blank safety check: if target is closer than the muzzle's forward reach (e.g. shooting at feet)
+            float muzzleForwardReach = Vector3.Dot(muzzle - aimOrigin, aimForward);
+            float targetForwardReach = Vector3.Dot(targetPoint - aimOrigin, aimForward);
 
-            // Safety fallback: if target point is behind the fire point
+            Vector3 baseDirection;
+            if (targetForwardReach <= muzzleForwardReach + 0.1f)
+            {
+                baseDirection = aimForward;
+            }
+            else
+            {
+                baseDirection = (targetPoint - muzzle).normalized;
+            }
+
+            // Safety fallback: ensure direction never points backwards
             if (Vector3.Dot(baseDirection, aimForward) < 0.1f)
             {
                 baseDirection = aimForward;
             }
 
-            Vector3 playerHorizontalForward = context.Owner ? context.Owner.transform.forward : Vector3.ProjectOnPlane(aimForward, Vector3.up).normalized;
-            if (playerHorizontalForward.sqrMagnitude < 0.001f) playerHorizontalForward = Vector3.forward;
+            Vector3 aimRight = context.AimOrigin.right;
+            Vector3 aimUp = context.AimOrigin.up;
 
             for (int i = 0; i < pellets; i++)
             {
-                Vector3 shootDirection = CalculateSpreadDirection(baseDirection, currentSpread);
+                Vector3 shootDirection;
+                if (weapon.PelletPattern != null)
+                {
+                    Vector2 patternOffset = weapon.PelletPattern.GetPointOffset(i, pellets, currentSpread, weapon.CompiledStats.BaseSpread);
+                    shootDirection = PelletPatternDefinition.CalculatePatternDirection(baseDirection, aimRight, aimUp, patternOffset);
+                }
+                else
+                {
+                    shootDirection = CalculateSpreadDirection(baseDirection, currentSpread);
+                }
+
                 Vector3 velocity = shootDirection * speed;
 
                 DamagePayload payload = new DamagePayload(
                     amount: weapon.CompiledStats.Damage,
                     type: weapon.CompiledStats.Element,
                     location: HitLocation.Core,
-                    hitPoint: origin,
+                    hitPoint: muzzle,
                     hitNormal: Vector3.up,
-                    impactDirection: playerHorizontalForward,
+                    impactDirection: shootDirection,
                     attackerId: context.ShooterId
                 );
 
@@ -90,7 +99,8 @@ namespace Project.Combat
                     behaviors = LegendaryModifierFactory.CreateProjectileBehaviors(weapon.UniqueBehaviorIds);
                 }
 
-                ProjectilePool.Instance.Spawn(origin, velocity, payload, context.HitMask, behaviors);
+                // Crisp 1:1 straight trajectory spawned directly from the weapon muzzle
+                ProjectilePool.Instance.Spawn(muzzle, velocity, payload, context.HitMask, behaviors);
             }
         }
 

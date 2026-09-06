@@ -700,7 +700,7 @@ namespace Project.Combat.Editor
 
             var t = new Label(title) { style = { fontSize = 10, color = Color.gray } };
             var name = new Label(weapon.DisplayName) { style = { fontSize = 13, unityFontStyleAndWeight = FontStyle.Bold, color = Color.white } };
-            var stat = new Label($"Lvl {weapon.Level} • DPS {weapon.CompiledStats.Damage * weapon.CompiledStats.FireRate:F0} • Mag {weapon.CompiledStats.MagazineSize}")
+            var stat = new Label($"Lvl {weapon.Level} • DPS {weapon.CompiledStats.Damage * weapon.CompiledStats.PelletsPerShot * (weapon.CompiledStats.FireRate / 60f):F0} • Mag {weapon.CompiledStats.MagazineSize}")
             {
                 style = { fontSize = 11, color = new Color(0.8f, 0.8f, 0.8f) }
             };
@@ -911,7 +911,7 @@ namespace Project.Combat.Editor
             masterCol.Add(searchField);
 
             var filterBar = new VisualElement { style = { flexDirection = FlexDirection.Row, flexWrap = Wrap.Wrap, marginBottom = 8 } };
-            string[] filters = { "All", "Cores", "Barrels", "Grips", "Stocks", "Sights", "Magazines", "Accessories", "Presets", "Brands", "Behaviors", "Perks" };
+            string[] filters = { "All", "Cores", "Barrels", "Grips", "Stocks", "Sights", "Magazines", "Accessories", "Presets", "Brands", "Behaviors", "Perks", "Patterns" };
             foreach (var f in filters)
             {
                 var btn = new Button(() => { _catalogFilterType = f; BuildCatalogList(); }) { text = f };
@@ -935,11 +935,13 @@ namespace Project.Combat.Editor
             var addBrandBtn = new Button(CreateNewBrandAsset) { text = "+ Brand", style = { flexGrow = 1, fontSize = 10 } };
             var addBehBtn = new Button(ShowNewBehaviorMenu) { text = "+ Behavior", style = { flexGrow = 1, fontSize = 10 } };
             var addPerkBtn = new Button(CreateNewPerkAsset) { text = "+ Perk", style = { flexGrow = 1, fontSize = 10 } };
+            var addPatternBtn = new Button(ShowNewPatternMenu) { text = "+ Pattern", style = { flexGrow = 1, fontSize = 10 } };
             createBar.Add(addCoreBtn);
             createBar.Add(addPartBtn);
             createBar.Add(addBrandBtn);
             createBar.Add(addBehBtn);
             createBar.Add(addPerkBtn);
+            createBar.Add(addPatternBtn);
             masterCol.Add(createBar);
 
             container.Add(masterCol);
@@ -1042,6 +1044,17 @@ namespace Project.Combat.Editor
                     if (!perk) continue;
                     if (MatchesSearch(perk.DisplayName, perk.PerkId))
                         AddCatalogItem(perk.DisplayName, $"Perk • {perk.GetType().Name.Replace("Definition", "")}", perk, new Color(0.95f, 0.85f, 0.25f));
+                }
+            }
+
+            // Pellet Patterns
+            if (_catalogFilterType == "All" || _catalogFilterType == "Patterns")
+            {
+                foreach (var pat in reg.PelletPatterns)
+                {
+                    if (!pat) continue;
+                    if (MatchesSearch(pat.DisplayName, pat.PatternId))
+                        AddCatalogItem(pat.DisplayName, $"Pattern • {pat.Shape} ({pat.PelletCount} pellets)", pat, new Color(1f, 0.45f, 0.75f));
                 }
             }
         }
@@ -1373,7 +1386,9 @@ namespace Project.Combat.Editor
             AddCardRow(_statsList, "Damage", $"{stats.Damage:F1} (Base {weapon.Core.BaseDamage} × {effMult:F2})");
             if (stats.PelletsPerShot > 1)
                 AddCardRow(_statsList, "Pellets", $"{stats.PelletsPerShot}x");
-            AddCardRow(_statsList, "Fire Rate", $"{stats.FireRate:F1} /s");
+            if (weapon.PelletPattern != null)
+                AddCardRow(_statsList, "🎯 Pattern", $"{weapon.PelletPattern.DisplayName} ({weapon.PelletPattern.Shape})", new Color(1f, 0.45f, 0.75f));
+            AddCardRow(_statsList, "Fire Rate", $"{stats.FireRate:F0} RPM");
             AddCardRow(_statsList, "Magazine Size", $"{stats.MagazineSize}");
             AddCardRow(_statsList, "Reload Speed", $"{stats.ReloadSpeed:F2} s");
             AddCardRow(_statsList, "Accuracy Spread", $"{stats.BaseSpread:F1}° - {stats.MaxSpread:F1}°");
@@ -1402,8 +1417,8 @@ namespace Project.Combat.Editor
             }
 
             _dpsList.Clear();
-            float burstDPS = stats.Damage * stats.PelletsPerShot * stats.FireRate;
-            float magCycle = stats.FireRate > 0 ? (stats.MagazineSize / stats.FireRate) + stats.ReloadSpeed : 1f;
+            float burstDPS = stats.Damage * stats.PelletsPerShot * (stats.FireRate / 60f);
+            float magCycle = stats.FireRate > 0 ? (stats.MagazineSize / (stats.FireRate / 60f)) + stats.ReloadSpeed : 1f;
             float sustainedDPS = (stats.Damage * stats.PelletsPerShot * stats.MagazineSize) / magCycle;
 
             AddCardRow(_dpsList, "Burst DPS", $"{burstDPS:F0} dps", new Color(1f, 0.85f, 0.3f));
@@ -1517,6 +1532,43 @@ namespace Project.Combat.Editor
 
             BuildCatalogList();
             InspectAssetInDetail(perk);
+        }
+
+        private void ShowNewPatternMenu()
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Horizontal Line (Sand Hawk)"), false, () => CreateNewPatternAsset(PatternShape.HorizontalLine, 5, 1.2f, "Pat_SandHawk_5Line"));
+            menu.AddItem(new GUIContent("3x3 Matrix Grid (Blockhead)"), false, () => CreateNewPatternAsset(PatternShape.Grid3x3, 9, 1.0f, "Pat_Blockhead_3x3"));
+            menu.AddItem(new GUIContent("2x2 Matrix Grid"), false, () => CreateNewPatternAsset(PatternShape.Grid2x2, 4, 1.0f, "Pat_Grid_2x2"));
+            menu.AddItem(new GUIContent("Ring Circle"), false, () => CreateNewPatternAsset(PatternShape.Ring, 8, 1.2f, "Pat_Ring_8"));
+            menu.AddItem(new GUIContent("Cross (+)"), false, () => CreateNewPatternAsset(PatternShape.Cross, 5, 1.2f, "Pat_Cross_5"));
+            menu.AddItem(new GUIContent("X Shape"), false, () => CreateNewPatternAsset(PatternShape.XShape, 5, 1.2f, "Pat_X_5"));
+            menu.AddItem(new GUIContent("Heart (Heart Breaker)"), false, () => CreateNewPatternAsset(PatternShape.Heart, 12, 1.5f, "Pat_HeartBreaker_12"));
+            menu.AddItem(new GUIContent("Custom Points"), false, () => CreateNewPatternAsset(PatternShape.Custom, 6, 1.0f, "Pat_Custom_New"));
+            menu.ShowAsContext();
+        }
+
+        private void CreateNewPatternAsset(PatternShape shape, int count, float spacing, string defaultName)
+        {
+            string path = EditorUtility.SaveFilePanelInProject("Create Pellet Pattern", defaultName, "asset", "Save Pellet Pattern Definition");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var pat = CreateInstance<PelletPatternDefinition>();
+            var so = new SerializedObject(pat);
+            so.FindProperty("_patternId").stringValue = System.IO.Path.GetFileNameWithoutExtension(path).ToLower();
+            so.FindProperty("_displayName").stringValue = ObjectNames.NicifyVariableName(shape.ToString());
+            so.FindProperty("_shape").enumValueIndex = (int)shape;
+            so.FindProperty("_pelletCount").intValue = count;
+            so.FindProperty("_spacingDegrees").floatValue = spacing;
+            so.ApplyModifiedProperties();
+
+            AssetDatabase.CreateAsset(pat, path);
+            AssetDatabase.SaveAssets();
+
+            if (ItemRegistry.Instance) ItemRegistry.Instance.RegisterPattern(pat);
+
+            BuildCatalogList();
+            InspectAssetInDetail(pat);
         }
 
         private static VisualElement CreateCardPanel(string title)

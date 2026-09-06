@@ -19,19 +19,20 @@ MonoBehaviour:
   _manufacturer: {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   _defaultRarity: 0
   _baseDamage: 25
-  _baseFireRate: 5
+  _baseFireRate: 300
   _baseMagazineSize: 999
   _baseReloadSpeed: 2
-  _baseSpread: 1.2
-  _maxSpread: 4.5
+  _baseSpread: 20
+  _maxSpread: 20
   _baseRecoilKick: 2
-  _baseProjectileSpeed: 100
+  _baseProjectileSpeed: 80
   _basePelletsPerShot: 1
   _baseCriticalMultiplier: 2
   _baseElement: 0
   _baseFiringMode: 1
-  _baseBurstCount: 3
+  _baseBurstCount: 4
   _baseBurstInterval: 0.08
+  _basePelletPattern: {fileID: 0}
   _overrideGlobalScaling: 0
   _levelScalingMode: 0
   _damageScalePerLevel: 0.08
@@ -68,7 +69,7 @@ MonoBehaviour:
   _supportsMagazine: 1
   _supportsAccessory: 0
   _compatibleBarrels:
-  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a76, type: 2}
+  - {fileID: 11400000, guid: f1a2b3c4d5e60718293a4b5c6d7e8fa2, type: 2}
   _compatibleGrips:
   - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
   - {fileID: 11400000, guid: 850157dfd2b9b0345839f8505e493f32, type: 2}

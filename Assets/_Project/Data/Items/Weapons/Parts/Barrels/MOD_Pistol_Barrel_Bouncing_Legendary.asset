@@ -22,14 +22,14 @@ MonoBehaviour:
   _rarity: 4
   _meshPrefab: {fileID: 163177303876556819, guid: 27cfe77a89c90094cb5bf54f553ef888, type: 3}
   _customSocketName: 
-  _isUnique: 1
+  _overridesFirePoint: 0
+  _isUnique: 0
   _redText: Boing, boing, boom!
-  _uniqueBehaviorId: 
+  _projectileBehaviors:
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a75, type: 2}
+  _weaponPerks: []
   _overridesElement: 0
   _elementOverride: 0
   _overridesFiringMode: 0
   _firingModeOverride: 1
   _modifiers: []
-  _projectileBehaviors:
-  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a72, type: 2}
-  _weaponPerks: []

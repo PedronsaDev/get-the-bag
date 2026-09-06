@@ -19,7 +19,7 @@ MonoBehaviour:
   _manufacturer: {fileID: 11400000, guid: 46d29061b97b4a2478878edfeff4cda8, type: 2}
   _defaultRarity: 0
   _baseDamage: 25
-  _baseFireRate: 3.5
+  _baseFireRate: 210
   _baseMagazineSize: 12
   _baseReloadSpeed: 2
   _baseSpread: 1.2

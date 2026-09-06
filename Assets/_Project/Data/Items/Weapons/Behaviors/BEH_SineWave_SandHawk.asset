@@ -16,5 +16,5 @@ MonoBehaviour:
   _displayName: Sand Hawk (Sine Wave)
   _description: Modulates projectile trajectory in a graceful horizontal sine-wave oscillation.
   _frequency: 12
-  _amplitude: 3.5
-  _verticalWave: 0
+  _amplitude: 0.4
+  _verticalWave: 1

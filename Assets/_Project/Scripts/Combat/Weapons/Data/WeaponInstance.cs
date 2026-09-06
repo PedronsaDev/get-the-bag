@@ -39,6 +39,7 @@ namespace Project.Combat
         public IReadOnlyList<string> UniqueBehaviorIds => _uniqueBehaviorIds;
         public IReadOnlyList<ProjectileBehaviorDefinition> ProjectileBehaviors => _projectileBehaviors;
         public IReadOnlyList<WeaponPerkDefinition> WeaponPerks => _weaponPerks;
+        public PelletPatternDefinition PelletPattern { get; private set; }
 
         public event Action<WeaponInstance> OnWeaponAssembled;
 
@@ -102,7 +103,7 @@ namespace Project.Combat
             {
                 foreach (var def in parts)
                 {
-                    if (def != null)
+                    if (def)
                     {
                         _parts.Add(new WeaponPartInstance(def, _level, isLocked: def.IsUnique));
                     }
@@ -260,6 +261,7 @@ namespace Project.Combat
             FiringMode firingMode = _core.BaseFiringMode;
             int burstCount = _core.BaseBurstCount;
             float burstInterval = _core.BaseBurstInterval;
+            PelletPattern = _core.BasePelletPattern;
 
             // 2. Physical Slot Level Scaling (Receiver Level + Barrel Level)
             byte barrelLevel = GetPartLevel(WeaponPartType.Barrel);
@@ -282,6 +284,9 @@ namespace Project.Combat
 
                 if (def.OverridesFiringMode)
                     firingMode = def.FiringModeOverride;
+
+                if (def.PelletPattern != null)
+                    PelletPattern = def.PelletPattern;
 
                 var mods = def.Modifiers;
                 for (int m = 0; m < mods.Count; m++)
@@ -323,10 +328,15 @@ namespace Project.Combat
                 }
             }
 
+            if (PelletPattern != null)
+            {
+                pellets = PelletPattern.PelletCount;
+            }
+
             _compiledStats = new CompiledWeaponStats
             {
                 Damage = Mathf.Max(1f, damage),
-                FireRate = Mathf.Max(0.2f, fireRate),
+                FireRate = Math.Max(1, Mathf.RoundToInt(fireRate)),
                 MagazineSize = Mathf.Max(1, Mathf.RoundToInt(magSize)),
                 ReloadSpeed = Mathf.Max(0.5f, reloadSpeed),
                 BaseSpread = Mathf.Max(0.1f, baseSpread),
@@ -387,9 +397,10 @@ namespace Project.Combat
                     }
                 }
 
-                // Dynamic rarity promotion: If any part is Unique, or has behaviors/perks, or higher rarity, upgrade weapon
+                // Dynamic rarity promotion: If any part is Unique, or has behaviors/perks/patterns, or higher rarity, upgrade weapon
                 bool hasSpecialPerks = def.ProjectileBehaviors is { Count: > 0 } ||
-                                       def.WeaponPerks is { Count: > 0 };
+                                       def.WeaponPerks is { Count: > 0 } ||
+                                       def.PelletPattern != null;
 
                 if (def.IsUnique || hasSpecialPerks)
                 {

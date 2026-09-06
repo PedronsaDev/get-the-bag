@@ -68,6 +68,7 @@ namespace Project.Combat
         [SerializeField] private List<ManufacturerDefinition> _manufacturers = new();
         [SerializeField] private List<ProjectileBehaviorDefinition> _projectileBehaviors = new();
         [SerializeField] private List<WeaponPerkDefinition> _weaponPerks = new();
+        [SerializeField] private List<PelletPatternDefinition> _pelletPatterns = new();
 
         private readonly Dictionary<string, WeaponCoreDefinition> _coresByGuid = new();
         private readonly Dictionary<string, WeaponCoreDefinition> _coresByStringId = new(StringComparer.OrdinalIgnoreCase);
@@ -82,6 +83,7 @@ namespace Project.Combat
 
         private readonly Dictionary<string, ProjectileBehaviorDefinition> _behaviorsById = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, WeaponPerkDefinition> _perksById = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, PelletPatternDefinition> _patternsById = new(StringComparer.OrdinalIgnoreCase);
 
         public IReadOnlyList<WeaponCoreDefinition> WeaponCores => _weaponCores;
         public IReadOnlyList<WeaponPartDefinition> WeaponParts => _weaponParts;
@@ -89,6 +91,7 @@ namespace Project.Combat
         public IReadOnlyList<ManufacturerDefinition> Manufacturers => _manufacturers;
         public IReadOnlyList<ProjectileBehaviorDefinition> ProjectileBehaviors => _projectileBehaviors;
         public IReadOnlyList<WeaponPerkDefinition> WeaponPerks => _weaponPerks;
+        public IReadOnlyList<PelletPatternDefinition> PelletPatterns => _pelletPatterns;
 
         private void OnEnable()
         {
@@ -176,6 +179,21 @@ namespace Project.Combat
                 if (!string.IsNullOrEmpty(perk.PerkId))
                     _perksById[perk.PerkId] = perk;
             }
+
+            _patternsById.Clear();
+            for (int i = 0; i < _pelletPatterns.Count; i++)
+            {
+                var pat = _pelletPatterns[i];
+                if (!pat) continue;
+                if (!string.IsNullOrEmpty(pat.PatternId))
+                    _patternsById[pat.PatternId] = pat;
+            }
+        }
+
+        public bool TryGetPatternById(string patternId, out PelletPatternDefinition pattern)
+        {
+            if (_patternsById.Count == 0 && _pelletPatterns.Count > 0) InitializeLookup();
+            return _patternsById.TryGetValue(patternId, out pattern);
         }
 
         public bool TryGetBehaviorById(string behaviorId, out ProjectileBehaviorDefinition behavior)
@@ -483,6 +501,7 @@ namespace Project.Combat
             var foundManufacturers = new List<ManufacturerDefinition>();
             var foundBehaviors = new List<ProjectileBehaviorDefinition>();
             var foundPerks = new List<WeaponPerkDefinition>();
+            var foundPatterns = new List<PelletPatternDefinition>();
 
             string[] coreGuids = UnityEditor.AssetDatabase.FindAssets("t:WeaponCoreDefinition");
             foreach (var g in coreGuids)
@@ -526,19 +545,28 @@ namespace Project.Combat
                 if (perk && !foundPerks.Contains(perk)) foundPerks.Add(perk);
             }
 
+            string[] patternGuids = UnityEditor.AssetDatabase.FindAssets("t:PelletPatternDefinition");
+            foreach (var g in patternGuids)
+            {
+                var pat = UnityEditor.AssetDatabase.LoadAssetAtPath<PelletPatternDefinition>(UnityEditor.AssetDatabase.GUIDToAssetPath(g));
+                if (pat && !foundPatterns.Contains(pat)) foundPatterns.Add(pat);
+            }
+
             foundCores.Sort((a, b) => string.Compare(a.CoreId, b.CoreId, StringComparison.OrdinalIgnoreCase));
             foundParts.Sort((a, b) => string.Compare(a.PartId, b.PartId, StringComparison.OrdinalIgnoreCase));
             foundPresets.Sort((a, b) => string.Compare(a.PresetId, b.PresetId, StringComparison.OrdinalIgnoreCase));
             foundManufacturers.Sort((a, b) => string.Compare(a.ManufacturerId, b.ManufacturerId, StringComparison.OrdinalIgnoreCase));
             foundBehaviors.Sort((a, b) => string.Compare(a.BehaviorId, b.BehaviorId, StringComparison.OrdinalIgnoreCase));
             foundPerks.Sort((a, b) => string.Compare(a.PerkId, b.PerkId, StringComparison.OrdinalIgnoreCase));
+            foundPatterns.Sort((a, b) => string.Compare(a.PatternId, b.PatternId, StringComparison.OrdinalIgnoreCase));
 
             bool changed = !AreAssetListsEqual(_weaponCores, foundCores) ||
                            !AreAssetListsEqual(_weaponParts, foundParts) ||
                            !AreAssetListsEqual(_weaponPresets, foundPresets) ||
                            !AreAssetListsEqual(_manufacturers, foundManufacturers) ||
                            !AreAssetListsEqual(_projectileBehaviors, foundBehaviors) ||
-                           !AreAssetListsEqual(_weaponPerks, foundPerks);
+                           !AreAssetListsEqual(_weaponPerks, foundPerks) ||
+                           !AreAssetListsEqual(_pelletPatterns, foundPatterns);
 
             if (changed)
             {
@@ -548,6 +576,7 @@ namespace Project.Combat
                 _manufacturers = foundManufacturers;
                 _projectileBehaviors = foundBehaviors;
                 _weaponPerks = foundPerks;
+                _pelletPatterns = foundPatterns;
 
                 UnityEditor.EditorUtility.SetDirty(this);
                 UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
@@ -556,7 +585,7 @@ namespace Project.Combat
 
                 if (!silent)
                 {
-                    Debug.Log($"[ItemRegistry] Auto-scanned project: {_weaponCores.Count} Cores, {_weaponParts.Count} Parts, {_weaponPresets.Count} Presets, {_manufacturers.Count} Manufacturers, {_projectileBehaviors.Count} Behaviors, {_weaponPerks.Count} Perks.");
+                    Debug.Log($"[ItemRegistry] Auto-scanned project: {_weaponCores.Count} Cores, {_weaponParts.Count} Parts, {_weaponPresets.Count} Presets, {_manufacturers.Count} Manufacturers, {_projectileBehaviors.Count} Behaviors, {_weaponPerks.Count} Perks, {_pelletPatterns.Count} Patterns.");
                 }
                 return true;
             }
@@ -624,6 +653,19 @@ namespace Project.Combat
             {
                 _manufacturers.Add(manufacturer);
                 _manufacturers.Sort((a, b) => string.Compare(a.ManufacturerId, b.ManufacturerId, StringComparison.OrdinalIgnoreCase));
+                UnityEditor.EditorUtility.SetDirty(this);
+                UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
+                InitializeLookup();
+                OnRegistryUpdated?.Invoke();
+            }
+        }
+
+        public void RegisterPattern(PelletPatternDefinition pattern)
+        {
+            if (pattern && !_pelletPatterns.Contains(pattern))
+            {
+                _pelletPatterns.Add(pattern);
+                _pelletPatterns.Sort((a, b) => string.Compare(a.PatternId, b.PatternId, StringComparison.OrdinalIgnoreCase));
                 UnityEditor.EditorUtility.SetDirty(this);
                 UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
                 InitializeLookup();

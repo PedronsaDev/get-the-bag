@@ -19,11 +19,23 @@ namespace Project.Combat
             int pellets = Mathf.Max(1, weapon.CompiledStats.PelletsPerShot);
             Vector3 origin = context.AimOrigin.position;
             Vector3 forward = context.AimOrigin.forward;
+            Vector3 aimRight = context.AimOrigin.right;
+            Vector3 aimUp = context.AimOrigin.up;
             Vector3 muzzle = context.MuzzlePoint ? context.MuzzlePoint.position : origin;
 
             for (int i = 0; i < pellets; i++)
             {
-                Vector3 shootDirection = CalculateSpreadDirection(forward, currentSpread);
+                Vector3 shootDirection;
+                if (weapon.PelletPattern != null)
+                {
+                    Vector2 patternOffset = weapon.PelletPattern.GetPointOffset(i, pellets, currentSpread, weapon.CompiledStats.BaseSpread);
+                    shootDirection = PelletPatternDefinition.CalculatePatternDirection(forward, aimRight, aimUp, patternOffset);
+                }
+                else
+                {
+                    shootDirection = CalculateSpreadDirection(forward, currentSpread);
+                }
+
                 Vector3 tracerTarget = origin + (shootDirection * 200f);
 
                 if (Physics.Raycast(origin, shootDirection, out RaycastHit hit, 300f, context.HitMask, QueryTriggerInteraction.Ignore))
