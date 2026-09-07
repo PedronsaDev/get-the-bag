@@ -1,5 +1,6 @@
 using System;
 using Project.Core.Interaction;
+using Project.Core.UI;
 using PurrNet;
 using UnityEngine;
 
@@ -57,6 +58,18 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
     {
         if (!isOwner)
             return;
+
+        if (UIBlockerSystem.IsActionsBlocked)
+        {
+            ResetHold();
+            if (_currentTarget != null)
+            {
+                _currentTarget.OnHoverExit(this);
+                _currentTarget = null;
+                OnTargetChanged?.Invoke(null);
+            }
+            return;
+        }
 
         UpdateTargetDetection();
         UpdateInteractionInput();

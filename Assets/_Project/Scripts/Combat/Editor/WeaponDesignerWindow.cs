@@ -564,11 +564,15 @@ namespace Project.Combat.Editor
                 return;
             }
 
+            string defaultPresetName = $"PRESET_{_selectedCore.WeaponType}_Legendary_{_selectedCore.BaseWeaponName.Replace(" ", "_")}";
+            string folder = "Assets/_Project/Data/Items/Weapons/Presets";
+            EnsureDirectoryExists(folder);
             string path = EditorUtility.SaveFilePanelInProject(
                 "Save Dedicated Drop Preset",
-                $"Preset_{_selectedCore.BaseWeaponName.Replace(" ", "_")}_Legendary",
+                defaultPresetName,
                 "asset",
-                "Select where to save the weapon preset");
+                "Select where to save the weapon preset",
+                folder);
 
             if (string.IsNullOrEmpty(path)) return;
 
@@ -576,7 +580,8 @@ namespace Project.Combat.Editor
 
             // Lock signature parts
             var so = new SerializedObject(preset);
-            so.FindProperty("_presetId").stringValue = $"preset_{System.IO.Path.GetFileNameWithoutExtension(path).ToLower()}";
+            string fileBase = System.IO.Path.GetFileNameWithoutExtension(path).ToLower();
+            so.FindProperty("_presetId").stringValue = fileBase.StartsWith("preset_") ? fileBase : $"preset_{fileBase}";
             so.FindProperty("_presetDisplayName").stringValue = $"Named {_selectedCore.BaseWeaponName}";
             so.FindProperty("_core").objectReferenceValue = _selectedCore;
             so.FindProperty("_rarity").enumValueIndex = (int)ItemRarity.Legendary;
@@ -1437,12 +1442,49 @@ namespace Project.Combat.Editor
 
         // ================= ASSET CREATION HELPERS =================
 
+        private static void EnsureDirectoryExists(string assetFolderPath)
+        {
+            if (!System.IO.Directory.Exists(assetFolderPath))
+            {
+                System.IO.Directory.CreateDirectory(assetFolderPath);
+                AssetDatabase.Refresh();
+            }
+        }
+
+        private static string GetPartFolderPath(WeaponPartType slot)
+        {
+            string subfolder = slot switch
+            {
+                WeaponPartType.Barrel => "Barrels",
+                WeaponPartType.Grip => "Grips",
+                WeaponPartType.Stock => "Stocks",
+                WeaponPartType.Sight => "Sights",
+                WeaponPartType.Magazine => "Magazines",
+                WeaponPartType.Accessory => "Accessories",
+                _ => ""
+            };
+
+            string folder = string.IsNullOrEmpty(subfolder)
+                ? "Assets/_Project/Data/Items/Weapons/Parts"
+                : $"Assets/_Project/Data/Items/Weapons/Parts/{subfolder}";
+
+            EnsureDirectoryExists(folder);
+            return folder;
+        }
+
         private void CreateNewCoreAsset()
         {
-            string path = EditorUtility.SaveFilePanelInProject("Create Weapon Core", "WeaponCore_New", "asset", "Save Weapon Core Definition");
+            string folder = "Assets/_Project/Data/Items/Weapons/Cores";
+            EnsureDirectoryExists(folder);
+            string defaultName = $"CORE_{(_selectedCore != null ? _selectedCore.WeaponType.ToString() : "Pistol")}_New";
+            string path = EditorUtility.SaveFilePanelInProject("Create Weapon Core", defaultName, "asset", "Save Weapon Core Definition", folder);
             if (string.IsNullOrEmpty(path)) return;
 
             var core = CreateInstance<WeaponCoreDefinition>();
+            var so = new SerializedObject(core);
+            so.FindProperty("_coreId").stringValue = System.IO.Path.GetFileNameWithoutExtension(path).ToLower();
+            so.ApplyModifiedProperties();
+
             AssetDatabase.CreateAsset(core, path);
             AssetDatabase.SaveAssets();
 
@@ -1456,11 +1498,15 @@ namespace Project.Combat.Editor
 
         private void CreateNewPartAsset(WeaponPartType slot)
         {
-            string path = EditorUtility.SaveFilePanelInProject($"Create {slot} Part", $"Part_{slot}_New", "asset", $"Save {slot} Part Definition");
+            string folder = GetPartFolderPath(slot);
+            string weaponTypeName = _selectedCore != null ? _selectedCore.WeaponType.ToString() : "Pistol";
+            string defaultName = $"PART_{weaponTypeName}_{slot}_New";
+            string path = EditorUtility.SaveFilePanelInProject($"Create {slot} Part", defaultName, "asset", $"Save {slot} Part Definition", folder);
             if (string.IsNullOrEmpty(path)) return;
 
             var part = CreateInstance<WeaponPartDefinition>();
             var so = new SerializedObject(part);
+            so.FindProperty("_partId").stringValue = System.IO.Path.GetFileNameWithoutExtension(path).ToLower();
             so.FindProperty("_partType").enumValueIndex = (int)slot;
             so.FindProperty("_displayName").stringValue = $"Standard {slot}";
             so.ApplyModifiedProperties();
@@ -1480,10 +1526,17 @@ namespace Project.Combat.Editor
 
         private void CreateNewBrandAsset()
         {
-            string path = EditorUtility.SaveFilePanelInProject("Create Manufacturer Brand", "Manufacturer_New", "asset", "Save Manufacturer Brand Definition");
+            string folder = "Assets/_Project/Data/Items/Manufacturers";
+            EnsureDirectoryExists(folder);
+            string path = EditorUtility.SaveFilePanelInProject("Create Manufacturer Brand", "MFG_BrandName_New", "asset", "Save Manufacturer Brand Definition", folder);
             if (string.IsNullOrEmpty(path)) return;
 
             var mfg = CreateInstance<ManufacturerDefinition>();
+            var so = new SerializedObject(mfg);
+            so.FindProperty("_manufacturerId").stringValue = System.IO.Path.GetFileNameWithoutExtension(path).ToLower();
+            so.FindProperty("_displayName").stringValue = "Brand Name";
+            so.ApplyModifiedProperties();
+
             AssetDatabase.CreateAsset(mfg, path);
             AssetDatabase.SaveAssets();
 
@@ -1496,20 +1549,30 @@ namespace Project.Combat.Editor
         private void ShowNewBehaviorMenu()
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Bouncing Projectile"), false, () => CreateNewBehaviorAsset(typeof(BouncingBehaviorDefinition), "Beh_Bouncing_New"));
-            menu.AddItem(new GUIContent("Gravity Trajectory"), false, () => CreateNewBehaviorAsset(typeof(GravityBehaviorDefinition), "Beh_Gravity_New"));
-            menu.AddItem(new GUIContent("Sine Wave Trajectory"), false, () => CreateNewBehaviorAsset(typeof(WaveBehaviorDefinition), "Beh_SineWave_New"));
-            menu.AddItem(new GUIContent("Cluster Split"), false, () => CreateNewBehaviorAsset(typeof(ClusterSplitBehaviorDefinition), "Beh_ClusterSplit_New"));
-            menu.AddItem(new GUIContent("Accelerating Flight"), false, () => CreateNewBehaviorAsset(typeof(AcceleratingBehaviorDefinition), "Beh_Accelerating_New"));
+            menu.AddItem(new GUIContent("Bouncing Projectile"), false, () => CreateNewBehaviorAsset(typeof(BouncingBehaviorDefinition), "BEH_Bouncing_New"));
+            menu.AddItem(new GUIContent("Gravity Trajectory"), false, () => CreateNewBehaviorAsset(typeof(GravityBehaviorDefinition), "BEH_Gravity_New"));
+            menu.AddItem(new GUIContent("Wave Trajectory"), false, () => CreateNewBehaviorAsset(typeof(WaveBehaviorDefinition), "BEH_Wave_New"));
+            menu.AddItem(new GUIContent("Cluster Split"), false, () => CreateNewBehaviorAsset(typeof(ClusterSplitBehaviorDefinition), "BEH_Split_New"));
+            menu.AddItem(new GUIContent("Accelerating Flight"), false, () => CreateNewBehaviorAsset(typeof(AcceleratingBehaviorDefinition), "BEH_Accelerating_New"));
             menu.ShowAsContext();
         }
 
         private void CreateNewBehaviorAsset(Type type, string defaultName)
         {
-            string path = EditorUtility.SaveFilePanelInProject("Create Projectile Behavior", defaultName, "asset", "Save Behavior Definition");
+            string folder = "Assets/_Project/Data/Items/Weapons/Behaviors";
+            EnsureDirectoryExists(folder);
+            string path = EditorUtility.SaveFilePanelInProject("Create Projectile Behavior", defaultName, "asset", "Save Behavior Definition", folder);
             if (string.IsNullOrEmpty(path)) return;
 
             var beh = CreateInstance(type) as ProjectileBehaviorDefinition;
+            if (beh != null)
+            {
+                var so = new SerializedObject(beh);
+                var idProp = so.FindProperty("_behaviorId");
+                if (idProp != null) idProp.stringValue = System.IO.Path.GetFileNameWithoutExtension(path).ToLower();
+                so.ApplyModifiedProperties();
+            }
+
             AssetDatabase.CreateAsset(beh, path);
             AssetDatabase.SaveAssets();
 
@@ -1521,10 +1584,17 @@ namespace Project.Combat.Editor
 
         private void CreateNewPerkAsset()
         {
-            string path = EditorUtility.SaveFilePanelInProject("Create Weapon Perk", "Perk_AmmoRefund_New", "asset", "Save Weapon Perk Definition");
+            string folder = "Assets/_Project/Data/Items/Weapons/Perks";
+            EnsureDirectoryExists(folder);
+            string path = EditorUtility.SaveFilePanelInProject("Create Weapon Perk", "PERK_Refund_New", "asset", "Save Weapon Perk Definition", folder);
             if (string.IsNullOrEmpty(path)) return;
 
             var perk = CreateInstance<AmmoRefundPerkDefinition>();
+            var so = new SerializedObject(perk);
+            var idProp = so.FindProperty("_perkId");
+            if (idProp != null) idProp.stringValue = System.IO.Path.GetFileNameWithoutExtension(path).ToLower();
+            so.ApplyModifiedProperties();
+
             AssetDatabase.CreateAsset(perk, path);
             AssetDatabase.SaveAssets();
 
@@ -1537,20 +1607,22 @@ namespace Project.Combat.Editor
         private void ShowNewPatternMenu()
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Horizontal Line (Sand Hawk)"), false, () => CreateNewPatternAsset(PatternShape.HorizontalLine, 5, 1.2f, "Pat_SandHawk_5Line"));
-            menu.AddItem(new GUIContent("3x3 Matrix Grid (Blockhead)"), false, () => CreateNewPatternAsset(PatternShape.Grid3x3, 9, 1.0f, "Pat_Blockhead_3x3"));
-            menu.AddItem(new GUIContent("2x2 Matrix Grid"), false, () => CreateNewPatternAsset(PatternShape.Grid2x2, 4, 1.0f, "Pat_Grid_2x2"));
-            menu.AddItem(new GUIContent("Ring Circle"), false, () => CreateNewPatternAsset(PatternShape.Ring, 8, 1.2f, "Pat_Ring_8"));
-            menu.AddItem(new GUIContent("Cross (+)"), false, () => CreateNewPatternAsset(PatternShape.Cross, 5, 1.2f, "Pat_Cross_5"));
-            menu.AddItem(new GUIContent("X Shape"), false, () => CreateNewPatternAsset(PatternShape.XShape, 5, 1.2f, "Pat_X_5"));
-            menu.AddItem(new GUIContent("Heart (Heart Breaker)"), false, () => CreateNewPatternAsset(PatternShape.Heart, 12, 1.5f, "Pat_HeartBreaker_12"));
-            menu.AddItem(new GUIContent("Custom Points"), false, () => CreateNewPatternAsset(PatternShape.Custom, 6, 1.0f, "Pat_Custom_New"));
+            menu.AddItem(new GUIContent("Horizontal Line (Sand Hawk)"), false, () => CreateNewPatternAsset(PatternShape.HorizontalLine, 5, 1.2f, "PAT_Line_5P_New"));
+            menu.AddItem(new GUIContent("3x3 Matrix Grid (Blockhead)"), false, () => CreateNewPatternAsset(PatternShape.Grid3x3, 9, 1.0f, "PAT_Grid_9P_New"));
+            menu.AddItem(new GUIContent("2x2 Matrix Grid"), false, () => CreateNewPatternAsset(PatternShape.Grid2x2, 4, 1.0f, "PAT_Grid_4P_New"));
+            menu.AddItem(new GUIContent("Ring Circle"), false, () => CreateNewPatternAsset(PatternShape.Ring, 8, 1.2f, "PAT_Ring_8P_New"));
+            menu.AddItem(new GUIContent("Cross (+)"), false, () => CreateNewPatternAsset(PatternShape.Cross, 5, 1.2f, "PAT_Cross_5P_New"));
+            menu.AddItem(new GUIContent("X Shape"), false, () => CreateNewPatternAsset(PatternShape.XShape, 5, 1.2f, "PAT_X_5P_New"));
+            menu.AddItem(new GUIContent("Heart (Heart Breaker)"), false, () => CreateNewPatternAsset(PatternShape.Heart, 12, 1.5f, "PAT_Heart_12P_New"));
+            menu.AddItem(new GUIContent("Custom Points"), false, () => CreateNewPatternAsset(PatternShape.Custom, 6, 1.0f, "PAT_Custom_6P_New"));
             menu.ShowAsContext();
         }
 
         private void CreateNewPatternAsset(PatternShape shape, int count, float spacing, string defaultName)
         {
-            string path = EditorUtility.SaveFilePanelInProject("Create Pellet Pattern", defaultName, "asset", "Save Pellet Pattern Definition");
+            string folder = "Assets/_Project/Data/Items/Weapons/Patterns";
+            EnsureDirectoryExists(folder);
+            string path = EditorUtility.SaveFilePanelInProject("Create Pellet Pattern", defaultName, "asset", "Save Pellet Pattern Definition", folder);
             if (string.IsNullOrEmpty(path)) return;
 
             var pat = CreateInstance<PelletPatternDefinition>();

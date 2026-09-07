@@ -1,10 +1,100 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Project.Core.UI
 {
-public abstract class InputBlockerUI : MonoBehaviour
-{
-    public abstract void Open();
-    public abstract void Close();
-}
+    /// <summary>
+    /// Base component for UI screens, modals, or menus that block player input when open.
+    /// Handles registration with UIBlockerSystem automatically on Open/OnEnable and unregistration on Close/OnDisable/OnDestroy.
+    /// </summary>
+    [DisallowMultipleComponent]
+    public class InputBlockerUI : MonoBehaviour, IInputBlocker
+    {
+        [Header("Blocker Settings")]
+        [Tooltip("Human-readable identifier for debugging and stack inspection.")]
+        [SerializeField] private string _blockerId;
+
+        [Tooltip("If true, prevents player movement (WASD, sprint, crouch, jump) while open.")]
+        [SerializeField] private bool _blocksMovement = true;
+
+        [Tooltip("If true, prevents camera look rotation while open.")]
+        [SerializeField] private bool _blocksLook = true;
+
+        [Tooltip("If true, prevents weapon firing, abilities, reloading, weapon switching, and interactions.")]
+        [SerializeField] private bool _blocksActions = true;
+
+        [Tooltip("If true, unlocks hardware cursor and makes it visible.")]
+        [SerializeField] private bool _unlocksCursor = true;
+
+        [Tooltip("If true, pressing Cancel (Escape) will invoke Close() on this blocker.")]
+        [SerializeField] private bool _closesOnCancel = true;
+
+        [Header("Lifecycle Options")]
+        [Tooltip("If true, automatically registers with UIBlockerSystem when this component is enabled in the scene.")]
+        [SerializeField] private bool _registerOnEnable = true;
+
+        [Tooltip("If true, automatically unregisters with UIBlockerSystem when this component is disabled.")]
+        [SerializeField] private bool _unregisterOnDisable = true;
+
+        [Header("Events")]
+        public UnityEvent onOpened;
+        public UnityEvent onClosed;
+
+        public string BlockerId => string.IsNullOrEmpty(_blockerId) ? gameObject.name : _blockerId;
+        public bool BlocksMovement => _blocksMovement;
+        public bool BlocksLook => _blocksLook;
+        public bool BlocksActions => _blocksActions;
+        public bool UnlocksCursor => _unlocksCursor;
+        public bool ClosesOnCancel => _closesOnCancel;
+
+        public bool IsOpen { get; private set; }
+
+        protected virtual void OnEnable()
+        {
+            if (_registerOnEnable)
+            {
+                Open();
+            }
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (_unregisterOnDisable)
+            {
+                Close();
+            }
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (IsOpen)
+            {
+                UIBlockerSystem.Unregister(this);
+                IsOpen = false;
+            }
+        }
+
+        /// <summary>
+        /// Opens this UI and registers it with UIBlockerSystem.
+        /// </summary>
+        public virtual void Open()
+        {
+            if (IsOpen) return;
+            IsOpen = true;
+            UIBlockerSystem.Register(this);
+            onOpened?.Invoke();
+        }
+
+        /// <summary>
+        /// Closes this UI and unregisters it from UIBlockerSystem.
+        /// </summary>
+        public virtual void Close()
+        {
+            if (!IsOpen) return;
+            IsOpen = false;
+            UIBlockerSystem.Unregister(this);
+            onClosed?.Invoke();
+        }
+    }
 }

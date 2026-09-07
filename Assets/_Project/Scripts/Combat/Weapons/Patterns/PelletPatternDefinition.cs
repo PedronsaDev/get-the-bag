@@ -21,10 +21,10 @@ namespace Project.Combat
     /// ScriptableObject defining a deterministic firing pattern for multi-pellet weapons
     /// (e.g. Sand Hawk horizontal line, Blockhead 3x3 square matrix, Heart Breaker, etc.).
     /// </summary>
-    [CreateAssetMenu(fileName = "Pat_NewPattern", menuName = "Combat/Pellet Pattern")]
+    [CreateAssetMenu(fileName = "PAT_Shape_CountP_New", menuName = "Combat/Pellet Pattern")]
     public class PelletPatternDefinition : ScriptableObject
     {
-        [SerializeField] private string _patternId;
+        [SerializeField] private string _patternId = "pat_new";
         [SerializeField] private string _displayName = "New Pattern";
         [TextArea(2, 4)]
         [SerializeField] private string _description;

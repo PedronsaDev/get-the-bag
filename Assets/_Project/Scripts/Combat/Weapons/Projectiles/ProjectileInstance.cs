@@ -21,6 +21,7 @@ namespace Project.Combat
         private float _currentLife;
         private float _distanceTraveled;
         private bool _isAlive;
+        private bool _isCosmetic;
 
         private readonly List<IProjectileBehavior> _behaviors = new();
 
@@ -31,16 +32,18 @@ namespace Project.Combat
         public float DistanceTraveled => _distanceTraveled;
         public float ElapsedLife => _currentLife;
         public bool IsAlive => _isAlive;
+        public bool IsCosmetic => _isCosmetic;
         public bool IsInPool { get; set; }
 
         public event Action<ProjectileInstance> OnDespawn;
 
-        public void Initialize(Vector3 startPosition, Vector3 initialVelocity, DamagePayload payload, LayerMask hitMask, IEnumerable<IProjectileBehavior> behaviors = null)
+        public void Initialize(Vector3 startPosition, Vector3 initialVelocity, DamagePayload payload, LayerMask hitMask, IEnumerable<IProjectileBehavior> behaviors = null, bool isCosmetic = false)
         {
             _position = startPosition;
             _velocity = initialVelocity;
             _payload = payload;
             _hitMask = hitMask;
+            _isCosmetic = isCosmetic;
             _currentLife = 0f;
             _distanceTraveled = 0f;
             _isAlive = true;
@@ -132,19 +135,25 @@ namespace Project.Combat
                     preventDespawn = true;
             }
 
-            // Deliver damage
-            IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
-            if (damageable != null)
-            {
-                _payload.HitPoint = hit.point;
-                _payload.HitNormal = hit.normal;
-                _payload.ImpactDirection = _velocity.normalized;
-                damageable.TakeDamage(_payload);
-            }
+            // Always spawn impact VFX and audio
+            ImpactEffectPool.Instance.Spawn(hit.point, hit.normal, _payload.Type);
 
-            if (hit.rigidbody && !hit.rigidbody.isKinematic)
+            // Deliver damage and physics only if non-cosmetic
+            if (!_isCosmetic)
             {
-                hit.rigidbody.AddForceAtPosition(_velocity.normalized * (_payload.Amount * 3f), hit.point, ForceMode.Impulse);
+                IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+                if (damageable != null)
+                {
+                    _payload.HitPoint = hit.point;
+                    _payload.HitNormal = hit.normal;
+                    _payload.ImpactDirection = _velocity.normalized;
+                    damageable.TakeDamage(_payload);
+                }
+
+                if (hit.rigidbody && !hit.rigidbody.isKinematic)
+                {
+                    hit.rigidbody.AddForceAtPosition(_velocity.normalized * (_payload.Amount * 3f), hit.point, ForceMode.Impulse);
+                }
             }
             
             if (preventDespawn)

@@ -66,8 +66,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     
     private InputAction _cancelAction;
     
-    private List<InputBlockerUI> _activeUIBlockers = new List<InputBlockerUI>();
-    
     
     protected override void OnSpawned()
     {
@@ -75,15 +73,27 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         if (!isOwner)
             return;
         
-        if (_enableCursorLock)
+        UIBlockerSystem.CursorLockPolicy = ApplyCursorLockState;
+
+        if (_enableCursorLock && !UIBlockerSystem.IsCursorUnlocked)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
         
         InitializeActions();
-        _playerMap?.Enable();
+        if (!UIBlockerSystem.IsInputBlocked)
+        {
+            _playerMap?.Enable();
+        }
         _uiMap?.Enable();
+
+        UIBlockerSystem.OnBlockerStateChanged += HandleBlockerStateChanged;
     }
 
     protected override void OnDespawned()
@@ -91,6 +101,12 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         if (!isOwner)
             return;
         
+        UIBlockerSystem.OnBlockerStateChanged -= HandleBlockerStateChanged;
+        if (UIBlockerSystem.CursorLockPolicy == ApplyCursorLockState)
+        {
+            UIBlockerSystem.CursorLockPolicy = null;
+        }
+
         _playerMap?.Disable();
         _uiMap?.Disable();
     }
@@ -143,7 +159,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 
         if (cancelPressed)
         {
-            CloseLastActiveUIBlocker();
+            UIBlockerSystem.TryCloseTopBlocker();
         }
     }
 
@@ -155,46 +171,78 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         if (PedronsaDev.Console.Console.IsOpen)
             return PlayerInputData.Empty;
 
-        Vector2 rawLook = _lookAction?.ReadValue<Vector2>() ?? Vector2.zero;
+        bool movementBlocked = UIBlockerSystem.IsMovementBlocked;
+        bool lookBlocked = UIBlockerSystem.IsLookBlocked;
+        bool actionsBlocked = UIBlockerSystem.IsActionsBlocked;
+
+        if (movementBlocked && lookBlocked && actionsBlocked)
+            return PlayerInputData.Empty;
+
+        Vector2 rawLook = lookBlocked ? Vector2.zero : (_lookAction?.ReadValue<Vector2>() ?? Vector2.zero);
         var scaledLookSensitivity = _lookSensitivity * 0.1f;
         Vector2 scaledLook = new Vector2(
             rawLook.x * scaledLookSensitivity * SensitivityMultiplier,
             rawLook.y * scaledLookSensitivity * (_invertY ? -1f : 1f) * SensitivityMultiplier
         );
 
+        Vector2 moveVector = movementBlocked ? Vector2.zero : (_moveAction?.ReadValue<Vector2>() ?? Vector2.zero);
+
         return new PlayerInputData
         {
-            MoveVector = _moveAction?.ReadValue<Vector2>() ?? Vector2.zero,
+            MoveVector = moveVector,
             LookVector = scaledLook,
 
-            JumpPressed = _jumpAction != null && _jumpAction.WasPressedThisFrame(),
-            JumpHeld = _jumpAction != null && _jumpAction.IsPressed(),
-            SprintHeld = _sprintAction != null && _sprintAction.IsPressed(),
-            CrouchHeld = _crouchAction != null && _crouchAction.IsPressed(),
+            JumpPressed = !actionsBlocked && _jumpAction != null && _jumpAction.WasPressedThisFrame(),
+            JumpHeld = !actionsBlocked && _jumpAction != null && _jumpAction.IsPressed(),
+            SprintHeld = !movementBlocked && _sprintAction != null && _sprintAction.IsPressed(),
+            CrouchHeld = !movementBlocked && _crouchAction != null && _crouchAction.IsPressed(),
 
-            PrimaryFirePressed = _attackAction != null && _attackAction.WasPressedThisFrame(),
-            PrimaryFireHeld = _attackAction != null && _attackAction.IsPressed(),
-            SecondaryFirePressed = _aimAction != null && _aimAction.WasPressedThisFrame(),
-            SecondaryFireHeld = _aimAction != null && _aimAction.IsPressed(),
+            PrimaryFirePressed = !actionsBlocked && _attackAction != null && _attackAction.WasPressedThisFrame(),
+            PrimaryFireHeld = !actionsBlocked && _attackAction != null && _attackAction.IsPressed(),
+            SecondaryFirePressed = !actionsBlocked && _aimAction != null && _aimAction.WasPressedThisFrame(),
+            SecondaryFireHeld = !actionsBlocked && _aimAction != null && _aimAction.IsPressed(),
 
-            ReloadPressed = _reloadAction != null && _reloadAction.WasPressedThisFrame(),
-            GrenadePressed = _grenadeAction != null && _grenadeAction.WasPressedThisFrame(),
-            SkillPressed = _skillAction != null && _skillAction.WasPressedThisFrame(),
-            MeleePressed = _meleeAction != null && _meleeAction.WasPressedThisFrame(),
-            PingPressed = _pingAction != null && _pingAction.WasPressedThisFrame(),
+            ReloadPressed = !actionsBlocked && _reloadAction != null && _reloadAction.WasPressedThisFrame(),
+            GrenadePressed = !actionsBlocked && _grenadeAction != null && _grenadeAction.WasPressedThisFrame(),
+            SkillPressed = !actionsBlocked && _skillAction != null && _skillAction.WasPressedThisFrame(),
+            MeleePressed = !actionsBlocked && _meleeAction != null && _meleeAction.WasPressedThisFrame(),
+            PingPressed = !actionsBlocked && _pingAction != null && _pingAction.WasPressedThisFrame(),
             
-            InteractPressed = _interactAction != null && _interactAction.WasPressedThisFrame(),
-            InteractHeld = _interactAction != null && _interactAction.IsPressed(),
-            WeaponSlotPressed = GetWeaponSlotPressed()
+            InteractPressed = !actionsBlocked && _interactAction != null && _interactAction.WasPressedThisFrame(),
+            InteractHeld = !actionsBlocked && _interactAction != null && _interactAction.IsPressed(),
+            WeaponSlotPressed = actionsBlocked ? 0 : GetWeaponSlotPressed()
         };
     }
 
-    private void CloseLastActiveUIBlocker()
+    private void ApplyCursorLockState()
     {
-        if (_activeUIBlockers.Count > 0)
+        if (_enableCursorLock)
         {
-            var lastBlocker = _activeUIBlockers[^1];
-            lastBlocker.Close();
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    private void HandleBlockerStateChanged(bool isBlocked)
+    {
+        if (isBlocked)
+        {
+            if (UIBlockerSystem.IsMovementBlocked && UIBlockerSystem.IsLookBlocked && UIBlockerSystem.IsActionsBlocked)
+            {
+                _playerMap?.Disable();
+            }
+        }
+        else
+        {
+            if (_playerMap is { enabled: false })
+            {
+                _playerMap.Enable();
+            }
         }
     }
 
@@ -207,32 +255,14 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         return 0;
     }
     
-    public void RegisterUIBlocker(InputBlockerUI blocker)
+    public void RegisterUIBlocker(IInputBlocker blocker)
     {
-        if (_activeUIBlockers.Contains(blocker))
-            return;
-        
-        _activeUIBlockers.Add(blocker);
-        if (_activeUIBlockers.Count == 1)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            _playerMap?.Disable();
-        }
+        UIBlockerSystem.Register(blocker);
     }
 
-    public void UnregisterUIBlocker(InputBlockerUI blocker)
+    public void UnregisterUIBlocker(IInputBlocker blocker)
     {
-        if (!_activeUIBlockers.Contains(blocker))
-            return;
-        
-        _activeUIBlockers.Remove(blocker);
-        if (_activeUIBlockers.Count == 0)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            _playerMap?.Enable();
-        }
+        UIBlockerSystem.Unregister(blocker);
     }
 }
 }

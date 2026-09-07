@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afa1f201d0b26b34b81071ef34d4d926, type: 3}
+  m_Name: CORE_Pistol_DEV_01
+  m_EditorClassIdentifier: Project.Combat::Project.Combat.WeaponCoreDefinition
+  _guid: 74828dc434a1b6f4f9b1fc0d2a15f383
+  _coreId: core_pistol_dev_01
+  _baseWeaponName: Test Pistol
+  _weaponType: 0
+  _manufacturer: {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
+  _defaultRarity: 0
+  _baseDamage: 25
+  _baseFireRate: 300
+  _baseMagazineSize: 999
+  _baseReloadSpeed: 2
+  _baseSpread: 4
+  _maxSpread: 4
+  _baseRecoilKick: 2
+  _baseProjectileSpeed: 80
+  _basePelletsPerShot: 1
+  _baseCriticalMultiplier: 2
+  _baseElement: 0
+  _baseFiringMode: 1
+  _baseBurstCount: 4
+  _baseBurstInterval: 0.08
+  _basePelletPattern: {fileID: 0}
+  _overrideGlobalScaling: 0
+  _levelScalingMode: 0
+  _damageScalePerLevel: 0.08
+  _useCustomLevelCurve: 0
+  _customLevelCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0.18367347
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 50
+      value: 10
+      inSlope: 0.18367347
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _bodyPrefab: {fileID: 1488382250582164244, guid: 56f08cbe38ffb9f4782fdaf7951b3211, type: 3}
+  _supportsBarrel: 1
+  _supportsGrip: 1
+  _supportsStock: 0
+  _supportsSight: 1
+  _supportsMagazine: 1
+  _supportsAccessory: 0
+  _compatibleBarrels:
+  - {fileID: 11400000, guid: f1a2b3c4d5e60718293a4b5c6d7e8fa2, type: 2}
+  _compatibleGrips:
+  - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
+  - {fileID: 11400000, guid: 850157dfd2b9b0345839f8505e493f32, type: 2}
+  _compatibleStocks: []
+  _compatibleSights:
+  - {fileID: 11400000, guid: b729a9493b12bca4e9fd78c2e70a0be5, type: 2}
+  _compatibleMagazines:
+  - {fileID: 11400000, guid: 68b17b61eb0c3eb4e9c89dc40bfc6a97, type: 2}
+  _compatibleAccessories: []

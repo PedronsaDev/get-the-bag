@@ -10,7 +10,7 @@ namespace Project.Combat
         OnBounce
     }
 
-    [CreateAssetMenu(fileName = "Beh_ClusterSplit", menuName = "Combat/Behaviors/Cluster Split")]
+    [CreateAssetMenu(fileName = "BEH_Split_New", menuName = "Combat/Behaviors/Cluster Split")]
     public class ClusterSplitBehaviorDefinition : ProjectileBehaviorDefinition
     {
         [Header("Split Trigger")]

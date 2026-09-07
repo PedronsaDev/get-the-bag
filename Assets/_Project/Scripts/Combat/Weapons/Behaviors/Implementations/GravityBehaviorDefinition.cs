@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Combat
 {
-    [CreateAssetMenu(fileName = "Beh_Gravity", menuName = "Combat/Behaviors/Gravity Trajectory")]
+    [CreateAssetMenu(fileName = "BEH_Gravity_New", menuName = "Combat/Behaviors/Gravity Trajectory")]
     public class GravityBehaviorDefinition : ProjectileBehaviorDefinition
     {
         [Header("Gravity Scale")]

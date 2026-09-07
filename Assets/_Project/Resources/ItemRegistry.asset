@@ -13,31 +13,31 @@ MonoBehaviour:
   m_Name: ItemRegistry
   m_EditorClassIdentifier: Project.Combat::Project.Combat.ItemRegistry
   _weaponCores:
-  - {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
   - {fileID: 11400000, guid: 74828dc434a1b6f4f9b1fc0d2a15f383, type: 2}
+  - {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
   _weaponParts:
+  - {fileID: 11400000, guid: 1e88cbac3c50df049b887e38c4b32069, type: 2}
   - {fileID: 11400000, guid: f1a2b3c4d5e60718293a4b5c6d7e8fa2, type: 2}
-  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a76, type: 2}
   - {fileID: 11400000, guid: d31ce95759af5b6439c714b627750cbb, type: 2}
   - {fileID: 11400000, guid: 06d0cd1f3aa443a4ba0c5744503b9c05, type: 2}
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a76, type: 2}
   - {fileID: 11400000, guid: f1a2b3c4d5e60718293a4b5c6d7e8fa1, type: 2}
   - {fileID: 11400000, guid: 20274205e6c45a64f9e5e2d175a65331, type: 2}
   - {fileID: 11400000, guid: 850157dfd2b9b0345839f8505e493f32, type: 2}
   - {fileID: 11400000, guid: 68b17b61eb0c3eb4e9c89dc40bfc6a97, type: 2}
   - {fileID: 11400000, guid: b729a9493b12bca4e9fd78c2e70a0be5, type: 2}
-  - {fileID: 11400000, guid: 1e88cbac3c50df049b887e38c4b32069, type: 2}
   _weaponPresets: []
   _manufacturers:
   - {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
   - {fileID: 11400000, guid: 46d29061b97b4a2478878edfeff4cda8, type: 2}
   _projectileBehaviors:
-  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a73, type: 2}
   - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a72, type: 2}
+  - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a73, type: 2}
   - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a75, type: 2}
   _weaponPerks:
   - {fileID: 11400000, guid: 5b2a8f90c4217e543a9b1c2d3e4f5a74, type: 2}
   _pelletPatterns:
   - {fileID: 11400000, guid: d1e2f3a4b5c60718293a4b5c6d7e8f94, type: 2}
   - {fileID: 11400000, guid: d1e2f3a4b5c60718293a4b5c6d7e8f95, type: 2}
-  - {fileID: 11400000, guid: d1e2f3a4b5c60718293a4b5c6d7e8f96, type: 2}
   - {fileID: 11400000, guid: d1e2f3a4b5c60718293a4b5c6d7e8f93, type: 2}
+  - {fileID: 11400000, guid: d1e2f3a4b5c60718293a4b5c6d7e8f96, type: 2}

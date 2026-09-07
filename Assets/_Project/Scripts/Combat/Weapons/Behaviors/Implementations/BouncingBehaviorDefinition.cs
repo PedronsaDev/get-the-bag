@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Combat
 {
-[CreateAssetMenu(fileName = "Beh_Bouncing", menuName = "Combat/Behaviors/Bouncing Projectile")]
+[CreateAssetMenu(fileName = "BEH_Bouncing_New", menuName = "Combat/Behaviors/Bouncing Projectile")]
 public class BouncingBehaviorDefinition : ProjectileBehaviorDefinition
 {
     [Header("Bouncing Physics")] 

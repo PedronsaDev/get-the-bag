@@ -10,14 +10,14 @@ namespace Project.Combat
     /// Can represent standard procedural components (barrels, grips, stocks)
     /// or unique/legendary components granting red-text perks and custom projectiles.
     /// </summary>
-    [CreateAssetMenu(fileName = "Part_New", menuName = "Combat/Weapons/Weapon Part")]
+    [CreateAssetMenu(fileName = "PART_Pistol_Barrel_New", menuName = "Combat/Weapons/Weapon Part")]
     public class WeaponPartDefinition : ScriptableObject
     {
         [BoxGroup("Part Identity")]
         [SerializeField, ReadOnly] private string _guid;
         [BoxGroup("Part Identity")]
         [Tooltip("Human-readable string identifier used for debug logs, console commands, and spawn cheats.")]
-        [SerializeField] private string _partId = "part_standard_01";
+        [SerializeField] private string _partId = "part_pistol_barrel_new";
         [BoxGroup("Part Identity")]
         [SerializeField] private string _displayName = "Standard Part";
         [BoxGroup("Part Identity")]

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Combat
 {
-    [CreateAssetMenu(fileName = "Beh_Accelerating", menuName = "Combat/Behaviors/Accelerating Projectile")]
+    [CreateAssetMenu(fileName = "BEH_Accelerating_New", menuName = "Combat/Behaviors/Accelerating Projectile")]
     public class AcceleratingBehaviorDefinition : ProjectileBehaviorDefinition
     {
         [Header("Acceleration Settings")]

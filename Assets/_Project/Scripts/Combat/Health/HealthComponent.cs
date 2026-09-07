@@ -50,7 +50,7 @@ namespace Project.Combat
 
         protected override void OnSpawned()
         {
-            if (NetworkManager.main == null || isServer)
+            if (!NetworkManager.main || isServer)
             {
                 _currentHealth.value = _maxHealth;
                 _currentShield.value = _maxShield;

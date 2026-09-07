@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Project.Combat;
 using PurrNet;
 using UnityEngine;
@@ -190,8 +191,8 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
             };
 
             // Select delivery strategy (Hitscan vs Ballistic/Projectile)
-            bool hasProjectileBehaviors = (weapon.ProjectileBehaviors != null && weapon.ProjectileBehaviors.Count > 0) ||
-                                          (weapon.UniqueBehaviorIds != null && weapon.UniqueBehaviorIds.Count > 0);
+            bool hasProjectileBehaviors = weapon.ProjectileBehaviors is { Count: > 0 } ||
+                                          weapon.UniqueBehaviorIds is { Count: > 0 };
 
             if (weapon.CompiledStats.IsHitscan && !hasProjectileBehaviors)
             {
@@ -345,14 +346,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         // Switch to secondary slot if populated, otherwise clear
         int otherSlot = _activeSlotIndex == 1 ? 2 : 1;
         var otherWeapon = otherSlot == 1 ? _slot1Weapon : _slot2Weapon;
-        if (otherWeapon != null)
-        {
-            EquipSlot(otherSlot);
-        }
-        else
-        {
-            EquipSlot(_activeSlotIndex);
-        }
+        EquipSlot(otherWeapon != null ? otherSlot : _activeSlotIndex);
 
         // Spawn the physical pickup in the world
         Vector3 dropPos = transform.position + transform.forward * 1.2f + Vector3.up * 0.8f;
@@ -471,12 +465,43 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         _deliveryStrategy.Deliver(_weaponContext, weapon, _currentSpread);
         OnFired?.Invoke();
 
-        // Broadcast firing feedback to remote observers
+        // Broadcast firing feedback and cosmetic tracers/projectiles to remote observers
         if (NetworkManager.main)
         {
             Vector3 muzzle = _weaponContext.MuzzlePoint ? _weaponContext.MuzzlePoint.position : transform.position;
             Vector3 forward = _weaponContext.AimOrigin ? _weaponContext.AimOrigin.forward : transform.forward;
-            RpcFireFeedback(muzzle, forward);
+            Vector3 aimOrigin = _weaponContext.AimOrigin ? _weaponContext.AimOrigin.position : transform.position;
+
+            Vector3 targetPoint;
+            if (Physics.Raycast(aimOrigin, forward, out RaycastHit hit, 300f, _hitMask, QueryTriggerInteraction.Ignore))
+            {
+                targetPoint = hit.point;
+            }
+            else
+            {
+                targetPoint = aimOrigin + forward * 200f;
+            }
+
+            int seed = UnityEngine.Random.Range(1, int.MaxValue);
+            bool isBallistic = !weapon.CompiledStats.IsHitscan ||
+                               (weapon.ProjectileBehaviors is { Count: > 0 } || weapon.UniqueBehaviorIds is { Count: > 0 });
+            float speed = Mathf.Max(10f, weapon.CompiledStats.ProjectileSpeed);
+            string patternId = weapon.PelletPattern ? weapon.PelletPattern.name : string.Empty;
+
+            var fireData = new FireCosmeticsNetData(
+                muzzlePosition: muzzle,
+                targetPoint: targetPoint,
+                aimForward: forward,
+                currentSpread: _currentSpread,
+                randomSeed: seed,
+                pelletCount: Mathf.Max(1, weapon.CompiledStats.PelletsPerShot),
+                element: weapon.CompiledStats.Element,
+                isBallistic: isBallistic,
+                projectileSpeed: speed,
+                patternId: patternId
+            );
+
+            RpcFireCosmetics(fireData);
         }
 
         // Auto-reload on empty clip
@@ -509,10 +534,124 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         OnReloadFinished?.Invoke();
     }
 
-    [ObserversRpc(runLocally: false)]
-    private void RpcFireFeedback(Vector3 muzzlePosition, Vector3 aimDirection)
+    [ObserversRpc(runLocally: false, requireServer: false)]
+    private void RpcFireCosmetics(FireCosmeticsNetData data)
     {
-        // Remote observers trigger muzzle flash / audio
+        SimulateRemoteFireCosmetics(data);
+    }
+
+    private void SimulateRemoteFireCosmetics(FireCosmeticsNetData data)
+    {
+        if (isOwner) return;
+
+        Vector3 muzzle = _visualAssembler && _visualAssembler.MuzzleSocket
+            ? _visualAssembler.MuzzleSocket.position
+            : data.MuzzlePosition;
+
+        OnFired?.Invoke();
+
+        var weapon = ActiveWeapon;
+        var pattern = (weapon != null && weapon.PelletPattern != null) ? weapon.PelletPattern : null;
+
+        // Converge trajectory towards target point with point-blank inversion safety
+        Vector3 aimForward = data.AimForward.sqrMagnitude > 0.001f ? data.AimForward.normalized : transform.forward;
+        Vector3 toTarget = data.TargetPoint - muzzle;
+        float targetForwardReach = Vector3.Dot(toTarget, aimForward);
+
+        Vector3 baseDirection;
+        if (targetForwardReach <= 0.1f)
+        {
+            baseDirection = aimForward;
+        }
+        else
+        {
+            baseDirection = toTarget.normalized;
+        }
+
+        if (Vector3.Dot(baseDirection, aimForward) < 0.1f)
+        {
+            baseDirection = aimForward;
+        }
+
+        Vector3 aimRight = Vector3.Cross(Vector3.up, aimForward);
+        if (aimRight.sqrMagnitude < 0.001f) aimRight = Vector3.Cross(Vector3.forward, aimForward);
+        aimRight.Normalize();
+        Vector3 aimUp = Vector3.Cross(aimForward, aimRight).normalized;
+
+        var prevRandomState = UnityEngine.Random.state;
+        UnityEngine.Random.InitState(data.RandomSeed);
+
+        int pellets = Mathf.Max(1, (int)data.PelletCount);
+        for (int i = 0; i < pellets; i++)
+        {
+            Vector3 shootDir;
+            if (pattern != null)
+            {
+                float baseSpread = weapon != null ? weapon.CompiledStats.BaseSpread : 0f;
+                Vector2 patternOffset = pattern.GetPointOffset(i, pellets, data.CurrentSpread, baseSpread);
+                shootDir = PelletPatternDefinition.CalculatePatternDirection(baseDirection, aimRight, aimUp, patternOffset);
+            }
+            else
+            {
+                shootDir = CombatVisualHelper.CalculateSpreadDirection(baseDirection, data.CurrentSpread);
+            }
+
+            if (data.IsBallistic)
+            {
+                Vector3 velocity = shootDir * data.ProjectileSpeed;
+                List<IProjectileBehavior> behaviors = null;
+                if (weapon?.ProjectileBehaviors != null && weapon.ProjectileBehaviors.Count > 0)
+                {
+                    behaviors = new List<IProjectileBehavior>();
+                    for (int b = 0; b < weapon.ProjectileBehaviors.Count; b++)
+                    {
+                        var behDef = weapon.ProjectileBehaviors[b];
+                        if (behDef)
+                        {
+                            var inst = behDef.CreateRuntimeInstance();
+                            if (inst != null) behaviors.Add(inst);
+                        }
+                    }
+                }
+
+                ProjectilePool.Instance.SpawnCosmetic(muzzle, velocity, _hitMask, behaviors, data.Element);
+            }
+            else
+            {
+                Vector3 tracerTarget = muzzle + (shootDir * 200f);
+                bool didHit = false;
+                Vector3 hitNormal = Vector3.up;
+
+                if (Physics.Raycast(muzzle, shootDir, out RaycastHit hit, 300f, _hitMask, QueryTriggerInteraction.Ignore))
+                {
+                    tracerTarget = hit.point;
+                    hitNormal = hit.normal;
+                    didHit = true;
+                }
+
+                Color tracerColor = CombatVisualHelper.GetElementColor(data.Element);
+                DamageType element = data.Element;
+                Vector3 finalImpact = tracerTarget;
+                Vector3 finalNormal = hitNormal;
+                bool finalDidHit = didHit;
+
+                TracerPool.Instance.Spawn(
+                    muzzle,
+                    tracerTarget,
+                    450f,
+                    tracerColor,
+                    onArrival: () =>
+                    {
+                        if (finalDidHit)
+                        {
+                            ImpactEffectPool.Instance.Spawn(finalImpact, finalNormal, element);
+                        }
+                    }
+                );
+            }
+        }
+
+        UnityEngine.Random.state = prevRandomState;
     }
 }
 }

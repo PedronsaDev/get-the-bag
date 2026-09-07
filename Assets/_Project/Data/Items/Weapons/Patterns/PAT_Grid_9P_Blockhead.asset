@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f60718293a4b5c6d7e8f90, type: 3}
+  m_Name: PAT_Grid_9P_Blockhead
+  m_EditorClassIdentifier: Project.Combat::Project.Combat.PelletPatternDefinition
+  _patternId: pat_grid_9p_blockhead
+  _displayName: Blockhead (3x3 Matrix)
+  _description: Fires a deterministic 3x3 square grid of 9 pellets reminiscent of block-building firearms.
+  _shape: 2
+  _pelletCount: 9
+  _spacingDegrees: 5.83
+  _microJitter: 0.02
+  _scaleWithSpread: 1
+  _spreadMultiplier: 1
+  _bloomScatter: 0.1
+  _customPoints: []

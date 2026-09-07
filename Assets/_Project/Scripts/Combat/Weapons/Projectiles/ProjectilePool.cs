@@ -15,9 +15,13 @@ namespace Project.Combat
             {
                 if (!_instance)
                 {
-                    var go = new GameObject("[ProjectilePool]");
-                    _instance = go.AddComponent<ProjectilePool>();
-                    DontDestroyOnLoad(go);
+                    _instance = FindAnyObjectByType<ProjectilePool>();
+                    if (!_instance)
+                    {
+                        var go = new GameObject("[ProjectilePool]");
+                        _instance = go.AddComponent<ProjectilePool>();
+                        DontDestroyOnLoad(go);
+                    }
                 }
                 return _instance;
             }
@@ -31,7 +35,7 @@ namespace Project.Combat
             if (!_instance) _instance = this;
         }
 
-        public ProjectileInstance Spawn(Vector3 position, Vector3 velocity, DamagePayload payload, LayerMask hitMask, IEnumerable<IProjectileBehavior> behaviors = null)
+        public ProjectileInstance Spawn(Vector3 position, Vector3 velocity, DamagePayload payload, LayerMask hitMask, IEnumerable<IProjectileBehavior> behaviors = null, bool isCosmetic = false)
         {
             ProjectileInstance proj;
 
@@ -56,8 +60,22 @@ namespace Project.Combat
                 proj.OnDespawn += ReturnToPool;
             }
 
-            proj.Initialize(position, velocity, payload, hitMask, behaviors);
+            proj.Initialize(position, velocity, payload, hitMask, behaviors, isCosmetic);
             return proj;
+        }
+
+        public ProjectileInstance SpawnCosmetic(Vector3 position, Vector3 velocity, LayerMask hitMask, IEnumerable<IProjectileBehavior> behaviors = null, DamageType element = DamageType.Physical)
+        {
+            DamagePayload dummyPayload = new DamagePayload(
+                amount: 0f,
+                type: element,
+                location: HitLocation.Core,
+                hitPoint: position,
+                hitNormal: Vector3.up,
+                impactDirection: velocity.sqrMagnitude > 0.001f ? velocity.normalized : Vector3.forward
+            );
+
+            return Spawn(position, velocity, dummyPayload, hitMask, behaviors, isCosmetic: true);
         }
 
         private void ReturnToPool(ProjectileInstance proj)

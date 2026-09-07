@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Combat
 {
-    [CreateAssetMenu(fileName = "Beh_SineWave", menuName = "Combat/Behaviors/Sine Wave Trajectory")]
+    [CreateAssetMenu(fileName = "BEH_Wave_New", menuName = "Combat/Behaviors/Wave Trajectory")]
     public class WaveBehaviorDefinition : ProjectileBehaviorDefinition
     {
         [Header("Wave Parameters")]

@@ -10,14 +10,14 @@ namespace Project.Combat
     /// Dictates baseline unmodded stats, the physical body/receiver prefab (with sockets),
     /// and the cascading pools of compatible parts available for procedural rolling.
     /// </summary>
-    [CreateAssetMenu(fileName = "WeaponCore_New", menuName = "Combat/Weapons/Weapon Core")]
+    [CreateAssetMenu(fileName = "CORE_Pistol_New", menuName = "Combat/Weapons/Weapon Core")]
     public class WeaponCoreDefinition : ScriptableObject
     {
         [BoxGroup("Registry & Identity")]
         [SerializeField, ReadOnly] private string _guid;
         [BoxGroup("Registry & Identity")]
         [Tooltip("Human-readable string identifier used for debug logs, console commands, and spawn cheats.")]
-        [SerializeField] private string _coreId = "core_pistol_01";
+        [SerializeField] private string _coreId = "core_pistol_new";
         [BoxGroup("Registry & Identity")]
         [SerializeField] private string _baseWeaponName = "Combat Pistol";
         [BoxGroup("Registry & Identity")]

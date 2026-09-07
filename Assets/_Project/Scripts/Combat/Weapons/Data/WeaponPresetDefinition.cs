@@ -9,14 +9,14 @@ namespace Project.Combat
     /// Allows pinning specific iconic parts (like a unique legendary barrel or accessory),
     /// while leaving unassigned slots open to procedural rolling for farmable god-rolls.
     /// </summary>
-    [CreateAssetMenu(fileName = "WeaponPreset_New", menuName = "Combat/Weapons/Weapon Preset (Dedicated Drop)")]
+    [CreateAssetMenu(fileName = "PRESET_Pistol_Legendary_New", menuName = "Combat/Weapons/Weapon Preset (Dedicated Drop)")]
     public class WeaponPresetDefinition : ScriptableObject
     {
         [BoxGroup("Preset Identity")]
         [SerializeField, ReadOnly] private string _guid;
         [BoxGroup("Preset Identity")]
         [Tooltip("Human-friendly string identifier used for debug commands, drop tables, and cheats (e.g. 'preset_unkempt_harold').")]
-        [SerializeField] private string _presetId = "preset_custom_01";
+        [SerializeField] private string _presetId = "preset_pistol_legendary_new";
         [BoxGroup("Preset Identity")]
         [Tooltip("Official display name of this named weapon (e.g. 'Unkempt Harold', 'Conference Call').")]
         [SerializeField] private string _presetDisplayName = "Custom Named Weapon";

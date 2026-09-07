@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.Combat
 {
-    [CreateAssetMenu(fileName = "Perk_AmmoRefund", menuName = "Combat/Perks/Ammo Refund (The Butcher)")]
+    [CreateAssetMenu(fileName = "PERK_Refund_TheButcher", menuName = "Combat/Perks/Ammo Refund (The Butcher)")]
     public class AmmoRefundPerkDefinition : WeaponPerkDefinition
     {
         [Header("Refund Parameters")]

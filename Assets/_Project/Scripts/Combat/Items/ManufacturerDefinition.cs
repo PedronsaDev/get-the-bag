@@ -7,11 +7,11 @@ namespace Project.Combat
     /// Represents a weapon/item manufacturer brand.
     /// Brands impart visual color themes, inherent stat tendencies, and signature gameplay traits.
     /// </summary>
-    [CreateAssetMenu(fileName = "Manufacturer_New", menuName = "Combat/Items/Manufacturer")]
+    [CreateAssetMenu(fileName = "MFG_BrandName_New", menuName = "Combat/Items/Manufacturer")]
     public class ManufacturerDefinition : ScriptableObject
     {
         [Header("Identity")]
-        [SerializeField] private string _manufacturerId = "Brand_A";
+        [SerializeField] private string _manufacturerId = "mfg_brandname_new";
         [SerializeField] private string _displayName = "Titan Arms";
         [SerializeField, TextArea(2, 3)] private string _slogan = "Unmatched raw firepower.";
         [SerializeField, TextArea(2, 3)] private string _brandTraitDescription = "Heavy kinetic impact with higher base damage.";

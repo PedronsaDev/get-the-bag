@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0f601cbf6f45142a858d26e965ab0a, type: 3}
+  m_Name: MFG_Qerb
+  m_EditorClassIdentifier: Project.Combat::Project.Combat.ManufacturerDefinition
+  _manufacturerId: mfg_qerb
+  _displayName: Qerberos Systems
+  _slogan: Tame the power.
+  _brandTraitDescription: Heavy kinetic impact with higher base damage.
+  _brandIcon: {fileID: 0}
+  _primaryColor: {r: 0.4339623, g: 0.26406196, b: 0.26406196, a: 1}
+  _accentColor: {r: 0.9339623, g: 0.31374717, b: 0.18062477, a: 1}
+  _brandPaletteMaterial: {fileID: 0}

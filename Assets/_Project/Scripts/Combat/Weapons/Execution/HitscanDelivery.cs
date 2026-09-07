@@ -37,10 +37,14 @@ namespace Project.Combat
                 }
 
                 Vector3 tracerTarget = origin + (shootDirection * 200f);
+                bool didHit = false;
+                Vector3 hitNormal = Vector3.up;
 
                 if (Physics.Raycast(origin, shootDirection, out RaycastHit hit, 300f, context.HitMask, QueryTriggerInteraction.Ignore))
                 {
                     tracerTarget = hit.point;
+                    hitNormal = hit.normal;
+                    didHit = true;
 
                     // Evaluate damage against hit entity
                     IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
@@ -68,6 +72,27 @@ namespace Project.Combat
                 }
 
                 OnTracerSpawned?.Invoke(muzzle, tracerTarget);
+
+                // Spawn local visual tracer with impact effect callback
+                Color tracerColor = CombatVisualHelper.GetElementColor(weapon.CompiledStats.Element);
+                DamageType element = weapon.CompiledStats.Element;
+                Vector3 finalImpactPoint = tracerTarget;
+                Vector3 finalImpactNormal = hitNormal;
+                bool finalDidHit = didHit;
+
+                TracerPool.Instance.Spawn(
+                    muzzle,
+                    tracerTarget,
+                    450f,
+                    tracerColor,
+                    onArrival: () =>
+                    {
+                        if (finalDidHit)
+                        {
+                            ImpactEffectPool.Instance.Spawn(finalImpactPoint, finalImpactNormal, element);
+                        }
+                    }
+                );
             }
         }
 
