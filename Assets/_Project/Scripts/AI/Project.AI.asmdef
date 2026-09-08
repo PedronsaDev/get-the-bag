@@ -2,7 +2,8 @@
     "name": "Project.AI",
     "rootNamespace": "",
     "references": [
-        "GUID:6e20f757a1bae164fa42750dd2b27dcb"
+        "GUID:6e20f757a1bae164fa42750dd2b27dcb",
+        "GUID:aa8b647699d17484d95d580749307352"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
