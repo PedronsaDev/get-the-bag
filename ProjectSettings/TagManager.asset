@@ -14,7 +14,7 @@ TagManager:
   - 
   - PlayerSelf
   - PlayerOthers
-  - 
+  - Damageable
   - Projectile
   - 
   - LocalViewmodel

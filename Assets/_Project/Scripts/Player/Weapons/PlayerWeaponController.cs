@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
 using Project.Combat;
+using Project.Player.Loot;
 using PurrNet;
 using UnityEngine;
 
 namespace Project.Player.Weapons
 {
-/// <summary>
-/// Drives player firearm input, weapon swapping between 2 slots, trigger execution,
-/// dynamic recoil/spread recovery, and reloading.
-/// </summary>
+
 public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 {
+    [Header("References")]
+    [SerializeField] private PlayerInventory _inventory;
+    [SerializeField] private WorldWeaponPickup _pickup;
+
     [Header("Weapon Sockets & Visuals")] 
     [SerializeField] private WeaponVisualAssembler _visualAssembler;
     [SerializeField] private Transform _weaponMount;
@@ -27,7 +29,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
     private WeaponInstance _slot1Weapon;
     private WeaponInstance _slot2Weapon;
-    private int _activeSlotIndex = 1; // 1 or 2
+    private int _activeSlotIndex = 0; // 1 or 2
 
     private ITriggerStrategy _triggerStrategy = new SemiAutoTrigger();
     private IProjectileDeliveryStrategy _deliveryStrategy = new HitscanDelivery();
@@ -36,8 +38,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     private float _spreadRecoveryTimer;
     private float _reloadTimer;
     private bool _isReloading;
-
-    public WeaponInstance ActiveWeapon => _activeSlotIndex == 1 ? _slot1Weapon : _slot2Weapon;
+    
     public int ActiveSlotIndex => _activeSlotIndex;
     public float CurrentSpread => _currentSpread;
     public bool IsReloading => _isReloading;
@@ -50,10 +51,9 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
     public WeaponInstance Slot1Weapon => _slot1Weapon;
     public WeaponInstance Slot2Weapon => _slot2Weapon;
+    
+    public WeaponInstance ActiveWeapon => _activeSlotIndex == 1 ? _slot1Weapon : _slot2Weapon;
 
-    /// <summary>
-    /// The physical barrel tip / fire point transform from which projectiles, tracers, and muzzle flash originate.
-    /// </summary>
     public Transform FirePoint => _weaponContext?.MuzzlePoint ? _weaponContext.MuzzlePoint : (_visualAssembler ? _visualAssembler.MuzzleSocket : (_cameraController ? _cameraController.PitchPivot : transform));
     public Transform MuzzleTransform => FirePoint;
 
@@ -64,6 +64,9 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
         if (!_visualAssembler)
             _visualAssembler = GetComponentInChildren<WeaponVisualAssembler>();
+
+        if (!_inventory)
+            _inventory = GetComponent<PlayerInventory>() ?? GetComponentInParent<PlayerInventory>();
     }
 
     protected override void OnSpawned()
@@ -74,7 +77,6 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         Transform muzzle = _visualAssembler ? _visualAssembler.MuzzleSocket : aimOrigin;
         _weaponContext = new WeaponContext(gameObject, aimOrigin, muzzle, localPlayer, _hitMask);
 
-        // Initialize default weapons if assigned
         if (_defaultSlot1Core)
         {
             _slot1Weapon = ItemRegistry.Instance
@@ -106,7 +108,6 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         var input = _playerFacade.CurrentInput;
         var currentWeapon = ActiveWeapon;
 
-        // 1. Slot swapping
         if (input.WeaponSlotPressed == 1 && _activeSlotIndex != 1) EquipSlot(1);
         if (input.WeaponSlotPressed == 2 && _activeSlotIndex != 2) EquipSlot(2);
 
@@ -137,7 +138,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         // 4. Spread dynamics (movement inaccuracy and firing recovery)
         float targetBaseSpread = currentWeapon.CompiledStats.BaseSpread;
 
-        if (_playerFacade != null)
+        if (_playerFacade)
         {
             var locomotion = _playerFacade.LocomotionState;
             if (locomotion.Phase == LocomotionPhase.Airborne)
@@ -170,7 +171,8 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
     public void EquipSlot(int slotIndex)
     {
-        if (slotIndex != 1 && slotIndex != 2) return;
+        if (slotIndex != 1 && slotIndex != 2) 
+            return;
 
         _activeSlotIndex = slotIndex;
         _isReloading = false;
@@ -260,6 +262,80 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         }
     }
 
+    public bool CanReceiveWeaponPickup(WeaponInstance weapon, bool isHold, out string disabledReason)
+    {
+        disabledReason = null;
+
+        if (isHold)
+        {
+            // Hold is swap / direct equip: always allowed if interactor has weapon system
+            return true;
+        }
+
+        // Tap is pickup to backpack / free slot
+        if (_inventory)
+        {
+            if (!_inventory.CanPickupWeapon)
+            {
+                disabledReason = "Inventory Full";
+                return false;
+            }
+
+            return true;
+        }
+
+        if (_slot1Weapon != null && _slot2Weapon != null)
+        {
+            disabledReason = "Inventory Full";
+            return false;
+        }
+
+        return true;
+    }
+
+    public void ReceiveWeaponPickup(WeaponInstance weapon, ItemNetSnapshot snapshot, bool isHold)
+    {
+        if (weapon == null && !string.IsNullOrEmpty(snapshot.CoreGuid) && ItemRegistry.Instance)
+        {
+            weapon = ItemRegistry.Instance.ReconstructWeapon(snapshot);
+        }
+
+        if (weapon == null) return;
+
+        if (_inventory)
+        {
+            if (isHold)
+            {
+                _inventory.SwapActiveWithFloor(weapon);
+            }
+            else
+            {
+                _inventory.HandleTapPickup(weapon);
+            }
+        }
+        else
+        {
+            if (isHold)
+            {
+                DropActiveWeapon();
+                EquipWeapon(weapon, _activeSlotIndex);
+            }
+            else
+            {
+                int freeSlot = _slot1Weapon == null ? 1 : (_slot2Weapon == null ? 2 : -1);
+                if (freeSlot != -1)
+                {
+                    EquipWeapon(weapon, freeSlot);
+                }
+                else
+                {
+                    DropActiveWeapon();
+                    EquipWeapon(weapon, _activeSlotIndex);
+                }
+            }
+        }
+    }
+    
     /// <summary>
     /// Equips a weapon instance directly into the specified slot (1 or 2, defaults to active).
     /// </summary>
@@ -276,55 +352,6 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         if (slotIndex == _activeSlotIndex)
         {
             EquipSlot(slotIndex);
-        }
-    }
-
-    /// <summary>
-    /// Equips a picked-up weapon: fills empty active slot, or fills secondary slot,
-    /// or drops the active weapon onto the ground to make room!
-    /// </summary>
-    public void EquipOrSwapWeapon(WeaponInstance newWeapon, ItemNetSnapshot snapshot = default)
-    {
-        if (newWeapon == null && !string.IsNullOrEmpty(snapshot.CoreGuid) && ItemRegistry.Instance)
-        {
-            newWeapon = ItemRegistry.Instance.ReconstructWeapon(snapshot);
-        }
-
-        if (newWeapon == null) return;
-
-        // If active slot is empty:
-        if (ActiveWeapon == null)
-        {
-            EquipWeapon(newWeapon, _activeSlotIndex);
-            return;
-        }
-
-        // If the secondary slot is empty:
-        int otherSlot = _activeSlotIndex == 1 ? 2 : 1;
-        var otherWeapon = otherSlot == 1 ? _slot1Weapon : _slot2Weapon;
-        if (otherWeapon == null)
-        {
-            EquipWeapon(newWeapon, otherSlot);
-            EquipSlot(otherSlot);
-            return;
-        }
-
-        // Both slots full: Drop active weapon to ground and equip new one!
-        DropActiveWeapon();
-        EquipWeapon(newWeapon, _activeSlotIndex);
-    }
-
-    public void ReceiveWeaponPickup(WeaponInstance weapon, ItemNetSnapshot snapshot, bool isHold)
-    {
-        if (isHold)
-        {
-            // Force equip into active slot (drop currently held if active is full)
-            EquipOrSwapWeapon(weapon, snapshot);
-        }
-        else
-        {
-            // Tap pickup: equip or store
-            EquipOrSwapWeapon(weapon, snapshot);
         }
     }
 
@@ -354,41 +381,36 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         RpcRequestSpawnWorldPickup(snapshot, dropPos, throwVel);
     }
 
+    public void DropSpecificWeapon() => DropActiveWeapon();
+
+    public void DropSpecifiedWeapon(ItemNetSnapshot snapshot, Vector3 dropPos, Vector3 throwVel)
+    {
+        RpcRequestSpawnWorldPickup(snapshot, dropPos, throwVel);
+    }
+
     [ServerRpc(requireOwnership: false)]
     private void RpcRequestSpawnWorldPickup(ItemNetSnapshot snapshot, Vector3 position, Vector3 throwVelocity,
         RPCInfo info = default)
     {
-        if (!isServer) return;
+        if (!isServer) 
+            return;
+        
+        if (!ItemRegistry.Instance || !_pickup) 
+            return;
 
-        var pickupObj = new GameObject($"WorldPickup_{snapshot.CustomName ?? "Weapon"}");
-        pickupObj.transform.position = position;
+        Vector3 floorPosition = position;
+        WorldWeaponPickup pickup = Instantiate(_pickup, floorPosition, Quaternion.identity);
 
-        int interactableLayer = LayerMask.NameToLayer("Interactable");
-        if (interactableLayer >= 0)
+        if (NetworkManager.main && NetworkManager.main.isServer)
         {
-            pickupObj.layer = interactableLayer;
-        }
-
-        var collider = pickupObj.AddComponent<SphereCollider>();
-        collider.isTrigger = true;
-        collider.radius = 1.2f;
-
-        var rb = pickupObj.AddComponent<Rigidbody>();
-        rb.mass = 2f;
-        rb.linearDamping = 1f;
-
-        var visualRoot = new GameObject("Visual_Root");
-        visualRoot.transform.SetParent(pickupObj.transform, false);
-
-        visualRoot.AddComponent<WeaponVisualAssembler>();
-        var pickup = pickupObj.AddComponent<WorldWeaponPickup>();
-
-        if (NetworkManager.main != null && NetworkManager.main.isServer)
-        {
-            NetworkManager.main.Spawn(pickupObj);
+            NetworkManager.main.Spawn(pickup.gameObject);
         }
 
         pickup.Initialize(snapshot, throwVelocity);
+        if (_pickup.TryGetComponent(out Rigidbody rb))
+        {
+            rb.AddForce(throwVelocity, ForceMode.VelocityChange);
+        }
     }
 
 
@@ -410,7 +432,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
         // Check for weapon perks (e.g. ammo refund)
         bool ammoRefunded = false;
-        if (weapon.WeaponPerks != null && weapon.WeaponPerks.Count > 0)
+        if (weapon.WeaponPerks is { Count: > 0 })
         {
             for (int i = 0; i < weapon.WeaponPerks.Count; i++)
             {
@@ -585,9 +607,9 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         for (int i = 0; i < pellets; i++)
         {
             Vector3 shootDir;
-            if (pattern != null)
+            if (pattern)
             {
-                float baseSpread = weapon != null ? weapon.CompiledStats.BaseSpread : 0f;
+                float baseSpread = weapon.CompiledStats.BaseSpread;
                 Vector2 patternOffset = pattern.GetPointOffset(i, pellets, data.CurrentSpread, baseSpread);
                 shootDir = PelletPatternDefinition.CalculatePatternDirection(baseDirection, aimRight, aimUp, patternOffset);
             }

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 37811852648285473}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: PART_Pistol_Barrel_DEV_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,7 +42,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8031438351541023892}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: fire_point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 6799844954888417170}
   - component: {fileID: 1810439999250711629}
   - component: {fileID: 7179981051644440288}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: MOD_Pistol_Barrel_DEV_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -36,9 +36,16 @@ namespace Project.Combat
             }
         }
 
-        public bool CanInteract(IPlayerInteractor interactor)
+        public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
         {
             return !_isOpen.value && interactor != null;
+        }
+
+        public string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false)
+        {
+            if (_isOpen.value)
+                return "In Use";
+            return null;
         }
 
         public void OnInteract(IPlayerInteractor interactor, bool isHold)

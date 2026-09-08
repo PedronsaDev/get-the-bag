@@ -30,6 +30,8 @@ namespace Project.Core.Input
         public bool InteractPressed;
         public bool InteractHeld;
         
+        public bool InventoryPressed;
+        
         /// <summary>
         /// 0 = None, 1 = Slot 1, 2 = Slot 2, 3 = Slot 3, 4 = Slot 4
         /// </summary>

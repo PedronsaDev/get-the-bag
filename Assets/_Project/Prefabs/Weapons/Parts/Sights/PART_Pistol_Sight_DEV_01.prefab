@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1561807878768711956}
   - component: {fileID: 3070122331162769970}
   - component: {fileID: 401005353137726305}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: MOD_Pistol_Sight_DEV_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,8 +99,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 843189596000641614}
-  m_Layer: 6
-  m_Name: MOD_Pistol_Sight_DEV_01
+  m_Layer: 12
+  m_Name: PART_Pistol_Sight_DEV_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

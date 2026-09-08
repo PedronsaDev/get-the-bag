@@ -209,7 +209,7 @@ namespace Project.Player.Commands
             }
 
             string name = controller.ActiveWeapon.DisplayName;
-            controller.DropActiveWeapon();
+            controller.DropSpecificWeapon();
             PedronsaDev.Console.Console.Log($"[Weapons] Dropped '{name}' into the scene!");
         }
 

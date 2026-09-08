@@ -17,9 +17,14 @@ public class LootChest : NetworkBehaviour, IInteractable
     public InteractionMode Mode => _interactionMode;
     public float HoldDuration { get; }
 
-    public bool CanInteract(IPlayerInteractor interactor)
+    public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
         return true;
+    }
+
+    public string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false)
+    {
+        return null;
     }
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)

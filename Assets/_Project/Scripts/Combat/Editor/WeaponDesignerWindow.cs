@@ -50,9 +50,31 @@ namespace Project.Combat.Editor
         // Asset Catalog State
         private string _catalogSearchQuery = string.Empty;
         private string _catalogFilterType = "All";
+        private readonly HashSet<string> _collapsedCategories = new();
+        private static readonly string[] AllCategoryKeys =
+        {
+            "cores", "barrels", "grips", "stocks", "sights", "magazines", "accessories",
+            "other_parts", "presets", "brands", "behaviors", "perks", "patterns"
+        };
         private UnityEngine.Object _inspectedAsset;
         private VisualElement _catalogListContainer;
         private VisualElement _catalogInspectorContainer;
+
+        private readonly struct CatalogEntry
+        {
+            public readonly string Title;
+            public readonly string Subtitle;
+            public readonly UnityEngine.Object Target;
+            public readonly Color AccentColor;
+
+            public CatalogEntry(string title, string subtitle, UnityEngine.Object target, Color accentColor)
+            {
+                Title = title;
+                Subtitle = subtitle;
+                Target = target;
+                AccentColor = accentColor;
+            }
+        }
 
         // 3D Viewport State
         private PreviewRenderUtility _previewUtility;
@@ -77,6 +99,7 @@ namespace Project.Combat.Editor
 
         // Assembler Slot Field UI References
         private SliderInt _recLvlSlider;
+        private ObjectField _coreObjectField;
         private readonly Dictionary<WeaponPartType, ObjectField> _slotObjectFields = new();
         private readonly Dictionary<WeaponPartType, IntegerField> _slotLevelFields = new();
         private readonly Dictionary<WeaponPartType, Button> _slotLockButtons = new();
@@ -265,19 +288,37 @@ namespace Project.Combat.Editor
             var coreBox = CreateCardPanel("Receiver & Core");
             var coreRow = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
 
-            var coreField = new ObjectField("Core Asset") { objectType = typeof(WeaponCoreDefinition), value = _selectedCore, style = { flexGrow = 1 } };
-            coreField.RegisterValueChangedCallback(evt =>
+            _coreObjectField = new ObjectField("Core Asset") { objectType = typeof(WeaponCoreDefinition), value = _selectedCore, style = { flexGrow = 1 } };
+            _coreObjectField.RegisterValueChangedCallback(evt =>
             {
                 _selectedCore = evt.newValue as WeaponCoreDefinition;
                 OnCoreChanged();
             });
-            coreRow.Add(coreField);
+            _coreObjectField.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (IsSelectorElement(evt.target as VisualElement))
+                {
+                    evt.StopImmediatePropagation();
+                    evt.StopPropagation();
+                    OpenCorePicker(_coreObjectField.worldBound);
+                }
+            }, TrickleDown.TrickleDown);
+            coreRow.Add(_coreObjectField);
+
+            var searchCoreBtn = new Button(() => OpenCorePicker(_coreObjectField.worldBound)) { text = "Search" };
+            searchCoreBtn.tooltip = "Search and select from all available weapon cores";
+            searchCoreBtn.style.height = 20;
+            searchCoreBtn.style.fontSize = 10;
+            searchCoreBtn.style.paddingLeft = 6;
+            searchCoreBtn.style.paddingRight = 6;
+            searchCoreBtn.style.marginLeft = 4;
+            coreRow.Add(searchCoreBtn);
 
             var newCoreBtn = new Button(CreateNewCoreAsset) { text = "+" };
             newCoreBtn.tooltip = "Create a new WeaponCoreDefinition ScriptableObject";
             newCoreBtn.style.width = 24;
             newCoreBtn.style.height = 20;
-            newCoreBtn.style.marginLeft = 4;
+            newCoreBtn.style.marginLeft = 3;
             coreRow.Add(newCoreBtn);
             coreBox.Add(coreRow);
 
@@ -457,8 +498,29 @@ namespace Project.Combat.Editor
                 RebuildPreviewModel();
                 RefreshWeaponCard();
             });
+
+            field.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (IsSelectorElement(evt.target as VisualElement))
+                {
+                    evt.StopImmediatePropagation();
+                    evt.StopPropagation();
+                    OpenPartPicker(slot, field.worldBound);
+                }
+            }, TrickleDown.TrickleDown);
+
             _slotObjectFields[slot] = field;
             row.Add(field);
+
+            // Search/Browse Part Button
+            var searchPartBtn = new Button(() => OpenPartPicker(slot, field.worldBound)) { text = "Search" };
+            searchPartBtn.tooltip = $"Search and filter all {slot} parts";
+            searchPartBtn.style.height = 20;
+            searchPartBtn.style.fontSize = 10;
+            searchPartBtn.style.paddingLeft = 6;
+            searchPartBtn.style.paddingRight = 6;
+            searchPartBtn.style.marginLeft = 4;
+            row.Add(searchPartBtn);
 
             // Level field for this part
             var lvlField = new IntegerField("Lvl")
@@ -602,6 +664,53 @@ namespace Project.Combat.Editor
             }
 
             RefreshWeaponCard();
+        }
+
+        private static bool IsSelectorElement(VisualElement target)
+        {
+            for (var el = target; el != null; el = el.parent)
+            {
+                if (el.ClassListContains("unity-object-field__selector")) return true;
+            }
+            return false;
+        }
+
+        private void OpenPartPicker(WeaponPartType slot, Rect worldBound)
+        {
+            WeaponAssetPickerWindow.ShowPartPicker(this, worldBound, slot, _selectedCore, selectedPart =>
+            {
+                _selectedParts[slot] = selectedPart;
+                if (selectedPart != null)
+                {
+                    if (selectedPart.IsUnique) _partLocks[slot] = true;
+                    if (!_partLevels.ContainsKey(slot))
+                    {
+                        _partLevels[slot] = _receiverLevel;
+                        if (_slotLevelFields.TryGetValue(slot, out var lf))
+                            lf.SetValueWithoutNotify(_receiverLevel);
+                    }
+                }
+                if (_slotObjectFields.TryGetValue(slot, out var f))
+                {
+                    f.SetValueWithoutNotify(selectedPart);
+                }
+                UpdateSlotLockButton(slot);
+                RebuildPreviewModel();
+                RefreshWeaponCard();
+            });
+        }
+
+        private void OpenCorePicker(Rect worldBound)
+        {
+            WeaponAssetPickerWindow.ShowCorePicker(this, worldBound, selectedCore =>
+            {
+                _selectedCore = selectedCore;
+                if (_coreObjectField != null)
+                {
+                    _coreObjectField.SetValueWithoutNotify(selectedCore);
+                }
+                OnCoreChanged();
+            });
         }
 
         private void OnCoreChanged()
@@ -1107,6 +1216,37 @@ namespace Project.Combat.Editor
             }
             masterCol.Add(filterBar);
 
+            var controlsRow = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    justifyContent = Justify.FlexEnd,
+                    marginBottom = 6
+                }
+            };
+            var expandAllBtn = new Button(() =>
+            {
+                _collapsedCategories.Clear();
+                BuildCatalogList();
+            })
+            {
+                text = "Expand All",
+                style = { fontSize = 9, height = 18, paddingLeft = 6, paddingRight = 6, marginRight = 4 }
+            };
+            var collapseAllBtn = new Button(() =>
+            {
+                foreach (var key in AllCategoryKeys) _collapsedCategories.Add(key);
+                BuildCatalogList();
+            })
+            {
+                text = "Collapse All",
+                style = { fontSize = 9, height = 18, paddingLeft = 6, paddingRight = 6 }
+            };
+            controlsRow.Add(expandAllBtn);
+            controlsRow.Add(collapseAllBtn);
+            masterCol.Add(controlsRow);
+
             _catalogListContainer = new ScrollView { style = { flexGrow = 1 } };
             masterCol.Add(_catalogListContainer);
 
@@ -1156,89 +1296,328 @@ namespace Project.Combat.Editor
                 return;
             }
 
-            // Cores
+            // 1. Cores
             if (_catalogFilterType == "All" || _catalogFilterType == "Cores")
             {
+                var coreEntries = new List<CatalogEntry>();
                 foreach (var core in reg.WeaponCores)
                 {
                     if (!core) continue;
                     if (MatchesSearch(core.BaseWeaponName, core.CoreId))
-                        AddCatalogItem(core.BaseWeaponName, $"Core • {core.WeaponType}", core, new Color(0.4f, 0.7f, 1f));
+                        coreEntries.Add(new CatalogEntry(core.BaseWeaponName, $"Core • {core.WeaponType}", core, new Color(0.40f, 0.70f, 1.0f)));
                 }
+                RenderCategoryGroup("cores", "Weapon Cores", new Color(0.40f, 0.70f, 1.0f), coreEntries);
             }
 
-            // Parts
-            if (_catalogFilterType == "All" || (_catalogFilterType != "Presets" && _catalogFilterType != "Brands"))
+            // 2. Parts (Categorized by PartType)
+            if (_catalogFilterType == "All" ||
+                _catalogFilterType == "Barrels" || _catalogFilterType == "Grips" ||
+                _catalogFilterType == "Stocks" || _catalogFilterType == "Sights" ||
+                _catalogFilterType == "Magazines" || _catalogFilterType == "Accessories")
             {
+                var barrelEntries = new List<CatalogEntry>();
+                var gripEntries = new List<CatalogEntry>();
+                var stockEntries = new List<CatalogEntry>();
+                var sightEntries = new List<CatalogEntry>();
+                var magEntries = new List<CatalogEntry>();
+                var accessoryEntries = new List<CatalogEntry>();
+                var otherPartEntries = new List<CatalogEntry>();
+
                 foreach (var part in reg.WeaponParts)
                 {
                     if (!part) continue;
-                    if (_catalogFilterType != "All" && _catalogFilterType != "Cores" && _catalogFilterType != $"{part.PartType}s")
-                        continue;
+                    if (!MatchesSearch(part.DisplayName, part.PartId)) continue;
 
-                    if (MatchesSearch(part.DisplayName, part.PartId))
+                    Color c = RarityUtility.GetColor(part.Rarity);
+                    string tag = $"{part.PartType} • {part.Rarity}" + (part.IsUnique ? " [UNIQUE]" : "");
+                    var entry = new CatalogEntry(part.DisplayName, tag, part, c);
+
+                    switch (part.PartType)
                     {
-                        Color c = RarityUtility.GetColor(part.Rarity);
-                        string tag = $"{part.PartType} • {part.Rarity}" + (part.IsUnique ? " [UNIQUE]" : "");
-                        AddCatalogItem(part.DisplayName, tag, part, c);
+                        case WeaponPartType.Barrel: barrelEntries.Add(entry); break;
+                        case WeaponPartType.Grip: gripEntries.Add(entry); break;
+                        case WeaponPartType.Stock: stockEntries.Add(entry); break;
+                        case WeaponPartType.Sight: sightEntries.Add(entry); break;
+                        case WeaponPartType.Magazine: magEntries.Add(entry); break;
+                        case WeaponPartType.Accessory: accessoryEntries.Add(entry); break;
+                        default: otherPartEntries.Add(entry); break;
                     }
                 }
+
+                if (_catalogFilterType == "All" || _catalogFilterType == "Barrels")
+                    RenderCategoryGroup("barrels", "Barrels", new Color(0.95f, 0.55f, 0.35f), barrelEntries);
+
+                if (_catalogFilterType == "All" || _catalogFilterType == "Grips")
+                    RenderCategoryGroup("grips", "Grips", new Color(0.45f, 0.85f, 0.55f), gripEntries);
+
+                if (_catalogFilterType == "All" || _catalogFilterType == "Stocks")
+                    RenderCategoryGroup("stocks", "Stocks", new Color(0.55f, 0.70f, 0.90f), stockEntries);
+
+                if (_catalogFilterType == "All" || _catalogFilterType == "Sights")
+                    RenderCategoryGroup("sights", "Sights", new Color(0.85f, 0.80f, 0.40f), sightEntries);
+
+                if (_catalogFilterType == "All" || _catalogFilterType == "Magazines")
+                    RenderCategoryGroup("magazines", "Magazines", new Color(0.75f, 0.55f, 0.90f), magEntries);
+
+                if (_catalogFilterType == "All" || _catalogFilterType == "Accessories")
+                    RenderCategoryGroup("accessories", "Accessories", new Color(0.90f, 0.45f, 0.70f), accessoryEntries);
+
+                if (otherPartEntries.Count > 0 && _catalogFilterType == "All")
+                    RenderCategoryGroup("other_parts", "Other Parts", new Color(0.70f, 0.70f, 0.70f), otherPartEntries);
             }
 
-            // Presets
+            // 3. Dedicated Drop Presets
             if (_catalogFilterType == "All" || _catalogFilterType == "Presets")
             {
+                var presetEntries = new List<CatalogEntry>();
                 foreach (var preset in reg.WeaponPresets)
                 {
                     if (!preset) continue;
                     if (MatchesSearch(preset.PresetDisplayName, preset.PresetId))
-                        AddCatalogItem(preset.PresetDisplayName, "Dedicated Drop Preset", preset, new Color(1f, 0.6f, 0.1f));
+                        presetEntries.Add(new CatalogEntry(preset.PresetDisplayName, "Dedicated Drop Preset", preset, new Color(1.0f, 0.60f, 0.10f)));
                 }
+                RenderCategoryGroup("presets", "Dedicated Drop Presets", new Color(1.0f, 0.60f, 0.10f), presetEntries);
             }
 
-            // Brands / Manufacturers
+            // 4. Brands / Manufacturers
             if (_catalogFilterType == "All" || _catalogFilterType == "Brands")
             {
+                var brandEntries = new List<CatalogEntry>();
                 foreach (var mfg in reg.Manufacturers)
                 {
                     if (!mfg) continue;
                     if (MatchesSearch(mfg.DisplayName, mfg.ManufacturerId))
-                        AddCatalogItem(mfg.DisplayName, $"Manufacturer Brand • {mfg.ManufacturerId}", mfg, mfg.AccentColor != default ? mfg.AccentColor : new Color(0.9f, 0.4f, 0.4f));
+                    {
+                        Color c = mfg.AccentColor != default ? mfg.AccentColor : new Color(0.90f, 0.40f, 0.40f);
+                        brandEntries.Add(new CatalogEntry(mfg.DisplayName, $"Manufacturer Brand • {mfg.ManufacturerId}", mfg, c));
+                    }
                 }
+                RenderCategoryGroup("brands", "Manufacturer Brands", new Color(0.90f, 0.40f, 0.40f), brandEntries);
             }
 
-            // Projectile Behaviors
+            // 5. Projectile Behaviors
             if (_catalogFilterType == "All" || _catalogFilterType == "Behaviors")
             {
+                var behEntries = new List<CatalogEntry>();
                 foreach (var beh in reg.ProjectileBehaviors)
                 {
                     if (!beh) continue;
                     if (MatchesSearch(beh.DisplayName, beh.BehaviorId))
-                        AddCatalogItem(beh.DisplayName, $"Behavior • {beh.GetType().Name.Replace("Definition", "")}", beh, new Color(0.2f, 0.85f, 0.95f));
+                        behEntries.Add(new CatalogEntry(beh.DisplayName, $"Behavior • {beh.GetType().Name.Replace("Definition", "")}", beh, new Color(0.20f, 0.85f, 0.95f)));
                 }
+                RenderCategoryGroup("behaviors", "Projectile Behaviors", new Color(0.20f, 0.85f, 0.95f), behEntries);
             }
 
-            // Weapon Perks
+            // 6. Weapon Perks
             if (_catalogFilterType == "All" || _catalogFilterType == "Perks")
             {
+                var perkEntries = new List<CatalogEntry>();
                 foreach (var perk in reg.WeaponPerks)
                 {
                     if (!perk) continue;
                     if (MatchesSearch(perk.DisplayName, perk.PerkId))
-                        AddCatalogItem(perk.DisplayName, $"Perk • {perk.GetType().Name.Replace("Definition", "")}", perk, new Color(0.95f, 0.85f, 0.25f));
+                        perkEntries.Add(new CatalogEntry(perk.DisplayName, $"Perk • {perk.GetType().Name.Replace("Definition", "")}", perk, new Color(0.95f, 0.85f, 0.25f)));
                 }
+                RenderCategoryGroup("perks", "Weapon Perks", new Color(0.95f, 0.85f, 0.25f), perkEntries);
             }
 
-            // Pellet Patterns
+            // 7. Pellet Patterns
             if (_catalogFilterType == "All" || _catalogFilterType == "Patterns")
             {
+                var patternEntries = new List<CatalogEntry>();
                 foreach (var pat in reg.PelletPatterns)
                 {
                     if (!pat) continue;
                     if (MatchesSearch(pat.DisplayName, pat.PatternId))
-                        AddCatalogItem(pat.DisplayName, $"Pattern • {pat.Shape} ({pat.PelletCount} pellets)", pat, new Color(1f, 0.45f, 0.75f));
+                        patternEntries.Add(new CatalogEntry(pat.DisplayName, $"Pattern • {pat.Shape} ({pat.PelletCount} pellets)", pat, new Color(1.0f, 0.45f, 0.75f)));
                 }
+                RenderCategoryGroup("patterns", "Pellet Patterns", new Color(1.0f, 0.45f, 0.75f), patternEntries);
             }
+
+            if (_catalogListContainer.childCount == 0)
+            {
+                var emptyNotice = new VisualElement
+                {
+                    style =
+                    {
+                        alignItems = Align.Center,
+                        justifyContent = Justify.Center,
+                        marginTop = 40,
+                        paddingLeft = 20,
+                        paddingRight = 20
+                    }
+                };
+                var emptyTitle = new Label("No Matching Assets")
+                {
+                    style =
+                    {
+                        fontSize = 13,
+                        unityFontStyleAndWeight = FontStyle.Bold,
+                        color = new Color(0.75f, 0.75f, 0.75f),
+                        marginBottom = 4
+                    }
+                };
+                var emptySub = new Label("Try changing your search query or selecting a different category filter.")
+                {
+                    style =
+                    {
+                        fontSize = 11,
+                        color = new Color(0.55f, 0.55f, 0.55f),
+                        whiteSpace = WhiteSpace.Normal
+                    }
+                };
+                emptyNotice.Add(emptyTitle);
+                emptyNotice.Add(emptySub);
+                _catalogListContainer.Add(emptyNotice);
+            }
+        }
+
+        private void RenderCategoryGroup(string categoryKey, string categoryTitle, Color headerAccent, List<CatalogEntry> entries)
+        {
+            if (entries == null || entries.Count == 0) return;
+
+            bool isCollapsed = _collapsedCategories.Contains(categoryKey);
+
+            var groupContainer = new VisualElement
+            {
+                style =
+                {
+                    marginBottom = 8,
+                    backgroundColor = new Color(0.18f, 0.18f, 0.18f),
+                    borderTopLeftRadius = 4,
+                    borderTopRightRadius = 4,
+                    borderBottomLeftRadius = 4,
+                    borderBottomRightRadius = 4,
+                    borderTopWidth = 1,
+                    borderBottomWidth = 1,
+                    borderLeftWidth = 1,
+                    borderRightWidth = 1,
+                    borderTopColor = new Color(0.26f, 0.26f, 0.26f),
+                    borderBottomColor = new Color(0.26f, 0.26f, 0.26f),
+                    borderLeftColor = new Color(0.26f, 0.26f, 0.26f),
+                    borderRightColor = new Color(0.26f, 0.26f, 0.26f),
+                    overflow = Overflow.Hidden
+                }
+            };
+
+            var header = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    justifyContent = Justify.SpaceBetween,
+                    backgroundColor = new Color(0.14f, 0.14f, 0.14f),
+                    paddingLeft = 8,
+                    paddingRight = 8,
+                    paddingTop = 6,
+                    paddingBottom = 6,
+                    borderLeftWidth = 3,
+                    borderLeftColor = headerAccent,
+                    cursor = StyleKeyword.Auto
+                }
+            };
+
+            var leftSide = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center
+                }
+            };
+
+            var arrowLabel = new Label(isCollapsed ? "►" : "▼")
+            {
+                style =
+                {
+                    fontSize = 10,
+                    color = new Color(0.70f, 0.70f, 0.70f),
+                    marginRight = 6,
+                    width = 12
+                }
+            };
+
+            var titleLabel = new Label(categoryTitle.ToUpperInvariant())
+            {
+                style =
+                {
+                    fontSize = 11,
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    color = new Color(0.92f, 0.92f, 0.92f)
+                }
+            };
+
+            leftSide.Add(arrowLabel);
+            leftSide.Add(titleLabel);
+
+            var badge = new Label(entries.Count.ToString())
+            {
+                style =
+                {
+                    fontSize = 10,
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    color = new Color(0.85f, 0.85f, 0.85f),
+                    backgroundColor = new Color(0.24f, 0.24f, 0.24f),
+                    paddingLeft = 6,
+                    paddingRight = 6,
+                    paddingTop = 1,
+                    paddingBottom = 1,
+                    borderTopLeftRadius = 8,
+                    borderTopRightRadius = 8,
+                    borderBottomLeftRadius = 8,
+                    borderBottomRightRadius = 8
+                }
+            };
+
+            header.Add(leftSide);
+            header.Add(badge);
+
+            var contentContainer = new VisualElement
+            {
+                style =
+                {
+                    paddingLeft = 4,
+                    paddingRight = 4,
+                    paddingTop = 4,
+                    paddingBottom = 2,
+                    display = isCollapsed ? DisplayStyle.None : DisplayStyle.Flex
+                }
+            };
+
+            header.RegisterCallback<MouseEnterEvent>(evt =>
+            {
+                header.style.backgroundColor = new Color(0.19f, 0.19f, 0.19f);
+            });
+            header.RegisterCallback<MouseLeaveEvent>(evt =>
+            {
+                header.style.backgroundColor = new Color(0.14f, 0.14f, 0.14f);
+            });
+
+            header.RegisterCallback<ClickEvent>(evt =>
+            {
+                if (_collapsedCategories.Contains(categoryKey))
+                {
+                    _collapsedCategories.Remove(categoryKey);
+                    contentContainer.style.display = DisplayStyle.Flex;
+                    arrowLabel.text = "▼";
+                }
+                else
+                {
+                    _collapsedCategories.Add(categoryKey);
+                    contentContainer.style.display = DisplayStyle.None;
+                    arrowLabel.text = "►";
+                }
+            });
+
+            foreach (var entry in entries)
+            {
+                AddCatalogItem(contentContainer, entry.Title, entry.Subtitle, entry.Target, entry.AccentColor);
+            }
+
+            groupContainer.Add(header);
+            groupContainer.Add(contentContainer);
+            _catalogListContainer.Add(groupContainer);
         }
 
         private bool MatchesSearch(string name, string id)
@@ -1248,7 +1627,7 @@ namespace Project.Combat.Editor
                    (id != null && id.IndexOf(_catalogSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
-        private void AddCatalogItem(string title, string subtitle, UnityEngine.Object target, Color accentColor)
+        private void AddCatalogItem(VisualElement container, string title, string subtitle, UnityEngine.Object target, Color accentColor)
         {
             bool isSelected = _inspectedAsset == target;
             var item = new VisualElement
@@ -1258,8 +1637,8 @@ namespace Project.Combat.Editor
                     backgroundColor = isSelected ? new Color(0.24f, 0.37f, 0.58f, 0.45f) : new Color(0.20f, 0.20f, 0.20f),
                     paddingLeft = 8,
                     paddingRight = 8,
-                    paddingTop = 6,
-                    paddingBottom = 6,
+                    paddingTop = 5,
+                    paddingBottom = 5,
                     marginBottom = 3,
                     borderLeftWidth = 3,
                     borderLeftColor = accentColor,
@@ -1277,11 +1656,22 @@ namespace Project.Combat.Editor
                 }
             };
 
-            var t = new Label(title) { style = { fontSize = 12, unityFontStyleAndWeight = FontStyle.Bold, color = Color.white } };
+            var t = new Label(title) { style = { fontSize = 11, unityFontStyleAndWeight = FontStyle.Bold, color = Color.white } };
             var sub = new Label(subtitle) { style = { fontSize = 10, color = new Color(0.65f, 0.65f, 0.65f) } };
 
             item.Add(t);
             item.Add(sub);
+
+            item.RegisterCallback<MouseEnterEvent>(evt =>
+            {
+                if (_inspectedAsset != target)
+                    item.style.backgroundColor = new Color(0.25f, 0.25f, 0.25f);
+            });
+            item.RegisterCallback<MouseLeaveEvent>(evt =>
+            {
+                if (_inspectedAsset != target)
+                    item.style.backgroundColor = new Color(0.20f, 0.20f, 0.20f);
+            });
 
             item.RegisterCallback<ClickEvent>(evt =>
             {
@@ -1290,7 +1680,7 @@ namespace Project.Combat.Editor
                 InspectAssetInDetail(target);
             });
 
-            _catalogListContainer.Add(item);
+            container.Add(item);
         }
 
         private void InspectAssetInDetail(UnityEngine.Object asset)

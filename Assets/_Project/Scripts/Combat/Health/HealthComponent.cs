@@ -16,20 +16,19 @@ public class HealthComponent : NetworkBehaviour, IDamageable
     [SerializeField, Range(0f, 0.9f)] private float _armorRating = 0f;
     [SerializeField] private bool _invulnerable = false;
 
-    [Header("Shield Settings")] [SerializeField]
-    private float _maxShield = 0f;
-
+    [Header("Shield Settings")] 
+    [SerializeField] private float _maxShield = 0f;
     [SerializeField] private float _shieldRegenDelay = 4f;
     [SerializeField] private float _shieldRegenRate = 15f;
 
-    [Header("Networked State")] [SerializeField]
-    private SyncVar<float> _currentHealth = new(100f);
-
+    [Header("Networked State")] 
+    [SerializeField] private SyncVar<float> _currentHealth = new(100f);
     [SerializeField] private SyncVar<float> _currentShield = new(0f);
 
     private float _lastDamageTime = -100f;
     private bool _isDead;
 
+    public bool HasShield => _maxShield > 0f;
     public float CurrentHealth => _currentHealth.value;
     public float MaxHealth => _maxHealth;
     public float CurrentShield => _currentShield.value;

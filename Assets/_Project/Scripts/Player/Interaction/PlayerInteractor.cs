@@ -8,16 +8,14 @@ namespace Project.Player.Interaction
 {
 public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
 {
-    [Header("Detection Settings")] [SerializeField]
-    private float _detectionRange = 3.0f;
-
+    [Header("Detection Settings")] 
+    [SerializeField] private float _detectionRange = 3.0f;
     [SerializeField] private float _assistRadius = 0.4f;
     [SerializeField] private float _assistRange = 3.0f;
     [SerializeField] private LayerMask _interactableLayers;
 
-    [Header("References")] [SerializeField]
-    private PlayerFacade _playerFacade;
-
+    [Header("References")] 
+    [SerializeField] private PlayerFacade _playerFacade;
     [SerializeField] private FPSCameraController _cameraController;
 
     private IInteractable _currentTarget;
@@ -35,6 +33,7 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
     public event Action<IInteractable> OnTargetChanged;
     public event Action<float> OnHoldProgressChanged;
     public event Action<IInteractable, bool> OnInteractionExecuted;
+    public event Action<IInteractable, string, bool> OnInteractionDenied;
 
     private void Awake()
     {
@@ -107,7 +106,7 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
 
     private void UpdateInteractionInput()
     {
-        if (_currentTarget == null || !_currentTarget.CanInteract(this))
+        if (_currentTarget == null)
         {
             ResetHold();
             return;
@@ -120,12 +119,27 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
             case InteractionMode.Instant:
                 if (input.InteractPressed)
                 {
-                    ExecuteInteraction(isHold: false);
+                    if (_currentTarget.CanInteract(this, isHold: false))
+                    {
+                        ExecuteInteraction(isHold: false);
+                    }
+                    else
+                    {
+                        string reason = _currentTarget.GetDisabledReason(this, isHold: false);
+                        OnInteractionDenied?.Invoke(_currentTarget, reason, false);
+                    }
                 }
 
                 break;
             case InteractionMode.Hold:
-                if (input.InteractHeld)
+                bool canHoldAction = _currentTarget.CanInteract(this, isHold: true);
+                if (input.InteractPressed && !canHoldAction)
+                {
+                    string reason = _currentTarget.GetDisabledReason(this, isHold: true);
+                    OnInteractionDenied?.Invoke(_currentTarget, reason, true);
+                }
+
+                if (canHoldAction && input.InteractHeld)
                 {
                     _currentHoldTimer += Time.deltaTime;
                     OnHoldProgressChanged?.Invoke(CurrentHoldProgress);
@@ -144,24 +158,50 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
             case InteractionMode.DualInstantAndHold:
                 if (input.InteractPressed)
                 {
-                    _isHolding = true;
-                    _currentHoldTimer = 0f;
+                    bool canHold = _currentTarget.CanInteract(this, isHold: true);
+                    bool canTap = _currentTarget.CanInteract(this, isHold: false);
+
+                    if (!canHold && !canTap)
+                    {
+                        string reason = _currentTarget.GetDisabledReason(this, isHold: false) 
+                                     ?? _currentTarget.GetDisabledReason(this, isHold: true);
+                        OnInteractionDenied?.Invoke(_currentTarget, reason, false);
+                    }
+                    else
+                    {
+                        _isHolding = true;
+                        _currentHoldTimer = 0f;
+                    }
                 }
 
                 if (_isHolding && input.InteractHeld)
                 {
-                    _currentHoldTimer += Time.deltaTime;
-                    OnHoldProgressChanged?.Invoke(CurrentHoldProgress);
-                    if (_currentHoldTimer >= _currentTarget.HoldDuration)
+                    bool canHold = _currentTarget.CanInteract(this, isHold: true);
+                    if (canHold)
                     {
-                        ExecuteInteraction(isHold: true);
-                        _isHolding = false;
-                        ResetHold();
+                        _currentHoldTimer += Time.deltaTime;
+                        OnHoldProgressChanged?.Invoke(CurrentHoldProgress);
+                        if (_currentHoldTimer >= _currentTarget.HoldDuration)
+                        {
+                            ExecuteInteraction(isHold: true);
+                            _isHolding = false;
+                            ResetHold();
+                        }
                     }
                 }
                 else if (_isHolding && !input.InteractHeld)
                 {
-                    ExecuteInteraction(isHold: false);
+                    // Released before hold duration reached: player intended a Tap
+                    if (_currentTarget.CanInteract(this, isHold: false))
+                    {
+                        ExecuteInteraction(isHold: false);
+                    }
+                    else
+                    {
+                        string reason = _currentTarget.GetDisabledReason(this, isHold: false);
+                        OnInteractionDenied?.Invoke(_currentTarget, reason, false);
+                    }
+
                     _isHolding = false;
                     ResetHold();
                 }
@@ -176,6 +216,14 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
     {
         if (_currentTarget == null) return;
         var target = _currentTarget;
+
+        if (!target.CanInteract(this, isHold))
+        {
+            string reason = target.GetDisabledReason(this, isHold);
+            OnInteractionDenied?.Invoke(target, reason, isHold);
+            return;
+        }
+
         target.OnInteract(this, isHold);
         OnInteractionExecuted?.Invoke(target, isHold);
     }

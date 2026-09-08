@@ -54,9 +54,7 @@ namespace Project.Combat
 
                 DiscoverSockets(_spawnedBodyInstance.transform);
             }
-
-            // 2. Mount primary parts first (Barrels, Grips, Stocks, Sights, Magazines)
-            // This guarantees that the Barrel is mounted and its sockets (e.g. socket_muzzle) are registered!
+            
             var parts = weapon.Parts;
             List<WeaponPartDefinition> accessories = null;
 

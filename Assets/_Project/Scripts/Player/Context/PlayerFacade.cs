@@ -1,4 +1,5 @@
 using Project.Core.Input;
+using Project.Player.Detection;
 using Project.Player.Input;
 using Project.Player.Interaction;
 using PurrNet;
@@ -13,10 +14,12 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private LocalPlayerInputProvider _inputProvider;
     [SerializeField] private LocomotionController _locomotionController;
     [SerializeField] private PlayerInteractor _interactor;
+    [SerializeField] private PlayerTargetDetector _targetDetector;
     [SerializeField] private int _remotePlayerLayerIndex;
     
     public LocalPlayerInputProvider InputProvider => _inputProvider;
     public PlayerInteractor Interactor => _interactor;
+    public PlayerTargetDetector TargetDetector => _targetDetector;
     public LocomotionState LocomotionState { get; private set; }
     public PlayerInputData CurrentInput { get; private set; }
 

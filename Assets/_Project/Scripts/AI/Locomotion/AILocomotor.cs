@@ -2,7 +2,7 @@ using PurrNet;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Player.AI
+namespace Project.AI.Locomotion
 {
 public class AILocomotor : NetworkBehaviour
 {
@@ -22,6 +22,11 @@ public class AILocomotor : NetworkBehaviour
             return;
 
         _animator.SetFloat("Speed", _agent.velocity.magnitude);
+    }
+
+    public void Stop()
+    {
+        _agent.enabled = false;
     }
 }
 }

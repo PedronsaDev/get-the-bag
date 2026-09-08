@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6999338806006603326}
   - component: {fileID: 8920934982949178772}
   - component: {fileID: 7453559256557596377}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: MOD_Pistol_Barrel_Qerb_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,7 +99,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8031438351541023893}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: fire_point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,8 +130,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5548957275487903706}
-  m_Layer: 6
-  m_Name: MOD_Pistol_Barrel_Qerb_01
+  m_Layer: 12
+  m_Name: PART_Pistol_Barrel_Qerb_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

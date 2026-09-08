@@ -19,7 +19,7 @@ MonoBehaviour:
   _weaponType: 0
   _isUniversal: 0
   _manufacturer: {fileID: 11400000, guid: 83da2f8f17bcc744da3d65139025f40b, type: 2}
-  _rarity: 4
+  _rarity: 0
   _meshPrefab: {fileID: 163177303876556819, guid: 27cfe77a89c90094cb5bf54f553ef888, type: 3}
   _customSocketName: 
   _overridesFirePoint: 0
@@ -27,7 +27,7 @@ MonoBehaviour:
   _redText: Nine pellets. Square geometry.
   _projectileBehaviors: []
   _weaponPerks: []
-  _pelletPattern: {fileID: 11400000, guid: d1e2f3a4b5c60718293a4b5c6d7e8f96, type: 2}
+  _pelletPattern: {fileID: 0}
   _overridesElement: 0
   _elementOverride: 0
   _overridesFiringMode: 0

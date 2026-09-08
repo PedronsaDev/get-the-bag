@@ -48,21 +48,22 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     
     private InputAction _moveAction;
     private InputAction _lookAction;
-    private InputAction _attackAction;
     private InputAction _aimAction;
+    private InputAction _sprintAction;
+    private InputAction _attackAction;
     private InputAction _reloadAction;
     private InputAction _interactAction;
     private InputAction _crouchAction;
     private InputAction _jumpAction;
-    private InputAction _sprintAction;
     private InputAction _grenadeAction;
-    private InputAction _skillAction;
     private InputAction _meleeAction;
+    private InputAction _skillAction;
     private InputAction _pingAction;
     private InputAction _slot1Action;
     private InputAction _slot2Action;
     private InputAction _slot3Action;
     private InputAction _slot4Action;
+    private InputAction _inventoryAction;
     
     private InputAction _cancelAction;
     
@@ -147,6 +148,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         _slot2Action = _playerMap.FindAction("WeaponSlot2");
         _slot3Action = _playerMap.FindAction("WeaponSlot3");
         _slot4Action = _playerMap.FindAction("WeaponSlot4");
+        _inventoryAction = _playerMap.FindAction("Inventory");
         
         _cancelAction = _uiMap?.FindAction("Cancel");
     }
@@ -210,7 +212,9 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             
             InteractPressed = !actionsBlocked && _interactAction != null && _interactAction.WasPressedThisFrame(),
             InteractHeld = !actionsBlocked && _interactAction != null && _interactAction.IsPressed(),
-            WeaponSlotPressed = actionsBlocked ? 0 : GetWeaponSlotPressed()
+            
+            InventoryPressed = _inventoryAction != null && _inventoryAction.WasPressedThisFrame(),
+            WeaponSlotPressed = actionsBlocked ? 0 : GetWeaponSlotPressed(),
         };
     }
 

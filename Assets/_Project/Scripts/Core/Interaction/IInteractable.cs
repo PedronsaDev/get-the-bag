@@ -14,7 +14,8 @@ public interface IInteractable
     InteractionMode Mode { get; }
     float HoldDuration { get; }
 
-    bool CanInteract(IPlayerInteractor interactor);
+    bool CanInteract(IPlayerInteractor interactor, bool isHold = false);
+    string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false);
     void OnInteract(IPlayerInteractor interactor, bool isHold);
     void OnHoverEnter(IPlayerInteractor interactor);
     void OnHoverExit(IPlayerInteractor interactor);

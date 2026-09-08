@@ -149,26 +149,60 @@ public class WorldWeaponPickup : NetworkBehaviour, IInteractable
     public InteractionMode Mode => _mode;
     public float HoldDuration => _holdDuration;
 
-    public bool CanInteract(IPlayerInteractor interactor)
+    private IWeaponPickupReceiver GetReceiver(IPlayerInteractor interactor)
     {
-        return !_isClaimed && interactor != null;
+        if (interactor == null || !interactor.InteractorGameObject) return null;
+        var targetObj = interactor.InteractorGameObject;
+        if (targetObj.TryGetComponent<IWeaponPickupReceiver>(out var receiver) ||
+            (receiver = targetObj.GetComponentInParent<IWeaponPickupReceiver>()) != null)
+        {
+            return receiver;
+        }
+        return null;
+    }
+
+    public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
+    {
+        if (_isClaimed || interactor == null) return false;
+
+        var receiver = GetReceiver(interactor);
+        if (receiver != null)
+        {
+            return receiver.CanReceiveWeaponPickup(_cachedWeapon, isHold, out _);
+        }
+
+        return true;
+    }
+
+    public string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false)
+    {
+        if (_isClaimed) return "Already Taken";
+        if (interactor == null) return null;
+
+        var receiver = GetReceiver(interactor);
+        if (receiver != null)
+        {
+            receiver.CanReceiveWeaponPickup(_cachedWeapon, isHold, out string reason);
+            return reason;
+        }
+
+        return null;
     }
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
     {
         if (_isClaimed) return;
 
-        if (interactor != null && interactor.InteractorGameObject)
+        var receiver = GetReceiver(interactor);
+        if (receiver != null)
         {
-            var targetObj = interactor.InteractorGameObject;
-            if (targetObj.TryGetComponent<IWeaponPickupReceiver>(out var receiver) ||
-                (receiver = targetObj.GetComponentInParent<IWeaponPickupReceiver>()) != null)
-            {
-                receiver.ReceiveWeaponPickup(_cachedWeapon, _snapshot, isHold);
-            }
+            if (!receiver.CanReceiveWeaponPickup(_cachedWeapon, isHold, out _))
+                return;
+
+            receiver.ReceiveWeaponPickup(_cachedWeapon, _snapshot, isHold);
         }
 
-        if (NetworkManager.main != null && NetworkManager.main.isClient && !isServer)
+        if (NetworkManager.main && NetworkManager.main.isClient && !isServer)
         {
             _isClaimed = true;
             RpcRequestPickup();

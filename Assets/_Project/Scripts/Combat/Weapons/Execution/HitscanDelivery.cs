@@ -26,7 +26,7 @@ namespace Project.Combat
             for (int i = 0; i < pellets; i++)
             {
                 Vector3 shootDirection;
-                if (weapon.PelletPattern != null)
+                if (weapon.PelletPattern)
                 {
                     Vector2 patternOffset = weapon.PelletPattern.GetPointOffset(i, pellets, currentSpread, weapon.CompiledStats.BaseSpread);
                     shootDirection = PelletPatternDefinition.CalculatePatternDirection(forward, aimRight, aimUp, patternOffset);
@@ -67,7 +67,7 @@ namespace Project.Combat
                     // Physics impact impulse
                     if (hit.rigidbody && !hit.rigidbody.isKinematic)
                     {
-                        hit.rigidbody.AddForceAtPosition(shootDirection * (weapon.CompiledStats.Damage * 3f), hit.point, ForceMode.Impulse);
+                        hit.rigidbody.AddForceAtPosition(shootDirection * weapon.CompiledStats.Damage, hit.point, ForceMode.Impulse);
                     }
                 }
 

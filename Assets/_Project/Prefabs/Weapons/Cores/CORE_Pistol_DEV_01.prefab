@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6068207120056237813}
-  m_Layer: 6
-  m_Name: COR_Pistol_DEV_01
+  m_Layer: 12
+  m_Name: CORE_Pistol_DEV_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 5091291796745086058}
   - component: {fileID: 8169642265709089158}
   - component: {fileID: 6697612859470767657}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8753248958734710829}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: socket_grip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,7 +163,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2970427566206190310}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: mesh_root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -195,7 +195,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 780009280338984630}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: sockets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -230,7 +230,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8750108611468015736}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: socket_sight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8146029344024237094}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: socket_magazine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -292,7 +292,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4735870629774061966}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: socket_barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

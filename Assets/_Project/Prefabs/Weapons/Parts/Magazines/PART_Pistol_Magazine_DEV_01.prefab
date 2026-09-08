@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2986925952795023714}
   - component: {fileID: 9082414153415878739}
   - component: {fileID: 8149413867361921780}
-  m_Layer: 6
+  m_Layer: 12
   m_Name: MOD_Pistol_Magazine_DEV_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,8 +99,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8953615547235169139}
-  m_Layer: 6
-  m_Name: MOD_Pistol_Magazine_DEV_01
+  m_Layer: 12
+  m_Name: PART_Pistol_Magazine_DEV_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
