@@ -14,7 +14,6 @@ namespace Project.Player.Detection
 
         [Header("Detection Settings")]
         [SerializeField] private float _detectionRange = 80f;
-        [Tooltip("Half-angle in degrees around crosshair (e.g. 8 deg creates a 16 deg cone).")]
         [Range(1f, 25f)] [SerializeField] private float _crosshairAngle = 8f;
         [SerializeField] private float _assistRadius = 1.5f;
         [SerializeField] private LayerMask _detectableLayers;

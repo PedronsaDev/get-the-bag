@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Project.Player.Loot
 {
-public class PlayerInventory : NetworkBehaviour
+public class PlayerInventoryController : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerWeaponController _playerWeaponController;
@@ -29,10 +29,14 @@ public class PlayerInventory : NetworkBehaviour
     public event Action OnInventoryUpdated;
     public event Action<int, WeaponInstance> OnEquippedSlotChanged;
 
-    public bool HasEmptyEquippedSlot => 
-        _equippedSlots[0] == null || 
-        _equippedSlots[1] == null || 
-        (_playerWeaponController && (_playerWeaponController.Slot1Weapon == null || _playerWeaponController.Slot2Weapon == null));
+    public bool HasEmptyEquippedSlot
+    {
+        get
+        {
+            SyncFromController();
+            return _equippedSlots[0] == null || _equippedSlots[1] == null;
+        }
+    }
 
     public bool CanPickupWeapon => HasEmptyEquippedSlot || _backpack.Count < _backpackCapacity;
 
@@ -45,6 +49,15 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (!_playerWeaponController)
             _playerWeaponController = GetComponent<PlayerWeaponController>() ?? GetComponentInParent<PlayerWeaponController>();
+
+        if (!_dropSpawnPoint)
+        {
+            var cameraController = GetComponentInChildren<FPSCameraController>() ?? GetComponentInParent<FPSCameraController>();
+            if (cameraController && cameraController.PitchPivot)
+                _dropSpawnPoint = cameraController.PitchPivot;
+            else
+                _dropSpawnPoint = transform;
+        }
     }
 
     private void Start()
@@ -56,23 +69,31 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (!_playerWeaponController) return;
 
-        if (_playerWeaponController.Slot1Weapon != null)
-            _equippedSlots[0] = _playerWeaponController.Slot1Weapon;
-        if (_playerWeaponController.Slot2Weapon != null)
-            _equippedSlots[1] = _playerWeaponController.Slot2Weapon;
+        bool changed = _equippedSlots[0] != _playerWeaponController.Slot1Weapon ||
+                       _equippedSlots[1] != _playerWeaponController.Slot2Weapon;
+
+        _equippedSlots[0] = _playerWeaponController.Slot1Weapon;
+        _equippedSlots[1] = _playerWeaponController.Slot2Weapon;
+
+        if (changed)
+        {
+            OnInventoryUpdated?.Invoke();
+        }
     }
     
     public bool HandleTapPickup(WeaponInstance weapon)
     {
         if (weapon == null) return false;
 
-        if (_equippedSlots[0] == null && (!_playerWeaponController || _playerWeaponController.Slot1Weapon == null))
+        SyncFromController();
+
+        if (_equippedSlots[0] == null)
         {
             EquipToSlot(0, weapon);
             return true;
         }
 
-        if (_equippedSlots[1] == null && (!_playerWeaponController || _playerWeaponController.Slot2Weapon == null))
+        if (_equippedSlots[1] == null)
         {
             EquipToSlot(1, weapon);
             return true;
@@ -85,7 +106,11 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (newWeapon == null) return;
 
-        int activeSlot1Based = _playerWeaponController ? _playerWeaponController.ActiveSlotIndex : 1;
+        SyncFromController();
+
+        int activeSlot1Based = (_playerWeaponController && _playerWeaponController.ActiveSlotIndex > 0)
+            ? _playerWeaponController.ActiveSlotIndex
+            : 1;
         int activeSlot0Based = Mathf.Clamp(activeSlot1Based - 1, 0, _maxEquippedSlots - 1);
 
         var currentWeapon = _equippedSlots[activeSlot0Based];
@@ -103,7 +128,7 @@ public class PlayerInventory : NetworkBehaviour
 
         if (_playerWeaponController)
         {
-            _playerWeaponController.SetSlotWeapon(activeSlot1Based, newWeapon);
+            _playerWeaponController.SetSlotWeapon(activeSlot0Based + 1, newWeapon);
         }
 
         OnEquippedSlotChanged?.Invoke(activeSlot0Based, newWeapon);
@@ -122,14 +147,30 @@ public class PlayerInventory : NetworkBehaviour
 
     public void EquipToSlot(int slotIndex0Based, WeaponInstance weapon)
     {
-        if (slotIndex0Based < 0 || slotIndex0Based >= _maxEquippedSlots) 
+        if (slotIndex0Based < 0 || slotIndex0Based >= _maxEquippedSlots || weapon == null) 
             return;
+
+        SyncFromController();
         
         int backpackIdx = _backpack.FindIndex(e => e.Weapon == weapon);
         if (backpackIdx >= 0)
             _backpack.RemoveAt(backpackIdx);
-        
+
         var previousWeapon = _equippedSlots[slotIndex0Based];
+
+        // Check if this weapon was already equipped in the other slot -> swap them!
+        int otherSlot0Based = slotIndex0Based == 0 ? 1 : 0;
+        if (_equippedSlots[otherSlot0Based] == weapon)
+        {
+            _equippedSlots[otherSlot0Based] = previousWeapon;
+            if (_playerWeaponController)
+            {
+                _playerWeaponController.SetSlotWeapon(otherSlot0Based + 1, previousWeapon);
+            }
+            OnEquippedSlotChanged?.Invoke(otherSlot0Based, previousWeapon);
+            previousWeapon = null; // Weapon moved to other slot, do not displace to backpack
+        }
+
         if (previousWeapon != null && previousWeapon != weapon)
         {
             if (_backpack.Count < _backpackCapacity)
@@ -200,8 +241,9 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (!ItemRegistry.Instance || weapon == null) return;
         var snapshot = ItemRegistry.Instance.SerializeWeapon(weapon);
-        Vector3 dropPos = _dropSpawnPoint.position + _dropSpawnPoint.forward * 1.5f + Vector3.up * 0.8f;
-        Vector3 throwVel = _dropSpawnPoint.forward * 3f + Vector3.up * 2f;
+        Transform origin = _dropSpawnPoint ? _dropSpawnPoint : transform;
+        Vector3 dropPos = origin.position + origin.forward * 1.5f + Vector3.up * 0.8f;
+        Vector3 throwVel = origin.forward * 3f + Vector3.up * 2f;
 
         _playerWeaponController?.DropSpecifiedWeapon(snapshot, dropPos, throwVel);
     }

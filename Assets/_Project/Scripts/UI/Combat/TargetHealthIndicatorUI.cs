@@ -15,9 +15,7 @@ namespace Project.UI.Interaction
         [SerializeField] private ProgressBarUI _healthBar;
 
         [Header("Visual Polish")]
-        [Tooltip("Seconds the health bar stays visible after losing target before fading out. Set to 0 to fade immediately.")]
         [SerializeField] private float _lingerDuration = 0.0f;
-        [Tooltip("Speed of alpha transition for smooth fade in and fade out.")]
         [SerializeField] private float _fadeSpeed = 10.0f;
 
         private HealthComponent _currentTarget;
@@ -54,8 +52,7 @@ namespace Project.UI.Interaction
 
         private void Update()
         {
-            // If target is lost or dead, wait for linger duration before fading
-            if (!_hasTarget || _currentTarget == null || _currentTarget.IsDead)
+            if (!_hasTarget || !_currentTarget || _currentTarget.IsDead)
             {
                 if (Time.time >= _lastSeenTime + _lingerDuration)
                 {
@@ -72,7 +69,6 @@ namespace Project.UI.Interaction
                     _rootContainer.SetActive(_canvasGroup.alpha > 0.01f);
                 }
 
-                // If fully faded out and no active target, clean up
                 if (_canvasGroup.alpha <= 0.01f && !_hasTarget)
                 {
                     UnbindCurrentTarget();
@@ -118,7 +114,7 @@ namespace Project.UI.Interaction
         {
             var targetHealth = ResolveHealth(target);
 
-            if (targetHealth != null && !targetHealth.IsDead)
+            if (targetHealth && !targetHealth.IsDead)
             {
                 _hasTarget = true;
                 _lastSeenTime = Time.time;
@@ -134,7 +130,7 @@ namespace Project.UI.Interaction
                 // Target lost (exited range or crosshair moved away)
                 _hasTarget = false;
 
-                if (_lingerDuration <= 0f || (_currentTarget != null && _currentTarget.IsDead))
+                if (_lingerDuration <= 0f || (_currentTarget && _currentTarget.IsDead))
                 {
                     _targetAlpha = 0f;
                 }
@@ -168,7 +164,7 @@ namespace Project.UI.Interaction
 
         private void UnbindCurrentTarget()
         {
-            if (_currentTarget != null)
+            if (_currentTarget)
             {
                 _currentTarget.OnHealthChanged -= HandleHealthChanged;
                 _currentTarget.OnShieldChanged -= HandleShieldChanged;

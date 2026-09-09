@@ -97,6 +97,7 @@ MonoBehaviour:
   _locomotionController: {fileID: 7482482855676676148}
   _interactor: {fileID: 5463135704799499700}
   _targetDetector: {fileID: -670673465751686037}
+  _inventory: {fileID: 2094813003998146038}
   _remotePlayerLayerIndex: 8
 --- !u!114 &3432939826793728204
 MonoBehaviour:

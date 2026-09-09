@@ -30,6 +30,9 @@ namespace Project.Core.UI
         [Tooltip("If true, pressing Cancel (Escape) will invoke Close() on this blocker.")]
         [SerializeField] private bool _closesOnCancel = true;
 
+        [Tooltip("If true, pressing the Inventory toggle key (Tab) will invoke Close() if this blocker is open.")]
+        [SerializeField] private bool _closesOnInventoryToggle;
+
         [Header("Lifecycle Options")]
         [Tooltip("If true, automatically registers with UIBlockerSystem when this component is enabled in the scene.")]
         [SerializeField] private bool _registerOnEnable = true;
@@ -38,8 +41,8 @@ namespace Project.Core.UI
         [SerializeField] private bool _unregisterOnDisable = true;
 
         [Header("Events")]
-        public UnityEvent onOpened;
-        public UnityEvent onClosed;
+        public UnityEvent OnOpened;
+        public UnityEvent OnClosed;
 
         public string BlockerId => string.IsNullOrEmpty(_blockerId) ? gameObject.name : _blockerId;
         public bool BlocksMovement => _blocksMovement;
@@ -47,11 +50,14 @@ namespace Project.Core.UI
         public bool BlocksActions => _blocksActions;
         public bool UnlocksCursor => _unlocksCursor;
         public bool ClosesOnCancel => _closesOnCancel;
+        public bool ClosesOnInventoryToggle => _closesOnInventoryToggle;
 
         public bool IsOpen { get; private set; }
 
         protected virtual void OnEnable()
         {
+            UIInput.OnToggleInventory += HandleToggleInventory;
+
             if (_registerOnEnable)
             {
                 Open();
@@ -60,7 +66,17 @@ namespace Project.Core.UI
 
         protected virtual void OnDisable()
         {
+            UIInput.OnToggleInventory -= HandleToggleInventory;
+
             if (_unregisterOnDisable)
+            {
+                Close();
+            }
+        }
+
+        private void HandleToggleInventory()
+        {
+            if (_closesOnInventoryToggle && IsOpen)
             {
                 Close();
             }
@@ -83,7 +99,7 @@ namespace Project.Core.UI
             if (IsOpen) return;
             IsOpen = true;
             UIBlockerSystem.Register(this);
-            onOpened?.Invoke();
+            OnOpened?.Invoke();
         }
 
         /// <summary>
@@ -94,7 +110,7 @@ namespace Project.Core.UI
             if (!IsOpen) return;
             IsOpen = false;
             UIBlockerSystem.Unregister(this);
-            onClosed?.Invoke();
+            OnClosed?.Invoke();
         }
     }
 }

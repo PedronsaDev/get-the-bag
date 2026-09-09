@@ -55,7 +55,7 @@ public class InteractionPromptUI : MonoBehaviour
 
     private void Update()
     {
-        if (_interactor != null && _interactor.CurrentTarget != null)
+        if (_interactor && _interactor.CurrentTarget != null)
         {
             RefreshPromptDisplay(_interactor.CurrentTarget);
         }

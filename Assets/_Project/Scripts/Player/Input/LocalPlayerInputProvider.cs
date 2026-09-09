@@ -10,6 +10,7 @@ namespace Project.Player.Input
 /// <summary>
 /// Polls Unity's Input System for the local player instance.
 /// Converts hardware inputs into a pure PlayerInputData struct every frame/tick.
+/// Dispatches UI and meta inputs to UIInput so UI actions remain responsive even when gameplay blockers are active.
 /// Remote players should instead use RemotePlayerInputProvider.
 /// </summary>
 public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
@@ -46,27 +47,33 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     private InputActionMap _playerMap;
     private InputActionMap _uiMap;
     
+    // Player Map Actions
     private InputAction _moveAction;
     private InputAction _lookAction;
-    private InputAction _aimAction;
-    private InputAction _sprintAction;
     private InputAction _attackAction;
+    private InputAction _aimAction;
     private InputAction _reloadAction;
     private InputAction _interactAction;
     private InputAction _crouchAction;
     private InputAction _jumpAction;
+    private InputAction _sprintAction;
     private InputAction _grenadeAction;
-    private InputAction _meleeAction;
     private InputAction _skillAction;
+    private InputAction _meleeAction;
     private InputAction _pingAction;
     private InputAction _slot1Action;
     private InputAction _slot2Action;
     private InputAction _slot3Action;
     private InputAction _slot4Action;
-    private InputAction _inventoryAction;
+    private InputAction _playerInventoryAction;
     
+    // UI Map Actions
     private InputAction _cancelAction;
-    
+    private InputAction _uiInventoryAction;
+    private InputAction _dropItemAction;
+    private InputAction _favoriteItemAction;
+    private InputAction _trashItemAction;
+    private InputAction _dropAllTrashAction;
     
     protected override void OnSpawned()
     {
@@ -88,10 +95,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         }
         
         InitializeActions();
-        if (!UIBlockerSystem.IsInputBlocked)
-        {
-            _playerMap?.Enable();
-        }
+        _playerMap?.Enable();
         _uiMap?.Enable();
 
         UIBlockerSystem.OnBlockerStateChanged += HandleBlockerStateChanged;
@@ -131,6 +135,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             return;
         }
 
+        // Gameplay actions
         _moveAction = _playerMap.FindAction("Move");
         _lookAction = _playerMap.FindAction("Look");
         _attackAction = _playerMap.FindAction("Attack");
@@ -148,37 +153,71 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         _slot2Action = _playerMap.FindAction("WeaponSlot2");
         _slot3Action = _playerMap.FindAction("WeaponSlot3");
         _slot4Action = _playerMap.FindAction("WeaponSlot4");
-        _inventoryAction = _playerMap.FindAction("Inventory");
-        
-        _cancelAction = _uiMap?.FindAction("Cancel");
+        _playerInventoryAction = _playerMap.FindAction("Inventory");
+
+        // UI & Meta actions
+        if (_uiMap != null)
+        {
+            _cancelAction = _uiMap.FindAction("Cancel");
+            _uiInventoryAction = _uiMap.FindAction("Inventory");
+            _dropItemAction = _uiMap.FindAction("DropItem");
+            _favoriteItemAction = _uiMap.FindAction("FavoriteItem");
+            _trashItemAction = _uiMap.FindAction("TrashItem");
+            _dropAllTrashAction = _uiMap.FindAction("DropAllTrash");
+        }
     }
 
     private void Update()
     {
         if (!isOwner) return;
 
+        UpdateUIInputs();
+    }
+
+    private void UpdateUIInputs()
+    {
         bool cancelPressed = _cancelAction != null && _cancelAction.WasPressedThisFrame();
+        
+        bool invPressed = (_uiInventoryAction != null && _uiInventoryAction.WasPressedThisFrame())
+                       || (_playerInventoryAction != null && _playerInventoryAction.WasPressedThisFrame());
+        
+        bool dropPressed = _dropItemAction != null && _dropItemAction.WasPressedThisFrame();
+        bool favPressed = _favoriteItemAction != null && _favoriteItemAction.WasPressedThisFrame();
+        bool trashPressed = _trashItemAction != null && _trashItemAction.WasPressedThisFrame();
+        bool dropAllTrashPressed = _dropAllTrashAction != null && _dropAllTrashAction.WasPressedThisFrame();
+
+        UIInput.CancelPressed = cancelPressed;
+        UIInput.ToggleInventoryPressed = invPressed;
+        UIInput.DropItemPressed = dropPressed;
+        UIInput.FavoriteItemPressed = favPressed;
+        UIInput.TrashItemPressed = trashPressed;
+        UIInput.DropAllTrashPressed = dropAllTrashPressed;
 
         if (cancelPressed)
         {
+            UIInput.TriggerCancel();
             UIBlockerSystem.TryCloseTopBlocker();
         }
+
+        if (invPressed)
+        {
+            UIInput.TriggerToggleInventory();
+        }
+
+        if (dropPressed) UIInput.TriggerDropItem();
+        if (favPressed) UIInput.TriggerFavoriteItem();
+        if (trashPressed) UIInput.TriggerTrashItem();
+        if (dropAllTrashPressed) UIInput.TriggerDropAllTrash();
     }
 
     public PlayerInputData GetCurrentInput()
     {
-        if (_playerMap is not { enabled: true })
-            return PlayerInputData.Empty;
-
         if (PedronsaDev.Console.Console.IsOpen)
             return PlayerInputData.Empty;
 
         bool movementBlocked = UIBlockerSystem.IsMovementBlocked;
         bool lookBlocked = UIBlockerSystem.IsLookBlocked;
         bool actionsBlocked = UIBlockerSystem.IsActionsBlocked;
-
-        if (movementBlocked && lookBlocked && actionsBlocked)
-            return PlayerInputData.Empty;
 
         Vector2 rawLook = lookBlocked ? Vector2.zero : (_lookAction?.ReadValue<Vector2>() ?? Vector2.zero);
         var scaledLookSensitivity = _lookSensitivity * 0.1f;
@@ -188,6 +227,9 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         );
 
         Vector2 moveVector = movementBlocked ? Vector2.zero : (_moveAction?.ReadValue<Vector2>() ?? Vector2.zero);
+
+        bool invPressed = (_playerInventoryAction != null && _playerInventoryAction.WasPressedThisFrame())
+                       || (_uiInventoryAction != null && _uiInventoryAction.WasPressedThisFrame());
 
         return new PlayerInputData
         {
@@ -213,7 +255,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             InteractPressed = !actionsBlocked && _interactAction != null && _interactAction.WasPressedThisFrame(),
             InteractHeld = !actionsBlocked && _interactAction != null && _interactAction.IsPressed(),
             
-            InventoryPressed = _inventoryAction != null && _inventoryAction.WasPressedThisFrame(),
+            InventoryPressed = invPressed,
             WeaponSlotPressed = actionsBlocked ? 0 : GetWeaponSlotPressed(),
         };
     }
@@ -234,20 +276,8 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 
     private void HandleBlockerStateChanged(bool isBlocked)
     {
-        if (isBlocked)
-        {
-            if (UIBlockerSystem.IsMovementBlocked && UIBlockerSystem.IsLookBlocked && UIBlockerSystem.IsActionsBlocked)
-            {
-                _playerMap?.Disable();
-            }
-        }
-        else
-        {
-            if (_playerMap is { enabled: false })
-            {
-                _playerMap.Enable();
-            }
-        }
+        // UI blockers selectively gate movement, look, and actions inside GetCurrentInput().
+        // Action maps remain active so that UI navigation, cancellation, and toggle actions never stall.
     }
 
     private int GetWeaponSlotPressed()

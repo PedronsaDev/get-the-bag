@@ -4,6 +4,7 @@ using Project.Combat;
 using Project.Player.Loot;
 using PurrNet;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Project.Player.Weapons
 {
@@ -11,7 +12,8 @@ namespace Project.Player.Weapons
 public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 {
     [Header("References")]
-    [SerializeField] private PlayerInventory _inventory;
+    [FormerlySerializedAs("_inventory")]
+    [SerializeField] private PlayerInventoryController _inventoryController;
     [SerializeField] private WorldWeaponPickup _pickup;
 
     [Header("Weapon Sockets & Visuals")] 
@@ -65,8 +67,8 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         if (!_visualAssembler)
             _visualAssembler = GetComponentInChildren<WeaponVisualAssembler>();
 
-        if (!_inventory)
-            _inventory = GetComponent<PlayerInventory>() ?? GetComponentInParent<PlayerInventory>();
+        if (!_inventoryController)
+            _inventoryController = GetComponent<PlayerInventoryController>() ?? GetComponentInParent<PlayerInventoryController>();
     }
 
     protected override void OnSpawned()
@@ -94,6 +96,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         }
 
         EquipSlot(1);
+        _inventoryController?.SyncFromController();
     }
 
     private void Update()
@@ -273,9 +276,9 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         }
 
         // Tap is pickup to backpack / free slot
-        if (_inventory)
+        if (_inventoryController)
         {
-            if (!_inventory.CanPickupWeapon)
+            if (!_inventoryController.CanPickupWeapon)
             {
                 disabledReason = "Inventory Full";
                 return false;
@@ -302,15 +305,15 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
         if (weapon == null) return;
 
-        if (_inventory)
+        if (_inventoryController)
         {
             if (isHold)
             {
-                _inventory.SwapActiveWithFloor(weapon);
+                _inventoryController.SwapActiveWithFloor(weapon);
             }
             else
             {
-                _inventory.HandleTapPickup(weapon);
+                _inventoryController.HandleTapPickup(weapon);
             }
         }
         else
@@ -374,6 +377,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         int otherSlot = _activeSlotIndex == 1 ? 2 : 1;
         var otherWeapon = otherSlot == 1 ? _slot1Weapon : _slot2Weapon;
         EquipSlot(otherWeapon != null ? otherSlot : _activeSlotIndex);
+        _inventoryController?.SyncFromController();
 
         // Spawn the physical pickup in the world
         Vector3 dropPos = transform.position + transform.forward * 1.2f + Vector3.up * 0.8f;
@@ -407,7 +411,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         }
 
         pickup.Initialize(snapshot, throwVelocity);
-        if (_pickup.TryGetComponent(out Rigidbody rb))
+        if (pickup.TryGetComponent(out Rigidbody rb))
         {
             rb.AddForce(throwVelocity, ForceMode.VelocityChange);
         }
@@ -419,7 +423,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         if (slotIndex == 1) _slot1Weapon = weapon;
         else if (slotIndex == 2) _slot2Weapon = weapon;
 
-        if (_activeSlotIndex == slotIndex)
+        if (_activeSlotIndex == slotIndex || _activeSlotIndex == 0 || ActiveWeapon == null)
         {
             EquipSlot(slotIndex);
         }

@@ -210,7 +210,7 @@ public class WorldWeaponPickup : NetworkBehaviour, IInteractable
         else
         {
             _isClaimed = true;
-            Despawn();
+            SafeDespawn();
         }
     }
 
@@ -219,7 +219,19 @@ public class WorldWeaponPickup : NetworkBehaviour, IInteractable
     {
         if (_isClaimed) return;
         _isClaimed = true;
-        Despawn();
+        SafeDespawn();
+    }
+
+    private void SafeDespawn()
+    {
+        if (isSpawned && NetworkManager.main)
+        {
+            Despawn();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void OnHoverEnter(IPlayerInteractor interactor)
