@@ -15,7 +15,7 @@ public class PlayerInventoryController : NetworkBehaviour
     
     [Header("Capacity")] 
     [SerializeField] private int _maxEquippedSlots = 2;
-    [SerializeField] private int _backpackCapacity = 24;
+    [SerializeField] private int _backpackCapacity = 18;
 
     private readonly WeaponInstance[] _equippedSlots = new WeaponInstance[2];
     private readonly List<InventoryItemEntry> _backpack = new();
@@ -158,7 +158,6 @@ public class PlayerInventoryController : NetworkBehaviour
 
         var previousWeapon = _equippedSlots[slotIndex0Based];
 
-        // Check if this weapon was already equipped in the other slot -> swap them!
         int otherSlot0Based = slotIndex0Based == 0 ? 1 : 0;
         if (_equippedSlots[otherSlot0Based] == weapon)
         {
@@ -168,7 +167,7 @@ public class PlayerInventoryController : NetworkBehaviour
                 _playerWeaponController.SetSlotWeapon(otherSlot0Based + 1, previousWeapon);
             }
             OnEquippedSlotChanged?.Invoke(otherSlot0Based, previousWeapon);
-            previousWeapon = null; // Weapon moved to other slot, do not displace to backpack
+            previousWeapon = null;
         }
 
         if (previousWeapon != null && previousWeapon != weapon)

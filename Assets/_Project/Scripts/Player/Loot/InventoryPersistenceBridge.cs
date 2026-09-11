@@ -1,0 +1,39 @@
+using Project.Core.Persistence;
+using Project.Persistence;
+using UnityEngine;
+
+namespace Project.Player
+{
+public class InventoryPersistenceBridge : MonoBehaviour, IDataPersistence
+{
+    private void OnEnable()
+    {
+        DataPersistenceManager.Instance.Register(this);
+    }
+    
+    private void OnDisable()
+    {
+        DataPersistenceManager.Instance.Unregister(this);
+    }
+    
+    private void OnExtractionSuccess()
+    {
+        
+    }
+
+    private void OnSquadWipe()
+    {
+        
+    }
+
+    public void LoadData(GameData data)
+    {
+        
+    }
+
+    public void SaveData(GameData data)
+    {
+        
+    }
+}
+}

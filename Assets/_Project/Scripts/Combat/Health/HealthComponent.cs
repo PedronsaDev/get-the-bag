@@ -54,9 +54,12 @@ public class HealthComponent : NetworkBehaviour, IDamageable
         _currentShield.onChanged += (val) => OnShieldChanged?.Invoke(val, _maxShield);
     }
 
+    private bool IsServerAuthoritative => isServer || !NetworkManager.main || NetworkManager.main.isOffline;
+    private bool IsNetworkClient => NetworkManager.main && !NetworkManager.main.isOffline && !isServer;
+
     protected override void OnSpawned()
     {
-        if (!NetworkManager.main || isServer)
+        if (IsServerAuthoritative)
         {
             _currentHealth.value = _maxHealth;
             _currentShield.value = _maxShield;
@@ -67,7 +70,7 @@ public class HealthComponent : NetworkBehaviour, IDamageable
     private void Update()
     {
         // Server-authoritative shield regeneration
-        if (!isServer && NetworkManager.main) return;
+        if (!IsServerAuthoritative) return;
         if (_isDead || _maxShield <= 0f) return;
 
         if (Time.time >= _lastDamageTime + _shieldRegenDelay && _currentShield.value < _maxShield)
@@ -88,7 +91,7 @@ public class HealthComponent : NetworkBehaviour, IDamageable
             return new DamageResult { Applied = false };
         }
 
-        if (NetworkManager.main && !isServer)
+        if (IsNetworkClient)
         {
             // Client detected hit -> ask server to process
             RpcRequestTakeDamage(payload);
@@ -255,13 +258,56 @@ public class HealthComponent : NetworkBehaviour, IDamageable
     }
 
     /// <summary>
+    /// Server-authoritative revival from death or downed state.
+    /// Resets isDead flag and restores health.
+    /// </summary>
+    public void Revive(float healthAmount)
+    {
+        if (IsNetworkClient)
+        {
+            RpcRequestRevive(healthAmount);
+            return;
+        }
+
+        _isDead = false;
+        _currentHealth.value = Mathf.Clamp(healthAmount, 1f, _maxHealth);
+        RpcOnRevived(_currentHealth.value);
+    }
+
+    [ServerRpc(requireOwnership: false)]
+    private void RpcRequestRevive(float healthAmount)
+    {
+        Revive(healthAmount);
+    }
+
+    [ObserversRpc(runLocally: true)]
+    private void RpcOnRevived(float currentHealth)
+    {
+        _isDead = false;
+        _currentHealth.value = currentHealth;
+        OnHealthChanged?.Invoke(currentHealth, _maxHealth);
+    }
+
+    /// <summary>
     /// Restores health up to maximum.
     /// </summary>
     public void Heal(float amount)
     {
         if (_isDead || amount <= 0f) return;
-        if (NetworkManager.main && !isServer) return;
+        if (!IsServerAuthoritative) return;
 
+        _currentHealth.value = Mathf.Min(_maxHealth, _currentHealth.value + amount);
+    }
+    
+    /// <summary>
+    /// Restores health by a percentage of the maximum. 0-100. For example, 25 heals 25% of max health.
+    /// </summary>
+    public void HealPercent(float percent)
+    {
+        if (_isDead || percent <= 0f) return;
+        if (!IsServerAuthoritative) return;
+
+        float amount = _maxHealth * percent / 100f;
         _currentHealth.value = Mathf.Min(_maxHealth, _currentHealth.value + amount);
     }
 
@@ -271,9 +317,81 @@ public class HealthComponent : NetworkBehaviour, IDamageable
     public void RechargeShield(float amount)
     {
         if (_isDead || amount <= 0f) return;
-        if (NetworkManager.main && !isServer) return;
+        if (!IsServerAuthoritative) return;
 
         _currentShield.value = Mathf.Min(_maxShield, _currentShield.value + amount);
+    }
+
+    public void RequestHeal(float amount)
+    {
+        if (IsServerAuthoritative)
+        {
+            Heal(amount);
+        }
+        else
+        {
+            RpcRequestHeal(amount);
+        }
+    }
+
+    [ServerRpc(requireOwnership: false)]
+    private void RpcRequestHeal(float amount)
+    {
+        Heal(amount);
+    }
+
+    public void RequestHealPercent(float percent)
+    {
+        if (IsServerAuthoritative)
+        {
+            HealPercent(percent);
+        }
+        else
+        {
+            RpcRequestHealPercent(percent);
+        }
+    }
+
+    [ServerRpc(requireOwnership: false)]
+    private void RpcRequestHealPercent(float percent)
+    {
+        HealPercent(percent);
+    }
+
+    public void RequestRechargeShield(float amount)
+    {
+        if (IsServerAuthoritative)
+        {
+            RechargeShield(amount);
+        }
+        else
+        {
+            RpcRequestRechargeShield(amount);
+        }
+    }
+
+    [ServerRpc(requireOwnership: false)]
+    private void RpcRequestRechargeShield(float amount)
+    {
+        RechargeShield(amount);
+    }
+
+    public void RequestSetInvulnerable(bool invulnerable)
+    {
+        if (IsServerAuthoritative)
+        {
+            _invulnerable = invulnerable;
+        }
+        else
+        {
+            RpcSetInvulnerable(invulnerable);
+        }
+    }
+
+    [ServerRpc(requireOwnership: false)]
+    private void RpcSetInvulnerable(bool invulnerable)
+    {
+        _invulnerable = invulnerable;
     }
 }
 }

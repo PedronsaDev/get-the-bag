@@ -39,17 +39,38 @@
   }
   ```
 
+### Prefab Asset vs. Runtime Instance in Spawning RPCs
+- When spawning networked objects inside a `ServerRpc` (e.g. `Instantiate(_prefab, position, rotation)`):
+  - NEVER call components, modify variables, or apply physics to the serialized prefab field (`_prefab`).
+  - ALWAYS perform all initialization, component queries, and physics operations on the returned runtime clone instance:
+    ```csharp
+    // Correct:
+    var instance = Instantiate(_prefab, pos, rot);
+    NetworkManager.main.Spawn(instance.gameObject);
+    instance.Initialize(data);
+    if (instance.TryGetComponent(out Rigidbody rb)) rb.linearVelocity = vel;
+
+    // Incorrect (mutates or queries the asset in project files):
+    if (_prefab.TryGetComponent(out Rigidbody rb)) rb.AddForce(...);
+    ```
+
 ---
 
 ## 2. Unity 6 Modern APIs & Deprecations
 - **Object Finding**: Do NOT use `FindFirstObjectByType<T>()`. Always use `FindAnyObjectByType<T>()`.
 - **Development Build Checks**: Do NOT use `#if DEVELOPMENT_BUILD` preprocessor directives. Use `Debug.isDebugBuild` or `!Application.isEditor && !Debug.isDebugBuild`.
 
+### Prefab Serialization Renaming Discipline
+- When renaming any serialized field (`[SerializeField]`) on a MonoBehaviour that is linked inside active Prefabs (especially `Player.prefab` or UI prefabs):
+  - ALWAYS add `[FormerlySerializedAs("oldFieldName")]` (from `UnityEngine.Serialization`).
+  - ALWAYS include an auto-healing fallback in `Awake()` (`GetComponent<T>() ?? GetComponentInChildren<T>()`) to guarantee references never remain null if serialization is mismatched.
+
 ---
 
-## 3. Editor Tooling & In-Editor Debugging
+## 3. Editor Tooling & UI Input Discipline
 - **UI Framework**: For all Unity Editor tooling, custom inspectors, editor windows, and in-editor debugging panels, ALWAYS use **UI Toolkit** (`UnityEngine.UIElements`, `UnityEditor.UIElements`, `.uxml`, `.uss`, `VisualElement`).
 - Do NOT use legacy IMGUI (`OnGUI`, `GUILayout`, `EditorGUILayout`) for editor tools.
+- **UI Blocker Action Gating**: Any fullscreen menu, inventory panel, modal, or dialog inheriting from `InputBlockerUI` MUST set `_blocksActions = true`. Never set `_blocksActions = false` as a workaround for UI input. All UI actions must be routed via `UIInput` (or Unity EventSystem) while gameplay actions remain completely blocked.
 
 ---
 

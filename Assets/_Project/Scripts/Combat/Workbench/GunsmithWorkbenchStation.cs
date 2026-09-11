@@ -93,7 +93,7 @@ namespace Project.Combat
 
         private void SetOpenState(bool isOpen)
         {
-            if (NetworkManager.main != null && !isServer)
+            if (NetworkManager.main != null && !NetworkManager.main.isOffline && !isServer)
             {
                 RpcRequestSetOpen(isOpen);
             }

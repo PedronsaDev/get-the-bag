@@ -17,6 +17,7 @@ namespace Project.Player
         [SerializeField] private float _standingHeight = 1.75f;
         [SerializeField] private float _crouchingHeight = 1.1f;
         [SerializeField] private float _slidingHeight = 0.8f;
+        [SerializeField] private float _downedHeight = 0.5f;
         [SerializeField] private float _heightSmoothness = 10f;
         
         [Header("Look Settings")]
@@ -101,9 +102,11 @@ namespace Project.Player
         {
             var targetY = 0f;
             
-            if (_playerFacade.LocomotionState.IsSliding)
+            if (_playerFacade && _playerFacade.LocomotionState.IsDowned)
+                targetY = _downedHeight;
+            else if (_playerFacade && _playerFacade.LocomotionState.IsSliding)
                 targetY = _slidingHeight;
-            else if (_playerFacade.LocomotionState.IsCrouching)
+            else if (_playerFacade && _playerFacade.LocomotionState.IsCrouching)
                 targetY = _crouchingHeight;
             else
                 targetY = _standingHeight;

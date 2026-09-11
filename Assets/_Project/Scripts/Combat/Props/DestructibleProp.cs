@@ -47,7 +47,7 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
         if (_isDestroyed)
             return new DamageResult { Applied = false };
 
-        if (NetworkManager.main && !isServer)
+        if (NetworkManager.main && !NetworkManager.main.isOffline && !isServer)
         {
             RpcRequestTakeDamage(payload);
             return new DamageResult

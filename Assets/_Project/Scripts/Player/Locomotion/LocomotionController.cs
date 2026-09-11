@@ -1,4 +1,3 @@
-
 namespace Project.Player
 {
 using System;
@@ -43,7 +42,9 @@ public enum LocomotionAnimationState
     CrouchWalking,
     Jumping,
     Falling,
-    Vaulting
+    Vaulting,
+    Downed,
+    Crawling
 }
 
 [Serializable]
@@ -69,11 +70,14 @@ public struct LocomotionState
     public bool IsCrouching;
     public bool WasCrouchingLastFrame;
     public bool IsSliding;
+    public bool IsDowned;
+    public bool IsDraggingTeammate;
     public float TargetHeight;
     public Vector3 VaultStartPosition;
     public Vector3 VaultTargetPosition;
     public float VaultTimer;
 }
+
 
 public class LocomotionController : NetworkBehaviour, ICharacterController
 {
@@ -106,7 +110,11 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         {
             var currentSpeed = currentVelocity.magnitude;
 
-            if (_controller._isCrouchInputHeld && !_controller.State.WasCrouchingLastFrame && currentSpeed > _controller._minSpeedToSlide)
+            if (_controller._isDowned)
+            {
+                _controller.State.IsSliding = false;
+            }
+            else if (_controller._isCrouchInputHeld && !_controller.State.WasCrouchingLastFrame && currentSpeed > _controller._minSpeedToSlide)
             {
                 _controller.State.IsSliding = true;
                 currentVelocity += currentVelocity.normalized * _controller._slideEntryBoost;
@@ -120,26 +128,50 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             Vector3 effectiveGroundNormal = _controller._motor.GroundingStatus.GroundNormal;
             currentVelocity = _controller._motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * currentSpeed;
 
-            var inputRight = Vector3.Cross(_controller._moveInputVector, _controller._motor.CharacterUp);
-            var reorientedInput = Vector3.Cross(effectiveGroundNormal, inputRight).normalized * _controller._moveInputVector.magnitude;
+            Vector3 reorientedInput;
+            float targetSpeed;
 
-            var baseSpeed = _controller.State.IsSliding ? 0f : _controller.GetGroundMoveSpeed();
-            var targetSpeed = baseSpeed;
-
-            if (!_controller.State.IsSliding && reorientedInput.sqrMagnitude > 0f)
+            if (_controller._isDowned && _controller._dragTarget)
             {
-                var movementDir = reorientedInput.normalized;
-                
-                var slopeDot = Vector3.Dot(movementDir, -_controller._motor.CharacterUp); 
+                Vector3 dragForwardPos = _controller._dragTarget.position + (_controller._dragTarget.forward * 1.2f);
+                Vector3 toDragger = dragForwardPos - _controller._motor.TransientPosition;
+                Vector3 planarToDragger = Vector3.ProjectOnPlane(toDragger, effectiveGroundNormal);
+                float dist = planarToDragger.magnitude;
 
-                if (slopeDot > 0f)
+                if (dist > 0.25f)
                 {
-                    targetSpeed += (baseSpeed * slopeDot * _controller._downhillSpeedMultiplier);
+                    reorientedInput = planarToDragger.normalized;
+                    targetSpeed = Mathf.Clamp(dist * 3f, 1.2f, 4f);
                 }
-                else if (slopeDot < 0f)
+                else
                 {
-                    targetSpeed -= (baseSpeed * Mathf.Abs(slopeDot) * _controller._uphillSpeedPenalty);
-                    targetSpeed = Mathf.Max(targetSpeed, 1f); 
+                    reorientedInput = Vector3.zero;
+                    targetSpeed = 0f;
+                }
+            }
+            else
+            {
+                var inputRight = Vector3.Cross(_controller._moveInputVector, _controller._motor.CharacterUp);
+                reorientedInput = Vector3.Cross(effectiveGroundNormal, inputRight).normalized * _controller._moveInputVector.magnitude;
+
+                var baseSpeed = _controller.State.IsSliding ? 0f : _controller.GetGroundMoveSpeed();
+                targetSpeed = baseSpeed;
+
+                if (!_controller.State.IsSliding && reorientedInput.sqrMagnitude > 0f)
+                {
+                    var movementDir = reorientedInput.normalized;
+                    
+                    var slopeDot = Vector3.Dot(movementDir, -_controller._motor.CharacterUp); 
+
+                    if (slopeDot > 0f)
+                    {
+                        targetSpeed += (baseSpeed * slopeDot * _controller._downhillSpeedMultiplier);
+                    }
+                    else if (slopeDot < 0f)
+                    {
+                        targetSpeed -= (baseSpeed * Mathf.Abs(slopeDot) * _controller._uphillSpeedPenalty);
+                        targetSpeed = Mathf.Max(targetSpeed, 1f); 
+                    }
                 }
             }
 
@@ -319,6 +351,60 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [SerializeField] private float _slideGravityMultiplier = 2.5f;
     [SerializeField] private Vector3 _gravity = new(0, -23f, 0);
 
+    [Header("Downed & Dragging")]
+    [SerializeField] private float _crawlSpeed = 1.2f;
+    [SerializeField] private float _downedCapsuleHeight = 0.8f;
+    [SerializeField] private float _draggingSpeedMultiplier = 0.6f;
+
+    private bool _isDowned;
+    private bool _isDraggingTeammate;
+    private Transform _dragTarget;
+
+    public bool IsDowned => _isDowned;
+    public bool IsDraggingTeammate => _isDraggingTeammate;
+
+    public void SetDowned(bool downed)
+    {
+        _isDowned = downed;
+        State.IsDowned = downed;
+        if (downed)
+        {
+            State.IsSliding = false;
+            _isSprintInputHeld = false;
+            if (_motor && _motor.Capsule)
+            {
+                _motor.SetCapsuleDimensions(_motor.Capsule.radius, _downedCapsuleHeight, _downedCapsuleHeight * 0.5f);
+            }
+        }
+        else
+        {
+            if (_motor && _motor.Capsule)
+            {
+                _motor.SetCapsuleDimensions(_motor.Capsule.radius, _standingHeight, _standingHeight * 0.5f);
+            }
+        }
+    }
+
+    public void SetDraggingTeammate(bool dragging)
+    {
+        _isDraggingTeammate = dragging;
+        State.IsDraggingTeammate = dragging;
+        if (dragging)
+        {
+            _isSprintInputHeld = false;
+        }
+    }
+
+    public void SetDragTarget(Transform dragger)
+    {
+        _dragTarget = dragger;
+    }
+
+    public void ClearDragTarget()
+    {
+        _dragTarget = null;
+    }
+
     private readonly Dictionary<LocomotionPhase, ILocomotionPhaseHandler> _phaseHandlers = new();
     private ILocomotionPhaseHandler _currentPhaseHandler;
     private Vector3 _moveInputVector;
@@ -358,9 +444,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         if (!isOwner) 
             return;
 
-        _networkTransform.enabled = false;
-        _motor.SetPosition(transform.parent.position);
-        _networkTransform.enabled = true;
+        SetPlayerPosition(transform.parent.position);
 
         State = new LocomotionState
         {
@@ -378,6 +462,13 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         _phaseHandlers[LocomotionPhase.Vaulting] = new VaultingPhaseHandler(this);
 
         SwitchPhase(_motor.GroundingStatus.IsStableOnGround ? LocomotionPhase.Grounded : LocomotionPhase.Airborne);
+    }
+
+    private void SetPlayerPosition(Vector3 position)
+    {
+        _networkTransform.enabled = false;
+        _motor.SetPosition(position);
+        _networkTransform.enabled = true;
     }
 
     private void Update()
@@ -422,16 +513,23 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         Quaternion cameraPlanarRotation = Quaternion.LookRotation(cameraPlanarDirection, _motor.CharacterUp);
         _moveInputVector = cameraPlanarRotation * moveInputVector;
         
-        _isSprintInputHeld = inputs.SprintHeld && inputs is { CrouchHeld: false, MoveAxisForward: > 0.1f };
+        if (_isDowned || _isDraggingTeammate)
+        {
+            inputs.SprintHeld = false;
+            inputs.JumpDown = false;
+            inputs.JumpHeld = false;
+        }
+
+        _isSprintInputHeld = !_isDowned && !_isDraggingTeammate && inputs.SprintHeld && inputs is { CrouchHeld: false, MoveAxisForward: > 0.1f };
         _isCrouchInputHeld = inputs.CrouchHeld;
-        _isJumpInputHeld = inputs.JumpHeld;
+        _isJumpInputHeld = !_isDowned && !_isDraggingTeammate && inputs.JumpHeld;
 
         State.MoveInput = new Vector2(inputs.MoveAxisRight, inputs.MoveAxisForward);
         State.MoveInputMagnitude = moveInputVector.magnitude;
         State.IsSprinting = _isSprintInputHeld;
         State.IsCrouching = _isCrouchInputHeld;
 
-        if (inputs.JumpDown && State.CurrentJumpStatus == JumpStatus.None)
+        if (inputs.JumpDown && State.CurrentJumpStatus == JumpStatus.None && !_isDowned && !_isDraggingTeammate)
         {
             State.JumpBufferTimer = _jumpBufferTime;
         }
@@ -442,6 +540,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     private bool CanVault(out Vector3 targetFootPos)
     {
         targetFootPos = Vector3.zero;
+        if (_isDowned || _isDraggingTeammate) return false;
 
         Vector3 forward = _lookInputVector.sqrMagnitude > 0.1f ? _lookInputVector.normalized : _motor.CharacterForward;
 
@@ -492,6 +591,14 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private void UpdateCrouchHeight(float deltaTime)
     {
+        if (_isDowned)
+        {
+            State.TargetHeight = _downedCapsuleHeight;
+            float downedHeight = Mathf.Lerp(_motor.Capsule.height, State.TargetHeight, deltaTime * _crouchTransitionSpeed);
+            _motor.SetCapsuleDimensions(_motor.Capsule.radius, downedHeight, downedHeight * 0.5f);
+            return;
+        }
+
         bool wantsToCrouch = _isCrouchInputHeld;
 
         if (!wantsToCrouch && State.TargetHeight < _standingHeight)
@@ -592,6 +699,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private void TryQueueJumpFromBuffer()
     {
+        if (_isDowned || _isDraggingTeammate) return;
         if (State.Phase == LocomotionPhase.Vaulting) return; // FIX: Do not queue jumps while vaulting
         if (State.JumpBufferTimer <= 0f || State.CurrentJumpStatus != JumpStatus.None) return;
         if (State.TimeSinceLastJump < 0.2f) return;
@@ -613,6 +721,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private void ApplyJumpIfRequested(ref Vector3 currentVelocity)
     {
+        if (_isDowned || _isDraggingTeammate) return;
         if (State.CurrentJumpStatus != JumpStatus.Requested) return;
 
         if (CanVault(out Vector3 vaultTargetPos))
@@ -669,9 +778,15 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private float GetGroundMoveSpeed()
     {
+        if (_isDowned)
+            return _crawlSpeed;
+
         float speedMultiplier = 1f;
         if (_isCrouchInputHeld) speedMultiplier = _crouchSpeedMultiplier;
         else if (_isSprintInputHeld) speedMultiplier = _sprintSpeedMultiplier;
+
+        if (_isDraggingTeammate)
+            speedMultiplier *= _draggingSpeedMultiplier;
 
         float globalBuffMult = 1f;
 
@@ -684,34 +799,43 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         float moveInputMagnitude = _moveInputVector.magnitude;
         float verticalSpeed = Vector3.Dot(currentVelocity, _motor.CharacterUp);
 
-        switch (State.Phase)
+        if (_isDowned)
         {
-            case LocomotionPhase.Vaulting:
-                nextState = LocomotionAnimationState.Vaulting;
-                break;
-            case LocomotionPhase.Airborne:
-                nextState = verticalSpeed >= 0f ? LocomotionAnimationState.Jumping : LocomotionAnimationState.Falling;
-                break;
-            case LocomotionPhase.Grounded:
-            default:
+            nextState = (_dragTarget != null || moveInputMagnitude > 0.1f)
+                ? LocomotionAnimationState.Crawling
+                : LocomotionAnimationState.Downed;
+        }
+        else
+        {
+            switch (State.Phase)
             {
-                if (State.IsSliding)
+                case LocomotionPhase.Vaulting:
+                    nextState = LocomotionAnimationState.Vaulting;
+                    break;
+                case LocomotionPhase.Airborne:
+                    nextState = verticalSpeed >= 0f ? LocomotionAnimationState.Jumping : LocomotionAnimationState.Falling;
+                    break;
+                case LocomotionPhase.Grounded:
+                default:
                 {
-                    nextState = LocomotionAnimationState.Sliding;
+                    if (State.IsSliding)
+                    {
+                        nextState = LocomotionAnimationState.Sliding;
+                    }
+                    else if (_isCrouchInputHeld)
+                    {
+                        nextState = moveInputMagnitude > 0.1f ? LocomotionAnimationState.CrouchWalking : LocomotionAnimationState.Crouching;
+                    }
+                    else if (moveInputMagnitude > 0.1f)
+                    {
+                        nextState = _isSprintInputHeld ? LocomotionAnimationState.Sprinting : LocomotionAnimationState.Walking;
+                    }
+                    else
+                    {
+                        nextState = LocomotionAnimationState.Idle;
+                    }
+                    break;
                 }
-                else if (_isCrouchInputHeld)
-                {
-                    nextState = moveInputMagnitude > 0.1f ? LocomotionAnimationState.CrouchWalking : LocomotionAnimationState.Crouching;
-                }
-                else if (moveInputMagnitude > 0.1f)
-                {
-                    nextState = _isSprintInputHeld ? LocomotionAnimationState.Sprinting : LocomotionAnimationState.Walking;
-                }
-                else
-                {
-                    nextState = LocomotionAnimationState.Idle;
-                }
-                break;
             }
         }
 
@@ -720,6 +844,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         State.AnimationState = nextState;
         OnAnimationStateChanged?.Invoke(nextState);
     }
+
 
     private void UpdateProximityWallCheck()
     {

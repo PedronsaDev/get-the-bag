@@ -19,9 +19,14 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private PlayerTargetDetector _targetDetector;
     [FormerlySerializedAs("_inventory")]
     [SerializeField] private PlayerInventoryController _inventoryController;
+    [SerializeField] private Project.Player.Locomotion.PlayerDownedState _downedState;
+    [SerializeField] private Project.Combat.HealthComponent _healthComponent;
     [SerializeField] private int _remotePlayerLayerIndex;
     
     public PlayerInventoryController InventoryController => _inventoryController;
+    public LocomotionController LocomotionController => _locomotionController;
+    public Project.Player.Locomotion.PlayerDownedState DownedState => _downedState;
+    public Project.Combat.HealthComponent Health => _healthComponent;
     public LocalPlayerInputProvider InputProvider => _inputProvider;
     public PlayerInteractor Interactor => _interactor;
     public PlayerTargetDetector TargetDetector => _targetDetector;
@@ -36,6 +41,10 @@ public class PlayerFacade : NetworkBehaviour
             _inputProvider = GetComponent<LocalPlayerInputProvider>() ?? GetComponentInChildren<LocalPlayerInputProvider>();
         if (!_locomotionController)
             _locomotionController = GetComponent<LocomotionController>() ?? GetComponentInChildren<LocomotionController>();
+        if (!_downedState)
+            _downedState = GetComponent<Project.Player.Locomotion.PlayerDownedState>() ?? GetComponentInChildren<Project.Player.Locomotion.PlayerDownedState>();
+        if (!_healthComponent)
+            _healthComponent = GetComponent<Project.Combat.HealthComponent>() ?? GetComponentInChildren<Project.Combat.HealthComponent>(true) ?? GetComponentInParent<Project.Combat.HealthComponent>(true);
         if (!_interactor)
             _interactor = GetComponent<PlayerInteractor>() ?? GetComponentInChildren<PlayerInteractor>();
         if (!_targetDetector)

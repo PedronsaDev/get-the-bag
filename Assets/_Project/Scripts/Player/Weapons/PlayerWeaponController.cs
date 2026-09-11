@@ -59,6 +59,15 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     public Transform FirePoint => _weaponContext?.MuzzlePoint ? _weaponContext.MuzzlePoint : (_visualAssembler ? _visualAssembler.MuzzleSocket : (_cameraController ? _cameraController.PitchPivot : transform));
     public Transform MuzzleTransform => FirePoint;
 
+    public void SetDowned(bool isDowned)
+    {
+        enabled = !isDowned;
+        if (_weaponMount)
+        {
+            _weaponMount.gameObject.SetActive(!isDowned);
+        }
+    }
+
     private void Awake()
     {
         _playerFacade = GetComponentInParent<PlayerFacade>();

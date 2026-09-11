@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c2f5089722420f44ea03b3dbb08dca7e
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 384346
+  packageName: Advanced Outline Shader
+  packageVersion: 1.0
+  assetPath: Assets/AdvancedOutline/Resources/Shaders/AdvancedOutlineMask.shader
+  uploadId: 926934

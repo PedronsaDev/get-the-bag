@@ -1,16 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Project.Networking.Scenes
 {
-/// <summary>
-/// Host-authoritative scene transition coordinator.
-/// Ensures all connected clients load scenes in lockstep before gameplay spawns begin.
-/// </summary>
 public class NetworkSceneCoordinator : NetworkBehaviour
 {
     public static NetworkSceneCoordinator Instance { get; private set; }
@@ -36,6 +33,35 @@ public class NetworkSceneCoordinator : NetworkBehaviour
         }
     }
 
+    public async UniTask TransitionToSceneAsync(string sceneName)
+    {
+        if (!isServer)
+        {
+            Debug.LogWarning($"[{nameof(NetworkSceneCoordinator)}] Only the Host can initiate scene transitions!", this);
+            return;
+        }
+
+        if (_isTransitioning)
+        {
+            Debug.LogWarning($"[{nameof(NetworkSceneCoordinator)}] Scene transition already in progress.", this);
+            return;
+        }
+
+        var allReadyUcs = new UniTaskCompletionSource();
+        Action onReady = () => allReadyUcs.TrySetResult();
+        OnAllClientsReady += onReady;
+
+        try
+        {
+            TransitionToScene(sceneName);
+            await allReadyUcs.Task;
+        }
+        finally
+        {
+            OnAllClientsReady -= onReady;
+        }
+    }
+    
     /// <summary>
     /// Host-only entry point to transition all connected players to a new scene.
     /// </summary>

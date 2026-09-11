@@ -1,4 +1,5 @@
 using System;
+using PrimeTween;
 using Project.Combat;
 using Project.Core.UI;
 using Project.Player;
@@ -14,6 +15,7 @@ namespace Project.UI
     {
         [Header("References")]
         [SerializeField] private CanvasGroup _canvasGroup;
+        [SerializeField] private GameObject _rootPanel;
         [SerializeField] private InventorySlotUI _inventorySlotPrefab;
         [SerializeField] private RectTransform _slotsContainer;
 
@@ -30,11 +32,15 @@ namespace Project.UI
 
         [Header("Capacity & Status (Optional)")]
         [SerializeField] private TMP_Text _capacityText;
+        
+        [Header("Visual Settings")]
+        [SerializeField] private float _fadeDuration = 0.2f;
 
         private InventorySlotUI[] _inventorySlots;
         private PlayerFacade _localPlayer;
         private PlayerInventoryController _inventoryController;
         private int _hoveredIndex = -1;
+        private Tween _fadeTween;
 
         private void Awake()
         {
@@ -96,6 +102,7 @@ namespace Project.UI
             }
 
             Close();
+            HideInstantly();
         }
 
         protected override void OnDisable()
@@ -127,17 +134,12 @@ namespace Project.UI
 
             UnbindInventoryController();
             Close();
+            _fadeTween.Stop();
         }
 
-        private void HandleLocalPlayerSpawned(PlayerFacade player)
-        {
-            BindInventoryController(player);
-        }
+        private void HandleLocalPlayerSpawned(PlayerFacade player) => BindInventoryController(player);
 
-        private void HandleLocalPlayerDespawned(PlayerFacade player)
-        {
-            UnbindInventoryController();
-        }
+        private void HandleLocalPlayerDespawned(PlayerFacade player) => UnbindInventoryController();
 
         private void BindInventoryController(PlayerFacade player)
         {
@@ -314,13 +316,9 @@ namespace Project.UI
             if (!_inventoryController) return;
 
             if (IsOpen)
-            {
                 Close();
-            }
-            else if (!UIBlockerSystem.HasActiveBlocker)
-            {
+            else if (!UIBlockerSystem.HasActiveBlocker) 
                 Open();
-            }
         }
 
         private void HandleDropItemInput()
@@ -413,15 +411,38 @@ namespace Project.UI
         private void Show()
         {
             if (!_canvasGroup) return;
-            _canvasGroup.alpha = 1f;
+                
+            _fadeTween.Stop();
+            _rootPanel.SetActive(true);
+            
             _canvasGroup.interactable = true;
             _canvasGroup.blocksRaycasts = true;
+            
+            _fadeTween = Tween.Alpha(_canvasGroup, 0f, 1f, _fadeDuration);
         }
 
         private void Hide()
         {
             if (!_canvasGroup) return;
+            
+            _fadeTween.Stop();
+
+            _fadeTween = Tween.Alpha(_canvasGroup, 1f, 0f, _fadeDuration).OnComplete(() =>
+            {
+                _rootPanel.SetActive(false);
+            });
+            
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
+        }
+        
+        private void HideInstantly()
+        {
+            if (!_canvasGroup) return;
+
+            _fadeTween.Stop();
             _canvasGroup.alpha = 0f;
+            _rootPanel.SetActive(false);
             _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
         }

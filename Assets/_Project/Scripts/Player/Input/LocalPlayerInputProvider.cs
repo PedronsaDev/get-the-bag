@@ -176,6 +176,9 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 
     private void UpdateUIInputs()
     {
+        if (PedronsaDev.Console.Console.IsOpen)
+            return;
+        
         bool cancelPressed = _cancelAction != null && _cancelAction.WasPressedThisFrame();
         
         bool invPressed = (_uiInventoryAction != null && _uiInventoryAction.WasPressedThisFrame())

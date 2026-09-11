@@ -9,9 +9,9 @@ namespace Project.Player.Interaction
 public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
 {
     [Header("Detection Settings")] 
-    [SerializeField] private float _detectionRange = 3.0f;
-    [SerializeField] private float _assistRadius = 0.4f;
-    [SerializeField] private float _assistRange = 3.0f;
+    [SerializeField] private float _detectionRange = 3.5f;
+    [SerializeField] private float _assistRadius = 0.5f;
+    [SerializeField] private float _assistRange = 3.5f;
     [SerializeField] private LayerMask _interactableLayers;
 
     [Header("References")] 
@@ -37,13 +37,10 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
 
     private void Awake()
     {
-        if (_interactableLayers.value == 0)
+        int interactableLayer = LayerMask.NameToLayer("Interactable");
+        if (interactableLayer >= 0)
         {
-            int interactableLayer = LayerMask.NameToLayer("Interactable");
-            if (interactableLayer >= 0)
-            {
-                _interactableLayers = 1 << interactableLayer;
-            }
+            _interactableLayers |= (1 << interactableLayer);
         }
 
         if (!_playerFacade)

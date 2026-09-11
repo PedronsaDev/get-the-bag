@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 399f2afabba8c3142a45025fdb78de1d
+AssetOrigin:
+  serializedVersion: 1
+  productId: 321364
+  packageName: Better Mesh - Mesh Preview & Full-insight at a glance
+  packageVersion: 2.3.0b
+  assetPath: Assets/Plugins/Tiny Giant Studio/Better Inspector/Common Scripts/Editor/FindAllEditorsForComponent.cs
+  uploadId: 985906

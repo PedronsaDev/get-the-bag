@@ -1,0 +1,33 @@
+{
+    "name": "TinyGiantStudio.BetterInspector.BetterMesh.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c5599297241c7ca4883491777ff9691c",
+        "GUID:a914bd36fb440cf4ea484b5d7d986971",
+        "GUID:a5827bb3f07c6954798ac297e18093cc",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9",
+        "GUID:457756d89b35d2941b3e7b37b4ece6f1"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "15",
+            "define": "HAS_URP"
+        },
+        {
+            "name": "com.unity.render-pipelines.high-definition",
+            "expression": "15",
+            "define": "HAS_HDRP"
+        }
+    ],
+    "noEngineReferences": false
+}
