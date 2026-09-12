@@ -1,0 +1,170 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2385102955918043563
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4942685440671198768}
+  - component: {fileID: 7706650519371583188}
+  - component: {fileID: 3189709868334111151}
+  - component: {fileID: 4663221955391389381}
+  - component: {fileID: 5922049790655247011}
+  m_Layer: 0
+  m_Name: Extraction Zone
+  m_TagString: Untagged
+  m_Icon: {fileID: 2800000, guid: 6705029aec01ee441937f02527280a2c, type: 3}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4942685440671198768
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2385102955918043563}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &7706650519371583188
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2385102955918043563}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 5, y: 3.8381393, z: 5}
+  m_Center: {x: 0, y: 1.4190701, z: 0}
+--- !u!54 &3189709868334111151
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2385102955918043563}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &4663221955391389381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2385102955918043563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7ddc2add938074ca0a310995c2f427, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Core::Project.Core.Match.AreaPlayerDetector
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _playerLayer:
+    serializedVersion: 2
+    m_Bits: 384
+  _enableDebugLogs: 0
+  _startEnabled: 0
+  _requireLivingPlayersOnly: 1
+  PlayersInsideCount:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  TotalRequiredCount:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  AreAllPlayersInside:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+--- !u!114 &5922049790655247011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2385102955918043563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c009641ccb1b9441b589fed7f2f2998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Core::Project.Core.Match.Zones.ExtractionZone
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _detector: {fileID: 4663221955391389381}
+  _countdownDuration: 30
+  HoldoutProgress:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  IsActivated:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  IsCountdownActive:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  CountdownRemaining:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0

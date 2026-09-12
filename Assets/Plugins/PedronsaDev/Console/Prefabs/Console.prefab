@@ -1060,7 +1060,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 99
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!114 &4206203007619743085
 MonoBehaviour:
@@ -1451,7 +1451,7 @@ GameObject:
   m_Layer: 0
   m_Name: Console
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 2800000, guid: 2e212e268c2703a46888b095b34c81dd, type: 3}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -1489,8 +1489,8 @@ MonoBehaviour:
   m_Console: {fileID: 4206203007619743086}
   m_ShowApplicationLogs: 1
   m_OpenAtStart: 0
-  m_OpenUnlockCursor: 0
-  m_CloseLockCursor: 0
+  m_OpenUnlockCursor: 1
+  m_CloseLockCursor: 1
   m_InputField: {fileID: 4206203007976034151}
 --- !u!114 &4709077777290933465
 MonoBehaviour:

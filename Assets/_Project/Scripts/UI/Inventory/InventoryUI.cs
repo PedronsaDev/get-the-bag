@@ -15,7 +15,7 @@ public class InventoryUI : InputBlockerUI
 {
     [Header("References")] 
     [SerializeField] private CanvasGroup _canvasGroup;
-    [SerializeField] private GameObject _rootPanel;
+    [SerializeField] private GameObject _rootContainer;
     [SerializeField] private InventorySlotUI _inventorySlotPrefab;
     [SerializeField] private RectTransform _slotsContainer;
 
@@ -413,7 +413,7 @@ public class InventoryUI : InputBlockerUI
         if (!_canvasGroup) return;
 
         _fadeTween.Stop();
-        _rootPanel.SetActive(true);
+        _rootContainer.SetActive(true);
 
         _canvasGroup.interactable = true;
         _canvasGroup.blocksRaycasts = true;
@@ -427,9 +427,18 @@ public class InventoryUI : InputBlockerUI
 
         _fadeTween.Stop();
 
-        _fadeTween = Tween.Alpha(_canvasGroup, 1f, 0f, _fadeDuration).OnComplete(() =>
+        if (!gameObject.activeInHierarchy)
         {
-            _rootPanel.SetActive(false);
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
+            if (_rootContainer) _rootContainer.SetActive(false);
+            return;
+        }
+
+        _fadeTween = Tween.Alpha(_canvasGroup, _canvasGroup.alpha, 0f, _fadeDuration).OnComplete(() =>
+        {
+            if (_rootContainer) _rootContainer.SetActive(false);
         });
 
         _canvasGroup.interactable = false;
@@ -442,8 +451,8 @@ public class InventoryUI : InputBlockerUI
         _fadeTween.Stop();
         if (!_canvasGroup) return;
 
-        if (_rootPanel) 
-            _rootPanel.SetActive(false);
+        if (_rootContainer) 
+            _rootContainer.SetActive(false);
 
         _canvasGroup.blocksRaycasts = false;
         _canvasGroup.interactable = false;

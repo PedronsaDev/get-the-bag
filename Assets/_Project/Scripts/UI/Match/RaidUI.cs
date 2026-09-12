@@ -12,7 +12,7 @@ public class RaidUI : MonoBehaviour
 
     [Header("References")] 
     [SerializeField] private RaidEventChannel _raidEventChannel;
-    [SerializeField] private GameObject _timePanelRoot;
+    [SerializeField] private GameObject _rootContainer;
     [SerializeField] private TMP_Text _timeText;
     
     private RaidManager _raidManager;
@@ -81,9 +81,9 @@ public class RaidUI : MonoBehaviour
 
     private void UpdatePanelVisibility(RaidState state)
     {
-        if (_timePanelRoot)
+        if (_rootContainer)
         {
-            _timePanelRoot.SetActive(state is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout);
+            _rootContainer.SetActive(state is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout);
         }
     }
 

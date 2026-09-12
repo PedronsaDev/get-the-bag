@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5989353671464232403
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1146337418532499837}
+  - component: {fileID: 2327095596986091770}
+  - component: {fileID: 8918969773281417245}
+  - component: {fileID: 8529170312154827164}
+  - component: {fileID: 6024902913504090457}
+  m_Layer: 0
+  m_Name: Infiltration Zone
+  m_TagString: Untagged
+  m_Icon: {fileID: 2800000, guid: 6705029aec01ee441937f02527280a2c, type: 3}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1146337418532499837
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5989353671464232403}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2327095596986091770
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5989353671464232403}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 6.0684986, y: 4.408558, z: 4.858513}
+  m_Center: {x: 0.59525204, y: 1.7563639, z: 0.27925682}
+--- !u!114 &8918969773281417245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5989353671464232403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7ddc2add938074ca0a310995c2f427, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Core::Project.Core.Match.AreaPlayerDetector
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _playerLayer:
+    serializedVersion: 2
+    m_Bits: 384
+  _enableDebugLogs: 0
+  _startEnabled: 1
+  _requireLivingPlayersOnly: 1
+  PlayersInsideCount:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  TotalRequiredCount:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  AreAllPlayersInside:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+--- !u!114 &8529170312154827164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5989353671464232403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37484c444a8b4b747be2c03d1eaf5f4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Core::Project.Core.Match.InfilStationPlatform
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _raidEvents: {fileID: 11400000, guid: f46f0924077e3e0459992a95aa8e9673, type: 2}
+  _detector: {fileID: 8918969773281417245}
+  _countdownDuration: 5
+  CountdownRemaining:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  IsCountdownActive:
+    _value: 0
+    _ownerAuth: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+--- !u!54 &6024902913504090457
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5989353671464232403}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

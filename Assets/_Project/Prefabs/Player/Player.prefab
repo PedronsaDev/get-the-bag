@@ -100,8 +100,8 @@ MonoBehaviour:
   _interactor: {fileID: 5463135704799499700}
   _targetDetector: {fileID: -670673465751686037}
   _inventoryController: {fileID: 2094813003998146038}
-  _downedState: {fileID: 0}
-  _healthComponent: {fileID: 0}
+  _downedState: {fileID: 5771435480062743233}
+  _healthComponent: {fileID: 5744433141554505838}
   _remotePlayerLayerIndex: 8
 --- !u!114 &3432939826793728204
 MonoBehaviour:
@@ -697,7 +697,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.6
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2579901062761265217
 GameObject:

@@ -8,7 +8,7 @@ public static class LocalPlayerContext
 {
     public static PlayerFacade Player { get; private set; }
     public static bool HasLocalPlayer => Player;
-    public static Camera MainCamera = CameraRig.Instance ? CameraRig.Instance.Camera : Camera.main;
+    public static Camera MainCamera => CameraRig.Instance ? CameraRig.Instance.Camera : Camera.main;
 
     public static event Action<PlayerFacade> OnLocalPlayerSpawned;
     public static event Action<PlayerFacade> OnLocalPlayerDespawned;
@@ -24,7 +24,6 @@ public static class LocalPlayerContext
         if (Player == player)
         {
             Player = null;
-            MainCamera = null;
             OnLocalPlayerDespawned?.Invoke(player);
         }
     }

@@ -26,8 +26,14 @@ namespace Project.UI.Interaction
 
         private void Awake()
         {
-            if (_canvasGroup) _canvasGroup.alpha = 0f;
-            if (_rootContainer) _rootContainer.SetActive(false);
+            if (_canvasGroup)
+            {
+                _canvasGroup.alpha = 0f;
+                _canvasGroup.interactable = false;
+                _canvasGroup.blocksRaycasts = false;
+            }
+            if (_rootContainer && _rootContainer != gameObject && _rootContainer.activeSelf)
+                _rootContainer.SetActive(false);
         }
 
         private void OnEnable()
@@ -64,9 +70,10 @@ namespace Project.UI.Interaction
             {
                 _canvasGroup.alpha = Mathf.MoveTowards(_canvasGroup.alpha, _targetAlpha, Time.deltaTime * _fadeSpeed);
 
-                if (_rootContainer)
+                bool shouldBeActive = _canvasGroup.alpha > 0.01f;
+                if (_rootContainer && _rootContainer != gameObject && _rootContainer.activeSelf != shouldBeActive)
                 {
-                    _rootContainer.SetActive(_canvasGroup.alpha > 0.01f);
+                    _rootContainer.SetActive(shouldBeActive);
                 }
 
                 if (_canvasGroup.alpha <= 0.01f && !_hasTarget)
@@ -212,7 +219,7 @@ namespace Project.UI.Interaction
             _hasTarget = false;
             _targetAlpha = 0f;
             if (_canvasGroup) _canvasGroup.alpha = 0f;
-            if (_rootContainer) _rootContainer.SetActive(false);
+            if (_rootContainer && _rootContainer != gameObject) _rootContainer.SetActive(false);
             UnbindCurrentTarget();
         }
     }

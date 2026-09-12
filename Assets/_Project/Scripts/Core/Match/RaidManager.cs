@@ -24,7 +24,7 @@ public class RaidManager : NetworkBehaviour
     [SerializeField] private RaidEventChannel _raidEvents;
     
     [Header("Networked State")]
-    public SyncVar<RaidState> CurrentState = new(RaidState.WaitingAtPlatform);
+    public SyncVar<RaidState> CurrentState = new();
     public SyncVar<float> TimeRemaining = new(1200f);
     public SyncVar<int> StandingPlayerCount = new();
     public SyncVar<int> DownedPlayerCount = new();

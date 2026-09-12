@@ -43,7 +43,7 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
         }
 
         // Only interactable if the train is currently docked at the hub
-        if (_transitController != null && _transitController.CurrentState.value != TransitState.DockedAtHub)
+        if (_transitController && _transitController.CurrentState.value != TransitState.DockedAtHub)
         {
             return false;
         }
@@ -66,7 +66,7 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
             _transitController = FindAnyObjectByType<TrainTransitController>();
         }
 
-        if (_transitController != null && _transitController.CurrentState.value != TransitState.DockedAtHub)
+        if (_transitController && _transitController.CurrentState.value != TransitState.DockedAtHub)
         {
             return "Train in transit";
         }
@@ -83,7 +83,7 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
     {
-        if (_routeSelectionEventChannel != null)
+        if (_routeSelectionEventChannel)
         {
             _routeSelectionEventChannel.RaiseOnConsoleInteracted(this);
         }

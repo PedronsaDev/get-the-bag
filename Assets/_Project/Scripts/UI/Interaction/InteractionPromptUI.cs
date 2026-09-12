@@ -278,8 +278,17 @@ public class InteractionPromptUI : MonoBehaviour
 
     private void SetRootVisibility(bool visible)
     {
-        if (_canvasGroup) _canvasGroup.alpha = visible ? 1f : 0f;
-        if (_rootContainer) _rootContainer.SetActive(visible);
+        if (_canvasGroup)
+        {
+            _canvasGroup.alpha = visible ? 1f : 0f;
+            _canvasGroup.blocksRaycasts = visible;
+            _canvasGroup.interactable = visible;
+        }
+
+        if (_rootContainer && _rootContainer != gameObject && _rootContainer.activeSelf != visible)
+        {
+            _rootContainer.SetActive(visible);
+        }
     }
 }
 }

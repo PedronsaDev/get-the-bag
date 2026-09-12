@@ -14,7 +14,7 @@ public class RouteSelectionUI : InputBlockerUI
     [Header("References")] 
     [SerializeField] private RouteSelectionEventChannel _routeSelectionEventChannel;
     [SerializeField] private CanvasGroup _canvasGroup;
-    [SerializeField] private GameObject _rootPanel;
+    [SerializeField] private GameObject _rootContainer;
     [SerializeField] private List<RouteSelectionButtonUI> _routeButtons = new();
     [SerializeField] private Button _confirmButton;
     [SerializeField] private Button _closeButton;
@@ -67,9 +67,9 @@ public class RouteSelectionUI : InputBlockerUI
             _canvasGroup.interactable = false;
         }
 
-        if (_rootPanel)
+        if (_rootContainer)
         {
-            _rootPanel.SetActive(false);
+            _rootContainer.SetActive(false);
         }
     }
 
@@ -170,7 +170,7 @@ public class RouteSelectionUI : InputBlockerUI
         if (!_canvasGroup) return;
 
         _fadeTween.Stop();
-        if (_rootPanel) _rootPanel.SetActive(true);
+        if (_rootContainer) _rootContainer.SetActive(true);
 
         _canvasGroup.blocksRaycasts = true;
         _canvasGroup.interactable = true;
@@ -184,9 +184,18 @@ public class RouteSelectionUI : InputBlockerUI
 
         _fadeTween.Stop();
 
+        if (!gameObject.activeInHierarchy)
+        {
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.blocksRaycasts = false;
+            _canvasGroup.interactable = false;
+            if (_rootContainer) _rootContainer.SetActive(false);
+            return;
+        }
+
         _fadeTween = Tween.Alpha(_canvasGroup, _canvasGroup.alpha, 0f, _fadeDuration).OnComplete(() =>
         {
-            if (_rootPanel) _rootPanel.SetActive(false);
+            if (_rootContainer) _rootContainer.SetActive(false);
         });
 
         _canvasGroup.blocksRaycasts = false;

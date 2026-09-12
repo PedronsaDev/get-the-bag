@@ -38,6 +38,7 @@ public class RaidEventChannel : ScriptableObject
     public void RaiseInfilCompleted()
     {
         OnInfilCompleted?.Invoke();
+        Debug.Log("Infiltration completed event raised.");
     }
 }
 }

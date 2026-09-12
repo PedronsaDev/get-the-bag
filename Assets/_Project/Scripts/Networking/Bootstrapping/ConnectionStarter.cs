@@ -22,6 +22,12 @@ public class ConnectionStarter : MonoBehaviour
 
     private void Awake()
     {
+        if (NetworkManager.main && NetworkManager.main != GetComponent<NetworkManager>() && !NetworkManager.main.isOffline)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         if (!TryGetComponent(out _networkManager))
         {
             PurrLogger.LogError($"Failed to get {nameof(NetworkManager)} component.", this);
