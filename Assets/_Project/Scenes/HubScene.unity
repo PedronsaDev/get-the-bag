@@ -3294,21 +3294,6 @@ MonoBehaviour:
   _invertedPathToNearestParent: 
   _directChildren: []
   _extractionZone: {fileID: 1198810729}
-  OnInteracted:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 919132149086827375}
-        m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
-        m_MethodName: SetTrigger
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: WasPressed
-          m_BoolArgument: 0
-        m_CallState: 2
   ExtractionActivated:
     _value: 0
     _ownerAuth: 0
@@ -3323,7 +3308,7 @@ Transform:
   m_GameObject: {fileID: 1076510063}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.24211636, z: -0, w: 0.97024727}
-  m_LocalPosition: {x: -20.454004, y: 1.0948, z: -16.427137}
+  m_LocalPosition: {x: -23.57211, y: 1.0948, z: -15.90042}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3720,7 +3705,7 @@ MonoBehaviour:
     _ownerAuth: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
-  IsExtractionActivated:
+  IsActivated:
     _value: 0
     _ownerAuth: 0
     _sendIntervalInSeconds: 0

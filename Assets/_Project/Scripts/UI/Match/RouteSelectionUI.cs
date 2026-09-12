@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using PrimeTween;
 using Project.Core.Events;
@@ -80,7 +79,6 @@ public class RouteSelectionUI : InputBlockerUI
         if (_routeSelectionEventChannel)
             _routeSelectionEventChannel.OnConsoleInteracted += HandleConsoleInteracted;
 
-        Close();
         HideInstantly();
     }
 
@@ -91,7 +89,6 @@ public class RouteSelectionUI : InputBlockerUI
             _routeSelectionEventChannel.OnConsoleInteracted -= HandleConsoleInteracted;
 
         _fadeTween.Stop();
-        Close();
         HideInstantly();
     }
 
@@ -153,17 +150,7 @@ public class RouteSelectionUI : InputBlockerUI
         Hide();
         UnbindConsole();
     }
-
-    private void BindConsole(TrainRouteConsole console)
-    {
-        _console = console;
-    }
-
-    private void UnbindConsole()
-    {
-        _console = null;
-    }
-
+    
     private void Show()
     {
         if (!_canvasGroup) return;
@@ -194,14 +181,26 @@ public class RouteSelectionUI : InputBlockerUI
 
     private void HideInstantly()
     {
+        base.Close();
+        _fadeTween.Stop();
         if (!_canvasGroup) return;
 
-        _fadeTween.Stop();
-        if (_rootPanel) _rootPanel.SetActive(false);
+        if (_rootPanel) 
+            _rootPanel.SetActive(false);
 
         _canvasGroup.blocksRaycasts = false;
         _canvasGroup.interactable = false;
         _canvasGroup.alpha = 0f;
+    }
+
+    private void BindConsole(TrainRouteConsole console)
+    {
+        _console = console;
+    }
+
+    private void UnbindConsole()
+    {
+        _console = null;
     }
 }
 }

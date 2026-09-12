@@ -17,7 +17,7 @@ public class ExtractionZone : NetworkBehaviour
     [SerializeField] private float _countdownDuration = 30f;
     
     public SyncVar<float> HoldoutProgress = new();
-    public SyncVar<bool> IsExtractionActivated = new();
+    public SyncVar<bool> IsActivated = new();
     public SyncVar<bool> IsCountdownActive = new();
     public SyncVar<float> CountdownRemaining = new();
     
@@ -56,7 +56,7 @@ public class ExtractionZone : NetworkBehaviour
         if (!IsServerAuthority)
             return;
 
-        if (!IsExtractionActivated.value)
+        if (!IsActivated.value)
             return;
 
         if (_exfilTimer is { IsRunning: true })
@@ -74,10 +74,10 @@ public class ExtractionZone : NetworkBehaviour
     
     public void ActivateExtraction()
     {
-        if (IsExtractionActivated)
+        if (IsActivated)
             return;
         _detector.Activate();
-        IsExtractionActivated.value = true;
+        IsActivated.value = true;
         _exfilTimer = new CountdownTimer(_countdownDuration);
         _exfilTimer.OnTimerStop += HandleExfilTimerStop;
         IsCountdownActive.value = true;

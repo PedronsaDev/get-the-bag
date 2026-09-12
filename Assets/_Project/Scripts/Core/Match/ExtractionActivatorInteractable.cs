@@ -1,8 +1,8 @@
+using System;
 using Project.Core.Interaction;
 using Project.Core.Match.Zones;
 using PurrNet;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Project.Core.Match
 {
@@ -46,5 +46,24 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
     {
         
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if (!_extractionZone)
+        {
+            Gizmos.color = Color.yellowNice;
+            Gizmos.DrawSphere(transform.position, 2f);
+            return;
+        }
+        
+        Gizmos.color = Color.red;
+        
+        if (_extractionZone.IsActivated) 
+            Gizmos.color = Color.green;
+        
+        Gizmos.DrawLine(transform.position, _extractionZone.transform.position);
+    }
+#endif
 }
 }
