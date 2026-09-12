@@ -30,6 +30,11 @@ public class RouteSelectionUI : InputBlockerUI
 
     private void Awake()
     {
+        _registerOnEnable = false;
+
+        if (!_canvasGroup)
+            _canvasGroup = GetComponent<CanvasGroup>();
+
         if (!_routeSelectionEventChannel)
         {
             _routeSelectionEventChannel =
@@ -54,6 +59,18 @@ public class RouteSelectionUI : InputBlockerUI
             _closeButton.onClick.AddListener(Close);
 
         UpdateSelectionState();
+
+        if (_canvasGroup)
+        {
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.blocksRaycasts = false;
+            _canvasGroup.interactable = false;
+        }
+
+        if (_rootPanel)
+        {
+            _rootPanel.SetActive(false);
+        }
     }
 
     protected override void OnDestroy()
@@ -75,21 +92,18 @@ public class RouteSelectionUI : InputBlockerUI
 
     protected override void OnEnable()
     {
-        base.OnEnable();
         if (_routeSelectionEventChannel)
             _routeSelectionEventChannel.OnConsoleInteracted += HandleConsoleInteracted;
-
-        HideInstantly();
+        
+        base.OnEnable();
     }
 
     protected override void OnDisable()
     {
-        base.OnDisable();
         if (_routeSelectionEventChannel)
             _routeSelectionEventChannel.OnConsoleInteracted -= HandleConsoleInteracted;
-
-        _fadeTween.Stop();
-        HideInstantly();
+        
+        base.OnDisable();
     }
 
     private void HandleConsoleInteracted(TrainRouteConsole console)
@@ -178,21 +192,7 @@ public class RouteSelectionUI : InputBlockerUI
         _canvasGroup.blocksRaycasts = false;
         _canvasGroup.interactable = false;
     }
-
-    private void HideInstantly()
-    {
-        base.Close();
-        _fadeTween.Stop();
-        if (!_canvasGroup) return;
-
-        if (_rootPanel) 
-            _rootPanel.SetActive(false);
-
-        _canvasGroup.blocksRaycasts = false;
-        _canvasGroup.interactable = false;
-        _canvasGroup.alpha = 0f;
-    }
-
+    
     private void BindConsole(TrainRouteConsole console)
     {
         _console = console;

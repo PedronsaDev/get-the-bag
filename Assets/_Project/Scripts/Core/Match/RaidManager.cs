@@ -1,4 +1,3 @@
-using System;
 using Project.Core.Events;
 using Project.Core.Player;
 using PurrNet;
@@ -87,7 +86,7 @@ public class RaidManager : NetworkBehaviour
             return;
         }
 
-        if (CurrentState.value == RaidState.InRaid)
+        if (CurrentState.value is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout)
         {
             TimeRemaining.value -= Time.deltaTime;
             EvaluatePlayerStatuses();
@@ -129,7 +128,7 @@ public class RaidManager : NetworkBehaviour
         DownedPlayerCount.value = downed;
         DeadPlayerCount.value = dead;
 
-        if (activePlayers.Count > 0 && standing == 0 && CurrentState.value == RaidState.InRaid)
+        if (activePlayers.Count > 0 && standing == 0 && CurrentState.value is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout)
         {
             TriggerTeamWipe();
         }

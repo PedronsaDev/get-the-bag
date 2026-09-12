@@ -61,7 +61,7 @@ namespace Project.Core.Match
             }
             else if (Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(transform.root.gameObject);
                 return;
             }
 
@@ -75,6 +75,7 @@ namespace Project.Core.Match
         {
             base.OnSpawned();
             DontDestroyOnLoad(transform.root.gameObject);
+            HandleStateChanged(CurrentState.value);
         }
 
         protected override void OnDestroy()

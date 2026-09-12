@@ -185,7 +185,7 @@ PrefabInstance:
       objectReference: {fileID: 2800000, guid: 2e212e268c2703a46888b095b34c81dd, type: 3}
     - target: {fileID: 4206203008439415999, guid: 0b078c25882fbb14b82fafdec9f46193, type: 3}
       propertyPath: m_Name
-      value: '[UI] Console'
+      value: Debug Console
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2734,7 +2734,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd0176efa9bbd24a910f479e30b8c18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.UI::Project.UI.Match.RouteSelectionUI
-  _blockerId: Route
+  _blockerId: RouteSelection
   _blocksMovement: 1
   _blocksLook: 1
   _blocksActions: 1
@@ -2749,7 +2749,7 @@ MonoBehaviour:
   OnClosed:
     m_PersistentCalls:
       m_Calls: []
-  _routeSelectionEventChannel: {fileID: 0}
+  _routeSelectionEventChannel: {fileID: 11400000, guid: ea825e8901d08b84192b8726f30e1e0e, type: 2}
   _canvasGroup: {fileID: 870932624}
   _rootPanel: {fileID: 1791781244}
   _routeButtons:
@@ -3135,8 +3135,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 6.0684986, y: 4.408558, z: 4.858513}
+  m_Center: {x: 0.59525204, y: 1.7563639, z: 0.27925682}
 --- !u!4 &974180233
 Transform:
   m_ObjectHideFlags: 0
@@ -3146,8 +3146,8 @@ Transform:
   m_GameObject: {fileID: 974180231}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.15145111, y: 2.5, z: -17.463451}
-  m_LocalScale: {x: 6.3467, y: 4.2028, z: 5.7059}
+  m_LocalPosition: {x: -5.5, y: 0.5, z: -15}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3212,6 +3212,7 @@ MonoBehaviour:
     m_Bits: 384
   _enableDebugLogs: 0
   _startEnabled: 1
+  _requireLivingPlayersOnly: 1
   PlayersInsideCount:
     _value: 0
     _ownerAuth: 0
@@ -3650,8 +3651,8 @@ Transform:
   m_GameObject: {fileID: 1198810726}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.5, y: 3, z: -17}
-  m_LocalScale: {x: 5.1896, y: 5.1896, z: 5.1896}
+  m_LocalPosition: {x: -13.5, y: 0.5, z: -14.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3671,12 +3672,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 5, y: 3.8381393, z: 5}
+  m_Center: {x: 0, y: 1.4190701, z: 0}
 --- !u!114 &1198810729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3746,6 +3747,7 @@ MonoBehaviour:
     m_Bits: 384
   _enableDebugLogs: 0
   _startEnabled: 0
+  _requireLivingPlayersOnly: 1
   PlayersInsideCount:
     _value: 0
     _ownerAuth: 0
@@ -5648,13 +5650,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1953646648}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.39794862, y: 0, z: 0, w: 0.91740775}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.38268343, y: 0, z: 0, w: 0.92387956}
+  m_LocalPosition: {x: -0.000000029802322, y: 0, z: -0.00000011920929}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1076510065}
-  m_LocalEulerAnglesHint: {x: -46.9, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -45, y: 0, z: 0}
 --- !u!65 &1953646650
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5674,7 +5676,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.89, y: 1.89, z: 1}
+  m_Size: {x: 1.9391098, y: 2.3086982, z: 1.1454189}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1966769089
 GameObject:
@@ -5948,7 +5950,7 @@ GameObject:
   m_Layer: 15
   m_Name: Train Route Console
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -6009,7 +6011,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _routeSelectionEventChannel: {fileID: 0}
+  _routeSelectionEventChannel: {fileID: 11400000, guid: ea825e8901d08b84192b8726f30e1e0e, type: 2}
   _transitController: {fileID: 1748027398}
 --- !u!1 &2058507364
 GameObject:

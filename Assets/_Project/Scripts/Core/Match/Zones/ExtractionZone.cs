@@ -74,14 +74,30 @@ public class ExtractionZone : NetworkBehaviour
     
     public void ActivateExtraction()
     {
-        if (IsActivated)
+        if (IsActivated.value)
             return;
+
         _detector.Activate();
         IsActivated.value = true;
-        _exfilTimer = new CountdownTimer(_countdownDuration);
-        _exfilTimer.OnTimerStop += HandleExfilTimerStop;
+
+        if (_exfilTimer == null)
+        {
+            _exfilTimer = new CountdownTimer(_countdownDuration);
+            _exfilTimer.OnTimerStop += HandleExfilTimerStop;
+        }
+        else
+        {
+            _exfilTimer.Reset(_countdownDuration);
+        }
+
         IsCountdownActive.value = true;
+        CountdownRemaining.value = _countdownDuration;
         _exfilTimer.Start();
+
+        if (RaidManager.Instance)
+        {
+            RaidManager.Instance.ChangeState(RaidState.ExtractionHoldout);
+        }
         
         OnExtractionActivated?.Invoke();
     }
@@ -134,10 +150,17 @@ public class ExtractionZone : NetworkBehaviour
 
         if (RaidManager.Instance)
         {
-            RaidManager.Instance.ChangeState(RaidState.Completed);
+            if (extractedPlayers.Count > 0)
+            {
+                RaidManager.Instance.ChangeState(RaidState.Completed);
+            }
+            else
+            {
+                RaidManager.Instance.ChangeState(RaidState.Failed);
+            }
         }
 
-        Debug.Log("[ExfilZone] Exfil countdown complete! Players in the exfil zone got extracted.");
+        Debug.Log($"[ExfilZone] Exfil countdown complete. {extractedPlayers.Count} extracted, {leftBehindPlayers.Count} left behind.");
     }
 
     private void ApplyExtractionToPlayerServer(PlayerID playerID)

@@ -1,0 +1,16 @@
+{
+    "name": "Project.Tools.ColliderStudio.Editor",
+    "rootNamespace": "Project.Tools.ColliderStudio.Editor",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

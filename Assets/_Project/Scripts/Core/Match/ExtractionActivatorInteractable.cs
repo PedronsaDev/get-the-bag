@@ -21,6 +21,18 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
     public InteractionMode Mode => InteractionMode.Instant;
     public float HoldDuration { get; }
     
+    private bool IsServerAuthority =>
+        isServer || (NetworkManager.main && NetworkManager.main.isServer) ||
+        (!NetworkManager.main || NetworkManager.main.isOffline);
+
+    private void Awake()
+    {
+        if (!_extractionZone)
+        {
+            _extractionZone = FindAnyObjectByType<ExtractionZone>();
+        }
+    }
+
     public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
         return !ExtractionActivated.value;
@@ -33,8 +45,45 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
     {
-        _extractionZone.ActivateExtraction();
+        if (ExtractionActivated.value)
+            return;
+
+        if (IsServerAuthority)
+        {
+            TriggerActivationServer();
+        }
+        else
+        {
+            RpcRequestActivateExtraction();
+        }
+    }
+
+    [ServerRpc(requireOwnership: false)]
+    private void RpcRequestActivateExtraction(RPCInfo info = default)
+    {
+        TriggerActivationServer();
+    }
+
+    private void TriggerActivationServer()
+    {
+        if (ExtractionActivated.value)
+            return;
+
         ExtractionActivated.value = true;
+
+        if (!_extractionZone)
+        {
+            _extractionZone = FindAnyObjectByType<ExtractionZone>();
+        }
+
+        if (_extractionZone)
+        {
+            _extractionZone.ActivateExtraction();
+        }
+        else
+        {
+            Debug.LogError($"[{nameof(ExtractionActivatorInteractable)}] ExtractionZone not found in scene!", this);
+        }
     }
 
     public void OnHoverEnter(IPlayerInteractor interactor)

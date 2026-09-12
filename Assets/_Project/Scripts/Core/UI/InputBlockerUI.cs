@@ -35,7 +35,7 @@ namespace Project.Core.UI
 
         [Header("Lifecycle Options")]
         [Tooltip("If true, automatically registers with UIBlockerSystem when this component is enabled in the scene.")]
-        [SerializeField] private bool _registerOnEnable = true;
+        [SerializeField] protected bool _registerOnEnable = true;
 
         [Tooltip("If true, automatically unregisters with UIBlockerSystem when this component is disabled.")]
         [SerializeField] private bool _unregisterOnDisable = true;

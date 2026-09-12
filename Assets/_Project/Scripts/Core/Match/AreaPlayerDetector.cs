@@ -14,12 +14,13 @@ public class AreaPlayerDetector : NetworkBehaviour
     [SerializeField] private LayerMask _playerLayer;
     [SerializeField] private bool _enableDebugLogs = false;
     [SerializeField] private bool _startEnabled = true;
+    [SerializeField] private bool _requireLivingPlayersOnly = true;
 
     private readonly Dictionary<Collider, PlayerID> _colliderToPlayer = new();
 
     private readonly Dictionary<PlayerID, HashSet<Collider>> _playerColliders = new();
 
-    private readonly Collider[] _overlapBuffer = new Collider[32];
+    private readonly Collider[] _overlapBuffer = new Collider[64];
     private readonly HashSet<Collider> _currentScanColliders = new();
     private readonly List<Collider> _collidersToRemove = new();
 
@@ -237,20 +238,15 @@ public class AreaPlayerDetector : NetworkBehaviour
             return true;
         }
 
-        if (NetworkManager.main)
+        // Offline singleplayer fallback only
+        if (!NetworkManager.main || NetworkManager.main.isOffline)
         {
             if (playerIdentifier || identity || other.CompareTag("Player") ||
                 other.transform.root.name.Contains("Player"))
             {
-                playerId = NetworkManager.main.localPlayer;
+                playerId = PurrNet.PlayerID.Server;
                 return true;
             }
-        }
-
-        if (playerIdentifier || identity || other.CompareTag("Player") || other.transform.root.name.Contains("Player"))
-        {
-            playerId = PurrNet.PlayerID.Server;
-            return true;
         }
 
         return false;
@@ -318,6 +314,26 @@ public class AreaPlayerDetector : NetworkBehaviour
     {
         if (!NetworkManager.main || NetworkManager.main.isOffline)
             return 1;
+
+        if (_requireLivingPlayersOnly)
+        {
+            var activePlayers = PlayerIdentifier.ActivePlayers;
+            if (activePlayers != null && activePlayers.Count > 0)
+            {
+                int livingCount = 0;
+                for (int i = 0; i < activePlayers.Count; i++)
+                {
+                    var p = activePlayers[i];
+                    if (p && !p.IsDead)
+                    {
+                        livingCount++;
+                    }
+                }
+
+                if (livingCount > 0)
+                    return livingCount;
+            }
+        }
 
         var playerModule = (networkManager ? networkManager.playerModule : null)
                            ?? NetworkManager.main.playerModule;
