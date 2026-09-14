@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Project.Networking.Scenes;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -15,16 +16,12 @@ public enum TransitState
     Arrived
 }
 
-/// <summary>
-/// Server-authoritative train transit controller.
-/// Coordinates departure sequences, audio/visual rumble effects, lockstep map loading, and station arrival.
-/// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
 [DisallowMultipleComponent]
 public class TrainTransitController : NetworkBehaviour
 {
     public static TrainTransitController Instance { get; private set; }
-
+    
     [Header("References")] 
     [SerializeField] private TransitionEventChannel _transitionEvents;
     
@@ -33,10 +30,6 @@ public class TrainTransitController : NetworkBehaviour
     [Header("Timing Settings")]
     [SerializeField] private float _departureDuration = 4.0f;
     [SerializeField] private float _arrivalDuration = 4.0f;
-
-    [Header("Doors & Animators")] 
-    [SerializeField] private Animator _doorAnimator;
-    [SerializeField] private string _doorOpenBoolName = "IsOpen";
 
     [Header("VFX & Environment")] 
     [SerializeField] private GameObject _inTransitVFX;
@@ -64,9 +57,6 @@ public class TrainTransitController : NetworkBehaviour
             return;
         }
 
-        if (!_doorAnimator)
-            _doorAnimator = GetComponentInChildren<Animator>();
-
         CurrentState.onChanged += HandleStateChanged;
     }
 
@@ -92,7 +82,7 @@ public class TrainTransitController : NetworkBehaviour
     {
         if (_isTransitInProgress)
         {
-            Debug.LogWarning($"[{nameof(TrainTransitController)}] Transit already in progress!", this);
+            AppLog.LogWarning(LogChannel.Match, "Transit already in progress!", this);
             return;
         }
 
@@ -100,7 +90,7 @@ public class TrainTransitController : NetworkBehaviour
         bool isCurrentHost = isServer || (NetworkManager.main && NetworkManager.main.isServer);
         if (!isCurrentHost && !isOffline)
         {
-            Debug.LogWarning($"[{nameof(TrainTransitController)}] Only the server/host can trigger transit!", this);
+            AppLog.LogWarning(LogChannel.Match, "Only the server/host can trigger transit!", this);
             return;
         }
 
@@ -111,7 +101,7 @@ public class TrainTransitController : NetworkBehaviour
 
     private async UniTaskVoid StartTransitRoutine()
     {
-        Debug.Log($"[{nameof(TrainTransitController)}] Beginning departure sequence to '{_targetSceneName}'...");
+        AppLog.Log(LogChannel.Match, $"Beginning departure sequence to '{_targetSceneName}'...", this);
 
         ChangeState(TransitState.Departing);
         await UniTask.Delay(TimeSpan.FromSeconds(_departureDuration));
@@ -120,14 +110,12 @@ public class TrainTransitController : NetworkBehaviour
 
         if (NetworkSceneCoordinator.Instance)
         {
-            Debug.Log(
-                $"[{nameof(TrainTransitController)}] Transitioning scene via NetworkSceneCoordinator: {_targetSceneName}");
+            AppLog.Log(LogChannel.Match, $"Transitioning scene via NetworkSceneCoordinator: {_targetSceneName}", this);
             await NetworkSceneCoordinator.Instance.TransitionToSceneAsync(_targetSceneName);
         }
         else
         {
-            Debug.LogWarning(
-                $"[{nameof(TrainTransitController)}] NetworkSceneCoordinator not found. Falling back to SceneManager.LoadSceneAsync.");
+            AppLog.LogWarning(LogChannel.Match, "NetworkSceneCoordinator not found. Falling back to SceneManager.LoadSceneAsync.", this);
             await UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(_targetSceneName);
         }
 
@@ -139,7 +127,7 @@ public class TrainTransitController : NetworkBehaviour
         ChangeState(TransitState.Arrived);
         _isTransitInProgress = false;
 
-        Debug.Log($"[{nameof(TrainTransitController)}] Train has arrived at station. Infil ready!");
+        AppLog.Log(LogChannel.Match, "Train has arrived at station. Infil ready!", this);
     }
 
     private void ChangeState(TransitState newState)
@@ -161,7 +149,7 @@ public class TrainTransitController : NetworkBehaviour
 
     private void HandleStateChanged(TransitState newState)
     {
-        Debug.Log($"[{nameof(TrainTransitController)}] Transit state changed to: {newState}");
+        AppLog.Log(LogChannel.Match, $"Transit state changed to: {newState}", this);
         OnTransitStateChanged?.Invoke(newState);
 
         switch (newState)
@@ -197,11 +185,6 @@ public class TrainTransitController : NetworkBehaviour
 
     private void SetDoorsOpen(bool open)
     {
-        if (_doorAnimator && !string.IsNullOrEmpty(_doorOpenBoolName))
-        {
-            _doorAnimator.SetBool(_doorOpenBoolName, open);
-        }
-
         if (open)
         {
             OnDoorsOpened?.Invoke();

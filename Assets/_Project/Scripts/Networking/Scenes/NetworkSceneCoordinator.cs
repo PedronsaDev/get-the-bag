@@ -6,6 +6,7 @@ using PurrNet;
 using PurrNet.Modules;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Project.Logging;
 
 namespace Project.Networking.Scenes
 {
@@ -87,13 +88,13 @@ namespace Project.Networking.Scenes
             bool isOffline = !networkManager || networkManager.isOffline;
             if (!isServer && !isOffline)
             {
-                Debug.LogWarning($"[{nameof(NetworkSceneCoordinator)}] Only the Host can initiate scene transitions!", this);
+                AppLog.LogWarning(LogChannel.Network, "Only the Host can initiate scene transitions!", this);
                 return;
             }
 
             if (_isTransitioning)
             {
-                Debug.LogWarning($"[{nameof(NetworkSceneCoordinator)}] Scene transition already in progress.", this);
+                AppLog.LogWarning(LogChannel.Network, "Scene transition already in progress.", this);
                 return;
             }
 
@@ -127,7 +128,7 @@ namespace Project.Networking.Scenes
             _isTransitioning = true;
             _readyClients.Clear();
 
-            Debug.Log($"[{nameof(NetworkSceneCoordinator)}] Host initiating PurrNet transition to scene: {sceneName}");
+            AppLog.Log(LogChannel.Network, $"Host initiating PurrNet transition to scene: {sceneName}", this);
             OnSceneTransitionStarted?.Invoke(sceneName);
 
             // Notify all clients to display transition screens/VFX
@@ -149,7 +150,7 @@ namespace Project.Networking.Scenes
             }
             else
             {
-                Debug.LogError($"[{nameof(NetworkSceneCoordinator)}] Failed to initiate PurrNet scene load for {sceneName}!");
+                AppLog.LogError(LogChannel.Network, $"Failed to initiate PurrNet scene load for {sceneName}!", this);
                 _isTransitioning = false;
                 ucs.TrySetResult();
             }
@@ -158,7 +159,7 @@ namespace Project.Networking.Scenes
         [ObserversRpc(runLocally: false)]
         private void RpcInstructTransitionStarted(string sceneName)
         {
-            Debug.Log($"[{nameof(NetworkSceneCoordinator)}] Received scene transition notice from Host: {sceneName}");
+            AppLog.Log(LogChannel.Network, $"Received scene transition notice from Host: {sceneName}", this);
             _isTransitioning = true;
             OnSceneTransitionStarted?.Invoke(sceneName);
             StartCoroutine(TrackClientLoadProgress(sceneName));
@@ -173,7 +174,7 @@ namespace Project.Networking.Scenes
             }
 
             OnLocalLoadProgress?.Invoke(1f);
-            Debug.Log($"[{nameof(NetworkSceneCoordinator)}] Local scene load completed via PurrNet.");
+            AppLog.Log(LogChannel.Network, "Local scene load completed via PurrNet.", this);
         }
 
         private IEnumerator TrackClientLoadProgress(string targetSceneName)
@@ -224,7 +225,7 @@ namespace Project.Networking.Scenes
             var nm = networkManager ? networkManager : NetworkManager.main;
             int totalPlayers = (nm && nm.playerModule != null) ? nm.playerModule.players.Count : 1;
 
-            Debug.Log($"[{nameof(NetworkSceneCoordinator)}] Player {player} loaded target scene. ({_readyClients.Count}/{totalPlayers})");
+            AppLog.Log(LogChannel.Network, $"Player {player} loaded target scene. ({_readyClients.Count}/{totalPlayers})", this);
 
             if (_readyClients.Count >= totalPlayers)
             {
@@ -240,7 +241,7 @@ namespace Project.Networking.Scenes
 
             _isTransitioning = false;
             Scene activeScene = SceneManager.GetActiveScene();
-            Debug.Log($"[{nameof(NetworkSceneCoordinator)}] All players loaded scene '{activeScene.name}'. Transition complete.");
+            AppLog.Log(LogChannel.Network, $"All players loaded scene '{activeScene.name}'. Transition complete.", this);
 
             OnAllClientsLoadedScene?.Invoke(activeScene);
             OnAllClientsReady?.Invoke();
@@ -251,7 +252,7 @@ namespace Project.Networking.Scenes
             var asyncOp = SceneManager.LoadSceneAsync(sceneName);
             if (asyncOp == null)
             {
-                Debug.LogError($"[{nameof(NetworkSceneCoordinator)}] Failed to load scene offline: {sceneName}!");
+                AppLog.LogError(LogChannel.Network, $"Failed to load scene offline: {sceneName}!", this);
                 _isTransitioning = false;
                 OnAllClientsReady?.Invoke();
                 yield break;

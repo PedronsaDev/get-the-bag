@@ -2561,7 +2561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lobbyManager: {fileID: 1097043115}
-  nextScene: HubScene
+  nextScene: Scene_Hub
   subscribeToOnAllReady: 1
 --- !u!1 &1101296062
 GameObject:

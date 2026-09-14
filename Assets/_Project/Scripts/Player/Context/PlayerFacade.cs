@@ -17,7 +17,6 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private LocomotionController _locomotionController;
     [SerializeField] private PlayerInteractor _interactor;
     [SerializeField] private PlayerTargetDetector _targetDetector;
-    [FormerlySerializedAs("_inventory")]
     [SerializeField] private PlayerInventoryController _inventoryController;
     [SerializeField] private Project.Player.Locomotion.PlayerDownedState _downedState;
     [SerializeField] private Project.Combat.HealthComponent _healthComponent;

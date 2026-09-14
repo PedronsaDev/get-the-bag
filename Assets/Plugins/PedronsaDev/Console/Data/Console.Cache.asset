@@ -540,6 +540,150 @@ MonoBehaviour:
       Parameters:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: log_all
+    Description: Enables or disables all logging channels at once
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetAllChannels
+      Parameters:
+      - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: log_channels
+    Description: Lists all logging channels and their current active status
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases:
+    - log_list
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ListChannels
+      Parameters: []
+      Flags: 24
+  - Name: log_disable
+    Description: Disables a specific logging channel
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases:
+    - log_off
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DisableChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_enable
+    Description: Enables a specific logging channel
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases:
+    - log_on
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: EnableChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_level
+    Description: Sets minimum severity threshold (Verbose, Info, Warning, Error)
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogLevel
+      Parameters:
+      - Data: 006050726f6a6563742e4c6f6767696e672e4c6f674c6576656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_list
+    Description: (Alias for log_channels) Lists all logging channels and their current active status
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ListChannels
+      Parameters: []
+      Flags: 24
+  - Name: log_off
+    Description: (Alias for log_disable) Disables a specific logging channel
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DisableChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_on
+    Description: (Alias for log_enable) Enables a specific logging channel
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: EnableChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_reset
+    Description: Resets all logging channels and thresholds to defaults
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ResetToDefaults
+      Parameters: []
+      Flags: 24
+  - Name: log_t
+    Description: (Alias for log_toggle) Toggles a specific logging channel on or off (e.g. 'log_toggle Network')
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_toggle
+    Description: Toggles a specific logging channel on or off (e.g. 'log_toggle Network')
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases:
+    - log_t
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
   - Name: net
     Description: (Alias for net_status) Displays current network session status, latency, and role
     TargetType: 0

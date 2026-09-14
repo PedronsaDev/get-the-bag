@@ -1,5 +1,6 @@
 using Project.Core.Events;
 using Project.Core.Interaction;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -121,8 +122,7 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
         {
             if (info.sender != networkManager.localPlayer)
             {
-                Debug.LogWarning(
-                    $"[{nameof(TrainRouteConsole)}] Non-host player {info.sender} attempted to launch route.");
+                AppLog.LogWarning(LogChannel.Match, $"{nameof(TrainRouteConsole)}: Non-host player {info.sender} attempted to launch route.", this);
                 return;
             }
         }
@@ -132,8 +132,6 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
 
     private void LaunchRouteInternal(string routeSceneName)
     {
-        Debug.Log($"[{nameof(TrainRouteConsole)}] Launching route to scene: '{routeSceneName}'");
-
         if (!_transitController)
         {
             _transitController = FindAnyObjectByType<TrainTransitController>();
@@ -145,8 +143,7 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
         }
         else
         {
-            Debug.LogError(
-                $"[{nameof(TrainRouteConsole)}] TrainTransitController not found in scene! Cannot launch route.", this);
+            AppLog.LogError(LogChannel.Match, "TrainTransitController not found in scene! Cannot launch route.", this);
         }
     }
 }

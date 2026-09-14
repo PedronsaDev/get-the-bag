@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6f961ea547ac8b42b9e36f8b90f5297, type: 3}
+  m_Name: LogSettings
+  m_EditorClassIdentifier: Project.Logging::Project.Logging.LogSettings
+  _enabledChannels: -1
+  _minimumLogLevel: 1
+  _alwaysPassWarningsAndErrors: 1
+  _enableRichTextColor: 1
+  _includeFrameCount: 0
+  _colorGeneral: '#94A3B8'
+  _colorNetwork: '#38BDF8'
+  _colorMatch: '#FBBF24'
+  _colorCombat: '#F43F5E'
+  _colorPlayer: '#4ADE80'
+  _colorAI: '#A855F7'
+  _colorUI: '#818CF8'
+  _colorPersistence: '#FB923C'
+  _colorAudio: '#E879F9'

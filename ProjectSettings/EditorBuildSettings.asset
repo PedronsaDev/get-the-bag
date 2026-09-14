@@ -6,13 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Project/Scenes/SCN_Lobby.unity
+    path: Assets/_Project/Scenes/Scene_Lobby.unity
     guid: aa70f97a29085ca4d87f13d3918c758b
   - enabled: 1
-    path: Assets/_Project/Scenes/SCN_Hub.unity
+    path: Assets/_Project/Scenes/Scene_Hub.unity
     guid: 2ee9169da8a1edf479c749042f09063d
   - enabled: 1
-    path: Assets/_Project/Scenes/SCN_DeepShafts.unity
+    path: Assets/_Project/Scenes/Scene_DeepShafts.unity
     guid: 2550176f2146dcd4185ebb1de3cc8d25
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

@@ -10,20 +10,17 @@ namespace Project.Combat.Props
 /// </summary>
 public class DestructibleProp : NetworkBehaviour, IDamageable
 {
-    [Header("Durability")] [SerializeField]
-    private float _maxHealth = 40f;
-
+    [Header("Durability")] 
+    [SerializeField] private float _maxHealth = 40f;
     [SerializeField] private SyncVar<float> _currentHealth = new(40f);
 
-    [Header("Destruction Effects")] [SerializeField]
-    private GameObject _debrisPrefab;
-
+    [Header("Destruction Effects")] 
+    [SerializeField] private GameObject _debrisPrefab;
     [SerializeField] private GameObject _explosionVfxPrefab;
     [SerializeField] private AudioClip _destructionAudio;
 
-    [Header("Explosive Attributes")] [SerializeField]
-    private bool _isExplosive = false;
-
+    [Header("Explosive Attributes")] 
+    [SerializeField] private bool _isExplosive = false;
     [SerializeField] private float _explosionRadius = 4.5f;
     [SerializeField] private float _explosionDamage = 80f;
     [SerializeField] private float _explosionForce = 600f;
@@ -35,7 +32,7 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
 
     protected override void OnSpawned()
     {
-        if (NetworkManager.main == null || isServer)
+        if (!NetworkManager.main || isServer)
         {
             _currentHealth.value = _maxHealth;
             _isDestroyed = false;
@@ -180,11 +177,11 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
             c.enabled = false;
 
         // Despawn or destroy object
-        if (NetworkManager.main != null && isServer)
+        if (NetworkManager.main && isServer)
         {
             Despawn();
         }
-        else if (NetworkManager.main == null)
+        else if (!NetworkManager.main)
         {
             Destroy(gameObject, 0.2f);
         }

@@ -26,9 +26,10 @@ namespace Project.Player
 
         [Header("References")]
         [SerializeField] private Transform _pitchPivot;
+        [SerializeField] private Transform _cameraTargetPoint;
         [SerializeField] private PlayerFacade _playerFacade;
         
-        private Camera _cam;
+        private UnityEngine.Camera _cam;
         
         private float _currentPitch;
         private float _currentYaw;
@@ -54,9 +55,9 @@ namespace Project.Player
 
             _currentYaw = transform.eulerAngles.y;
 
-            if (CameraRig.Instance && _pitchPivot)
+            if (CameraRig.Instance && _cameraTargetPoint)
             {
-                CameraRig.Instance.Follow(_pitchPivot);
+                CameraRig.Instance.Follow(_cameraTargetPoint);
                 _cam = CameraRig.Instance.Camera;
             }
         }

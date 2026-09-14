@@ -1,0 +1,43 @@
+using UnityEngine;
+
+namespace Project.Player
+{
+public class CameraTiltController : MonoBehaviour
+{
+    [Header("Settings")]
+    [Header("Procedural Tilt")]
+    [SerializeField] private float _strafeTilt = 1.5f;
+    [SerializeField] private float _slideTilt = -4.5f;
+    [SerializeField] private float _tiltSmoothness = 8f;
+    
+    [Header("References")]
+    [SerializeField] private Transform _tiltPivot;
+    [SerializeField] private LocomotionController _locomotionController;
+    [SerializeField] private PlayerFacade _playerFacade;
+    
+    private float _currentTilt;
+
+    private void Update()
+    {
+        float dt = Time.deltaTime;
+        HandleTilt(dt);
+        ApplyTransforms(dt);
+    }
+
+    private void HandleTilt(float dt)
+    {
+        float targetRoll = 0f;
+        if (_locomotionController.State.IsSliding)
+            targetRoll = _slideTilt;
+        else if (_locomotionController.State.Phase == LocomotionPhase.Grounded)
+            targetRoll = -_playerFacade.CurrentInput.MoveVector.x * _strafeTilt;
+
+        _currentTilt = Mathf.Lerp(_currentTilt, targetRoll, dt * _tiltSmoothness);
+    }
+
+    private void ApplyTransforms(float dt)
+    {
+        _tiltPivot.localRotation = Quaternion.Euler(0f, 0f, _currentTilt);
+    }
+}
+}

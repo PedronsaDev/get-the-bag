@@ -719,7 +719,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d174378df5e4078a7496e5dfe6ab8d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.UI::Project.UI.Match.RouteSelectionButtonUI
-  _routeSceneName: SCN_DeepShafts
+  _routeSceneName: Scene_DeepShafts
   _routeDisplayName: 'Sector 01: Deep Shafts'
   _hazardLevel: Hazard 1
   _selectionHighlight: {fileID: 0}
@@ -2455,7 +2455,7 @@ MonoBehaviour:
   _rootContainer: {fileID: 396175503883547222}
   _canvasGroup: {fileID: 161033391576639050}
   _transitionEvents: {fileID: 11400000, guid: 9c8bd6314f3d828419bac70a03bbb035, type: 2}
-  _fadeDuration: 3
+  _fadeDuration: 1
 --- !u!225 &161033391576639050
 CanvasGroup:
   m_ObjectHideFlags: 0

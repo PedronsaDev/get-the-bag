@@ -143,13 +143,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8177404}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 3, y: 2.5, z: 7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1079718875}
-  m_Father: {fileID: 0}
+  - {fileID: 1078924147}
+  m_Father: {fileID: 1530416338}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &30917719
 PrefabInstance:
@@ -701,6 +702,7 @@ MonoBehaviour:
   _maxConnections: 100
   _address: 127.0.0.1
   _timeoutInSeconds: 5
+  _useNativeSockets: 1
   _networkSimulation:
     includeInBuild: 0
     simulateLatency: 0
@@ -775,6 +777,8 @@ MonoBehaviour:
     maxLatency: 100
     simulatePacketLoss: 0
     packetLossChance: 10
+  _useWebRtcP2P: 0
+  _webRtcStunServer: stun:stun.cloudflare.com:3478
 --- !u!114 &459383420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -814,7 +818,7 @@ Transform:
   m_GameObject: {fileID: 529410602}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.67, y: 0.5, z: 6.72}
+  m_LocalPosition: {x: 2.17, y: 0.5, z: -4.28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -853,6 +857,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -898,7 +904,7 @@ Transform:
   m_GameObject: {fileID: 612792256}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.48, y: 0.5, z: 6.46}
+  m_LocalPosition: {x: 7.9799995, y: 0.5, z: -4.54}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -978,12 +984,74 @@ Transform:
   m_GameObject: {fileID: 922745217}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4700003, y: 0.5, z: 6.4}
+  m_LocalPosition: {x: -3.0299997, y: 0.5, z: -4.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1329466816}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1078924146
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8177405}
+    m_Modifications:
+    - target: {fileID: 2058102808113527370, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_Name
+      value: Train Door
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.182
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.010999918
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.1669998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+--- !u!4 &1078924147 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4341877644153676829, guid: 2d8c8c82a2f9c744a985027328e7c816, type: 3}
+  m_PrefabInstance: {fileID: 1078924146}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1079718874
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1206,7 +1274,7 @@ Transform:
   m_GameObject: {fileID: 1361431627}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.65, y: 0.5, z: 7.93}
+  m_LocalPosition: {x: -10.15, y: 0.5, z: -3.0700002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1245,6 +1313,7 @@ Transform:
   - {fileID: 1589572312}
   - {fileID: 410087041}
   - {fileID: 832575519}
+  - {fileID: 8177405}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1530416339
@@ -1487,6 +1556,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -1496,12 +1567,11 @@ MonoBehaviour:
   CurrentState:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   _departureDuration: 4
   _arrivalDuration: 4
-  _doorAnimator: {fileID: 0}
-  _doorOpenBoolName: IsOpen
   _inTransitVFX: {fileID: 0}
 --- !u!4 &1748027399
 Transform:
@@ -1871,6 +1941,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -1892,5 +1964,4 @@ SceneRoots:
   - {fileID: 1771035277}
   - {fileID: 1748027399}
   - {fileID: 2012273790}
-  - {fileID: 8177405}
   - {fileID: 1981119723}

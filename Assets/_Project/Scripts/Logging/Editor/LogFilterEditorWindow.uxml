@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:VisualElement class="log-window-root">
+        <ui:VisualElement class="header-container">
+            <ui:Label text="Log Channel Filter" class="window-title" />
+            <ui:Label text="Configure active subsystem logging streams in real time." class="window-subtitle" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="toolbar-container">
+            <ui:Button name="btn-enable-all" text="Enable All" class="toolbar-btn" />
+            <ui:Button name="btn-disable-all" text="Disable All" class="toolbar-btn" />
+            <ui:Button name="btn-reset" text="Reset" class="toolbar-btn" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="section-container">
+            <ui:Label text="General Thresholds" class="section-header" />
+            <ui:DropdownField name="dropdown-log-level" label="Minimum Level" />
+            <ui:Toggle name="toggle-pass-errors" label="Always Pass Warnings/Errors" value="true" />
+            <ui:Toggle name="toggle-rich-text" label="Colored Console Badges" value="true" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="section-container" style="flex-grow: 1;">
+            <ui:Label text="Subsystem Channels" class="section-header" />
+            <ui:ScrollView name="channels-scroll-view" class="channel-list-scroll" />
+        </ui:VisualElement>
+
+        <ui:Label text="Changes update LogSettings.asset and live Play Mode sessions immediately." class="footer-info" />
+    </ui:VisualElement>
+</ui:UXML>
