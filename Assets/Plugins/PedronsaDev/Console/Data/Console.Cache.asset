@@ -540,6 +540,32 @@ MonoBehaviour:
       Parameters:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: loco_gizmos
+    Description: '(Alias for movement_gizmos) Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleGizmos
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: loco_status
+    Description: '(Alias for movement_status) Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: MovementStatus
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
   - Name: log_all
     Description: Enables or disables all logging channels at once
     TargetType: 0
@@ -683,6 +709,62 @@ MonoBehaviour:
       MethodName: ToggleChannel
       Parameters:
       - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: mgizmos
+    Description: '(Alias for movement_gizmos) Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleGizmos
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: movement_gizmos
+    Description: 'Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases:
+    - loco_gizmos
+    - mgizmos
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleGizmos
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: movement_status
+    Description: 'Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases:
+    - loco_status
+    - mstatus
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: MovementStatus
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: mstatus
+    Description: '(Alias for movement_status) Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: MovementStatus
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
   - Name: net
     Description: (Alias for net_status) Displays current network session status, latency, and role

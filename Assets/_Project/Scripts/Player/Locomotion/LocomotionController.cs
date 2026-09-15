@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using KinematicCharacterController;
 using PurrNet;
 using UnityEngine;
+using UnityPhysics = UnityEngine.Physics;
 
 public struct PlayerCharacterInputs
 {
@@ -356,12 +357,32 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [SerializeField] private float _downedCapsuleHeight = 0.8f;
     [SerializeField] private float _draggingSpeedMultiplier = 0.6f;
 
+    [Header("Movement Debug & Gizmos")]
+    [SerializeField] private bool _enableGizmos = true;
+    [SerializeField] private bool _drawOnlyWhenSelected = false;
+    [SerializeField] private bool _drawVelocityVector = true;
+    [SerializeField] private bool _drawInputVector = true;
+    [SerializeField] private bool _drawGroundStatus = true;
+    [SerializeField] private bool _drawCapsuleBounds = true;
+    [SerializeField] private bool _drawCeilingCheck = true;
+    [SerializeField] private bool _drawWallAndVaultChecks = true;
+    [SerializeField] private bool _drawOverheadStatus = true;
+
     private bool _isDowned;
     private bool _isDraggingTeammate;
     private Transform _dragTarget;
 
     public bool IsDowned => _isDowned;
     public bool IsDraggingTeammate => _isDraggingTeammate;
+
+    public static bool GlobalGizmosEnabled { get; set; } = true;
+    public bool EnableGizmos { get => _enableGizmos; set => _enableGizmos = value; }
+    public KinematicCharacterMotor Motor => _motor;
+    public Vector3 MoveInputVector => _moveInputVector;
+    public Vector3 LookInputVector => _lookInputVector;
+    public float StandingHeight => _standingHeight;
+    public float CrouchingHeight => _crouchingHeight;
+    public float DownedCapsuleHeight => _downedCapsuleHeight;
 
     public void SetDowned(bool downed)
     {
@@ -902,59 +923,285 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     }
 
 #if UNITY_EDITOR
-    
+    private void OnDrawGizmos()
+    {
+        if (_drawOnlyWhenSelected) return;
+        DrawLocomotionGizmos(false);
+    }
+
     private void OnDrawGizmosSelected()
     {
+        DrawLocomotionGizmos(true);
+    }
+
+    private void DrawLocomotionGizmos(bool selected)
+    {
+        if (!GlobalGizmosEnabled || !_enableGizmos) return;
         if (!_motor) return;
 
-        Gizmos.color = Color.yellow;
-        float radius = _motor.Capsule.radius;
-        Vector3 castOrigin = transform.position + _motor.CharacterUp * (_motor.Capsule.height - radius);
-        float castDistance = _standingHeight - _motor.Capsule.height;
-        Gizmos.DrawWireSphere(castOrigin, radius);
-        Gizmos.DrawLine(castOrigin, castOrigin + _motor.CharacterUp * castDistance);
-        Gizmos.DrawWireSphere(castOrigin + _motor.CharacterUp * castDistance, radius);
+        Vector3 pos = transform.position;
+        Vector3 up = _motor.CharacterUp;
+        Vector3 fwd = transform.forward;
+        Vector3 rgt = transform.right;
 
-        Gizmos.color = Color.cyan;
-        Vector3 wallCheckOrigin = transform.position + _motor.CharacterUp * (_motor.Capsule.height * 0.5f);
-        float wallCheckDist = _motor.Capsule.radius + 0.2f;
-        Gizmos.DrawRay(wallCheckOrigin, transform.forward * wallCheckDist);
-        Gizmos.DrawRay(wallCheckOrigin, -transform.forward * wallCheckDist);
-        Gizmos.DrawRay(wallCheckOrigin, transform.right * wallCheckDist);
-        Gizmos.DrawRay(wallCheckOrigin, -transform.right * wallCheckDist);
+        float radius = _motor.Capsule ? _motor.Capsule.radius : 0.5f;
+        float height = _motor.Capsule ? _motor.Capsule.height : _standingHeight;
+        Vector3 center = pos + up * (height * 0.5f);
 
-        Gizmos.color = Color.blue;
-        Vector3 chestPos = transform.position + _motor.CharacterUp * (_motor.Capsule.height * 0.7f);
-        
-        Vector3 forward = (Application.isPlaying && _lookInputVector.sqrMagnitude > 0.1f) ? _lookInputVector.normalized : transform.forward;
-        
-        Gizmos.DrawRay(chestPos, forward * _vaultCheckDistance);
-
-        if (!Physics.Raycast(chestPos, forward, out RaycastHit wallHit, _vaultCheckDistance, _vaultLayerMask,
-                QueryTriggerInteraction.Ignore)) return;
-        
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(wallHit.point, 0.05f);
-
-        Vector3 ledgeRayOrigin = wallHit.point - (wallHit.normal * 0.1f) + (_motor.CharacterUp * _maxVaultHeight);
-            
-        Gizmos.DrawRay(ledgeRayOrigin, -_motor.CharacterUp * _maxVaultHeight);
-
-        if (Physics.Raycast(ledgeRayOrigin, -_motor.CharacterUp, out RaycastHit ledgeHit, _maxVaultHeight, _vaultLayerMask, QueryTriggerInteraction.Ignore))
+        // 1. Dynamic Capsule Bounds
+        if (_drawCapsuleBounds)
         {
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(ledgeHit.point, 0.05f);
-                
-            Vector3 targetFootPos = ledgeHit.point + (forward * _motor.Capsule.radius);
-            Vector3 capsuleBottom = targetFootPos + _motor.CharacterUp * (_motor.Capsule.radius + 0.05f);
-            Vector3 capsuleTop = targetFootPos + _motor.CharacterUp * (_motor.Capsule.height - _motor.Capsule.radius);
-                
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(capsuleBottom, _motor.Capsule.radius);
-            Gizmos.DrawWireSphere(capsuleTop, _motor.Capsule.radius);
-            Gizmos.DrawLine(capsuleBottom + transform.right * _motor.Capsule.radius, capsuleTop + transform.right * _motor.Capsule.radius);
-            Gizmos.DrawLine(capsuleBottom - transform.right * _motor.Capsule.radius, capsuleTop - transform.right * _motor.Capsule.radius);
+            Color capsuleColor = GetStateColor();
+            capsuleColor.a = selected ? 0.9f : 0.6f;
+            DrawWireCapsule(pos, up, fwd, rgt, radius, height, capsuleColor);
         }
+
+        // 2. Ceiling Clearance Check (when crouched or sliding)
+        if (_drawCeilingCheck && height < _standingHeight - 0.05f)
+        {
+            float checkDist = _standingHeight - height;
+            Vector3 checkOrigin = pos + up * (height - radius);
+            bool blocked = UnityPhysics.SphereCast(checkOrigin, radius * 0.9f, up, out RaycastHit ceilHit, checkDist, _ceilingCheckLayerMask, QueryTriggerInteraction.Ignore);
+
+            if (blocked)
+            {
+                UnityEditor.Handles.color = new Color(0.95f, 0.25f, 0.25f, 0.9f);
+                UnityEditor.Handles.DrawDottedLine(checkOrigin, ceilHit.point, 3f);
+                UnityEditor.Handles.DrawWireDisc(ceilHit.point, ceilHit.normal, radius * 0.5f);
+                UnityEditor.Handles.Label(ceilHit.point + up * 0.15f, "CEILING BLOCKED", GetDebugMiniLabelStyle(new Color(0.95f, 0.25f, 0.25f, 1f)));
+            }
+            else
+            {
+                UnityEditor.Handles.color = new Color(0.2f, 0.9f, 0.3f, 0.6f);
+                UnityEditor.Handles.DrawLine(checkOrigin, checkOrigin + up * checkDist);
+                UnityEditor.Handles.DrawWireDisc(checkOrigin + up * checkDist, up, radius);
+            }
+        }
+
+        // 3. Velocity Vector
+        if (_drawVelocityVector)
+        {
+            Vector3 velocity = _motor.Velocity;
+            float speed = velocity.magnitude;
+            if (speed > 0.05f)
+            {
+                Color velColor = GetStateColor();
+                velColor.a = 1f;
+                float arrowLen = Mathf.Clamp(speed * 0.3f, 0.5f, 4f);
+                Vector3 velDir = velocity.normalized;
+                Vector3 velTip = center + velDir * arrowLen;
+
+                UnityEditor.Handles.color = velColor;
+                UnityEditor.Handles.DrawLine(center, velTip);
+                DrawArrowHead(velTip, velDir, up, 0.18f, velColor);
+
+                // Small center sphere
+                UnityEditor.Handles.DrawSolidDisc(center, up, 0.06f);
+
+                // Speed tag near arrow tip
+                if (selected)
+                {
+                    UnityEditor.Handles.Label(velTip + up * 0.1f, $"{speed:F1} m/s", GetDebugMiniLabelStyle(velColor));
+                }
+            }
+        }
+
+        // 4. Move Input Vector
+        if (_drawInputVector && _moveInputVector.sqrMagnitude > 0.01f)
+        {
+            Color inputColor = new Color(1.0f, 0.65f, 0.0f, 0.95f);
+            Vector3 inputOrigin = pos + up * 0.05f;
+            Vector3 inputDir = _moveInputVector.normalized;
+            float inputLen = Mathf.Clamp(_moveInputVector.magnitude * 1.2f, 0.4f, 1.5f);
+            Vector3 inputTip = inputOrigin + inputDir * inputLen;
+
+            UnityEditor.Handles.color = inputColor;
+            UnityEditor.Handles.DrawLine(inputOrigin, inputTip);
+            DrawArrowHead(inputTip, inputDir, up, 0.14f, inputColor);
+            UnityEditor.Handles.DrawWireDisc(inputOrigin, up, 0.1f);
+        }
+
+        // 5. Ground Contact & Slope
+        if (_drawGroundStatus)
+        {
+            if (_motor.GroundingStatus.FoundAnyGround)
+            {
+                Vector3 gPoint = _motor.GroundingStatus.GroundPoint;
+                Vector3 gNormal = _motor.GroundingStatus.GroundNormal;
+                bool isStable = _motor.GroundingStatus.IsStableOnGround;
+                Color groundColor = isStable ? new Color(0.2f, 0.85f, 0.3f, 0.9f) : new Color(0.95f, 0.3f, 0.2f, 0.9f);
+
+                UnityEditor.Handles.color = groundColor;
+                UnityEditor.Handles.DrawWireDisc(gPoint, gNormal, 0.35f);
+                UnityEditor.Handles.color = new Color(groundColor.r, groundColor.g, groundColor.b, 0.15f);
+                UnityEditor.Handles.DrawSolidDisc(gPoint, gNormal, 0.35f);
+
+                // Normal Ray
+                UnityEditor.Handles.color = groundColor;
+                Vector3 normalTip = gPoint + gNormal * 0.7f;
+                UnityEditor.Handles.DrawLine(gPoint, normalTip);
+                DrawArrowHead(normalTip, gNormal, fwd, 0.12f, groundColor);
+
+                float slopeAngle = Vector3.Angle(gNormal, Vector3.up);
+                if (selected)
+                {
+                    string slopeText = isStable ? $"Slope: {slopeAngle:F1}\u00b0" : $"UNSTABLE ({slopeAngle:F1}\u00b0)";
+                    UnityEditor.Handles.Label(normalTip + up * 0.1f, slopeText, GetDebugMiniLabelStyle(groundColor));
+                }
+            }
+            else
+            {
+                // Airborne: Drop line to nearest ground
+                if (UnityPhysics.Raycast(pos, -up, out RaycastHit hit, 50f, _ceilingCheckLayerMask, QueryTriggerInteraction.Ignore))
+                {
+                    UnityEditor.Handles.color = new Color(0.6f, 0.4f, 0.95f, 0.8f);
+                    UnityEditor.Handles.DrawDottedLine(pos, hit.point, 3f);
+                    UnityEditor.Handles.DrawWireDisc(hit.point, hit.normal, radius * 0.6f);
+
+                    float altitude = hit.distance;
+                    if (selected && altitude > 0.3f)
+                    {
+                        UnityEditor.Handles.Label(hit.point + hit.normal * 0.1f, $"Alt: {altitude:F1}m", GetDebugMiniLabelStyle(new Color(0.6f, 0.4f, 0.95f, 1f)));
+                    }
+                }
+            }
+        }
+
+        // 6. Wall and Vault Checks
+        if (_drawWallAndVaultChecks)
+        {
+            Vector3 waistPos = pos + up * (height * 0.5f);
+            float wallCheckDist = radius + 0.25f;
+
+            // Cardinal wall rays
+            UnityEditor.Handles.color = new Color(0.2f, 0.75f, 0.9f, 0.5f);
+            UnityEditor.Handles.DrawLine(waistPos, waistPos + fwd * wallCheckDist);
+            UnityEditor.Handles.DrawLine(waistPos, waistPos - fwd * wallCheckDist);
+            UnityEditor.Handles.DrawLine(waistPos, waistPos + rgt * wallCheckDist);
+            UnityEditor.Handles.DrawLine(waistPos, waistPos - rgt * wallCheckDist);
+
+            // Wall Jump Normal indicator
+            if (State.CanWallJump && State.WallJumpNormal.sqrMagnitude > 0.1f)
+            {
+                Color wjColor = new Color(0.1f, 0.9f, 0.9f, 1f);
+                Vector3 wjTip = waistPos + State.WallJumpNormal * 1.2f;
+                UnityEditor.Handles.color = wjColor;
+                UnityEditor.Handles.DrawLine(waistPos, wjTip);
+                DrawArrowHead(wjTip, State.WallJumpNormal, up, 0.15f, wjColor);
+                UnityEditor.Handles.Label(wjTip + up * 0.15f, "WALL JUMP READY", GetDebugMiniLabelStyle(wjColor));
+            }
+
+            // Vault check
+            Vector3 chestPos = pos + up * (height * 0.7f);
+            Vector3 lookFwd = (Application.isPlaying && _lookInputVector.sqrMagnitude > 0.1f) ? _lookInputVector.normalized : fwd;
+            UnityEditor.Handles.color = new Color(0.2f, 0.5f, 1.0f, 0.6f);
+            UnityEditor.Handles.DrawLine(chestPos, chestPos + lookFwd * _vaultCheckDistance);
+
+            if (UnityPhysics.Raycast(chestPos, lookFwd, out RaycastHit wallHit, _vaultCheckDistance, _vaultLayerMask, QueryTriggerInteraction.Ignore))
+            {
+                UnityEditor.Handles.color = Color.green;
+                UnityEditor.Handles.DrawWireDisc(wallHit.point, wallHit.normal, 0.08f);
+
+                Vector3 ledgeRayOrigin = wallHit.point - (wallHit.normal * 0.1f) + (up * _maxVaultHeight);
+                UnityEditor.Handles.DrawLine(ledgeRayOrigin, ledgeRayOrigin - up * _maxVaultHeight);
+
+                if (UnityPhysics.Raycast(ledgeRayOrigin, -up, out RaycastHit ledgeHit, _maxVaultHeight, _vaultLayerMask, QueryTriggerInteraction.Ignore))
+                {
+                    UnityEditor.Handles.DrawSolidDisc(ledgeHit.point, ledgeHit.normal, 0.06f);
+
+                    Vector3 targetFootPos = ledgeHit.point + (lookFwd * radius);
+                    DrawWireCapsule(targetFootPos, up, fwd, rgt, radius, height, new Color(0.2f, 0.9f, 0.4f, 0.5f));
+                    UnityEditor.Handles.Label(targetFootPos + up * height, "VAULT LANDING", GetDebugMiniLabelStyle(Color.green));
+                }
+            }
+        }
+
+        // 7. Overhead Status Label
+        if (_drawOverheadStatus)
+        {
+            Vector3 headPos = pos + up * (height + 0.4f);
+            float totalSpeed = _motor.Velocity.magnitude;
+            Vector3 planarVel = Vector3.ProjectOnPlane(_motor.Velocity, up);
+            float hSpeed = planarVel.magnitude;
+            float vSpeed = Vector3.Dot(_motor.Velocity, up);
+            float slopeAngle = _motor.GroundingStatus.FoundAnyGround ? Vector3.Angle(_motor.GroundingStatus.GroundNormal, Vector3.up) : 0f;
+
+            string statusText = $"[LOCO] {State.Phase} | {State.AnimationState}\n" +
+                                $"Speed: {totalSpeed:F1} m/s (H:{hSpeed:F1} V:{vSpeed:+0.0;-0.0;0.0})\n" +
+                                $"Ground: {(_motor.GroundingStatus.FoundAnyGround ? (_motor.GroundingStatus.IsStableOnGround ? "Stable" : "Unstable") : "Airborne")} ({slopeAngle:F1}\u00b0)\n" +
+                                $"Height: {height:F2}m / {_standingHeight:F2}m";
+
+            Color labelColor = GetStateColor();
+            var labelStyle = new GUIStyle
+            {
+                normal = { textColor = labelColor },
+                fontSize = selected ? 11 : 10,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter
+            };
+
+            UnityEditor.Handles.Label(headPos, statusText, labelStyle);
+        }
+    }
+
+    private Color GetStateColor()
+    {
+        if (_isDowned) return new Color(0.96f, 0.26f, 0.21f, 1f);
+        if (State.Phase == LocomotionPhase.Vaulting) return new Color(0.13f, 0.77f, 0.36f, 1f);
+        if (State.IsSliding) return new Color(0.14f, 0.78f, 0.86f, 1f);
+        if (State.Phase == LocomotionPhase.Airborne) return new Color(0.66f, 0.44f, 0.98f, 1f);
+        if (State.IsSprinting) return new Color(0.96f, 0.62f, 0.07f, 1f);
+        if (State.IsCrouching) return new Color(0.92f, 0.45f, 0.15f, 1f);
+        return new Color(0.22f, 0.74f, 0.58f, 1f);
+    }
+
+    private static void DrawArrowHead(Vector3 tip, Vector3 direction, Vector3 normal, float size, Color color)
+    {
+        Vector3 right = Vector3.Cross(direction, normal).normalized;
+        if (right.sqrMagnitude < 0.01f)
+            right = Vector3.Cross(direction, Vector3.forward).normalized;
+
+        Vector3 back = tip - direction * size;
+        UnityEditor.Handles.color = color;
+        UnityEditor.Handles.DrawLine(tip, back + right * (size * 0.5f));
+        UnityEditor.Handles.DrawLine(tip, back - right * (size * 0.5f));
+        UnityEditor.Handles.DrawLine(back + right * (size * 0.5f), back - right * (size * 0.5f));
+    }
+
+    private static void DrawWireCapsule(Vector3 basePos, Vector3 up, Vector3 forward, Vector3 right, float radius, float height, Color color)
+    {
+        UnityEditor.Handles.color = color;
+        float halfHeightMinusRadius = Mathf.Max(0.01f, (height * 0.5f) - radius);
+        Vector3 center = basePos + up * (height * 0.5f);
+        Vector3 bottomSphere = center - up * halfHeightMinusRadius;
+        Vector3 topSphere = center + up * halfHeightMinusRadius;
+
+        // Bottom disc and arcs
+        UnityEditor.Handles.DrawWireDisc(bottomSphere, up, radius);
+        UnityEditor.Handles.DrawWireArc(bottomSphere, right, forward, 180f, radius);
+        UnityEditor.Handles.DrawWireArc(bottomSphere, -forward, right, 180f, radius);
+
+        // Top disc and arcs
+        UnityEditor.Handles.DrawWireDisc(topSphere, up, radius);
+        UnityEditor.Handles.DrawWireArc(topSphere, -right, forward, 180f, radius);
+        UnityEditor.Handles.DrawWireArc(topSphere, forward, right, 180f, radius);
+
+        // Vertical cylinder lines
+        UnityEditor.Handles.DrawLine(bottomSphere + forward * radius, topSphere + forward * radius);
+        UnityEditor.Handles.DrawLine(bottomSphere - forward * radius, topSphere - forward * radius);
+        UnityEditor.Handles.DrawLine(bottomSphere + right * radius, topSphere + right * radius);
+        UnityEditor.Handles.DrawLine(bottomSphere - right * radius, topSphere - right * radius);
+    }
+
+    private static GUIStyle GetDebugMiniLabelStyle(Color textColor)
+    {
+        return new GUIStyle
+        {
+            normal = { textColor = textColor },
+            fontSize = 9,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter
+        };
     }
 #endif
 }
