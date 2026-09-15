@@ -32,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 5595860993410100619}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -77,6 +77,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -109,6 +111,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -157,14 +161,16 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
   _healthComponent: {fileID: 7092058081537621344}
-  _locomotor: {fileID: 8676324746094357337}
-  _ragdoll: {fileID: 3235095601794330958}
+  _locomotor: {fileID: 0}
+  _ragdoll: {fileID: 0}
 --- !u!114 &7092058081537621344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,6 +187,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -196,11 +204,13 @@ MonoBehaviour:
   _currentHealth:
     _value: 100
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 100
   _currentShield:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
 --- !u!114 &8676324746094357337
@@ -219,6 +229,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -240,6 +252,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.AI::Player.AI.Ragdoll
   _animator: {fileID: 8481722875846153755}
+  _healthComponent: {fileID: 0}
 --- !u!1001 &2657044261007911818
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1203,6 +1216,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
