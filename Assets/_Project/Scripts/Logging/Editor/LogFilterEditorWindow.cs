@@ -11,11 +11,11 @@ namespace Project.Logging.Editor
     /// </summary>
     public class LogFilterEditorWindow : EditorWindow
     {
-        private const string WindowMenuPath = "Tools/Logging/Channel Filter";
-        private const string AnalysisMenuPath = "Window/Analysis/Log Channel Filter";
+        private const string WINDOW_MENU_PATH = "Tools/Logging/Channel Filter";
+        private const string ANALYSIS_MENU_PATH = "Window/Analysis/Log Channel Filter";
 
-        private const string UxmlPath = "Assets/_Project/Scripts/Logging/Editor/LogFilterEditorWindow.uxml";
-        private const string UssPath = "Assets/_Project/Scripts/Logging/Editor/LogFilterEditorWindow.uss";
+        private const string UXML_PATH = "Assets/_Project/Scripts/Logging/Editor/LogFilterEditorWindow.uxml";
+        private const string USS_PATH = "Assets/_Project/Scripts/Logging/Editor/LogFilterEditorWindow.uss";
 
         private readonly Dictionary<LogChannel, Toggle> _channelToggles = new();
         private DropdownField _logLevelDropdown;
@@ -23,8 +23,8 @@ namespace Project.Logging.Editor
         private Toggle _richTextToggle;
         private ScrollView _channelsScrollView;
 
-        [MenuItem(WindowMenuPath, priority = 200)]
-        [MenuItem(AnalysisMenuPath, priority = 200)]
+        [MenuItem(WINDOW_MENU_PATH, priority = 200)]
+        [MenuItem(ANALYSIS_MENU_PATH, priority = 200)]
         public static void Open()
         {
             var window = GetWindow<LogFilterEditorWindow>();
@@ -57,7 +57,7 @@ namespace Project.Logging.Editor
             root.Clear();
 
             // Load UXML
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
             if (visualTree != null)
             {
                 visualTree.CloneTree(root);
@@ -70,7 +70,7 @@ namespace Project.Logging.Editor
             }
 
             // Load USS
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(UssPath);
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(USS_PATH);
             if (styleSheet != null)
             {
                 root.styleSheets.Add(styleSheet);

@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace Project.Player
 {
-public class CameraTiltController : MonoBehaviour
+public class FPSCameraTilt : MonoBehaviour
 {
     [Header("Settings")]
     [Header("Procedural Tilt")]
     [SerializeField] private float _strafeTilt = 1.5f;
-    [SerializeField] private float _slideTilt = -4.5f;
+    [SerializeField] private float _slideTilt = 4.5f;
     [SerializeField] private float _tiltSmoothness = 8f;
     
     [Header("References")]
@@ -21,7 +21,7 @@ public class CameraTiltController : MonoBehaviour
     {
         float dt = Time.deltaTime;
         HandleTilt(dt);
-        ApplyTransforms(dt);
+        ApplyTransforms();
     }
 
     private void HandleTilt(float dt)
@@ -35,7 +35,7 @@ public class CameraTiltController : MonoBehaviour
         _currentTilt = Mathf.Lerp(_currentTilt, targetRoll, dt * _tiltSmoothness);
     }
 
-    private void ApplyTransforms(float dt)
+    private void ApplyTransforms()
     {
         _tiltPivot.localRotation = Quaternion.Euler(0f, 0f, _currentTilt);
     }

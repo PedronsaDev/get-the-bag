@@ -19,6 +19,7 @@ namespace Project.Logging
         UI          = 1 << 6,
         Persistence = 1 << 7,
         Audio       = 1 << 8,
+        Editor       = 1 << 9,
         All         = ~0
     }
 }

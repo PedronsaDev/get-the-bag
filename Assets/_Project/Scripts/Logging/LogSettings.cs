@@ -68,6 +68,7 @@ namespace Project.Logging
         [SerializeField] private string _colorUI = "#818CF8";
         [SerializeField] private string _colorPersistence = "#FB923C";
         [SerializeField] private string _colorAudio = "#E879F9";
+        [SerializeField] private string _colorEditor = "#3155F5";
 
         public event Action OnSettingsChanged;
 
@@ -177,6 +178,7 @@ namespace Project.Logging
                 LogChannel.UI          => _colorUI,
                 LogChannel.Persistence => _colorPersistence,
                 LogChannel.Audio       => _colorAudio,
+                LogChannel.Editor      => _colorEditor,
                 _                      => "#FFFFFF"
             };
         }

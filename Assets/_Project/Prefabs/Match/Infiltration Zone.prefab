@@ -54,8 +54,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 6.0684986, y: 4.408558, z: 4.858513}
-  m_Center: {x: 0.59525204, y: 1.7563639, z: 0.27925682}
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8918969773281417245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,6 +72,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -86,16 +88,19 @@ MonoBehaviour:
   PlayersInsideCount:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   TotalRequiredCount:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   AreAllPlayersInside:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
 --- !u!114 &8529170312154827164
@@ -114,6 +119,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -125,11 +132,13 @@ MonoBehaviour:
   CountdownRemaining:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   IsCountdownActive:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
 --- !u!54 &6024902913504090457

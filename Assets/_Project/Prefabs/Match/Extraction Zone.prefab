@@ -54,8 +54,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 5, y: 3.8381393, z: 5}
-  m_Center: {x: 0, y: 1.4190701, z: 0}
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &3189709868334111151
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -99,6 +99,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -113,16 +115,19 @@ MonoBehaviour:
   PlayersInsideCount:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   TotalRequiredCount:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   AreAllPlayersInside:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
 --- !u!114 &5922049790655247011
@@ -141,6 +146,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
@@ -151,20 +158,24 @@ MonoBehaviour:
   HoldoutProgress:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   IsActivated:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   IsCountdownActive:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
   CountdownRemaining:
     _value: 0
     _ownerAuth: 0
+    _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0

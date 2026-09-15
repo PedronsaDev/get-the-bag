@@ -770,8 +770,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4688779203960493711}
+  - component: {fileID: 2241172572447419723}
   m_Layer: 7
-  m_Name: Tilt
+  m_Name: Tilt Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -793,6 +794,24 @@ Transform:
   - {fileID: 4059090198446306671}
   m_Father: {fileID: 3225786322309376769}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2241172572447419723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2985956017673970812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 954badd44e9584e4e949777a674fca0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.CameraTiltController
+  _strafeTilt: 1.5
+  _slideTilt: 4.5
+  _tiltSmoothness: 8
+  _tiltPivot: {fileID: 4688779203960493711}
+  _locomotionController: {fileID: 7482482855676676148}
+  _playerFacade: {fileID: 3916750346549361147}
 --- !u!1 &5623175284018484902
 GameObject:
   m_ObjectHideFlags: 0
@@ -806,7 +825,7 @@ GameObject:
   m_Layer: 7
   m_Name: Pitch Pivot
   m_TagString: Untagged
-  m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

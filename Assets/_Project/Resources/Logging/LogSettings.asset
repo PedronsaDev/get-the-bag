@@ -26,3 +26,4 @@ MonoBehaviour:
   _colorUI: '#818CF8'
   _colorPersistence: '#FB923C'
   _colorAudio: '#E879F9'
+  _colorEditor: '#B1E872'
