@@ -23,13 +23,17 @@ public class LogMessageSelector : MonoBehaviour, IPointerClickHandler, IPointerE
     private Color m_BackgroundColor;
     public int Hash;
     private Color _currentColor;
+    private bool _isSelected;
 
-    private void Start()
+    private void Awake()
     {
         m_LogMessage = GetComponent<LogMessageSetup>();
-        m_BackgroundColor = m_Background.color;
-        _currentColor = m_BackgroundColor;
         Hash = gameObject.GetHashCode();
+        if (m_Background != null)
+        {
+            m_BackgroundColor = m_Background.color;
+            _currentColor = m_BackgroundColor;
+        }
     }
 
     private void OnEnable()
@@ -49,8 +53,37 @@ public class LogMessageSelector : MonoBehaviour, IPointerClickHandler, IPointerE
         OnLogMessageClicked?.Invoke(hash);
     }
 
+    public void SetBaseColor(Color color)
+    {
+        m_BackgroundColor = color;
+        if (!_isSelected)
+        {
+            _currentColor = color;
+            if (m_Background != null)
+            {
+                m_Background.color = color;
+            }
+        }
+    }
+
+    public void ResetState()
+    {
+        Deselect();
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            if (m_LogMessage == null)
+            {
+                m_LogMessage = GetComponent<LogMessageSetup>();
+            }
+
+            ConsoleContextMenu.Show(eventData.position, m_LogMessage);
+            return;
+        }
+
         OnSelectLogMessage?.Invoke(Hash);
     }
 
@@ -58,40 +91,65 @@ public class LogMessageSelector : MonoBehaviour, IPointerClickHandler, IPointerE
     {
         if (hash == this.Hash)
         {
-            if (_currentSelectedHash == this.Hash)
+            if (_isSelected)
             {
-                m_Background.color = m_BackgroundColor;
-                if (m_LogMessage.AltTextGameObject.activeSelf) 
-                    m_LogMessage.DisableAltText();
-
-                _currentSelectedHash = 0;
+                Deselect();
             }
             else
             {
-                m_Background.color = m_Preferences.BackgroundSelectionColor;
-                //m_LogMessage.EnableAltText();
-                
-                _currentSelectedHash = this.Hash;
+                Select();
             }
         }
-        else if (m_Background.color == m_Preferences.BackgroundSelectionColor)
+        else if (_isSelected)
+        {
+            Deselect();
+        }
+    }
+
+    private void Select()
+    {
+        _isSelected = true;
+        _currentSelectedHash = this.Hash;
+        Color selectColor = m_Preferences != null ? m_Preferences.BackgroundSelectionColor : new Color(0.17f, 0.36f, 0.53f, 0.5f);
+        _currentColor = selectColor;
+        if (m_Background != null)
+        {
+            m_Background.color = selectColor;
+        }
+    }
+
+    public void Deselect()
+    {
+        _isSelected = false;
+        if (_currentSelectedHash == this.Hash)
+        {
+            _currentSelectedHash = 0;
+        }
+        _currentColor = m_BackgroundColor;
+        if (m_Background != null)
         {
             m_Background.color = m_BackgroundColor;
-            if (m_LogMessage.AltTextGameObject.activeSelf) 
-                m_LogMessage.DisableAltText();
         }
-
-        _currentColor = m_Background.color;
+        if (m_LogMessage != null && m_LogMessage.AltTextGameObject != null && m_LogMessage.AltTextGameObject.activeSelf)
+        {
+            m_LogMessage.DisableAltText();
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        m_Background.color = m_Preferences.BackgroundHoverTextColor;
+        if (m_Background != null && m_Preferences != null)
+        {
+            m_Background.color = m_Preferences.BackgroundHoverTextColor;
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        m_Background.color = _currentColor;
+        if (m_Background != null)
+        {
+            m_Background.color = _currentColor;
+        }
     }
 }
 }

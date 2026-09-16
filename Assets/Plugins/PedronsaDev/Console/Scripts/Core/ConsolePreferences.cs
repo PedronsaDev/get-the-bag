@@ -17,9 +17,64 @@ namespace PedronsaDev.Console
 		Amber
 	}
 
+	[Serializable]
+	public struct ConsoleFontEntry
+	{
+		public string Name;
+		public TMP_FontAsset FontAsset;
+
+		public ConsoleFontEntry(string name, TMP_FontAsset fontAsset)
+		{
+			Name = name;
+			FontAsset = fontAsset;
+		}
+	}
+
 	public class ConsolePreferences : ScriptableObject
 	{
 		public TMP_FontAsset GlobalFont;
+		public System.Collections.Generic.List<ConsoleFontEntry> AvailableFonts = new();
+
+		/// <summary>
+		/// Attempts to switch the active font by name (case-insensitive).
+		/// </summary>
+		public bool TrySetFont(string fontName)
+		{
+			if (string.IsNullOrWhiteSpace(fontName)) return false;
+
+			for (int i = 0; i < AvailableFonts.Count; i++)
+			{
+				var entry = AvailableFonts[i];
+				if (entry.FontAsset && (entry.Name.Equals(fontName, StringComparison.OrdinalIgnoreCase) ||
+				                        entry.FontAsset.name.Equals(fontName, StringComparison.OrdinalIgnoreCase)))
+				{
+					GlobalFont = entry.FontAsset;
+					NotifyPreferencesChanged();
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Registers a new font into the available fonts catalog.
+		/// </summary>
+		public void RegisterFont(string name, TMP_FontAsset fontAsset)
+		{
+			if (!fontAsset) return;
+
+			for (int i = 0; i < AvailableFonts.Count; i++)
+			{
+				if (AvailableFonts[i].FontAsset == fontAsset || AvailableFonts[i].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+				{
+					AvailableFonts[i] = new ConsoleFontEntry(name, fontAsset);
+					return;
+				}
+			}
+
+			AvailableFonts.Add(new ConsoleFontEntry(name, fontAsset));
+		}
 
 		[Range(0.1f, 1f)] public float Opacity = 1.0f;
 
@@ -39,11 +94,12 @@ namespace PedronsaDev.Console
 		[Header("Background & Frame Colors")]
 		public Color BackgroundMainColor = new(0.12f, 0.12f, 0.12f, 0.95f);
 		public Color BackgroundEvenColor = new(0.16f, 0.16f, 0.16f, 0.4f);
+		public Color BackgroundOddColor = new(0.0f, 0.0f, 0.0f, 0.0f);
 		public Color BackgroundHoverTextColor = new(0.2f, 0.2f, 0.2f, 1.0f);
 		public Color BackgroundSelectionColor = new(0.17f, 0.36f, 0.53f, 0.5f);
 		public Color BackgroundHeaderColor = new(0.08f, 0.08f, 0.08f, 1.0f);
 		public Color BackgroundBottomColor = new(0.10f, 0.10f, 0.10f, 1.0f);
-		public Color BackgroundAutocompleteColor = new(0.0f, 0.0f, 0.0f, 0.0f);
+		public Color BackgroundAutocompleteColor = new(0.10f, 0.12f, 0.15f, 0.95f);
 		public Color SeparatorColor = new(0.17f, 0.36f, 0.53f, 0.5f);
 
 		[Header("Engine & Session Settings")]
@@ -66,8 +122,10 @@ namespace PedronsaDev.Console
 				case ThemePreset.DefaultDark:
 					BackgroundMainColor = new Color(0.12f, 0.12f, 0.12f, 0.95f);
 					BackgroundEvenColor = new Color(0.16f, 0.16f, 0.16f, 0.4f);
+					BackgroundOddColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 					BackgroundHeaderColor = new Color(0.08f, 0.08f, 0.08f, 1.0f);
 					BackgroundBottomColor = new Color(0.10f, 0.10f, 0.10f, 1.0f);
+					BackgroundAutocompleteColor = new Color(0.10f, 0.12f, 0.15f, 0.95f);
 					SeparatorColor = new Color(0.17f, 0.36f, 0.53f, 0.5f);
 					CommandTextColor = new Color(0.02f, 0.60f, 1.0f, 1.0f);
 					LogTextColor = new Color(0.87f, 0.87f, 0.87f, 1.0f);
@@ -79,8 +137,10 @@ namespace PedronsaDev.Console
 				case ThemePreset.Matrix:
 					BackgroundMainColor = new Color(0.04f, 0.07f, 0.04f, 0.96f);
 					BackgroundEvenColor = new Color(0.06f, 0.10f, 0.06f, 0.5f);
+					BackgroundOddColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 					BackgroundHeaderColor = new Color(0.02f, 0.04f, 0.02f, 1.0f);
 					BackgroundBottomColor = new Color(0.03f, 0.05f, 0.03f, 1.0f);
+					BackgroundAutocompleteColor = new Color(0.03f, 0.08f, 0.04f, 0.95f);
 					SeparatorColor = new Color(0.0f, 0.8f, 0.3f, 0.6f);
 					CommandTextColor = new Color(0.0f, 1.0f, 0.4f, 1.0f);
 					LogTextColor = new Color(0.4f, 0.95f, 0.5f, 1.0f);
@@ -92,8 +152,10 @@ namespace PedronsaDev.Console
 				case ThemePreset.Cyberpunk:
 					BackgroundMainColor = new Color(0.08f, 0.04f, 0.15f, 0.96f);
 					BackgroundEvenColor = new Color(0.12f, 0.06f, 0.22f, 0.5f);
+					BackgroundOddColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 					BackgroundHeaderColor = new Color(0.05f, 0.02f, 0.10f, 1.0f);
 					BackgroundBottomColor = new Color(0.06f, 0.03f, 0.12f, 1.0f);
+					BackgroundAutocompleteColor = new Color(0.14f, 0.05f, 0.20f, 0.95f);
 					SeparatorColor = new Color(1.0f, 0.0f, 0.45f, 0.8f);
 					CommandTextColor = new Color(0.0f, 0.95f, 1.0f, 1.0f);
 					LogTextColor = new Color(0.88f, 0.82f, 1.0f, 1.0f);
@@ -105,8 +167,10 @@ namespace PedronsaDev.Console
 				case ThemePreset.Dracula:
 					BackgroundMainColor = new Color(0.16f, 0.16f, 0.21f, 0.96f);
 					BackgroundEvenColor = new Color(0.21f, 0.22f, 0.27f, 0.5f);
+					BackgroundOddColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 					BackgroundHeaderColor = new Color(0.12f, 0.12f, 0.16f, 1.0f);
 					BackgroundBottomColor = new Color(0.13f, 0.13f, 0.17f, 1.0f);
+					BackgroundAutocompleteColor = new Color(0.14f, 0.14f, 0.19f, 0.95f);
 					SeparatorColor = new Color(0.38f, 0.45f, 0.64f, 0.7f);
 					CommandTextColor = new Color(0.74f, 0.58f, 0.98f, 1.0f);
 					LogTextColor = new Color(0.97f, 0.97f, 0.95f, 1.0f);
@@ -118,8 +182,10 @@ namespace PedronsaDev.Console
 				case ThemePreset.Amber:
 					BackgroundMainColor = new Color(0.10f, 0.07f, 0.03f, 0.96f);
 					BackgroundEvenColor = new Color(0.14f, 0.10f, 0.04f, 0.5f);
+					BackgroundOddColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 					BackgroundHeaderColor = new Color(0.06f, 0.04f, 0.02f, 1.0f);
 					BackgroundBottomColor = new Color(0.07f, 0.05f, 0.02f, 1.0f);
+					BackgroundAutocompleteColor = new Color(0.12f, 0.08f, 0.03f, 0.95f);
 					SeparatorColor = new Color(1.0f, 0.60f, 0.0f, 0.7f);
 					CommandTextColor = new Color(1.0f, 0.70f, 0.0f, 1.0f);
 					LogTextColor = new Color(1.0f, 0.80f, 0.40f, 1.0f);

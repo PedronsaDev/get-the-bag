@@ -79,9 +79,25 @@ namespace PedronsaDev.Console.Components
 
 			_pauseGameOnConsole = m_Preferences.PauseGameOnConsole;
 
+			EnsureContextMenuInitialized();
+
 #if !UNITY_EDITOR
 			//SmartConsole.RefreshAutocomplete();
 #endif
+		}
+
+		private void EnsureContextMenuInitialized()
+		{
+			if (ConsoleContextMenu.Instance == null)
+			{
+				var canvas = m_Console ? m_Console.GetComponentInParent<Canvas>() : GetComponentInParent<Canvas>();
+				if (canvas != null)
+				{
+					var menuGO = new GameObject("ConsoleContextMenu", typeof(RectTransform));
+					menuGO.transform.SetParent(canvas.transform, false);
+					menuGO.AddComponent<ConsoleContextMenu>();
+				}
+			}
 		}
 
 		private void OnEnable()

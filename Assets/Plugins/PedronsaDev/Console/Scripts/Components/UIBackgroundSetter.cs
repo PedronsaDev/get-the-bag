@@ -103,5 +103,32 @@ namespace PedronsaDev.Console.Components
 					break;
 			}
 		}
+
+		[Command("set_autocomplete_bg_color", "Sets the background color for autocomplete suggestions (e.g. '#1A202C', 'black', 'blue')", Aliases = new[] { "autocomplete_bg", "autocomplete_color" })]
+		public void SetAutocompleteBackgroundColor(Color color)
+		{
+			if (_preferences == null) return;
+			_preferences.BackgroundAutocompleteColor = color;
+			_preferences.NotifyPreferencesChanged();
+			Console.Log($"[Theme] Autocomplete background color set to #{ColorUtility.ToHtmlStringRGBA(color)}");
+		}
+
+		[Command("set_log_even_color", "Sets the alternating even row background color (e.g. '#1A202C', '#2A2A2A80')", Aliases = new[] { "even_color", "log_even" })]
+		public void SetLogEvenColor(Color color)
+		{
+			if (_preferences == null) return;
+			_preferences.BackgroundEvenColor = color;
+			_preferences.NotifyPreferencesChanged();
+			Console.Log($"[Theme] Log even background color set to #{ColorUtility.ToHtmlStringRGBA(color)}");
+		}
+
+		[Command("set_log_odd_color", "Sets the alternating odd row background color (e.g. '#00000000', '#151820')", Aliases = new[] { "odd_color", "log_odd" })]
+		public void SetLogOddColor(Color color)
+		{
+			if (_preferences == null) return;
+			_preferences.BackgroundOddColor = color;
+			_preferences.NotifyPreferencesChanged();
+			Console.Log($"[Theme] Log odd background color set to #{ColorUtility.ToHtmlStringRGBA(color)}");
+		}
 	}
 }

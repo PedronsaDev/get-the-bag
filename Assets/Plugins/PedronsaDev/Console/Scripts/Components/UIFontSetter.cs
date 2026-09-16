@@ -77,5 +77,46 @@ public class UIFontSetter : MonoBehaviour
         m_Preferences.NotifyPreferencesChanged();
         Console.Log($"[Theme] Search/Input font size set to {m_Preferences.InputTextFontSize}");
     }
+
+    [Command("font", "Switches the active console font by name (e.g. 'font jetbrains', 'font inconsolata')",
+        Aliases = new[] { "set_font" })]
+    public void SetFont(string fontName)
+    {
+        if (!m_Preferences) return;
+
+        if (m_Preferences.TrySetFont(fontName))
+        {
+            Console.Log($"[Theme] Active console font switched to: <b>{m_Preferences.GlobalFont.name}</b>");
+        }
+        else
+        {
+            Console.LogWarning($"[Theme] Font '{fontName}' not found in registered fonts. Run 'fonts' to view available options.");
+        }
+    }
+
+    [Command("fonts", "Lists all registered console fonts and indicates the active font",
+        Aliases = new[] { "font_list" })]
+    public void ListFonts()
+    {
+        if (!m_Preferences || m_Preferences.AvailableFonts == null || m_Preferences.AvailableFonts.Count == 0)
+        {
+            Console.Log("[Theme] No fonts registered in Console Preferences. Use the Inspector to scan or add fonts.");
+            return;
+        }
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("<b>Registered Console Fonts:</b>");
+        for (int i = 0; i < m_Preferences.AvailableFonts.Count; i++)
+        {
+            var entry = m_Preferences.AvailableFonts[i];
+            if (!entry.FontAsset) continue;
+
+            bool isActive = m_Preferences.GlobalFont == entry.FontAsset;
+            string marker = isActive ? "<color=#4ADE80>[ACTIVE]</color>" : "        ";
+            sb.AppendLine($"{marker} <b>{entry.Name}</b> (<i>{entry.FontAsset.name}</i>)");
+        }
+        sb.Append("Type <i>font &lt;name&gt;</i> to switch.");
+        Console.Log(sb.ToString());
+    }
 }
 }

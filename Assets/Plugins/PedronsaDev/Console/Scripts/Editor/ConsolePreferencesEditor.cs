@@ -94,8 +94,74 @@ public class ConsolePreferencesEditor : Editor
         root.Add(presetsBox);
 
         // Typography Section
-        var typographyBox = CreateSectionBox("Typography & Font");
-        typographyBox.Add(new PropertyField(serializedObject.FindProperty("GlobalFont")));
+        var typographyBox = CreateSectionBox("Typography & Font Library");
+        typographyBox.Add(new PropertyField(serializedObject.FindProperty("GlobalFont"), "Active Font"));
+
+        // Quick Font Switcher Row
+        if (_preferences.AvailableFonts != null && _preferences.AvailableFonts.Count > 0)
+        {
+            var quickFontLabel = new Label("Quick Switch Registered Fonts:")
+            {
+                style = { fontSize = 11, color = new Color(0.7f, 0.7f, 0.75f), marginTop = 4, marginBottom = 2 }
+            };
+            typographyBox.Add(quickFontLabel);
+
+            var fontButtonsContainer = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, flexWrap = Wrap.Wrap, marginBottom = 6 }
+            };
+
+            for (int i = 0; i < _preferences.AvailableFonts.Count; i++)
+            {
+                var entry = _preferences.AvailableFonts[i];
+                if (!entry.FontAsset) continue;
+
+                bool isActive = _preferences.GlobalFont == entry.FontAsset;
+                var fontBtn = new Button(() =>
+                {
+                    Undo.RecordObject(_preferences, "Switch Console Font");
+                    _preferences.GlobalFont = entry.FontAsset;
+                    EditorUtility.SetDirty(_preferences);
+                    _preferences.NotifyPreferencesChanged();
+                })
+                {
+                    text = string.IsNullOrEmpty(entry.Name) ? entry.FontAsset.name : entry.Name
+                };
+
+                fontBtn.style.height = 24;
+                fontBtn.style.marginRight = 4;
+                fontBtn.style.marginBottom = 4;
+                fontBtn.style.paddingLeft = 8;
+                fontBtn.style.paddingRight = 8;
+                fontBtn.style.backgroundColor = isActive ? new Color(0.1f, 0.45f, 0.8f) : new Color(0.25f, 0.25f, 0.28f);
+                fontBtn.style.color = isActive ? Color.white : new Color(0.85f, 0.85f, 0.85f);
+                fontBtn.style.unityFontStyleAndWeight = isActive ? FontStyle.Bold : FontStyle.Normal;
+
+                fontButtonsContainer.Add(fontBtn);
+            }
+
+            typographyBox.Add(fontButtonsContainer);
+        }
+
+        // Action Row: Scan Project for Fonts
+        var fontActionRow = new VisualElement
+        {
+            style = { flexDirection = FlexDirection.Row, marginTop = 4, marginBottom = 6 }
+        };
+
+        var scanFontsButton = new Button(ScanProjectForFonts)
+        {
+            text = "Scan Project for TMP Fonts"
+        };
+        scanFontsButton.style.flexGrow = 1;
+        scanFontsButton.style.height = 26;
+        scanFontsButton.style.backgroundColor = new Color(0.2f, 0.35f, 0.25f);
+        scanFontsButton.style.color = new Color(0.8f, 1.0f, 0.8f);
+        scanFontsButton.style.unityFontStyleAndWeight = FontStyle.Bold;
+        fontActionRow.Add(scanFontsButton);
+        typographyBox.Add(fontActionRow);
+
+        typographyBox.Add(new PropertyField(serializedObject.FindProperty("AvailableFonts"), "Registered Fonts"));
         typographyBox.Add(new PropertyField(serializedObject.FindProperty("LogTextFontSize"), "Log Text Font Size"));
         typographyBox.Add(new PropertyField(serializedObject.FindProperty("InputTextFontSize"),
             "Search / Input Font Size"));
@@ -106,11 +172,15 @@ public class ConsolePreferencesEditor : Editor
         // Window & Opacity Section
         var windowBox = CreateSectionBox("Window Frame & Transparency");
         windowBox.Add(new PropertyField(serializedObject.FindProperty("Opacity")));
-        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundMainColor")));
-        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundEvenColor")));
-        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundHeaderColor")));
-        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundBottomColor")));
-        windowBox.Add(new PropertyField(serializedObject.FindProperty("SeparatorColor")));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundMainColor"), "Console Window Background"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundEvenColor"), "Log Even Row Color"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundOddColor"), "Log Odd Row Color"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundHoverTextColor"), "Log Hover Highlight"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundSelectionColor"), "Log Selection Highlight"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundHeaderColor"), "Header Bar Color"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundBottomColor"), "Bottom Bar Color"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("BackgroundAutocompleteColor"), "Autocomplete Background Color"));
+        windowBox.Add(new PropertyField(serializedObject.FindProperty("SeparatorColor"), "Separator Line Color"));
         root.Add(windowBox);
 
         // Text Colors Section
@@ -195,6 +265,42 @@ public class ConsolePreferencesEditor : Editor
         Undo.RecordObject(_preferences, "Apply Console Theme");
         _preferences.ApplyPreset(preset);
         EditorUtility.SetDirty(_preferences);
+    }
+
+    private void ScanProjectForFonts()
+    {
+        Undo.RecordObject(_preferences, "Scan Project for TMP Fonts");
+        string[] guids = AssetDatabase.FindAssets("t:TMP_FontAsset");
+        int addedCount = 0;
+
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var fontAsset = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(path);
+            if (!fontAsset) continue;
+
+            string cleanName = fontAsset.name.Replace(" SDF", "").Replace("-Regular", "");
+            bool alreadyExists = false;
+
+            for (int i = 0; i < _preferences.AvailableFonts.Count; i++)
+            {
+                if (_preferences.AvailableFonts[i].FontAsset == fontAsset)
+                {
+                    alreadyExists = true;
+                    break;
+                }
+            }
+
+            if (!alreadyExists)
+            {
+                _preferences.RegisterFont(cleanName, fontAsset);
+                addedCount++;
+            }
+        }
+
+        EditorUtility.SetDirty(_preferences);
+        _preferences.NotifyPreferencesChanged();
+        Debug.Log($"[ConsolePreferences] Scanned project for fonts. Added {addedCount} new TMP Font Assets.");
     }
 }
 }

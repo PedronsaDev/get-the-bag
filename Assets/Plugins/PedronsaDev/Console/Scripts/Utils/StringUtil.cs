@@ -197,5 +197,14 @@ namespace PedronsaDev.Console.Utils
 
 			return string.Join(" ", words);
 		}
+
+		/// <summary>
+		/// Strips rich text markup tags (e.g. <color=#FF0000>, <b>, </i>, </color>) from a string.
+		/// </summary>
+		public static string StripRichText(string input)
+		{
+			if (string.IsNullOrEmpty(input)) return string.Empty;
+			return System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", string.Empty);
+		}
 	}
 }

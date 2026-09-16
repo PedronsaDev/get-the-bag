@@ -12,11 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c67112ec745e7b4cb42433f2d676b0f, type: 3}
   m_Name: Console.Prefs
   m_EditorClassIdentifier: 
-  GlobalFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  GlobalFont: {fileID: 11400000, guid: e9b5144c3519906419cdbf7c73369a58, type: 2}
+  AvailableFonts:
+  - Name: SGr-IosevkaTerm-Light
+    FontAsset: {fileID: 11400000, guid: d2918cca111624142904e4730e17f344, type: 2}
+  - Name: SGr-IosevkaTerm
+    FontAsset: {fileID: 11400000, guid: 5348eed17b01a38459dcede4c25cc79f, type: 2}
+  - Name: SGr-IosevkaTerm-Thin
+    FontAsset: {fileID: 11400000, guid: e9b5144c3519906419cdbf7c73369a58, type: 2}
+  - Name: Inconsolata
+    FontAsset: {fileID: 11400000, guid: f3eaa9d832e80044a8a20aa5ee0f8a7b, type: 2}
+  - Name: JetBrainsMono
+    FontAsset: {fileID: 11400000, guid: 84f1031589f064746b4f1fec59ff41d1, type: 2}
+  - Name: caty
+    FontAsset: {fileID: 11400000, guid: 51243264633769b4da6f3333a4a7e27e, type: 2}
+  - Name: January Snack
+    FontAsset: {fileID: 11400000, guid: f541e09bfbfc9084b8ebb5ff9727f8b6, type: 2}
+  - Name: LiberationSans - Fallback
+    FontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
+  - Name: LiberationSans
+    FontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   Opacity: 1
-  LogTextFontSize: 20
-  InputTextFontSize: 22
-  AutocompleteTextFontSize: 20
+  LogTextFontSize: 16
+  InputTextFontSize: 16
+  AutocompleteTextFontSize: 14
   LogTextColor: {r: 0.87, g: 0.87, b: 0.87, a: 1}
   CommandTextColor: {r: 0.02, g: 0.6, b: 1, a: 1}
   AutocompleteTextColor: {r: 0.764151, g: 0.764151, b: 0.764151, a: 1}
@@ -25,13 +44,14 @@ MonoBehaviour:
   ErrorTextColor: {r: 1, g: 0.26, b: 0.23, a: 1}
   HighlightTextColor: {r: 1, g: 0.71, b: 0, a: 1}
   BackgroundMainColor: {r: 0.12, g: 0.12, b: 0.12, a: 1}
-  BackgroundEvenColor: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 1}
-  BackgroundHoverTextColor: {r: 0.22806162, g: 0.2311766, b: 0.23584908, a: 1}
-  BackgroundSelectionColor: {r: 0.03137255, g: 0.20000002, b: 0.36862746, a: 1}
+  BackgroundEvenColor: {r: 0, g: 0, b: 0, a: 0}
+  BackgroundOddColor: {r: 0, g: 0, b: 0, a: 0.23921569}
+  BackgroundHoverTextColor: {r: 0.16, g: 0.22, b: 0.3, a: 0.65}
+  BackgroundSelectionColor: {r: 0.12, g: 0.38, b: 0.65, a: 0.55}
   BackgroundHeaderColor: {r: 0.08, g: 0.08, b: 0.08, a: 1}
-  BackgroundBottomColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
-  BackgroundAutocompleteColor: {r: 0.16862746, g: 0.1764706, b: 0.18823531, a: 1}
-  SeparatorColor: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
+  BackgroundBottomColor: {r: 0.047169805, g: 0.047169805, b: 0.047169805, a: 1}
+  BackgroundAutocompleteColor: {r: 0.1981132, g: 0.1981132, b: 0.1981132, a: 0.95}
+  SeparatorColor: {r: 0.14150941, g: 0.14150941, b: 0.14150941, a: 1}
   SaveConsoleOutput: 0
   CacheReloadOnPlayMode: 1
   PersistConsole: 0

@@ -62,22 +62,22 @@ namespace Project.Networking.Commands
             }
         }
         
-        [Command("net_show_debug_gui", "Shows or hides the debug GUI")]
-        private static void ShowDebugGUI(int mode)
-        {
-            var net = NetworkManager.main;
-            if (mode == 1)
-            {
-                net.gameObject.GetComponent<QuickPlayBootstrapper>().ShowDebugGui = true;
-            } else if (mode == 0)
-            {
-                net.gameObject.GetComponent<QuickPlayBootstrapper>().ShowDebugGui = false;
-            }
-            else
-            {
-                Console.LogWarning($"[show_debug_gui] Invalid mode {mode}. Use 1 to show, 0 to hide.");
-            }
-        }
+        // [Command("net_show_debug_gui", "Shows or hides the debug GUI")]
+        // private static void ShowDebugGUI(int mode)
+        // {
+        //     var net = NetworkManager.main;
+        //     if (mode == 1)
+        //     {
+        //         net.gameObject.GetComponent<QuickPlayBootstrapper>().ShowDebugGui = true;
+        //     } else if (mode == 0)
+        //     {
+        //         net.gameObject.GetComponent<QuickPlayBootstrapper>().ShowDebugGui = false;
+        //     }
+        //     else
+        //     {
+        //         Console.LogWarning($"[show_debug_gui] Invalid mode {mode}. Use 1 to show, 0 to hide.");
+        //     }
+        // }
 
         // -------------------------------------------------------------
         // HOST-AUTHORITATIVE / DEV COMMANDS (Restricted to Host)

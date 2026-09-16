@@ -13,7 +13,7 @@ namespace PedronsaDev.Console.Components
 		private int m_MaxLogMessages = 200;
 
 		private readonly Queue<LogMessageSetup> _logMessagePool = new();
-		private bool m_IsLastMessageEven;
+		private int _visibleLogCount = 0;
 
 		private void OnEnable()
 		{
@@ -23,6 +23,10 @@ namespace PedronsaDev.Console.Components
 			Console.OnClear += HandleClear;
 			Console.OnClearAutocompletions += HandleClearAutocompletions;
 			Console.OnFilterChanged += ApplyFilter;
+			if (m_Preferences)
+			{
+				m_Preferences.OnPreferencesChanged += HandlePreferencesChanged;
+			}
 		}
 
 		private void OnDisable()
@@ -33,6 +37,36 @@ namespace PedronsaDev.Console.Components
 			Console.OnClear -= HandleClear;
 			Console.OnClearAutocompletions -= HandleClearAutocompletions;
 			Console.OnFilterChanged -= ApplyFilter;
+			if (m_Preferences)
+			{
+				m_Preferences.OnPreferencesChanged -= HandlePreferencesChanged;
+			}
+		}
+
+		private void HandlePreferencesChanged()
+		{
+			if (!m_Preferences) return;
+
+			for (int i = 0; i < Console.LogMessages.Count; i++)
+			{
+				var setup = Console.LogMessages[i].LogMessageSetup;
+				if (setup != null)
+				{
+					setup.UpdateFont(m_Preferences.GlobalFont, m_Preferences.LogTextFontSize);
+				}
+			}
+
+			for (int i = 0; i < Console.AutocompletionLogMessages.Count; i++)
+			{
+				var setup = Console.AutocompletionLogMessages[i].LogMessageSetup;
+				if (setup != null)
+				{
+					setup.UpdateFont(m_Preferences.GlobalFont, m_Preferences.AutocompleteTextFontSize);
+					setup.SetBackgroundColor(m_Preferences.BackgroundAutocompleteColor);
+				}
+			}
+
+			RefreshLogColors();
 		}
 
 		private void ApplyFilter(Console.LogFilterMode filter)
@@ -45,6 +79,8 @@ namespace PedronsaDev.Console.Components
 				bool visible = IsLogVisibleUnderFilter(msg, filter);
 				msg.LogMessageSetup.gameObject.SetActive(visible);
 			}
+
+			RefreshLogColors();
 		}
 
 		private static bool IsLogVisibleUnderFilter(LogMessage msg, Console.LogFilterMode filter)
@@ -68,9 +104,14 @@ namespace PedronsaDev.Console.Components
 				if (setup != null && setup.gameObject != null)
 				{
 					setup.gameObject.SetActive(false);
+					if (setup.TryGetComponent<LogMessageSelector>(out var selector))
+					{
+						selector.ResetState();
+					}
 					_logMessagePool.Enqueue(setup);
 				}
 			}
+			_visibleLogCount = 0;
 		}
 
 		private void HandleClearAutocompletions()
@@ -101,6 +142,10 @@ namespace PedronsaDev.Console.Components
 					setup = candidate;
 					setup.gameObject.SetActive(true);
 					setup.transform.SetAsLastSibling();
+					if (setup.TryGetComponent<LogMessageSelector>(out var selector))
+					{
+						selector.ResetState();
+					}
 					break;
 				}
 			}
@@ -126,6 +171,7 @@ namespace PedronsaDev.Console.Components
 		private void GenerateLogMessage(LogMessage logMessage)
 		{
 			LogMessageSetup logInstanceSetup;
+			bool didRecycleOldest = false;
 
 			// Circular buffer: recycle oldest item if max capacity reached
 			if (Console.LogMessages.Count >= m_MaxLogMessages && Console.LogMessages.Count > 0)
@@ -137,6 +183,11 @@ namespace PedronsaDev.Console.Components
 				{
 					logInstanceSetup = oldest.LogMessageSetup;
 					logInstanceSetup.transform.SetAsLastSibling();
+					if (logInstanceSetup.TryGetComponent<LogMessageSelector>(out var selector))
+					{
+						selector.ResetState();
+					}
+					didRecycleOldest = true;
 				}
 				else
 				{
@@ -159,19 +210,58 @@ namespace PedronsaDev.Console.Components
 			var color = logMessage.Type == LogMessageType.Custom ? logMessage.CustomColor : GetLogMessageTextColor(logMessage.Type);
 			logInstanceSetup.SetText(logMessageText, logMessage.AltText, color, m_Preferences.GlobalFont, fontSize);
 
-			if (m_IsLastMessageEven)
-			{
-				logInstanceSetup.SetBackgroundColor(m_Preferences.BackgroundEvenColor);
-			}
-
-			m_IsLastMessageEven = !m_IsLastMessageEven;
-
 			logMessage.LogMessageSetup = logInstanceSetup;
 			logMessage.LogMessageSelector = logInstanceSetup.GetComponent<LogMessageSelector>();
+			logInstanceSetup.LogMessage = logMessage;
 
-			logInstanceSetup.gameObject.SetActive(IsLogVisibleUnderFilter(logMessage, Console.ActiveFilter));
+			bool isVisible = IsLogVisibleUnderFilter(logMessage, Console.ActiveFilter);
+			logInstanceSetup.gameObject.SetActive(isVisible);
 
 			Console.LogMessages.Add(logMessage);
+
+			if (didRecycleOldest)
+			{
+				RefreshLogColors();
+			}
+			else if (isVisible)
+			{
+				bool isEven = (_visibleLogCount % 2) == 1;
+				Color rowColor = isEven ? m_Preferences.BackgroundEvenColor : m_Preferences.BackgroundOddColor;
+				logInstanceSetup.SetBackgroundColor(rowColor);
+				_visibleLogCount++;
+			}
+			else
+			{
+				logInstanceSetup.SetBackgroundColor(m_Preferences.BackgroundOddColor);
+			}
+		}
+
+		/// <summary>
+		/// Recalculates alternating even and odd colors for all visible log rows.
+		/// </summary>
+		private void RefreshLogColors()
+		{
+			if (!m_Preferences) return;
+
+			_visibleLogCount = 0;
+			for (int i = 0; i < Console.LogMessages.Count; i++)
+			{
+				var msg = Console.LogMessages[i];
+				var setup = msg.LogMessageSetup;
+				if (setup == null || setup.gameObject == null) continue;
+
+				if (setup.gameObject.activeSelf)
+				{
+					bool isEven = (_visibleLogCount % 2) == 1;
+					Color rowColor = isEven ? m_Preferences.BackgroundEvenColor : m_Preferences.BackgroundOddColor;
+					setup.SetBackgroundColor(rowColor);
+					_visibleLogCount++;
+				}
+				else
+				{
+					setup.SetBackgroundColor(m_Preferences.BackgroundOddColor);
+				}
+			}
 		}
 
 		/// <summary>
@@ -193,6 +283,7 @@ namespace PedronsaDev.Console.Components
 
 			logMessage.LogMessageSetup = logInstanceSetup;
 			logMessage.LogMessageSelector = logInstanceSetup.GetComponent<LogMessageSelector>();
+			logInstanceSetup.LogMessage = logMessage;
 
 			Console.AutocompletionLogMessages.Add(logMessage);
 		}
