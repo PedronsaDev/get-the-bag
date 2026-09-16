@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ImprovedTimers;
 using Project.Core.Player;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -160,7 +161,7 @@ public class ExtractionZone : NetworkBehaviour
             }
         }
 
-        Debug.Log($"[ExfilZone] Exfil countdown complete. {extractedPlayers.Count} extracted, {leftBehindPlayers.Count} left behind.");
+        AppLog.Log(LogChannel.Match, $"[ExfilZone] Exfil countdown complete. {extractedPlayers.Count} extracted, {leftBehindPlayers.Count} left behind.");
     }
 
     private void ApplyExtractionToPlayerServer(PlayerID playerID)
@@ -202,13 +203,13 @@ public class ExtractionZone : NetworkBehaviour
     private void HandleLocalPlayerLeftBehind()
     {
         // Clear player inventory, call raid summary and call playerInventorBridge
-        Debug.Log("<color=red>[Extraction] You were left behind</color>");
+        AppLog.Log(LogChannel.Match, "[Extraction] <color=red>You were left behind and failed to extract.</color>");
     }
 
     private void HandleLocalPlayerExtracted()
     {
         // call raid summary and call playerInventorBridge
-        Debug.Log("<color=green>[Extraction] You successfully extracted</color>");
+        AppLog.Log(LogChannel.Match, "[Extraction] <color=green>You successfully extracted.</color>");
     }
 }
 }

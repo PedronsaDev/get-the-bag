@@ -11,7 +11,13 @@ public class PlayerLocomotionAnimator : NetworkBehaviour
     [SerializeField] private NetworkAnimator _networkAnimator;
     [SerializeField] private LocomotionController _locomotionController;
 
+    [Header("Damping")]
+    [SerializeField] private float _inputDampingSpeed = 12f;
+
     private readonly HashSet<int> _availableParameterHashes = new();
+    private float _currentHorizontal;
+    private float _currentVertical;
+    private float _currentSpeed;
 
     private static readonly int AnimationStateHash = Animator.StringToHash("AnimationState");
     private static readonly int LocomotionPhaseHash = Animator.StringToHash("LocomotionPhase");
@@ -24,6 +30,17 @@ public class PlayerLocomotionAnimator : NetworkBehaviour
     private static readonly int IsCrouchingHash = Animator.StringToHash("IsCrouching");
     private static readonly int IsDownedHash = Animator.StringToHash("IsDowned");
     private static readonly int IdleHash = Animator.StringToHash("Idle");
+    private static readonly int SlidingHash = Animator.StringToHash("IsSliding");
+
+    private void Awake()
+    {
+        if (!_animator)
+            _animator = GetComponent<Animator>() ?? GetComponentInChildren<Animator>();
+        if (!_networkAnimator)
+            _networkAnimator = GetComponent<NetworkAnimator>() ?? GetComponentInChildren<NetworkAnimator>();
+        if (!_locomotionController)
+            _locomotionController = GetComponent<LocomotionController>() ?? GetComponentInParent<LocomotionController>();
+    }
 
     protected override void OnSpawned()
     {
@@ -63,9 +80,27 @@ public class PlayerLocomotionAnimator : NetworkBehaviour
         SetInt(AnimationStateHash, (int)state.AnimationState);
         SetInt(LocomotionPhaseHash, (int)state.Phase);
 
-        SetFloat(HorizontalAxisHash, state.MoveInput.x);
-        SetFloat(VerticalAxisHash, state.MoveInput.y);
-        SetFloat(MoveSpeedHash, state.MoveInputMagnitude);
+        float dt = Time.deltaTime;
+        float targetH = state.MoveInput.x;
+        float targetV = state.MoveInput.y;
+        float targetSpeed = state.MoveInputMagnitude;
+
+        if (dt > 0f)
+        {
+            _currentHorizontal = Mathf.MoveTowards(_currentHorizontal, targetH, dt * _inputDampingSpeed);
+            _currentVertical = Mathf.MoveTowards(_currentVertical, targetV, dt * _inputDampingSpeed);
+            _currentSpeed = Mathf.MoveTowards(_currentSpeed, targetSpeed, dt * _inputDampingSpeed);
+        }
+        else
+        {
+            _currentHorizontal = targetH;
+            _currentVertical = targetV;
+            _currentSpeed = targetSpeed;
+        }
+
+        SetFloat(HorizontalAxisHash, _currentHorizontal);
+        SetFloat(VerticalAxisHash, _currentVertical);
+        SetFloat(MoveSpeedHash, _currentSpeed);
 
         bool isGrounded = state.Phase == LocomotionPhase.Grounded;
         bool isMoving = state.MoveInputMagnitude > 0.1f;
@@ -75,6 +110,7 @@ public class PlayerLocomotionAnimator : NetworkBehaviour
         SetBool(IsCrouchingHash, state.IsCrouching);
         SetBool(IdleHash, state.AnimationState == LocomotionAnimationState.Idle);
         SetBool(IsDownedHash, state.IsDowned);
+        SetBool(SlidingHash, state.IsSliding);
     }
 
     private void CacheAnimatorParameters()

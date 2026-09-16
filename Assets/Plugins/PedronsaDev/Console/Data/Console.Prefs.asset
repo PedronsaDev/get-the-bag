@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c67112ec745e7b4cb42433f2d676b0f, type: 3}
   m_Name: Console.Prefs
   m_EditorClassIdentifier: 
-  GlobalFont: {fileID: 11400000, guid: f3eaa9d832e80044a8a20aa5ee0f8a7b, type: 2}
+  GlobalFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   Opacity: 1
   LogTextFontSize: 20
   InputTextFontSize: 22

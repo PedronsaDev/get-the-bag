@@ -29,7 +29,7 @@ namespace Project.Player
         [SerializeField] private Transform _cameraTargetPoint;
         [SerializeField] private PlayerFacade _playerFacade;
         
-        private UnityEngine.Camera _cam;
+        private Camera _cam;
         
         private float _currentPitch;
         private float _currentYaw;

@@ -79,6 +79,22 @@ public struct LocomotionState
     public float VaultTimer;
 }
 
+[Serializable]
+public struct VaultEvaluation
+{
+    public bool CanVault;
+    public bool HasWallHit;
+    public bool HasLedgeHit;
+    public bool IsLedgeSurfaceWalkable;
+    public bool IsLandingClear;
+    public bool IsWallVertical;
+    public RaycastHit WallHit;
+    public RaycastHit LedgeHit;
+    public Vector3 TargetFootPos;
+    public float LedgeHeight;
+    public string FailureReason;
+}
+
 
 public class LocomotionController : NetworkBehaviour, ICharacterController
 {
@@ -344,6 +360,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [Header("Vaulting & Ledge Grab")]
     [SerializeField] private LayerMask _vaultLayerMask = ~0;
     [SerializeField] private float _vaultCheckDistance = 2f;
+    [SerializeField] private float _minVaultHeight = 0.4f;
     [SerializeField] private float _maxVaultHeight = 2f;
     [SerializeField] private float _vaultDuration = 0.7f;
 
@@ -383,6 +400,8 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     public float StandingHeight => _standingHeight;
     public float CrouchingHeight => _crouchingHeight;
     public float DownedCapsuleHeight => _downedCapsuleHeight;
+    public float MinVaultHeight => _minVaultHeight;
+    public float MaxVaultHeight => _maxVaultHeight;
 
     public void SetDowned(bool downed)
     {
@@ -558,35 +577,130 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         TryQueueJumpFromBuffer();
     }
 
+    public VaultEvaluation EvaluateVault()
+    {
+        var eval = new VaultEvaluation();
+        if (_isDowned || _isDraggingTeammate || !_motor)
+        {
+            eval.FailureReason = "Disabled / Downed";
+            return eval;
+        }
+
+        Vector3 basePos = _motor.TransientPosition;
+        Vector3 up = _motor.CharacterUp;
+        Vector3 forward = (Application.isPlaying && _lookInputVector.sqrMagnitude > 0.1f)
+            ? _lookInputVector.normalized
+            : transform.forward;
+
+        float radius = _motor.Capsule ? _motor.Capsule.radius : 0.5f;
+        float height = _motor.Capsule ? _motor.Capsule.height : _standingHeight;
+
+        // 1. Forward Wall Detection:
+        // Cast at lower torso (0.45m) and mid torso (0.9m) to detect both low barriers and walls.
+        float lowCheckHeight = Mathf.Clamp(_minVaultHeight, 0.3f, 0.6f);
+        float midCheckHeight = Mathf.Clamp(_maxVaultHeight * 0.5f, 0.7f, 1.1f);
+
+        Vector3 rayOriginLow = basePos + up * lowCheckHeight;
+        Vector3 rayOriginMid = basePos + up * midCheckHeight;
+
+        bool hitMid = UnityPhysics.Raycast(rayOriginMid, forward, out RaycastHit wallHitMid, _vaultCheckDistance, _vaultLayerMask, QueryTriggerInteraction.Ignore);
+        bool hitLow = UnityPhysics.Raycast(rayOriginLow, forward, out RaycastHit wallHitLow, _vaultCheckDistance, _vaultLayerMask, QueryTriggerInteraction.Ignore);
+
+        RaycastHit wallHit;
+        if (hitLow && hitMid)
+        {
+            wallHit = wallHitLow.distance <= wallHitMid.distance ? wallHitLow : wallHitMid;
+            eval.HasWallHit = true;
+        }
+        else if (hitLow)
+        {
+            wallHit = wallHitLow;
+            eval.HasWallHit = true;
+        }
+        else if (hitMid)
+        {
+            wallHit = wallHitMid;
+            eval.HasWallHit = true;
+        }
+        else
+        {
+            eval.FailureReason = "No wall in range";
+            return eval;
+        }
+
+        eval.WallHit = wallHit;
+
+        // Ensure wall is roughly vertical (normal perpendicular to up, within ~20 deg)
+        eval.IsWallVertical = Mathf.Abs(Vector3.Dot(wallHit.normal, up)) < 0.35f;
+        if (!eval.IsWallVertical)
+        {
+            eval.FailureReason = "Wall is not vertical";
+            return eval;
+        }
+
+        // 2. Ledge Top Detection:
+        // Step slightly past the wall front surface along inward normal
+        Vector3 inwardPos = wallHit.point - (wallHit.normal * 0.15f);
+        // Start downward ray above max vault height relative to player's current feet
+        Vector3 ledgeRayOrigin = Vector3.ProjectOnPlane(inwardPos - basePos, up) + basePos + up * (_maxVaultHeight + 0.15f);
+        float dropDistance = _maxVaultHeight + 0.15f - (_minVaultHeight * 0.5f);
+
+        if (!UnityPhysics.Raycast(ledgeRayOrigin, -up, out RaycastHit ledgeHit, dropDistance, _vaultLayerMask, QueryTriggerInteraction.Ignore))
+        {
+            eval.FailureReason = "Wall too high (No ledge surface)";
+            return eval;
+        }
+
+        eval.HasLedgeHit = true;
+        eval.LedgeHit = ledgeHit;
+
+        float ledgeHeight = Vector3.Dot(ledgeHit.point - basePos, up);
+        eval.LedgeHeight = ledgeHeight;
+
+        // Check if ledge height is within [minVaultHeight, maxVaultHeight]
+        if (ledgeHeight < _minVaultHeight)
+        {
+            eval.FailureReason = $"Ledge too low ({ledgeHeight:F2}m < {_minVaultHeight:F2}m)";
+            return eval;
+        }
+
+        if (ledgeHeight > _maxVaultHeight)
+        {
+            eval.FailureReason = $"Ledge too high ({ledgeHeight:F2}m > {_maxVaultHeight:F2}m)";
+            return eval;
+        }
+
+        // Ensure top surface is walkable (normal pointing up, slope <= 45 deg)
+        eval.IsLedgeSurfaceWalkable = Vector3.Dot(ledgeHit.normal, up) >= 0.7f;
+        if (!eval.IsLedgeSurfaceWalkable)
+        {
+            eval.FailureReason = "Ledge surface too steep";
+            return eval;
+        }
+
+        // 3. Landing Clearance Check:
+        Vector3 targetFootPos = ledgeHit.point + (forward * (radius * 1.15f));
+        eval.TargetFootPos = targetFootPos;
+
+        Vector3 capsuleBottom = targetFootPos + up * (radius + 0.05f);
+        Vector3 capsuleTop = targetFootPos + up * (height - radius);
+
+        eval.IsLandingClear = !UnityPhysics.CheckCapsule(capsuleBottom, capsuleTop, radius * 0.95f, _vaultLayerMask, QueryTriggerInteraction.Ignore);
+        if (!eval.IsLandingClear)
+        {
+            eval.FailureReason = "Landing space obstructed";
+            return eval;
+        }
+
+        eval.CanVault = true;
+        return eval;
+    }
+
     private bool CanVault(out Vector3 targetFootPos)
     {
-        targetFootPos = Vector3.zero;
-        if (_isDowned || _isDraggingTeammate) return false;
-
-        Vector3 forward = _lookInputVector.sqrMagnitude > 0.1f ? _lookInputVector.normalized : _motor.CharacterForward;
-
-        Vector3 chestPos = _motor.TransientPosition; //+ _motor.CharacterUp; //* (_motor.Capsule.height * 0.5f);
-
-        if (Physics.Raycast(chestPos, forward, out RaycastHit wallHit, _vaultCheckDistance, _vaultLayerMask, QueryTriggerInteraction.Ignore))
-        {
-            if (Mathf.Abs(Vector3.Dot(wallHit.normal, _motor.CharacterUp)) < 0.2f)
-            {
-                Vector3 ledgeRayOrigin = wallHit.point - (wallHit.normal * 0.1f) + (_motor.CharacterUp * _maxVaultHeight);
-
-                if (Physics.Raycast(ledgeRayOrigin, -_motor.CharacterUp, out RaycastHit ledgeHit, _maxVaultHeight, _vaultLayerMask, QueryTriggerInteraction.Ignore))
-                {
-                    targetFootPos = ledgeHit.point + (forward * (_motor.Capsule.radius * 1.2f));
-                    Vector3 capsuleBottom = targetFootPos + _motor.CharacterUp * (_motor.Capsule.radius + 0.05f);
-                    Vector3 capsuleTop = targetFootPos + _motor.CharacterUp * (_motor.Capsule.height - _motor.Capsule.radius);
-
-                    if (!Physics.CheckCapsule(capsuleBottom, capsuleTop, _motor.Capsule.radius, _vaultLayerMask, QueryTriggerInteraction.Ignore))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        var eval = EvaluateVault();
+        targetFootPos = eval.TargetFootPos;
+        return eval.CanVault;
     }
 
     public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -1091,27 +1205,55 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
                 UnityEditor.Handles.Label(wjTip + up * 0.15f, "WALL JUMP READY", GetDebugMiniLabelStyle(wjColor));
             }
 
-            // Vault check
-            Vector3 chestPos = pos + up * (height * 0.7f);
+            // Vault check (Uses exact shared EvaluateVault result)
+            var vaultEval = EvaluateVault();
+
             Vector3 lookFwd = (Application.isPlaying && _lookInputVector.sqrMagnitude > 0.1f) ? _lookInputVector.normalized : fwd;
-            UnityEditor.Handles.color = new Color(0.2f, 0.5f, 1.0f, 0.6f);
-            UnityEditor.Handles.DrawLine(chestPos, chestPos + lookFwd * _vaultCheckDistance);
+            Vector3 rayOriginMid = pos + up * Mathf.Clamp(_maxVaultHeight * 0.5f, 0.7f, 1.1f);
 
-            if (UnityPhysics.Raycast(chestPos, lookFwd, out RaycastHit wallHit, _vaultCheckDistance, _vaultLayerMask, QueryTriggerInteraction.Ignore))
+            // Draw forward check ray
+            UnityEditor.Handles.color = vaultEval.HasWallHit
+                ? (vaultEval.CanVault ? Color.green : new Color(0.95f, 0.6f, 0.1f, 0.8f))
+                : new Color(0.2f, 0.5f, 1.0f, 0.4f);
+            UnityEditor.Handles.DrawLine(rayOriginMid, rayOriginMid + lookFwd * _vaultCheckDistance);
+
+            if (vaultEval.HasWallHit)
             {
-                UnityEditor.Handles.color = Color.green;
-                UnityEditor.Handles.DrawWireDisc(wallHit.point, wallHit.normal, 0.08f);
+                // Wall hit disc
+                UnityEditor.Handles.color = vaultEval.IsWallVertical ? Color.cyan : Color.red;
+                UnityEditor.Handles.DrawWireDisc(vaultEval.WallHit.point, vaultEval.WallHit.normal, 0.08f);
 
-                Vector3 ledgeRayOrigin = wallHit.point - (wallHit.normal * 0.1f) + (up * _maxVaultHeight);
-                UnityEditor.Handles.DrawLine(ledgeRayOrigin, ledgeRayOrigin - up * _maxVaultHeight);
+                // Downward ledge ray
+                Vector3 inwardPos = vaultEval.WallHit.point - (vaultEval.WallHit.normal * 0.15f);
+                Vector3 ledgeRayOrigin = Vector3.ProjectOnPlane(inwardPos - pos, up) + pos + up * (_maxVaultHeight + 0.15f);
+                float dropDistance = _maxVaultHeight + 0.15f - (_minVaultHeight * 0.5f);
 
-                if (UnityPhysics.Raycast(ledgeRayOrigin, -up, out RaycastHit ledgeHit, _maxVaultHeight, _vaultLayerMask, QueryTriggerInteraction.Ignore))
+                UnityEditor.Handles.color = vaultEval.HasLedgeHit
+                    ? (vaultEval.CanVault ? Color.green : new Color(0.95f, 0.35f, 0.2f, 0.9f))
+                    : Color.gray;
+                UnityEditor.Handles.DrawLine(ledgeRayOrigin, ledgeRayOrigin - up * dropDistance);
+
+                if (vaultEval.HasLedgeHit)
                 {
-                    UnityEditor.Handles.DrawSolidDisc(ledgeHit.point, ledgeHit.normal, 0.06f);
+                    UnityEditor.Handles.DrawSolidDisc(vaultEval.LedgeHit.point, vaultEval.LedgeHit.normal, 0.06f);
 
-                    Vector3 targetFootPos = ledgeHit.point + (lookFwd * radius);
-                    DrawWireCapsule(targetFootPos, up, fwd, rgt, radius, height, new Color(0.2f, 0.9f, 0.4f, 0.5f));
-                    UnityEditor.Handles.Label(targetFootPos + up * height, "VAULT LANDING", GetDebugMiniLabelStyle(Color.green));
+                    if (vaultEval.CanVault)
+                    {
+                        // Draw green landing ghost capsule
+                        DrawWireCapsule(vaultEval.TargetFootPos, up, fwd, rgt, radius, height, new Color(0.2f, 0.9f, 0.4f, 0.6f));
+                        UnityEditor.Handles.Label(vaultEval.TargetFootPos + up * height, $"VAULT READY ({vaultEval.LedgeHeight:F2}m)", GetDebugMiniLabelStyle(Color.green));
+                    }
+                    else if (selected)
+                    {
+                        // Draw red/orange reason why vault is not possible at this height
+                        Color failColor = new Color(0.95f, 0.35f, 0.2f, 1f);
+                        DrawWireCapsule(vaultEval.TargetFootPos, up, fwd, rgt, radius, height, new Color(0.95f, 0.35f, 0.2f, 0.25f));
+                        UnityEditor.Handles.Label(vaultEval.TargetFootPos + up * (height * 0.5f), $"CANNOT VAULT:\n{vaultEval.FailureReason}", GetDebugMiniLabelStyle(failColor));
+                    }
+                }
+                else if (selected)
+                {
+                    UnityEditor.Handles.Label(ledgeRayOrigin - up * (dropDistance * 0.5f), "WALL TOO HIGH\n(No Ledge In Reach)", GetDebugMiniLabelStyle(new Color(0.95f, 0.35f, 0.2f, 1f)));
                 }
             }
         }

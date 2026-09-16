@@ -25,15 +25,19 @@ namespace PurrLobby
         // Prevents duplicate scene transitions
         private static bool _hasAlreadySwitched = false;
 
+        private void Awake()
+        {
+            _hasAlreadySwitched = false;
+        }
+
         private void Start()
         {
-            if (subscribeToOnAllReady && lobbyManager != null)
+            if (subscribeToOnAllReady && lobbyManager)
             {
                 // Subscribe to OnAllReady event - fires after SetAllReadyAsync() completes
                 // For Unity Relay: This ensures relay allocation is done before scene switch
                 // For other providers: This ensures lobby setup is complete
                 lobbyManager.OnAllReady.AddListener(SwitchScene);
-                _hasAlreadySwitched = false;
             }
         }
 
@@ -69,7 +73,7 @@ namespace PurrLobby
             PurrLogger.Log($"Switching to scene: {nextScene}", this);
             
             // Mark lobby as started to prevent new players from joining
-            if (lobbyManager != null)
+            if (lobbyManager)
             {
                 lobbyManager.SetLobbyStarted();
             }

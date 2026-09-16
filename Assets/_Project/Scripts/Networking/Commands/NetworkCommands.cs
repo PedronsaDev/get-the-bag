@@ -62,7 +62,7 @@ namespace Project.Networking.Commands
             }
         }
         
-        [Command("show_net_debug_gui", "Shows or hides the debug GUI")]
+        [Command("net_show_debug_gui", "Shows or hides the debug GUI")]
         private static void ShowDebugGUI(int mode)
         {
             var net = NetworkManager.main;
@@ -83,7 +83,7 @@ namespace Project.Networking.Commands
         // HOST-AUTHORITATIVE / DEV COMMANDS (Restricted to Host)
         // -------------------------------------------------------------
 
-        [Command("host_scene", "Loads a new scene across all connected players (Host only)", HostOnly = true)]
+        [Command("net_host_scene", "Loads a new scene across all connected players (Host only)", HostOnly = true)]
         public static void ChangeScene(string sceneName)
         {
             if (!ValidateHostAuthority("host_scene")) return;
@@ -98,7 +98,7 @@ namespace Project.Networking.Commands
             NetworkSceneCoordinator.Instance.TransitionToScene(sceneName);
         }
 
-        [Command("host_kick", "Kicks a player from the session (Host only)", HostOnly = true)]
+        [Command("net_host_kick", "Kicks a player from the session (Host only)", HostOnly = true)]
         public static void KickPlayer(int playerId)
         {
             if (!ValidateHostAuthority("host_kick")) return;

@@ -13,20 +13,6 @@ MonoBehaviour:
   m_Name: Console.Cache
   m_EditorClassIdentifier: 
   CommandRegistry:
-  - Name: bleedout_set
-    Description: 'Sets the remaining bleedout timer on a downed player. Usage: bleedout_set <seconds> [playerId]'
-    TargetType: 0
-    Group: Combat&Health
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: SetBleedout
-      Parameters:
-      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
   - Name: capture_screenshot
     Description: Captures a screenshot and saves it to the supplied file path as a PNG.
     TargetType: 0
@@ -77,34 +63,6 @@ MonoBehaviour:
       MethodName: CopyLogsToClipboard
       Parameters: []
       Flags: 24
-  - Name: damage
-    Description: 'Deals damage to the player (absorbed by shields first). Usage: damage <amount> [playerId]'
-    TargetType: 0
-    Group: Combat&Health
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: Damage
-      Parameters:
-      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
-  - Name: damage_hp
-    Description: 'Deals true damage directly to health, bypassing shields. Usage: damage_hp <amount> [playerId]'
-    TargetType: 0
-    Group: Combat&Health
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: DamageHp
-      Parameters:
-      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
   - Name: delete_playerprefs
     Description: Deletes all the players prefs
     TargetType: 0
@@ -130,51 +88,12 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: down
-    Description: 'Forces the target player into the downed state. Usage: down [playerId]'
-    TargetType: 0
-    Group: Combat&Health
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: Down
-      Parameters:
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
-  - Name: drag_release
-    Description: 'Forces release of any active dragging on this player. Usage: drag_release [playerId]'
-    TargetType: 0
-    Group: Combat&Health
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: DragRelease
-      Parameters:
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
   - Name: drop
-    Description: (Alias for drop_weapon) Drops the currently equipped weapon into the scene as a 3D world pickup
+    Description: (Alias for weap_drop) Drops the currently equipped weapon into the scene as a 3D world pickup
     TargetType: 0
     Group: Weapons
     HostOnly: 0
     Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: DropWeapon
-      Parameters: []
-      Flags: 24
-  - Name: drop_weapon
-    Description: Drops the currently equipped weapon into the scene as a 3D world pickup
-    TargetType: 0
-    Group: Weapons
-    HostOnly: 0
-    Aliases:
-    - drop
     SerializableMethod:
       Type:
         Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
@@ -356,36 +275,75 @@ MonoBehaviour:
       MethodName: GetTimeScale
       Parameters: []
       Flags: 24
-  - Name: give_preset
-    Description: Gives the local player a dedicated weapon preset by ID (e.g. give_preset preset_unkempt_harold 15)
+  - Name: hc_bleedout_set
+    Description: 'Sets the remaining bleedout timer on a downed player. Usage: bleedout_set <seconds> [playerId]'
     TargetType: 0
-    Group: Weapons
+    Group: Combat&Health
     HostOnly: 0
     Aliases: []
     SerializableMethod:
       Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: GivePreset
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetBleedout
       Parameters:
-      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005853797374656d2e427974652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: give_weapon
-    Description: Gives the local player a procedural weapon by string ID (e.g. give_weapon core_pistol_01 5 Legendary)
+  - Name: hc_damage
+    Description: 'Deals damage to the player (absorbed by shields first). Usage: damage <amount> [playerId]'
     TargetType: 0
-    Group: Weapons
+    Group: Combat&Health
     HostOnly: 0
     Aliases: []
     SerializableMethod:
       Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: GiveWeapon
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Damage
       Parameters:
-      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005853797374656d2e427974652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: god
+  - Name: hc_damage_hp
+    Description: 'Deals true damage directly to health, bypassing shields. Usage: damage_hp <amount> [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DamageHp
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hc_down
+    Description: 'Forces the target player into the downed state. Usage: down [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Down
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hc_drag_release
+    Description: 'Forces release of any active dragging on this player. Usage: drag_release [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DragRelease
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hc_god
     Description: 'Toggles invulnerability on the player. Usage: god [playerId]'
     TargetType: 0
     Group: Combat&Health
@@ -398,7 +356,7 @@ MonoBehaviour:
       Parameters:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: heal
+  - Name: hc_heal
     Description: 'Heals the player by specified amount. Usage: heal <amount> [playerId]'
     TargetType: 0
     Group: Combat&Health
@@ -412,7 +370,7 @@ MonoBehaviour:
       - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: heal_full
+  - Name: hc_heal_full
     Description: 'Fully heals, restores shields, and revives the player if downed or dead. Usage: heal_full [playerId]'
     TargetType: 0
     Group: Combat&Health
@@ -425,7 +383,7 @@ MonoBehaviour:
       Parameters:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: health_status
+  - Name: hc_health_status
     Description: 'Displays comprehensive health, shield, downed state, and bleedout timers for a player (default: local player)'
     TargetType: 0
     Group: Combat&Health
@@ -435,6 +393,32 @@ MonoBehaviour:
       Type:
         Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       MethodName: HealthStatus
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hc_kill
+    Description: 'Instantly executes true death on the player. Usage: kill [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Kill
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hc_revive
+    Description: 'Revives a downed or dead player. Usage: revive [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Revive
       Parameters:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
@@ -450,32 +434,6 @@ MonoBehaviour:
       MethodName: PrintHelp
       Parameters: []
       Flags: 24
-  - Name: host_kick
-    Description: Kicks a player from the session (Host only)
-    TargetType: 0
-    Group: Network
-    HostOnly: 1
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: KickPlayer
-      Parameters:
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
-  - Name: host_scene
-    Description: Loads a new scene across all connected players (Host only)
-    TargetType: 0
-    Group: Network
-    HostOnly: 1
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: ChangeScene
-      Parameters:
-      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
   - Name: input_fontsize
     Description: '(Alias for set_input_font_size) Sets the font size for the search/input bar (default: 24)'
     TargetType: 0
@@ -489,19 +447,6 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 20
-  - Name: kill
-    Description: 'Instantly executes true death on the player. Usage: kill [playerId]'
-    TargetType: 0
-    Group: Combat&Health
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: Kill
-      Parameters:
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
   - Name: load_game
     Description: Loads the game data from the active profile
     TargetType: 0
@@ -541,7 +486,7 @@ MonoBehaviour:
       - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
   - Name: loco_gizmos
-    Description: '(Alias for movement_gizmos) Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
+    Description: '(Alias for loco_movement_gizmos) Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
     TargetType: 0
     Group: Movement
     HostOnly: 0
@@ -553,8 +498,38 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: loco_movement_gizmos
+    Description: 'Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases:
+    - loco_gizmos
+    - mgizmos
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleGizmos
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: loco_movement_status
+    Description: 'Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases:
+    - loco_status
+    - mstatus
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: MovementStatus
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
   - Name: loco_status
-    Description: '(Alias for movement_status) Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
+    Description: '(Alias for loco_movement_status) Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
     TargetType: 0
     Group: Movement
     HostOnly: 0
@@ -711,7 +686,7 @@ MonoBehaviour:
       - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       Flags: 24
   - Name: mgizmos
-    Description: '(Alias for movement_gizmos) Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
+    Description: '(Alias for loco_movement_gizmos) Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
     TargetType: 0
     Group: Movement
     HostOnly: 0
@@ -723,38 +698,8 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: movement_gizmos
-    Description: 'Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]'
-    TargetType: 0
-    Group: Movement
-    HostOnly: 0
-    Aliases:
-    - loco_gizmos
-    - mgizmos
-    SerializableMethod:
-      Type:
-        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: ToggleGizmos
-      Parameters:
-      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
-  - Name: movement_status
-    Description: 'Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
-    TargetType: 0
-    Group: Movement
-    HostOnly: 0
-    Aliases:
-    - loco_status
-    - mstatus
-    SerializableMethod:
-      Type:
-        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: MovementStatus
-      Parameters:
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
   - Name: mstatus
-    Description: '(Alias for movement_status) Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
+    Description: '(Alias for loco_movement_status) Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]'
     TargetType: 0
     Group: Movement
     HostOnly: 0
@@ -778,6 +723,32 @@ MonoBehaviour:
       MethodName: PrintNetworkStatus
       Parameters: []
       Flags: 24
+  - Name: net_host_kick
+    Description: Kicks a player from the session (Host only)
+    TargetType: 0
+    Group: Network
+    HostOnly: 1
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: KickPlayer
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: net_host_scene
+    Description: Loads a new scene across all connected players (Host only)
+    TargetType: 0
+    Group: Network
+    HostOnly: 1
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ChangeScene
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
   - Name: net_players
     Description: Lists all connected player IDs in the current session
     TargetType: 0
@@ -790,6 +761,19 @@ MonoBehaviour:
       MethodName: ListPlayers
       Parameters: []
       Flags: 24
+  - Name: net_show_debug_gui
+    Description: Shows or hides the debug GUI
+    TargetType: 0
+    Group: Network
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ShowDebugGUI
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 40
   - Name: net_status
     Description: Displays current network session status, latency, and role
     TargetType: 0
@@ -865,19 +849,6 @@ MonoBehaviour:
         Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       MethodName: ReloadActiveScene
       Parameters: []
-      Flags: 24
-  - Name: revive
-    Description: 'Revives a downed or dead player. Usage: revive [playerId]'
-    TargetType: 0
-    Group: Combat&Health
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: Revive
-      Parameters:
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
   - Name: save_game
     Description: Saves the game data to the active profile
@@ -1094,34 +1065,6 @@ MonoBehaviour:
       Parameters:
       - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: show_net_debug_gui
-    Description: Shows or hides the debug GUI
-    TargetType: 0
-    Group: Network
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: ShowDebugGUI
-      Parameters:
-      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 40
-  - Name: spawn_pickup
-    Description: Spawns a 3D world weapon pickup in front of the player (e.g. spawn_pickup core_pistol_01 5 Rare)
-    TargetType: 0
-    Group: Weapons
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: SpawnPickup
-      Parameters:
-      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005853797374656d2e427974652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
-      Flags: 24
   - Name: test_logs
     Description: Tests all kinds of logs available
     TargetType: 0
@@ -1197,7 +1140,49 @@ MonoBehaviour:
       MethodName: PrintVersion
       Parameters: []
       Flags: 24
-  - Name: weapon_inspect
+  - Name: weap_drop
+    Description: Drops the currently equipped weapon into the scene as a 3D world pickup
+    TargetType: 0
+    Group: Weapons
+    HostOnly: 0
+    Aliases:
+    - drop
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DropWeapon
+      Parameters: []
+      Flags: 24
+  - Name: weap_give_preset
+    Description: Gives the local player a dedicated weapon preset by ID (e.g. give_preset preset_unkempt_harold 15)
+    TargetType: 0
+    Group: Weapons
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GivePreset
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005853797374656d2e427974652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: weap_give_weapon
+    Description: Gives the local player a procedural weapon by string ID (e.g. give_weapon core_pistol_01 5 Legendary)
+    TargetType: 0
+    Group: Weapons
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GiveWeapon
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005853797374656d2e427974652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: weap_inspect
     Description: Prints detailed stats and mounted parts of currently held weapon
     TargetType: 0
     Group: Weapons
@@ -1209,7 +1194,7 @@ MonoBehaviour:
       MethodName: InspectWeapon
       Parameters: []
       Flags: 24
-  - Name: weapon_list
+  - Name: weap_list
     Description: Lists all registered weapon cores and parts by their string ID and GUID
     TargetType: 0
     Group: Weapons
@@ -1220,6 +1205,21 @@ MonoBehaviour:
         Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
       MethodName: ListWeapons
       Parameters: []
+      Flags: 24
+  - Name: weap_spawn_pickup
+    Description: Spawns a 3D world weapon pickup in front of the player (e.g. spawn_pickup core_pistol_01 5 Rare)
+    TargetType: 0
+    Group: Weapons
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e576561706f6e436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SpawnPickup
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005853797374656d2e427974652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
   AvailableCommands: []
   ShowLogs: 0

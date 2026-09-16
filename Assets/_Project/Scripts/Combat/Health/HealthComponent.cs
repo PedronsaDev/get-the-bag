@@ -1,4 +1,5 @@
 using System;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -242,12 +243,14 @@ public class HealthComponent : NetworkBehaviour, IDamageable
     private void RpcOnDamaged(DamageResult result)
     {
         OnDamaged?.Invoke(result);
+        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Entity {gameObject.name} took damage. Raw: {result.RawDamage}, Effective: {result.EffectiveDamage}, Remaining Health: {_currentHealth.value}, Remaining Shield: {_currentShield.value}");
     }
 
     [ObserversRpc(runLocally: true)]
     private void RpcOnShieldBroken()
     {
         OnShieldBroken?.Invoke();
+        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Entity {gameObject.name} shield broken. Remaining Health: {_currentHealth.value}, Remaining Shield: {_currentShield.value}");
     }
 
     [ObserversRpc(runLocally: true)]
@@ -255,6 +258,7 @@ public class HealthComponent : NetworkBehaviour, IDamageable
     {
         _isDead = true;
         OnDeath?.Invoke(result);
+        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Entity {gameObject.name} died. Remaining Health: {_currentHealth.value}, Remaining Shield: {_currentShield.value}");
     }
 
     /// <summary>
@@ -286,6 +290,8 @@ public class HealthComponent : NetworkBehaviour, IDamageable
         _isDead = false;
         _currentHealth.value = currentHealth;
         OnHealthChanged?.Invoke(currentHealth, _maxHealth);
+        
+        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Revived with {currentHealth}/{_maxHealth} health.");
     }
 
     /// <summary>

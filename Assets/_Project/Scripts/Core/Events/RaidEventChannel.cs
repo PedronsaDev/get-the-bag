@@ -1,5 +1,6 @@
 using System;
 using Project.Core.Match;
+using Project.Logging;
 using UnityEngine;
 
 namespace Project.Core.Events
@@ -38,7 +39,6 @@ public class RaidEventChannel : ScriptableObject
     public void RaiseInfilCompleted()
     {
         OnInfilCompleted?.Invoke();
-        Debug.Log("Infiltration completed event raised.");
     }
 }
 }

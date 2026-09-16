@@ -1,9 +1,7 @@
-using System;
 using System.Text;
 using PedronsaDev.Console;
 using Project.Combat;
 using Project.Core.Player;
-using Project.Player;
 using Project.Player.Locomotion;
 using UnityEngine;
 
@@ -12,7 +10,7 @@ namespace Project.Player.Commands
     [CommandGroup("Combat & Health")]
     public static class HealthCommands
     {
-        [Command("health_status", "Displays comprehensive health, shield, downed state, and bleedout timers for a player (default: local player)")]
+        [Command("hc_health_status", "Displays comprehensive health, shield, downed state, and bleedout timers for a player (default: local player)")]
         public static void HealthStatus(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
@@ -55,7 +53,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log(sb.ToString());
         }
 
-        [Command("damage", "Deals damage to the player (absorbed by shields first). Usage: damage <amount> [playerId]")]
+        [Command("hc_damage", "Deals damage to the player (absorbed by shields first). Usage: damage <amount> [playerId]")]
         public static void Damage(float amount = 25f, int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
@@ -91,7 +89,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} damage to {player.gameObject.name} (Shield: -{result.DamageToShield:F1}, HP: -{result.DamageToHealth:F1}) | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
-        [Command("damage_hp", "Deals true damage directly to health, bypassing shields. Usage: damage_hp <amount> [playerId]")]
+        [Command("hc_damage_hp", "Deals true damage directly to health, bypassing shields. Usage: damage_hp <amount> [playerId]")]
         public static void DamageHp(float amount = 25f, int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
@@ -127,7 +125,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} TRUE damage to {player.gameObject.name} | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
-        [Command("heal", "Heals the player by specified amount. Usage: heal <amount> [playerId]")]
+        [Command("hc_heal", "Heals the player by specified amount. Usage: heal <amount> [playerId]")]
         public static void Heal(float amount = 50f, int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var health, out _))
@@ -143,7 +141,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Requested {amount:F1} HP heal for {player.gameObject.name}. Current HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
-        [Command("heal_full", "Fully heals, restores shields, and revives the player if downed or dead. Usage: heal_full [playerId]")]
+        [Command("hc_heal_full", "Fully heals, restores shields, and revives the player if downed or dead. Usage: heal_full [playerId]")]
         public static void HealFull(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
@@ -169,7 +167,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Fully restored health ({health.MaxHealth:F1}) and shields ({health.MaxShield:F1}) for {player.gameObject.name}.");
         }
 
-        [Command("down", "Forces the target player into the downed state. Usage: down [playerId]")]
+        [Command("hc_down", "Forces the target player into the downed state. Usage: down [playerId]")]
         public static void Down(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out _, out var downed))
@@ -191,7 +189,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Successfully downed {player.gameObject.name}.");
         }
 
-        [Command("revive", "Revives a downed or dead player. Usage: revive [playerId]")]
+        [Command("hc_revive", "Revives a downed or dead player. Usage: revive [playerId]")]
         public static void Revive(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
@@ -218,7 +216,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Successfully revived {player.gameObject.name}. Remaining HP: {(health ? health.CurrentHealth : 0f):F1}");
         }
 
-        [Command("bleedout_set", "Sets the remaining bleedout timer on a downed player. Usage: bleedout_set <seconds> [playerId]")]
+        [Command("hc_bleedout_set", "Sets the remaining bleedout timer on a downed player. Usage: bleedout_set <seconds> [playerId]")]
         public static void SetBleedout(float seconds = 5f, int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out _, out var downed))
@@ -240,7 +238,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Set bleedout timer to {seconds:F1}s for {player.gameObject.name}.");
         }
 
-        [Command("god", "Toggles invulnerability on the player. Usage: god [playerId]")]
+        [Command("hc_god", "Toggles invulnerability on the player. Usage: god [playerId]")]
         public static void ToggleGodMode(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var health, out _))
@@ -257,7 +255,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Invulnerability for {player.gameObject.name} set to: {newState}");
         }
 
-        [Command("kill", "Instantly executes true death on the player. Usage: kill [playerId]")]
+        [Command("hc_kill", "Instantly executes true death on the player. Usage: kill [playerId]")]
         public static void Kill(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out _, out var downed))
@@ -273,7 +271,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Combat & Health] Executed true death for {player.gameObject.name}.");
         }
 
-        [Command("drag_release", "Forces release of any active dragging on this player. Usage: drag_release [playerId]")]
+        [Command("hc_drag_release", "Forces release of any active dragging on this player. Usage: drag_release [playerId]")]
         public static void DragRelease(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out _, out var downed))

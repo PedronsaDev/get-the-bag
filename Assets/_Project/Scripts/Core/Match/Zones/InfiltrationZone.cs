@@ -1,6 +1,7 @@
 using System;
 using ImprovedTimers;
 using Project.Core.Events;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -100,7 +101,6 @@ public class InfiltrationZone : NetworkBehaviour
         IsCountdownActive.value = true;
         CountdownRemaining.value = _countdownDuration;
 
-        OnCountdownStarted?.Invoke(_countdownDuration);
         RpcNotifyCountdownStarted(_countdownDuration);
     }
 
@@ -115,7 +115,6 @@ public class InfiltrationZone : NetworkBehaviour
             IsCountdownActive.value = false;
             CountdownRemaining.value = 0f;
 
-            OnCountdownCancelled?.Invoke();
             RpcNotifyCountdownCancelled();
         }
     }
@@ -131,32 +130,29 @@ public class InfiltrationZone : NetworkBehaviour
         IsCountdownActive.value = false;
         CountdownRemaining.value = 0f;
 
-        OnInfilCompleted?.Invoke();
-        if (_raidEvents)
-            _raidEvents.RaiseInfilCompleted();
-
         RpcNotifyInfilCompleted();
-
-        Debug.Log("[InfilStationPlatform] Infil countdown complete! Initiating raid infil sequence.");
     }
 
-    [ObserversRpc(runLocally: false)]
+    [ObserversRpc(runLocally: true)]
     private void RpcNotifyCountdownStarted(float duration)
     {
         OnCountdownStarted?.Invoke(duration);
     }
 
-    [ObserversRpc(runLocally: false)]
+    [ObserversRpc(runLocally: true)]
     private void RpcNotifyCountdownCancelled()
     {
         OnCountdownCancelled?.Invoke();
     }
 
-    [ObserversRpc(runLocally: false)]
+    [ObserversRpc(runLocally: true)]
     private void RpcNotifyInfilCompleted()
     {
         OnInfilCompleted?.Invoke();
-        _raidEvents.RaiseInfilCompleted();
+        if (_raidEvents)
+            _raidEvents.RaiseInfilCompleted();
+
+        AppLog.Log(LogChannel.Match, "[InfilStationPlatform] Infil countdown complete! Initiating raid infil sequence.", this);
     }
 }
 }

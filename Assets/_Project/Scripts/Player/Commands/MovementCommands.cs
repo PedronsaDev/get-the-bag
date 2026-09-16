@@ -2,8 +2,6 @@ using System;
 using System.Text;
 using PedronsaDev.Console;
 using Project.Core.Player;
-using Project.Player;
-using Project.Player.Locomotion;
 using UnityEngine;
 
 namespace Project.Player.Commands
@@ -11,7 +9,7 @@ namespace Project.Player.Commands
     [CommandGroup("Movement")]
     public static class MovementCommands
     {
-        [Command("movement_gizmos", "Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]", Aliases = new[] { "loco_gizmos", "mgizmos" })]
+        [Command("loco_movement_gizmos", "Toggles or sets player movement debug gizmos globally. Usage: movement_gizmos [true/false]", Aliases = new[] { "loco_gizmos", "mgizmos" })]
         public static void ToggleGizmos(string state = "")
         {
             bool newState;
@@ -47,7 +45,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Movement] Movement debug gizmos are now {stateTag}.");
         }
 
-        [Command("movement_status", "Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]", Aliases = new[] { "loco_status", "mstatus" })]
+        [Command("loco_movement_status", "Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: movement_status [playerId]", Aliases = new[] { "loco_status", "mstatus" })]
         public static void MovementStatus(int playerId = -1)
         {
             if (!TryResolveTarget(playerId, out var player, out var loco))
@@ -91,6 +89,12 @@ namespace Project.Player.Commands
 
             sb.AppendLine($"Stance: Sprint: {state.IsSprinting} | Crouch: {state.IsCrouching} | Slide: {state.IsSliding} | Downed: {loco.IsDowned} | Dragging: {loco.IsDraggingTeammate}");
             sb.AppendLine($"Jumping: Status: {state.CurrentJumpStatus} | Buffer: {state.JumpBufferTimer:F2}s | CanWallJump: {state.CanWallJump} | WallJumpNormal: ({state.WallJumpNormal.x:F2}, {state.WallJumpNormal.y:F2}, {state.WallJumpNormal.z:F2})");
+
+            var vaultEval = loco.EvaluateVault();
+            string vaultText = vaultEval.CanVault
+                ? $"<color=#4ADE80>READY</color> (Height: {vaultEval.LedgeHeight:F2}m)"
+                : $"<color=#F43F5E>NOT AVAILABLE</color> ({vaultEval.FailureReason})";
+            sb.AppendLine($"Vaulting: {vaultText} | Limits: [{loco.MinVaultHeight:F2}m - {loco.MaxVaultHeight:F2}m]");
             sb.AppendLine($"Gizmos: Global: {(LocomotionController.GlobalGizmosEnabled ? "Enabled" : "Disabled")} | Controller: {(loco.EnableGizmos ? "Enabled" : "Disabled")}");
 
             PedronsaDev.Console.Console.Log(sb.ToString());

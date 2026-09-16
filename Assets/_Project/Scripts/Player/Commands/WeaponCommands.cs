@@ -10,7 +10,7 @@ namespace Project.Player.Commands
     [CommandGroup("Weapons")]
     public static class WeaponCommands
     {
-        [Command("weapon_list", "Lists all registered weapon cores and parts by their string ID and GUID")]
+        [Command("weap_list", "Lists all registered weapon cores and parts by their string ID and GUID")]
         public static void ListWeapons()
         {
             var registry = ItemRegistry.Instance;
@@ -72,7 +72,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log(sb.ToString());
         }
 
-        [Command("give_preset", "Gives the local player a dedicated weapon preset by ID (e.g. give_preset preset_unkempt_harold 15)")]
+        [Command("weap_give_preset", "Gives the local player a dedicated weapon preset by ID (e.g. give_preset preset_unkempt_harold 15)")]
         public static void GivePreset(string presetId, byte level = 1)
         {
             var registry = ItemRegistry.Instance;
@@ -113,7 +113,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Weapons] Successfully equipped Preset: {weapon.DisplayName} (Level {weapon.Level} {weapon.Rarity}) [Damage: {weapon.CompiledStats.Damage:F1}]");
         }
 
-        [Command("give_weapon", "Gives the local player a procedural weapon by string ID (e.g. give_weapon core_pistol_01 5 Legendary)")]
+        [Command("weap_give_weapon", "Gives the local player a procedural weapon by string ID (e.g. give_weapon core_pistol_01 5 Legendary)")]
         public static void GiveWeapon(string coreId, byte level = 1, string rarity = "Common")
         {
             var registry = ItemRegistry.Instance;
@@ -161,7 +161,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Weapons] Successfully equipped: {weapon.DisplayName} (Level {weapon.Level} {weapon.Rarity}) [Damage: {weapon.CompiledStats.Damage:F1}]");
         }
 
-        [Command("weapon_inspect", "Prints detailed stats and mounted parts of currently held weapon")]
+        [Command("weap_inspect", "Prints detailed stats and mounted parts of currently held weapon")]
         public static void InspectWeapon()
         {
             var controller = UnityEngine.Object.FindAnyObjectByType<PlayerWeaponController>();
@@ -198,7 +198,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log(sb.ToString());
         }
 
-        [Command("drop_weapon", "Drops the currently equipped weapon into the scene as a 3D world pickup", Aliases = new[] { "drop" })]
+        [Command("weap_drop", "Drops the currently equipped weapon into the scene as a 3D world pickup", Aliases = new[] { "drop" })]
         public static void DropWeapon()
         {
             var controller = UnityEngine.Object.FindAnyObjectByType<PlayerWeaponController>();
@@ -213,7 +213,7 @@ namespace Project.Player.Commands
             PedronsaDev.Console.Console.Log($"[Weapons] Dropped '{name}' into the scene!");
         }
 
-        [Command("spawn_pickup", "Spawns a 3D world weapon pickup in front of the player (e.g. spawn_pickup core_pistol_01 5 Rare)")]
+        [Command("weap_spawn_pickup", "Spawns a 3D world weapon pickup in front of the player (e.g. spawn_pickup core_pistol_01 5 Rare)")]
         public static void SpawnPickup(string id, byte level = 1, string rarity = "Common")
         {
             var registry = ItemRegistry.Instance;
@@ -268,7 +268,7 @@ namespace Project.Player.Commands
 
             var pickup = pickupObj.AddComponent<WorldWeaponPickup>();
 
-            if (PurrNet.NetworkManager.main != null && PurrNet.NetworkManager.main.isServer)
+            if (PurrNet.NetworkManager.main && PurrNet.NetworkManager.main.isServer)
             {
                 PurrNet.NetworkManager.main.Spawn(pickupObj);
             }

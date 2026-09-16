@@ -616,15 +616,25 @@ MonoBehaviour:
   _vaultLayerMask:
     serializedVersion: 2
     m_Bits: 1
-  _vaultCheckDistance: 2
-  _maxVaultHeight: 2
-  _vaultDuration: 0.7
+  _vaultCheckDistance: 1.6
+  _minVaultHeight: 1
+  _maxVaultHeight: 2.4
+  _vaultDuration: 0.5
   _fallGravityMultiplier: 0.9
   _slideGravityMultiplier: 2.5
   _gravity: {x: 0, y: -30, z: 0}
   _crawlSpeed: 1.2
   _downedCapsuleHeight: 0.8
   _draggingSpeedMultiplier: 0.6
+  _enableGizmos: 1
+  _drawOnlyWhenSelected: 0
+  _drawVelocityVector: 1
+  _drawInputVector: 1
+  _drawGroundStatus: 1
+  _drawCapsuleBounds: 0
+  _drawCeilingCheck: 1
+  _drawWallAndVaultChecks: 1
+  _drawOverheadStatus: 1
 --- !u!114 &3808258064417614414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -952,6 +962,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3908915232247080255}
+  - component: {fileID: 6236053953077658925}
   m_Layer: 7
   m_Name: Mesh Root
   m_TagString: Untagged
@@ -975,6 +986,32 @@ Transform:
   - {fileID: 3174483983228246354}
   m_Father: {fileID: 6549506811574553554}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6236053953077658925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7594355897628419195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89169bee9523f4b4abaca9532d3fd3bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.Mesh.PlayerMeshHandler
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _clientMeshes:
+  - {fileID: 4040920780935790599}
+  - {fileID: 8884019411224898202}
 --- !u!1 &8703997978576323725
 GameObject:
   m_ObjectHideFlags: 0
@@ -1059,6 +1096,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player-Model
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3baa765273657624085216f41bf475cf, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 3baa765273657624085216f41bf475cf, type: 3}
       propertyPath: m_Controller
       value: 
@@ -1132,13 +1173,24 @@ MonoBehaviour:
   _animator: {fileID: 8858057690329465640}
   _networkAnimator: {fileID: 7598720964875010470}
   _locomotionController: {fileID: 7482482855676676148}
+  _inputDampingSpeed: 24
 --- !u!4 &3174483983228246354 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3baa765273657624085216f41bf475cf, type: 3}
   m_PrefabInstance: {fileID: 3135825993361653433}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &4040920780935790599 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7813590141776298306, guid: 3baa765273657624085216f41bf475cf, type: 3}
+  m_PrefabInstance: {fileID: 3135825993361653433}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &8858057690329465640 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 3baa765273657624085216f41bf475cf, type: 3}
+  m_PrefabInstance: {fileID: 3135825993361653433}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &8884019411224898202 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5822821947120931875, guid: 3baa765273657624085216f41bf475cf, type: 3}
   m_PrefabInstance: {fileID: 3135825993361653433}
   m_PrefabAsset: {fileID: 0}
