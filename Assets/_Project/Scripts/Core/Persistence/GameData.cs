@@ -7,10 +7,10 @@ namespace Project.Core.Persistence
     [Serializable]
     public class PlayerProfileSaveData
     {
-        public string PlayerName = "Scavenger";
+        public string Name = "PLAYER_NAME";
         public int Level = 1;
         public int Experience = 0;
-        public int Credits = 0;
+        public int Scrip = 0;
     }
 
     [Serializable]
@@ -24,8 +24,8 @@ namespace Project.Core.Persistence
     }
 
     /// <summary>
-    /// Root container for persisted game state.
-    /// Uses a hybrid structure: typed sub-objects for core systems + dynamic JSON buckets for procedural modules.
+    /// Root container para game state persistente.
+    /// Usa uma estrutura híbrida: typed sub-objects para core systems + dynamic JSON buckets para os modulos procedurais.
     /// </summary>
     [Serializable]
     public class GameData

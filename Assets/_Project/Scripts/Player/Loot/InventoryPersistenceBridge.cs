@@ -8,12 +8,18 @@ public class InventoryPersistenceBridge : MonoBehaviour, IDataPersistence
 {
     private void OnEnable()
     {
-        DataPersistenceManager.Instance.Register(this);
+        if (DataPersistenceManager.Instance != null)
+        {
+            DataPersistenceManager.Instance.Register(this);
+        }
     }
     
     private void OnDisable()
     {
-        DataPersistenceManager.Instance.Unregister(this);
+        if (DataPersistenceManager.HasInstance)
+        {
+            DataPersistenceManager.Instance.Unregister(this);
+        }
     }
     
     private void OnExtractionSuccess()

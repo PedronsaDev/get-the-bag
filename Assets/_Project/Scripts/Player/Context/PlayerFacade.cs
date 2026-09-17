@@ -1,11 +1,13 @@
+using Project.Combat;
 using Project.Core.Input;
+using Project.Player.Data;
 using Project.Player.Detection;
 using Project.Player.Input;
 using Project.Player.Interaction;
+using Project.Player.Locomotion;
 using Project.Player.Loot;
 using PurrNet;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Project.Player
 {
@@ -18,17 +20,19 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private PlayerInteractor _interactor;
     [SerializeField] private PlayerTargetDetector _targetDetector;
     [SerializeField] private PlayerInventoryController _inventoryController;
-    [SerializeField] private Project.Player.Locomotion.PlayerDownedState _downedState;
-    [SerializeField] private Project.Combat.HealthComponent _healthComponent;
+    [SerializeField] private PlayerDownedState _downedState;
+    [SerializeField] private HealthComponent _healthComponent;
+    [SerializeField] private PlayerProgressionController _progression;
     [SerializeField] private int _remotePlayerLayerIndex;
     
     public PlayerInventoryController InventoryController => _inventoryController;
     public LocomotionController LocomotionController => _locomotionController;
-    public Project.Player.Locomotion.PlayerDownedState DownedState => _downedState;
-    public Project.Combat.HealthComponent Health => _healthComponent;
+    public PlayerDownedState DownedState => _downedState;
+    public HealthComponent Health => _healthComponent;
     public LocalPlayerInputProvider InputProvider => _inputProvider;
     public PlayerInteractor Interactor => _interactor;
     public PlayerTargetDetector TargetDetector => _targetDetector;
+    public PlayerProgressionController Progression => _progression;
     public LocomotionState LocomotionState { get; private set; }
     public PlayerInputData CurrentInput { get; private set; }
 
@@ -41,13 +45,15 @@ public class PlayerFacade : NetworkBehaviour
         if (!_locomotionController)
             _locomotionController = GetComponent<LocomotionController>() ?? GetComponentInChildren<LocomotionController>();
         if (!_downedState)
-            _downedState = GetComponent<Project.Player.Locomotion.PlayerDownedState>() ?? GetComponentInChildren<Project.Player.Locomotion.PlayerDownedState>();
+            _downedState = GetComponent<PlayerDownedState>() ?? GetComponentInChildren<PlayerDownedState>();
         if (!_healthComponent)
-            _healthComponent = GetComponent<Project.Combat.HealthComponent>() ?? GetComponentInChildren<Project.Combat.HealthComponent>(true) ?? GetComponentInParent<Project.Combat.HealthComponent>(true);
+            _healthComponent = GetComponent<HealthComponent>() ?? GetComponentInChildren<HealthComponent>(true) ?? GetComponentInParent<HealthComponent>(true);
         if (!_interactor)
             _interactor = GetComponent<PlayerInteractor>() ?? GetComponentInChildren<PlayerInteractor>();
         if (!_targetDetector)
             _targetDetector = GetComponent<PlayerTargetDetector>() ?? GetComponentInChildren<PlayerTargetDetector>();
+        if (!_progression)
+            _progression = GetComponent<PlayerProgressionController>() ?? GetComponentInChildren<PlayerProgressionController>();
     }
 
     protected override void OnSpawned()

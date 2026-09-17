@@ -5,335 +5,349 @@ using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Project.Core.Persistence;
+using Project.Logging;
 using UnityEngine;
-using Console = PedronsaDev.Console.Console;
 
 namespace Project.Persistence
 {
-    /// <summary>
-    /// Handles low-level file I/O operations, disk storage paths, XOR encryption,
-    /// backup generation, and corrupted file rollback.
-    /// </summary>
-    public class FileDataHandler
+/// <summary>
+/// Gerencia o I/O de arquivos, caminhos de armazenamento em disco, criptografia XOR,
+/// criacao de backups e rollback de arquivos corrompidos.
+/// </summary>
+public class FileDataHandler
+{
+    private readonly string _dataDirPath;
+    private readonly string _dataFileName;
+    private readonly bool _useEncryption;
+    private readonly string _encryptionCodeWord = "word";
+    private readonly string _backupExtension = ".bak";
+
+    public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption)
     {
-        private readonly string _dataDirPath;
-        private readonly string _dataFileName;
-        private readonly bool _useEncryption;
-        private readonly string _encryptionCodeWord = "word";
-        private readonly string _backupExtension = ".bak";
+        _dataDirPath = dataDirPath;
+        _dataFileName = dataFileName;
+        _useEncryption = useEncryption;
+    }
 
-        public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption)
+    public GameData Load(string profileId, bool allowRestoreFromBackup = true)
+    {
+        if (string.IsNullOrWhiteSpace(profileId))
         {
-            _dataDirPath = dataDirPath;
-            _dataFileName = dataFileName;
-            _useEncryption = useEncryption;
+            return null;
         }
 
-        public GameData Load(string profileId, bool allowRestoreFromBackup = true)
+        string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
+        GameData loadedData = null;
+        if (File.Exists(fullPath))
         {
-            if (string.IsNullOrWhiteSpace(profileId))
-            {
-                return null;
-            }
-
-            string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
-            GameData loadedData = null;
-            if (File.Exists(fullPath))
-            {
-                try
-                {
-                    string dataToLoad = File.ReadAllText(fullPath);
-                    if (_useEncryption)
-                    {
-                        dataToLoad = EncryptDecrypt(dataToLoad);
-                    }
-
-                    loadedData = JsonUtility.FromJson<GameData>(dataToLoad);
-                }
-                catch (Exception e)
-                {
-                    if (allowRestoreFromBackup)
-                    {
-                        Debug.LogWarning($"[FileDataHandler] Failed to load data file. Attempting rollback.\n{e}");
-                        bool rollbackSuccess = AttemptRollback(fullPath);
-                        if (rollbackSuccess)
-                        {
-                            loadedData = Load(profileId, false);
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogError($"[FileDataHandler] Error loading file at path: {fullPath} and backup restore failed.\n{e}");
-                    }
-                }
-            }
-
-            return loadedData;
-        }
-
-        public async UniTask<GameData> LoadAsync(string profileId, bool allowRestoreFromBackup = true, CancellationToken cancellationToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(profileId))
-            {
-                return null;
-            }
-
-            string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
-            GameData loadedData = null;
-            if (File.Exists(fullPath))
-            {
-                try
-                {
-                    string dataToLoad = await ReadAllTextAsync(fullPath, cancellationToken);
-                    if (_useEncryption)
-                    {
-                        dataToLoad = EncryptDecrypt(dataToLoad);
-                    }
-
-                    loadedData = JsonUtility.FromJson<GameData>(dataToLoad);
-                }
-                catch (Exception e)
-                {
-                    if (allowRestoreFromBackup)
-                    {
-                        Debug.LogWarning($"[FileDataHandler] Failed to load data file async. Attempting rollback.\n{e}");
-                        bool rollbackSuccess = AttemptRollback(fullPath);
-                        if (rollbackSuccess)
-                        {
-                            loadedData = await LoadAsync(profileId, false, cancellationToken);
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogError($"[FileDataHandler] Error loading file async at path: {fullPath} and backup restore failed.\n{e}");
-                    }
-                }
-            }
-
-            return loadedData;
-        }
-
-        public void Save(GameData data, string profileId)
-        {
-            if (string.IsNullOrWhiteSpace(profileId))
-            {
-                Debug.LogWarning("[FileDataHandler] Tried to save data with an invalid profile id.");
-                return;
-            }
-
-            string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
-            string backupFilePath = fullPath + _backupExtension;
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ?? "");
-
-                string dataToStore = JsonUtility.ToJson(data, true);
+                string dataToLoad = File.ReadAllText(fullPath);
                 if (_useEncryption)
                 {
-                    dataToStore = EncryptDecrypt(dataToStore);
+                    dataToLoad = EncryptDecrypt(dataToLoad);
                 }
 
-                File.WriteAllText(fullPath, dataToStore);
-
-                GameData verifiedGameData = Load(profileId, true);
-                if (verifiedGameData != null)
-                {
-                    File.Copy(fullPath, backupFilePath, true);
-                }
-                else
-                {
-                    throw new Exception("Save file could not be verified and backup could not be created.");
-                }
+                loadedData = JsonUtility.FromJson<GameData>(dataToLoad);
             }
             catch (Exception e)
             {
-                Debug.LogError($"[FileDataHandler] Error saving data to file: {fullPath}\n{e}");
+                if (allowRestoreFromBackup)
+                {
+                    AppLog.LogWarning(LogChannel.Persistence,
+                        $"[FileDataHandler] Failed to load data file. Attempting rollback.\n{e}");
+                    bool rollbackSuccess = AttemptRollback(fullPath);
+                    if (rollbackSuccess)
+                    {
+                        loadedData = Load(profileId, false);
+                    }
+                }
+                else
+                {
+                    AppLog.LogError(LogChannel.Persistence,
+                        $"[FileDataHandler] Error loading file at path: {fullPath} and backup restore failed.\n{e}");
+                }
             }
         }
 
-        public async UniTask SaveAsync(GameData data, string profileId, CancellationToken cancellationToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(profileId))
-            {
-                Debug.LogWarning("[FileDataHandler] Tried to save data with an invalid profile id.");
-                return;
-            }
+        return loadedData;
+    }
 
-            string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
-            string backupFilePath = fullPath + _backupExtension;
+    public async UniTask<GameData> LoadAsync(string profileId, bool allowRestoreFromBackup = true,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(profileId))
+        {
+            return null;
+        }
+
+        string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
+        GameData loadedData = null;
+        if (File.Exists(fullPath))
+        {
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ?? "");
-
-                string dataToStore = JsonUtility.ToJson(data, true);
+                string dataToLoad = await ReadAllTextAsync(fullPath, cancellationToken);
                 if (_useEncryption)
                 {
-                    dataToStore = EncryptDecrypt(dataToStore);
+                    dataToLoad = EncryptDecrypt(dataToLoad);
                 }
 
-                await WriteAllTextAsync(fullPath, dataToStore, cancellationToken);
-
-                GameData verifiedGameData = await LoadAsync(profileId, true, cancellationToken);
-                if (verifiedGameData != null)
-                {
-                    File.Copy(fullPath, backupFilePath, true);
-                }
-                else
-                {
-                    throw new Exception("Save file could not be verified and backup could not be created.");
-                }
+                loadedData = JsonUtility.FromJson<GameData>(dataToLoad);
             }
             catch (Exception e)
             {
-                Debug.LogError($"[FileDataHandler] Error saving data async to file: {fullPath}\n{e}");
-            }
-        }
-
-        public void Delete(string profileId)
-        {
-            if (string.IsNullOrWhiteSpace(profileId))
-            {
-                return;
-            }
-
-            string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
-            try
-            {
-                if (File.Exists(fullPath))
+                if (allowRestoreFromBackup)
                 {
-                    Directory.Delete(Path.GetDirectoryName(fullPath) ?? "", true);
+                    AppLog.LogWarning(LogChannel.Persistence,
+                        $"[FileDataHandler] Failed to load data file async. Attempting rollback.\n{e}");
+                    bool rollbackSuccess = AttemptRollback(fullPath);
+                    if (rollbackSuccess)
+                    {
+                        loadedData = await LoadAsync(profileId, false, cancellationToken);
+                    }
                 }
                 else
                 {
-                    Console.LogWarning($"[FileDataHandler] Tried to delete profile data, but data was not found at path: {fullPath}");
+                    AppLog.LogError(LogChannel.Persistence,
+                        $"[FileDataHandler] Error loading file async at path: {fullPath} and backup restore failed.\n{e}");
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[FileDataHandler] Failed to delete profile data for profileId: {profileId} at path: {fullPath}\n{e}");
             }
         }
 
-        public Dictionary<string, GameData> LoadAllProfiles()
+        return loadedData;
+    }
+
+    public void Save(GameData data, string profileId)
+    {
+        if (string.IsNullOrWhiteSpace(profileId))
         {
-            Dictionary<string, GameData> profileDictionary = new Dictionary<string, GameData>();
-            if (!Directory.Exists(_dataDirPath))
+            AppLog.LogWarning(LogChannel.Persistence,
+                "[FileDataHandler] Tried to save data with an invalid profile id.");
+            return;
+        }
+
+        string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
+        string backupFilePath = fullPath + _backupExtension;
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ?? "");
+
+            string dataToStore = JsonUtility.ToJson(data, true);
+            if (_useEncryption)
             {
-                return profileDictionary;
+                dataToStore = EncryptDecrypt(dataToStore);
             }
 
-            IEnumerable<DirectoryInfo> dirInfos = new DirectoryInfo(_dataDirPath).EnumerateDirectories();
-            foreach (DirectoryInfo dirInfo in dirInfos)
-            {
-                string profileId = dirInfo.Name;
-                string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
-                if (!File.Exists(fullPath))
-                {
-                    Debug.LogWarning($"[FileDataHandler] Skipping directory when loading all profiles because it does not contain data: {profileId}");
-                    continue;
-                }
+            File.WriteAllText(fullPath, dataToStore);
 
-                GameData profileData = Load(profileId);
-                if (profileData != null)
-                {
-                    profileDictionary.Add(profileId, profileData);
-                }
-                else
-                {
-                    Debug.LogError($"[FileDataHandler] Tried to load profile but something went wrong. ProfileId: {profileId}");
-                }
+            GameData verifiedGameData = Load(profileId, true);
+            if (verifiedGameData != null)
+            {
+                File.Copy(fullPath, backupFilePath, true);
+            }
+            else
+            {
+                throw new Exception("Save file could not be verified and backup could not be created.");
+            }
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(LogChannel.Persistence, $"[FileDataHandler] Error saving data to file: {fullPath}\n{e}");
+        }
+    }
+
+    public async UniTask SaveAsync(GameData data, string profileId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(profileId))
+        {
+            AppLog.LogWarning(LogChannel.Persistence,
+                "[FileDataHandler] Tried to save data with an invalid profile id.");
+            return;
+        }
+
+        string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
+        string backupFilePath = fullPath + _backupExtension;
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath) ?? "");
+
+            string dataToStore = JsonUtility.ToJson(data, true);
+            if (_useEncryption)
+            {
+                dataToStore = EncryptDecrypt(dataToStore);
             }
 
+            await WriteAllTextAsync(fullPath, dataToStore, cancellationToken);
+
+            GameData verifiedGameData = await LoadAsync(profileId, true, cancellationToken);
+            if (verifiedGameData != null)
+            {
+                File.Copy(fullPath, backupFilePath, true);
+            }
+            else
+            {
+                throw new Exception("Save file could not be verified and backup could not be created.");
+            }
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(LogChannel.Persistence,
+                $"[FileDataHandler] Error saving data async to file: {fullPath}\n{e}");
+        }
+    }
+
+    public void Delete(string profileId)
+    {
+        if (string.IsNullOrWhiteSpace(profileId))
+        {
+            return;
+        }
+
+        string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
+        try
+        {
+            if (File.Exists(fullPath))
+            {
+                Directory.Delete(Path.GetDirectoryName(fullPath) ?? "", true);
+            }
+            else
+            {
+                AppLog.LogWarning(LogChannel.Persistence,
+                    $"[FileDataHandler] Tried to delete profile data, but data was not found at path: {fullPath}");
+            }
+        }
+        catch (Exception e)
+        {
+            AppLog.LogError(LogChannel.Persistence,
+                $"[FileDataHandler] Failed to delete profile data for profileId: {profileId} at path: {fullPath}\n{e}");
+        }
+    }
+
+    public Dictionary<string, GameData> LoadAllProfiles()
+    {
+        Dictionary<string, GameData> profileDictionary = new Dictionary<string, GameData>();
+        if (!Directory.Exists(_dataDirPath))
+        {
             return profileDictionary;
         }
 
-        public string GetMostRecentlyUpdatedProfileId()
+        IEnumerable<DirectoryInfo> dirInfos = new DirectoryInfo(_dataDirPath).EnumerateDirectories();
+        foreach (DirectoryInfo dirInfo in dirInfos)
         {
-            string mostRecentProfileId = null;
-
-            Dictionary<string, GameData> profilesGameData = LoadAllProfiles();
-            foreach (KeyValuePair<string, GameData> pair in profilesGameData)
+            string profileId = dirInfo.Name;
+            string fullPath = Path.Combine(_dataDirPath, profileId, _dataFileName);
+            if (!File.Exists(fullPath))
             {
-                string profileId = pair.Key;
-                GameData gameData = pair.Value;
+                AppLog.LogWarning(LogChannel.Persistence,
+                    $"[FileDataHandler] Skipping directory when loading all profiles because it does not contain data: {profileId}");
+                continue;
+            }
 
-                if (gameData == null)
-                {
-                    continue;
-                }
+            GameData profileData = Load(profileId);
+            if (profileData != null)
+            {
+                profileDictionary.Add(profileId, profileData);
+            }
+            else
+            {
+                AppLog.LogError(LogChannel.Persistence,
+                    $"[FileDataHandler] Tried to load profile but something went wrong. ProfileId: {profileId}");
+            }
+        }
 
-                if (mostRecentProfileId == null)
+        return profileDictionary;
+    }
+
+    public string GetMostRecentlyUpdatedProfileId()
+    {
+        string mostRecentProfileId = null;
+
+        Dictionary<string, GameData> profilesGameData = LoadAllProfiles();
+        foreach (KeyValuePair<string, GameData> pair in profilesGameData)
+        {
+            string profileId = pair.Key;
+            GameData gameData = pair.Value;
+
+            if (gameData == null)
+            {
+                continue;
+            }
+
+            if (mostRecentProfileId == null)
+            {
+                mostRecentProfileId = profileId;
+            }
+            else
+            {
+                DateTime mostRecentDateTime = DateTime.FromBinary(profilesGameData[mostRecentProfileId].LastUpdated);
+                DateTime newDateTime = DateTime.FromBinary(gameData.LastUpdated);
+                if (newDateTime > mostRecentDateTime)
                 {
                     mostRecentProfileId = profileId;
                 }
-                else
-                {
-                    DateTime mostRecentDateTime = DateTime.FromBinary(profilesGameData[mostRecentProfileId].LastUpdated);
-                    DateTime newDateTime = DateTime.FromBinary(gameData.LastUpdated);
-                    if (newDateTime > mostRecentDateTime)
-                    {
-                        mostRecentProfileId = profileId;
-                    }
-                }
-            }
-
-            return mostRecentProfileId;
-        }
-
-        private string EncryptDecrypt(string data)
-        {
-            StringBuilder modifiedData = new StringBuilder(data.Length);
-            for (int i = 0; i < data.Length; i++)
-            {
-                modifiedData.Append((char)(data[i] ^ _encryptionCodeWord[i % _encryptionCodeWord.Length]));
-            }
-
-            return modifiedData.ToString();
-        }
-
-        private bool AttemptRollback(string fullPath)
-        {
-            bool success = false;
-            string backupFilePath = fullPath + _backupExtension;
-            try
-            {
-                if (File.Exists(backupFilePath))
-                {
-                    File.Copy(backupFilePath, fullPath, true);
-                    success = true;
-                    Debug.LogWarning($"[FileDataHandler] Rolled back to backup file at: {backupFilePath}");
-                }
-                else
-                {
-                    throw new Exception("Tried to roll back, but no backup file exists.");
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[FileDataHandler] Error rolling back to backup file at: {backupFilePath}\n{e}");
-            }
-
-            return success;
-        }
-
-        private static async UniTask<string> ReadAllTextAsync(string fullPath, CancellationToken cancellationToken)
-        {
-            using (FileStream stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                return await reader.ReadToEndAsync().AsUniTask();
             }
         }
 
-        private static async UniTask WriteAllTextAsync(string fullPath, string dataToStore, CancellationToken cancellationToken)
+        return mostRecentProfileId;
+    }
+
+    private string EncryptDecrypt(string data)
+    {
+        StringBuilder modifiedData = new StringBuilder(data.Length);
+        for (int i = 0; i < data.Length; i++)
         {
-            using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
-            using (StreamWriter writer = new StreamWriter(stream))
+            modifiedData.Append((char)(data[i] ^ _encryptionCodeWord[i % _encryptionCodeWord.Length]));
+        }
+
+        return modifiedData.ToString();
+    }
+
+    private bool AttemptRollback(string fullPath)
+    {
+        bool success = false;
+        string backupFilePath = fullPath + _backupExtension;
+        try
+        {
+            if (File.Exists(backupFilePath))
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                await writer.WriteAsync(dataToStore).AsUniTask();
+                File.Copy(backupFilePath, fullPath, true);
+                success = true;
+                Debug.LogWarning($"[FileDataHandler] Rolled back to backup file at: {backupFilePath}");
             }
+            else
+            {
+                throw new Exception("Tried to roll back, but no backup file exists.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[FileDataHandler] Error rolling back to backup file at: {backupFilePath}\n{e}");
+        }
+
+        return success;
+    }
+
+    private static async UniTask<string> ReadAllTextAsync(string fullPath, CancellationToken cancellationToken)
+    {
+        using (FileStream stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+        using (StreamReader reader = new StreamReader(stream))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return await reader.ReadToEndAsync().AsUniTask();
         }
     }
+
+    private static async UniTask WriteAllTextAsync(string fullPath, string dataToStore,
+        CancellationToken cancellationToken)
+    {
+        using (FileStream stream =
+               new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+        using (StreamWriter writer = new StreamWriter(stream))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await writer.WriteAsync(dataToStore).AsUniTask();
+        }
+    }
+}
 }

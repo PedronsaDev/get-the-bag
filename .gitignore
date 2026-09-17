@@ -48,8 +48,11 @@ _ReSharper*/
 # AI Assistants, Agents & Tools
 .agents/
 .gemini/
+GEMINI.md
 .claude/
+CLAUDE.md
 .cursor/
+.cursorrules
 .windsurf/
 .codeium/
 .aider*

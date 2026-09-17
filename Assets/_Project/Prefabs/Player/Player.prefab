@@ -51,6 +51,7 @@ GameObject:
   - component: {fileID: -670673465751686037}
   - component: {fileID: 5744433141554505838}
   - component: {fileID: 5771435480062743233}
+  - component: {fileID: 6436931787846884382}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -104,6 +105,7 @@ MonoBehaviour:
   _inventoryController: {fileID: 2094813003998146038}
   _downedState: {fileID: 5771435480062743233}
   _healthComponent: {fileID: 5744433141554505838}
+  _progression: {fileID: 6436931787846884382}
   _remotePlayerLayerIndex: 8
 --- !u!114 &3432939826793728204
 MonoBehaviour:
@@ -360,6 +362,48 @@ MonoBehaviour:
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
+--- !u!114 &6436931787846884382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094660744987473108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e700ada58e7a5944bce3ee3acb8d0b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.Data.PlayerProgressionController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  Name:
+    _value: PLAYER_NAME
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: PLAYER_NAME
+  Level:
+    _value: 1
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 1
+  InRunScrip:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  _raidEvents: {fileID: 11400000, guid: f46f0924077e3e0459992a95aa8e9673, type: 2}
 --- !u!1 &1664979332812934402
 GameObject:
   m_ObjectHideFlags: 0
