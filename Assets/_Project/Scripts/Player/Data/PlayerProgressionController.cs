@@ -1,4 +1,3 @@
-using System;
 using Project.Core.Events;
 using Project.Persistence;
 using PurrNet;
@@ -24,6 +23,7 @@ public class PlayerProgressionController : NetworkBehaviour
     public int InRunXp => _inRunXp;
 
     [Header("References")]
+    [SerializeField] private ProgressionSettings _progressionSettings;
     [SerializeField] private RaidEventChannel _raidEvents;
 
     protected override void OnSpawned()

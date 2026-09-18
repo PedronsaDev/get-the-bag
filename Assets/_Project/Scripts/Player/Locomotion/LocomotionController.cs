@@ -62,6 +62,7 @@ public struct LocomotionState
     public bool HasJumped;
     public bool HasDoubleJumped;
     public bool HasWallJumped;
+    public bool CoyoteJumpQueued;
     public float LandingTime;
     public LocomotionPhase Phase;
     public LocomotionAnimationState AnimationState;
@@ -338,8 +339,8 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [SerializeField] private bool _allowWallJump = false;
     [SerializeField] private float _jumpSpeed = 9f;
     [SerializeField] private float _doubleJumpSpeed = 8f;
-    [SerializeField] private float _jumpPreGroundingGraceTime = 0f;
-    [SerializeField] private float _jumpPostGroundingGraceTime = 0f;
+    [SerializeField] private float _jumpPreGroundingGraceTime = 0.15f;
+    [SerializeField] private float _jumpPostGroundingGraceTime = 0.2f;
     [SerializeField] private float _jumpBufferTime = 0.15f;
 
     [Header("Crouch & Dimensions")] 
@@ -758,7 +759,10 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public void PostGroundingUpdate(float deltaTime)
     {
-        if (_motor.GroundingStatus.IsStableOnGround && !_motor.LastGroundingStatus.IsStableOnGround)
+        bool becameStable = _motor.GroundingStatus.IsStableOnGround && !_motor.LastGroundingStatus.IsStableOnGround;
+        bool becameGroundedOnSlide = _allowJumpingWhenSliding && _motor.GroundingStatus.FoundAnyGround && !_motor.LastGroundingStatus.FoundAnyGround && !_motor.MustUnground();
+
+        if (becameStable || becameGroundedOnSlide)
             OnLanded();
         else if (!_motor.GroundingStatus.IsStableOnGround && _motor.LastGroundingStatus.IsStableOnGround)
             OnLeaveStableGround();
@@ -770,8 +774,11 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         State.TimeSinceLastJump += deltaTime; 
         State.JumpBufferTimer = Mathf.Max(0f, State.JumpBufferTimer - deltaTime);
 
-        if (State.CurrentJumpStatus == JumpStatus.Requested && State.TimeSinceJumpRequested >= _jumpPreGroundingGraceTime)
+        if (State.CurrentJumpStatus == JumpStatus.Requested && State.TimeSinceJumpRequested >= Mathf.Max(_jumpPreGroundingGraceTime, _jumpBufferTime))
+        {
             State.CurrentJumpStatus = JumpStatus.None;
+            State.CoyoteJumpQueued = false;
+        }
 
         if (IsGroundedForJump())
         {
@@ -826,8 +833,10 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         State.HasJumped = false;
         State.HasDoubleJumped = false;
         State.HasWallJumped = false;
+        State.CoyoteJumpQueued = false;
         State.CurrentJumpStatus = JumpStatus.None;
         State.TimeSinceJumpRequested = 0f;
+        State.TimeSinceLastJump = Mathf.Infinity;
         State.LandingTime = Time.time;
         SwitchPhase(LocomotionPhase.Grounded);
     }
@@ -839,9 +848,20 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         if (State.JumpBufferTimer <= 0f || State.CurrentJumpStatus != JumpStatus.None) return;
         if (State.TimeSinceLastJump < 0.2f) return;
 
-        bool inCoyoteTime = !State.HasJumped && State.TimeSinceLastAbleToJump <= _jumpPostGroundingGraceTime;
+        bool inCoyoteTime = !State.HasJumped
+            && !_motor.GroundingStatus.IsStableOnGround
+            && !_motor.MustUnground()
+            && State.Phase != LocomotionPhase.Vaulting
+            && State.TimeSinceLastAbleToJump <= _jumpPostGroundingGraceTime;
+
         bool canJumpFromGround = IsGroundedForJump() || inCoyoteTime;
-        bool canDoubleJump = _allowDoubleJump && !State.HasDoubleJumped && !_motor.GroundingStatus.IsStableOnGround;
+        bool canDoubleJump = _allowDoubleJump
+            && !State.HasDoubleJumped
+            && !_motor.GroundingStatus.IsStableOnGround
+            && !_motor.MustUnground()
+            && !inCoyoteTime
+            && (State.HasJumped || State.TimeSinceLastAbleToJump > _jumpPostGroundingGraceTime);
+
         bool canWallJump = _allowWallJump && State is { CanWallJump: true, HasWallJumped: false };
         
         bool canVault = CanVault(out _);
@@ -850,6 +870,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         {
             State.TimeSinceJumpRequested = 0f;
             State.CurrentJumpStatus = JumpStatus.Requested;
+            State.CoyoteJumpQueued = inCoyoteTime;
             State.JumpBufferTimer = 0f;
         }
     }
@@ -866,6 +887,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             
             State.CurrentJumpStatus = JumpStatus.Executed;
             State.HasJumped = true;
+            State.CoyoteJumpQueued = false;
             State.TimeSinceLastJump = 0f;
             return;
         }
@@ -882,9 +904,10 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             State.HasJumped = true;
             State.HasWallJumped = true;
             State.CanWallJump = false;
+            State.CoyoteJumpQueued = false;
             State.TimeSinceLastJump = 0f;
         }
-        else if (IsGroundedForJump() || (!State.HasJumped && State.TimeSinceLastAbleToJump <= _jumpPostGroundingGraceTime))
+        else if (IsGroundedForJump() || State.CoyoteJumpQueued || (!State.HasJumped && !_motor.MustUnground() && State.TimeSinceLastAbleToJump <= _jumpPostGroundingGraceTime))
         {
             Vector3 jumpDirection = _motor.CharacterUp;
             _motor.ForceUnground();
@@ -892,21 +915,25 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
             State.CurrentJumpStatus = JumpStatus.Executed;
             State.HasJumped = true;
+            State.CoyoteJumpQueued = false;
             State.TimeSinceLastJump = 0f;
         }
-        else if (!_motor.GroundingStatus.IsStableOnGround && _allowDoubleJump && !State.HasDoubleJumped)
+        else if (!_motor.GroundingStatus.IsStableOnGround && _allowDoubleJump && !State.HasDoubleJumped && (State.HasJumped || State.TimeSinceLastAbleToJump > _jumpPostGroundingGraceTime))
         {
             _motor.ForceUnground();
             currentVelocity += (_motor.CharacterUp * _doubleJumpSpeed) - Vector3.Project(currentVelocity, _motor.CharacterUp);
             
             State.CurrentJumpStatus = JumpStatus.DoubleJumpUsed;
             State.HasDoubleJumped = true;
+            State.HasJumped = true;
+            State.CoyoteJumpQueued = false;
             State.TimeSinceLastJump = 0f;
         }
 
         if (State.CurrentJumpStatus is JumpStatus.Executed or JumpStatus.DoubleJumpUsed)
         {
             State.CurrentJumpStatus = JumpStatus.None;
+            State.CoyoteJumpQueued = false;
             SwitchPhase(LocomotionPhase.Airborne);
         }
     }
@@ -1007,9 +1034,16 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         }
     }
 
-    private bool IsGroundedForJump() => _allowJumpingWhenSliding
-        ? _motor.GroundingStatus.FoundAnyGround
-        : _motor.GroundingStatus.IsStableOnGround;
+    private bool IsGroundedForJump()
+    {
+        if (!_motor) return false;
+        if (_motor.MustUnground()) return false;
+        if (State.Phase == LocomotionPhase.Airborne) return false;
+
+        return _allowJumpingWhenSliding
+            ? (_motor.GroundingStatus.IsStableOnGround || _motor.GroundingStatus.FoundAnyGround)
+            : _motor.GroundingStatus.IsStableOnGround;
+    }
 
     private void UpdatePhaseFromGrounding()
     {

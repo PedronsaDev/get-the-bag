@@ -644,8 +644,8 @@ MonoBehaviour:
   _allowWallJump: 0
   _jumpSpeed: 11
   _doubleJumpSpeed: 10
-  _jumpPreGroundingGraceTime: 0
-  _jumpPostGroundingGraceTime: 0
+  _jumpPreGroundingGraceTime: 0.15
+  _jumpPostGroundingGraceTime: 0.2
   _jumpBufferTime: 0.15
   _standingHeight: 2
   _crouchingHeight: 1.2
