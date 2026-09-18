@@ -22,19 +22,22 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private PlayerInventoryController _inventoryController;
     [SerializeField] private PlayerDownedState _downedState;
     [SerializeField] private HealthComponent _healthComponent;
-    [SerializeField] private PlayerProgressionController _progression;
+    [SerializeField] private RuntimePlayerProfile _profile;
     [SerializeField] private int _remotePlayerLayerIndex;
     
     public PlayerInventoryController InventoryController => _inventoryController;
     public LocomotionController LocomotionController => _locomotionController;
     public PlayerDownedState DownedState => _downedState;
     public HealthComponent Health => _healthComponent;
-    public LocalPlayerInputProvider InputProvider => _inputProvider;
+    public IPlayerInputProvider InputProvider => _activeInputProvider;
+    public LocalPlayerInputProvider LocalInputProvider => _inputProvider;
     public PlayerInteractor Interactor => _interactor;
     public PlayerTargetDetector TargetDetector => _targetDetector;
-    public PlayerProgressionController Progression => _progression;
-    public LocomotionState LocomotionState { get; private set; }
+    public RuntimePlayerProfile Profile => _profile;
+    public LocomotionState LocomotionState => _locomotionController ? _locomotionController.State : default;
     public PlayerInputData CurrentInput { get; private set; }
+
+    private IPlayerInputProvider _activeInputProvider;
 
     private void Awake()
     {
@@ -42,6 +45,9 @@ public class PlayerFacade : NetworkBehaviour
             _inventoryController = GetComponent<PlayerInventoryController>() ?? GetComponentInChildren<PlayerInventoryController>();
         if (!_inputProvider)
             _inputProvider = GetComponent<LocalPlayerInputProvider>() ?? GetComponentInChildren<LocalPlayerInputProvider>();
+
+        _activeInputProvider = (IPlayerInputProvider)_inputProvider ?? GetComponent<IPlayerInputProvider>() ?? GetComponentInChildren<IPlayerInputProvider>();
+
         if (!_locomotionController)
             _locomotionController = GetComponent<LocomotionController>() ?? GetComponentInChildren<LocomotionController>();
         if (!_downedState)
@@ -52,8 +58,8 @@ public class PlayerFacade : NetworkBehaviour
             _interactor = GetComponent<PlayerInteractor>() ?? GetComponentInChildren<PlayerInteractor>();
         if (!_targetDetector)
             _targetDetector = GetComponent<PlayerTargetDetector>() ?? GetComponentInChildren<PlayerTargetDetector>();
-        if (!_progression)
-            _progression = GetComponent<PlayerProgressionController>() ?? GetComponentInChildren<PlayerProgressionController>();
+        if (!_profile)
+            _profile = GetComponent<RuntimePlayerProfile>() ?? GetComponentInChildren<RuntimePlayerProfile>();
     }
 
     protected override void OnSpawned()
@@ -82,8 +88,7 @@ public class PlayerFacade : NetworkBehaviour
         if (!isOwner)
             return;
 
-        CurrentInput = _inputProvider.GetCurrentInput();
-        LocomotionState = _locomotionController.State;
+        CurrentInput = _activeInputProvider?.GetCurrentInput() ?? PlayerInputData.Empty;
     }
 }
 }

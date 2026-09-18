@@ -1,6 +1,5 @@
 using System;
 using Project.Core.Match;
-using Project.Logging;
 using UnityEngine;
 
 namespace Project.Core.Events

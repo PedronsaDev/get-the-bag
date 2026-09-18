@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Project.Combat;
+using Project.Player.Input;
 using Project.Player.Loot;
 using PurrNet;
 using UnityEngine;
@@ -15,6 +16,9 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     [FormerlySerializedAs("_inventory")]
     [SerializeField] private PlayerInventoryController _inventoryController;
     [SerializeField] private WorldWeaponPickup _pickup;
+    [SerializeField] private LocalPlayerInputProvider _inputProvider;
+    [SerializeField] private LocomotionController _locomotionController;
+    [SerializeField] private PlayerFacade _playerFacade;
 
     [Header("Weapon Sockets & Visuals")] 
     [SerializeField] private WeaponVisualAssembler _visualAssembler;
@@ -25,7 +29,6 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     [SerializeField] private WeaponCoreDefinition _defaultSlot1Core;
     [SerializeField] private WeaponCoreDefinition _defaultSlot2Core;
 
-    private PlayerFacade _playerFacade;
     private FPSCameraController _cameraController;
     private WeaponContext _weaponContext;
 
@@ -70,8 +73,17 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
 
     private void Awake()
     {
-        _playerFacade = GetComponentInParent<PlayerFacade>();
-        _cameraController = GetComponentInChildren<FPSCameraController>();
+        if (!_inputProvider)
+            _inputProvider = GetComponent<LocalPlayerInputProvider>() ?? GetComponentInParent<LocalPlayerInputProvider>() ?? GetComponentInChildren<LocalPlayerInputProvider>();
+
+        if (!_locomotionController)
+            _locomotionController = GetComponent<LocomotionController>() ?? GetComponentInParent<LocomotionController>() ?? GetComponentInChildren<LocomotionController>();
+
+        if (!_playerFacade)
+            _playerFacade = GetComponentInParent<PlayerFacade>() ?? GetComponent<PlayerFacade>();
+
+        if (!_cameraController)
+            _cameraController = GetComponentInChildren<FPSCameraController>() ?? GetComponentInParent<FPSCameraController>();
 
         if (!_visualAssembler)
             _visualAssembler = GetComponentInChildren<WeaponVisualAssembler>();
@@ -112,12 +124,7 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
     {
         if (!isOwner) return;
 
-        if (!_playerFacade)
-            _playerFacade = GetComponentInParent<PlayerFacade>();
-
-        if (!_playerFacade) return;
-
-        var input = _playerFacade.CurrentInput;
+        var input = _inputProvider ? _inputProvider.GetCurrentInput() : (_playerFacade ? _playerFacade.CurrentInput : default);
         var currentWeapon = ActiveWeapon;
 
         if (input.WeaponSlotPressed == 1 && _activeSlotIndex != 1) EquipSlot(1);
@@ -150,21 +157,18 @@ public class PlayerWeaponController : NetworkBehaviour, IWeaponPickupReceiver
         // 4. Spread dynamics (movement inaccuracy and firing recovery)
         float targetBaseSpread = currentWeapon.CompiledStats.BaseSpread;
 
-        if (_playerFacade)
+        LocomotionState locomotion = _locomotionController ? _locomotionController.State : (_playerFacade ? _playerFacade.LocomotionState : default);
+        if (locomotion.Phase == LocomotionPhase.Airborne)
         {
-            var locomotion = _playerFacade.LocomotionState;
-            if (locomotion.Phase == LocomotionPhase.Airborne)
-            {
-                targetBaseSpread += 2.5f; // Jump bloom
-            }
-            else if (locomotion.IsSprinting)
-            {
-                targetBaseSpread += 1.5f; // Sprinting bloom
-            }
-            else if (locomotion.MoveInputMagnitude > 0.1f)
-            {
-                targetBaseSpread += 0.8f * locomotion.MoveInputMagnitude; // Walking bloom
-            }
+            targetBaseSpread += 2.5f; // Jump bloom
+        }
+        else if (locomotion.IsSprinting)
+        {
+            targetBaseSpread += 1.5f; // Sprinting bloom
+        }
+        else if (locomotion.MoveInputMagnitude > 0.1f)
+        {
+            targetBaseSpread += 0.8f * locomotion.MoveInputMagnitude; // Walking bloom
         }
 
         if (_currentSpread < targetBaseSpread)

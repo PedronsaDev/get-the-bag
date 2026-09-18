@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using PedronsaDev.Console;
 using Project.Core.Persistence;
 using Project.Logging;
 using UnityEngine;
-using Console = PedronsaDev.Console.Console;
 
 namespace Project.Persistence
 {
@@ -167,7 +165,6 @@ public class DataPersistenceManager : MonoBehaviour
         _gameData = new GameData();
     }
 
-    [Command("load_game", "Loads the game data from the active profile")]
     public void LoadGame()
     {
         if (_disableDataPersistence)
@@ -197,7 +194,6 @@ public class DataPersistenceManager : MonoBehaviour
         AppLog.Log(LogChannel.Persistence, $"Loaded profile '{_selectedProfileId}' successfully.");
     }
 
-    [Command("save_game", "Saves the game data to the active profile")]
     public void SaveGame()
     {
         SaveGameAsync().Forget(Debug.LogException);

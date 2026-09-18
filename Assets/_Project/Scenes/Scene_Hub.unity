@@ -436,6 +436,56 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4426419685283690223, guid: 7f1ff4617c1e1bd42a7d286397434dc0, type: 3}
   m_PrefabInstance: {fileID: 50911364}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &254030404
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 254030406}
+  - component: {fileID: 254030405}
+  m_Layer: 0
+  m_Name: Data Persistence Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &254030405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 254030404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a43c513eda07bf94db46b159ebbc8b51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Persistence::Project.Persistence.DataPersistenceManager
+  _disableDataPersistence: 1
+  _initializeDataIfNull: 1
+  _overrideSelectedProfileId: 1
+  _testSelectedProfileId: dev
+  _fileName: game.sav
+  _useEncryption: 0
+--- !u!4 &254030406
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 254030404}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &371184870
 GameObject:
   m_ObjectHideFlags: 0
@@ -1719,6 +1769,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4426419685283690223, guid: 7f1ff4617c1e1bd42a7d286397434dc0, type: 3}
   m_PrefabInstance: {fileID: 1381511882}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1431839813
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1431839815}
+  - component: {fileID: 1431839814}
+  m_Layer: 0
+  m_Name: Player Profile Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1431839814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1431839813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f7a2db42a88cf14b8f7b8937bd620fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.Profile.PlayerProfileManager
+  _events: {fileID: 11400000, guid: 6c740ce651dc2404cbe0f5a1c401c293, type: 2}
+  _settings: {fileID: 11400000, guid: 750e5617d23d89140bf0d1abefc39f1d, type: 2}
+--- !u!4 &1431839815
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1431839813}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1000, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1440322537
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2267,51 +2363,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.Combat::Project.Combat.ImpactEffectPool
   _impactPrefab: {fileID: 8519207808570149524, guid: 549c83fbe79c29446a73b9da0522a9fa, type: 3}
---- !u!1 &1790943313
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1790943315}
-  - component: {fileID: 1790943314}
-  m_Layer: 0
-  m_Name: Player Profile Manager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1790943314
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1790943313}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f7a2db42a88cf14b8f7b8937bd620fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Player::Project.Player.Data.PlayerProfileManager
-  _progressionSettings: {fileID: 11400000, guid: 750e5617d23d89140bf0d1abefc39f1d, type: 2}
---- !u!4 &1790943315
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1790943313}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1000, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1818382738
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2728,6 +2779,7 @@ SceneRoots:
   - {fileID: 47539556}
   - {fileID: 1771035277}
   - {fileID: 1748027399}
-  - {fileID: 1790943315}
   - {fileID: 2012273790}
   - {fileID: 1920723340}
+  - {fileID: 1431839815}
+  - {fileID: 254030406}

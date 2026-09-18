@@ -1,6 +1,7 @@
 using System;
 using Project.Core.Interaction;
 using Project.Core.UI;
+using Project.Player.Input;
 using PurrNet;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
     [SerializeField] private LayerMask _interactableLayers;
 
     [Header("References")] 
+    [SerializeField] private LocalPlayerInputProvider _inputProvider;
     [SerializeField] private PlayerFacade _playerFacade;
     [SerializeField] private FPSCameraController _cameraController;
 
@@ -42,6 +44,9 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
         {
             _interactableLayers |= (1 << interactableLayer);
         }
+
+        if (!_inputProvider)
+            _inputProvider = GetComponent<LocalPlayerInputProvider>() ?? GetComponentInParent<LocalPlayerInputProvider>() ?? GetComponentInChildren<LocalPlayerInputProvider>();
 
         if (!_playerFacade)
             _playerFacade = GetComponentInParent<PlayerFacade>();
@@ -109,7 +114,7 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
             return;
         }
 
-        var input = _playerFacade ? _playerFacade.CurrentInput : default;
+        var input = _inputProvider ? _inputProvider.GetCurrentInput() : (_playerFacade ? _playerFacade.CurrentInput : default);
 
         switch (_currentTarget.Mode)
         {

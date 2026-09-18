@@ -15,7 +15,6 @@ namespace Project.Player.Locomotion
         [SerializeField] private LocomotionController _locomotionController;
         [SerializeField] private PlayerDownedInteractable _playerDownedInteractable;
         [SerializeField] private PlayerWeaponController _weaponController;
-        [SerializeField] private PlayerFacade _playerFacade;
 
         [Header("Settings")]
         [SerializeField] private float _bleedOutTimer = 45f;
@@ -52,9 +51,6 @@ namespace Project.Player.Locomotion
 
             if (!_weaponController)
                 _weaponController = GetComponent<PlayerWeaponController>() ?? GetComponentInParent<PlayerWeaponController>() ?? GetComponentInChildren<PlayerWeaponController>();
-
-            if (!_playerFacade)
-                _playerFacade = GetComponent<PlayerFacade>() ?? GetComponentInParent<PlayerFacade>() ?? GetComponentInChildren<PlayerFacade>();
 
             var identifier = GetComponentInChildren<PlayerIdentifier>() ?? GetComponent<PlayerIdentifier>();
             if (identifier)

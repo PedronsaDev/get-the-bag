@@ -8,8 +8,7 @@ namespace Project.Core.Persistence
     public class PlayerProfileSaveData
     {
         public string Name = "PLAYER_NAME";
-        public int Level = 1;
-        public int Experience = 0;
+        public int TotalExperience = 0;
         public int Scrip = 0;
     }
 

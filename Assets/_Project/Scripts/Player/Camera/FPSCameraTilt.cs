@@ -13,9 +13,14 @@ public class FPSCameraTilt : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform _tiltPivot;
     [SerializeField] private LocomotionController _locomotionController;
-    [SerializeField] private PlayerFacade _playerFacade;
     
     private float _currentTilt;
+
+    private void Awake()
+    {
+        if (!_locomotionController)
+            _locomotionController = GetComponent<LocomotionController>() ?? GetComponentInParent<LocomotionController>() ?? GetComponentInChildren<LocomotionController>();
+    }
 
     private void Update()
     {
@@ -26,11 +31,13 @@ public class FPSCameraTilt : MonoBehaviour
 
     private void HandleTilt(float dt)
     {
+        if (!_locomotionController) return;
+
         float targetRoll = 0f;
         if (_locomotionController.State.IsSliding)
             targetRoll = _slideTilt;
         else if (_locomotionController.State.Phase == LocomotionPhase.Grounded)
-            targetRoll = -_playerFacade.CurrentInput.MoveVector.x * _strafeTilt;
+            targetRoll = -_locomotionController.State.MoveInput.x * _strafeTilt;
 
         _currentTilt = Mathf.Lerp(_currentTilt, targetRoll, dt * _tiltSmoothness);
     }

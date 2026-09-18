@@ -166,6 +166,30 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
+  - Name: dp_load
+    Description: Loads the game state.
+    TargetType: 0
+    Group: DataPersistence
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007750726f6a6563742e50657273697374656e63652e4461746150657273697374656e6365436f6d6d616e64732c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: LoadGame
+      Parameters: []
+      Flags: 24
+  - Name: dp_save
+    Description: Saves the current game state.
+    TargetType: 0
+    Group: DataPersistence
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007750726f6a6563742e50657273697374656e63652e4461746150657273697374656e6365436f6d6d616e64732c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SaveGame
+      Parameters: []
+      Flags: 24
   - Name: even_color
     Description: (Alias for set_log_even_color) Sets the alternating even row background color (e.g. '#1A202C', '#2A2A2A80')
     TargetType: 0
@@ -582,18 +606,6 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 20
-  - Name: load_game
-    Description: Loads the game data from the active profile
-    TargetType: 0
-    Group: Default
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 007650726f6a6563742e50657273697374656e63652e4461746150657273697374656e63654d616e616765722c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: LoadGame
-      Parameters: []
-      Flags: 20
   - Name: load_scene
     Description: Loads a scene by name
     TargetType: 0
@@ -877,6 +889,58 @@ MonoBehaviour:
       Parameters:
       - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 20
+  - Name: pp_add_experience
+    Description: 'Adds the specified amount of experience to the player. Usage: pp_add_experience <amount>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: AddExperience
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: pp_add_scrip
+    Description: 'Adds the specified amount of scrip to the player. Usage: pp_add_scrip <amount>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: AddScrip
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: pp_change_name
+    Description: 'Changes the player''s name to the specified value. Usage: pp_change_name <newName>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ChangePlayerName
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: pp_set_level
+    Description: 'Sets the player''s level to the specified value. Usage: pp_set_level <level>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLevel
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
   - Name: quit
     Description: Quits the application
     TargetType: 0
@@ -901,18 +965,6 @@ MonoBehaviour:
       MethodName: ReloadActiveScene
       Parameters: []
       Flags: 24
-  - Name: save_game
-    Description: Saves the game data to the active profile
-    TargetType: 0
-    Group: Default
-    HostOnly: 0
-    Aliases: []
-    SerializableMethod:
-      Type:
-        Data: 007650726f6a6563742e50657273697374656e63652e4461746150657273697374656e63654d616e616765722c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
-      MethodName: SaveGame
-      Parameters: []
-      Flags: 20
   - Name: search
     Description: Searches log history for a keyword
     TargetType: 0

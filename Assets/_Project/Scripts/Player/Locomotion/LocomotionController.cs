@@ -1,3 +1,5 @@
+using Project.Player.Input;
+
 namespace Project.Player
 {
 using System;
@@ -383,6 +385,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [Header("References")] 
     [SerializeField] private KinematicCharacterMotor _motor;
     [SerializeField] private NetworkTransform _networkTransform;
+    [SerializeField] private LocalPlayerInputProvider _inputProvider;
     [SerializeField] private PlayerFacade _playerFacade;
     [SerializeField] private FPSCameraController _fpsCameraController;
     
@@ -435,7 +438,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [Header("Dynamic Gravity")] 
     [SerializeField] private float _fallGravityMultiplier = 0.9f;
     [SerializeField] private float _slideGravityMultiplier = 2.5f;
-    [SerializeField] private Vector3 _defaultGravity = new(0, -23f, 0);
+    [SerializeField] private Vector3 _gravity = new(0, -29f, 0);
 
     [Header("Noclip")]
     [SerializeField] private float _noclipSpeed = 12f;
@@ -475,8 +478,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     public float DownedCapsuleHeight => _downedCapsuleHeight;
     public float MinVaultHeight => _minVaultHeight;
     public float MaxVaultHeight => _maxVaultHeight;
-    
-    private Vector3 _gravity = new(0, -23f, 0);
 
     public void SetDowned(bool downed)
     {
@@ -538,8 +539,11 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         if (_motor)
             _motor.CharacterController = this;
 
+        if (!_inputProvider)
+            _inputProvider = GetComponent<LocalPlayerInputProvider>() ?? GetComponentInParent<LocalPlayerInputProvider>() ?? GetComponentInChildren<LocalPlayerInputProvider>();
+
         if (!_playerFacade)
-            _playerFacade = GetComponent<PlayerFacade>();
+            _playerFacade = GetComponent<PlayerFacade>() ?? GetComponentInParent<PlayerFacade>() ?? GetComponentInChildren<PlayerFacade>();
 
         if (!_fpsCameraController)
             _fpsCameraController = GetComponent<FPSCameraController>();
@@ -594,12 +598,14 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     {
         if (!isOwner) return;
 
-        if (!_playerFacade)
-            _playerFacade = GetComponent<PlayerFacade>();
+        if (!_inputProvider && !_playerFacade)
+        {
+            _inputProvider = GetComponent<LocalPlayerInputProvider>() ?? GetComponentInParent<LocalPlayerInputProvider>() ?? GetComponentInChildren<LocalPlayerInputProvider>();
+            if (!_inputProvider)
+                _playerFacade = GetComponent<PlayerFacade>() ?? GetComponentInParent<PlayerFacade>() ?? GetComponentInChildren<PlayerFacade>();
+        }
 
-        if (!_playerFacade) return;
-
-        var input = _playerFacade.CurrentInput;
+        var input = _inputProvider ? _inputProvider.GetCurrentInput() : (_playerFacade ? _playerFacade.CurrentInput : default);
         Quaternion camRot = _fpsCameraController 
             ? _fpsCameraController.CameraRotation 
             : transform.rotation;

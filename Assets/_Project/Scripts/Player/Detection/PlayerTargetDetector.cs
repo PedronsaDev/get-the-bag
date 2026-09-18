@@ -9,7 +9,6 @@ namespace Project.Player.Detection
     public class PlayerTargetDetector : NetworkBehaviour
     {
         [Header("References")]
-        [SerializeField] private PlayerFacade _playerFacade;
         [SerializeField] private FPSCameraController _cameraController;
 
         [Header("Detection Settings")]
@@ -45,9 +44,6 @@ namespace Project.Player.Detection
             // Sanitize inspector values if legacy bloated radius was saved
             if (_assistRadius > 10f)
                 _assistRadius = 1.5f;
-
-            if (!_playerFacade)
-                _playerFacade = GetComponentInParent<PlayerFacade>();
 
             if (!_cameraController)
                 _cameraController = GetComponentInChildren<FPSCameraController>();
