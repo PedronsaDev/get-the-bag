@@ -1,14 +1,83 @@
+using System;
+using System.Linq;
+using System.Text;
 using UnityEngine;
+using PedronsaDev.Console.Components;
 
 namespace PedronsaDev.Console.Extra
 {
 	[CommandGroup("Core")]
 	public static class CoreCommands
 	{
-		[Command("help", "Displays information about the Console")]
-		public static void PrintHelp()
+		[Command("help", "Displays console help or details for a specific command. Usage: help [command_name]", Aliases = new[] { "desc", "describe", "man", "?" })]
+		public static void PrintHelp(string command = "")
 		{
-			Console.Log("Type 'get_commands' for a list of available commands. \r\nFor any problems with the console message .pedronsa in Discord");
+			if (string.IsNullOrWhiteSpace(command))
+			{
+				Console.Log("Type 'get_commands' for a list of available commands.\r\nType 'help <command>' or 'desc <command>' for command details, parameters, and aliases.\r\nFor any problems with the console message .pedronsa in Discord");
+				return;
+			}
+
+			var cache = ConsoleSystem.Cache;
+			if (!cache)
+			{
+				Console.LogWarning("Console cache is not available yet.");
+				return;
+			}
+
+			Command targetCmd = cache.AvailableCommands?.FirstOrDefault(c =>
+				c.Name.Equals(command, StringComparison.OrdinalIgnoreCase) ||
+				(c.Aliases != null && c.Aliases.Any(a => a.Equals(command, StringComparison.OrdinalIgnoreCase))));
+
+			if (targetCmd == null && cache.CommandRegistry != null)
+			{
+				targetCmd = cache.CommandRegistry.FirstOrDefault(c =>
+					c.Name.Equals(command, StringComparison.OrdinalIgnoreCase) ||
+					(c.Aliases != null && c.Aliases.Any(a => a.Equals(command, StringComparison.OrdinalIgnoreCase))));
+			}
+
+			if (targetCmd == null)
+			{
+				Console.LogWarning($"Command '{command}' not found. Type 'get_commands' to see all available commands.");
+				return;
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"<b><color=#60A5FA>{targetCmd.Name}</color></b> (Group: <i>{targetCmd.Group}</i>)");
+
+			if (!string.IsNullOrEmpty(targetCmd.Description))
+			{
+				sb.AppendLine($"<color=#E2E8F0>Description:</color> {targetCmd.Description}");
+			}
+			else
+			{
+				sb.AppendLine("<color=#94A3B8>Description: None provided.</color>");
+			}
+
+			if (targetCmd.Aliases != null && targetCmd.Aliases.Length > 0)
+			{
+				sb.AppendLine($"<color=#CBD5E1>Aliases:</color> {string.Join(", ", targetCmd.Aliases)}");
+			}
+
+			if (targetCmd.Method != null)
+			{
+				var parameters = targetCmd.Method.GetParameters();
+				if (parameters.Length > 0)
+				{
+					sb.AppendLine("<color=#CBD5E1>Parameters:</color>");
+					foreach (var p in parameters)
+					{
+						string defaultVal = p.HasDefaultValue ? $" = {p.DefaultValue ?? "null"}" : " <color=#F59E0B>(required)</color>";
+						sb.AppendLine($"  - <b>{p.ParameterType.Name}</b> {p.Name}{defaultVal}");
+					}
+				}
+				else
+				{
+					sb.AppendLine("<color=#94A3B8>Parameters: None</color>");
+				}
+			}
+
+			Console.Log(sb.ToString());
 		}
 
 		[Command("version", "Displays the Smart Console version")]
@@ -21,20 +90,6 @@ namespace PedronsaDev.Console.Extra
 		public static void Quit()
 		{
 			Application.Quit();
-		}
-		
-		[Command("test_logs", "Tests all kinds of logs available")]
-		public static void TestLogs()
-		{
-			Console.Log("This is a Console Log");
-			Console.LogWarning("This is a Console Warning Log");
-			Console.LogError("This is a Console Error Log");
-			Debug.Log("This is a Unity Engine Log");
-			Debug.LogWarning("This is a Unity Engine Warning Log");
-			Debug.LogError("This is a Unity Engine Error Log");
-			
-			Console.LogCustom("Client", "This is a Console Custom Log", new Color(0.47f,0.92f,0.3f));
-			Console.LogCustom("Server", "This is another Console Custom Log", new Color(0.859f,0.431f,0.675f));
 		}
 
 		[Command("filter", "Filter visible logs: all, log, warning, error, custom", Aliases = new[] { "f" })]

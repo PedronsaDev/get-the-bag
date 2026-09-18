@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using PedronsaDev.Console;
-using UnityEngine;
 
 namespace Project.Logging.Commands
 {
@@ -11,7 +10,7 @@ namespace Project.Logging.Commands
     [CommandGroup("Logging")]
     public static class LoggingCommands
     {
-        [Command("log_channels", "Lists all logging channels and their current active status", Aliases = new[] { "log_list" })]
+        [Command("log_channels", "Lists all logging channels and their current active status.")]
         public static void ListChannels()
         {
             var settings = LogSettings.Instance;
@@ -38,7 +37,7 @@ namespace Project.Logging.Commands
             PedronsaDev.Console.Console.Log(sb.ToString());
         }
 
-        [Command("log_toggle", "Toggles a specific logging channel on or off (e.g. 'log_toggle Network')", Aliases = new[] { "log_t" })]
+        [Command("log_toggle", "Toggles a specific logging channel on or off. Usage: log_toggle [channel]")]
         public static void ToggleChannel(LogChannel channel)
         {
             if (channel is LogChannel.None or LogChannel.All)
@@ -55,7 +54,7 @@ namespace Project.Logging.Commands
             PedronsaDev.Console.Console.Log($"Channel <color={colorHex}>[{channel}]</color> is now {stateStr}.");
         }
 
-        [Command("log_enable", "Enables a specific logging channel", Aliases = new[] { "log_on" })]
+        [Command("log_enable", "Enables a specific logging channel. Usage: log_enable [channel]")]
         public static void EnableChannel(LogChannel channel)
         {
             if (channel == LogChannel.All)
@@ -70,7 +69,7 @@ namespace Project.Logging.Commands
             PedronsaDev.Console.Console.Log($"Channel <color={colorHex}>[{channel}]</color> <color=#4ADE80>ENABLED</color>.");
         }
 
-        [Command("log_disable", "Disables a specific logging channel", Aliases = new[] { "log_off" })]
+        [Command("log_disable", "Disables a specific logging channel. Usage: log_disable [channel]")]
         public static void DisableChannel(LogChannel channel)
         {
             if (channel == LogChannel.All)
@@ -85,7 +84,7 @@ namespace Project.Logging.Commands
             PedronsaDev.Console.Console.Log($"Channel <color={colorHex}>[{channel}]</color> <color=#F43F5E>DISABLED</color>.");
         }
 
-        [Command("log_all", "Enables or disables all logging channels at once")]
+        [Command("log_all", "Enables or disables all logging channels at once. Usage: log_all [true/false]")]
         public static void SetAllChannels(bool enabled)
         {
             LogSettings.Instance.SetAllChannels(enabled);
@@ -93,14 +92,14 @@ namespace Project.Logging.Commands
             PedronsaDev.Console.Console.Log($"All logging channels are now {stateStr}.");
         }
 
-        [Command("log_level", "Sets minimum severity threshold (Verbose, Info, Warning, Error)")]
+        [Command("log_level", "Sets minimum severity threshold (Verbose, Info, Warning, Error). Usage: log_level [level]")]
         public static void SetLogLevel(LogLevel level)
         {
             LogSettings.Instance.MinimumLogLevel = level;
             PedronsaDev.Console.Console.Log($"Minimum log level updated to <b>{level}</b>.");
         }
 
-        [Command("log_reset", "Resets all logging channels and thresholds to defaults")]
+        [Command("log_reset", "Resets all logging channels and thresholds to defaults.")]
         public static void ResetToDefaults()
         {
             LogSettings.Instance.ResetToDefaults();

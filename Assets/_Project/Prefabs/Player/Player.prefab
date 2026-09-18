@@ -403,6 +403,7 @@ MonoBehaviour:
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
+  _progressionSettings: {fileID: 0}
   _raidEvents: {fileID: 11400000, guid: f46f0924077e3e0459992a95aa8e9673, type: 2}
 --- !u!1 &1664979332812934402
 GameObject:
@@ -609,6 +610,7 @@ MonoBehaviour:
     HasJumped: 0
     HasDoubleJumped: 0
     HasWallJumped: 0
+    CoyoteJumpQueued: 0
     LandingTime: 0
     Phase: 0
     AnimationState: 0
@@ -624,6 +626,7 @@ MonoBehaviour:
     VaultStartPosition: {x: 0, y: 0, z: 0}
     VaultTargetPosition: {x: 0, y: 0, z: 0}
     VaultTimer: 0
+    IsNoclipEnabled: 0
   _motor: {fileID: 6988986901440066400}
   _networkTransform: {fileID: 1117931757033441777}
   _playerFacade: {fileID: 3916750346549361147}
@@ -666,7 +669,10 @@ MonoBehaviour:
   _vaultDuration: 0.5
   _fallGravityMultiplier: 0.9
   _slideGravityMultiplier: 2.5
-  _gravity: {x: 0, y: -30, z: 0}
+  _defaultGravity: {x: 0, y: -29, z: 0}
+  _noclipSpeed: 12
+  _noclipSprintMultiplier: 2.5
+  _noclipSharpness: 20
   _crawlSpeed: 1.2
   _downedCapsuleHeight: 0.8
   _draggingSpeedMultiplier: 0.6

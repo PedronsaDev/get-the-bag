@@ -30,7 +30,8 @@ public enum LocomotionPhase
 {
     Grounded,
     Airborne,
-    Vaulting
+    Vaulting,
+    Noclip
 }
 
 public enum LocomotionAnimationState
@@ -78,6 +79,7 @@ public struct LocomotionState
     public Vector3 VaultStartPosition;
     public Vector3 VaultTargetPosition;
     public float VaultTimer;
+    public bool IsNoclipEnabled;
 }
 
 [Serializable]
@@ -203,6 +205,71 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             var slopeGravity = Vector3.ProjectOnPlane(_controller._gravity, effectiveGroundNormal);
                 
             currentVelocity += slopeGravity * (_controller._slideGravityMultiplier * deltaTime);
+        }
+    }
+    
+    private sealed class NoclipPhaseHandler : ILocomotionPhaseHandler
+    {
+        private readonly LocomotionController _controller;
+        
+        public NoclipPhaseHandler(LocomotionController controller) => _controller = controller;
+        public LocomotionPhase Phase => LocomotionPhase.Noclip;
+
+        public void Enter()
+        {
+            if (_controller._motor)
+            {
+                _controller._motor.SetCapsuleCollisionsActivation(false);
+                _controller._motor.SetMovementCollisionsSolvingActivation(false);
+                _controller._motor.SetGroundSolvingActivation(false);
+                _controller._motor.ForceUnground();
+            }
+            _controller.State.IsNoclipEnabled = true;
+            _controller.State.Phase = LocomotionPhase.Noclip;
+            _controller.State.IsSliding = false;
+        }
+
+        public void Exit()
+        {
+            if (_controller._motor)
+            {
+                _controller._motor.SetCapsuleCollisionsActivation(true);
+                _controller._motor.SetMovementCollisionsSolvingActivation(true);
+                _controller._motor.SetGroundSolvingActivation(true);
+            }
+            _controller.State.IsNoclipEnabled = false;
+            _controller.State.TimeSinceLastJump = 0f;
+            _controller.State.CurrentJumpStatus = JumpStatus.None;
+            _controller.State.JumpBufferTimer = 0f;
+        }
+
+        public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+        {
+            Quaternion camRot = _controller._fpsCameraController 
+                ? _controller._fpsCameraController.CameraRotation 
+                : _controller._cameraRotation;
+
+            Vector3 fwd = camRot * Vector3.forward;
+            Vector3 rgt = camRot * Vector3.right;
+            Vector3 up = _controller._motor ? _controller._motor.CharacterUp : Vector3.up;
+
+            Vector3 moveDir = (fwd * _controller.State.MoveInput.y) + (rgt * _controller.State.MoveInput.x);
+
+            if (_controller._isJumpInputHeld)
+                moveDir += up;
+            if (_controller._isCrouchInputHeld)
+                moveDir -= up;
+
+            if (moveDir.sqrMagnitude > 1f)
+                moveDir.Normalize();
+
+            float speed = _controller._noclipSpeed;
+            if (_controller._isRawSprintHeld)
+                speed *= _controller._noclipSprintMultiplier;
+
+            Vector3 targetVelocity = moveDir * speed;
+            float sharpness = _controller._noclipSharpness;
+            currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-sharpness * deltaTime));
         }
     }
     
@@ -368,7 +435,12 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [Header("Dynamic Gravity")] 
     [SerializeField] private float _fallGravityMultiplier = 0.9f;
     [SerializeField] private float _slideGravityMultiplier = 2.5f;
-    [SerializeField] private Vector3 _gravity = new(0, -23f, 0);
+    [SerializeField] private Vector3 _defaultGravity = new(0, -23f, 0);
+
+    [Header("Noclip")]
+    [SerializeField] private float _noclipSpeed = 12f;
+    [SerializeField] private float _noclipSprintMultiplier = 2.5f;
+    [SerializeField] private float _noclipSharpness = 20f;
 
     [Header("Downed & Dragging")]
     [SerializeField] private float _crawlSpeed = 1.2f;
@@ -403,6 +475,8 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     public float DownedCapsuleHeight => _downedCapsuleHeight;
     public float MinVaultHeight => _minVaultHeight;
     public float MaxVaultHeight => _maxVaultHeight;
+    
+    private Vector3 _gravity = new(0, -23f, 0);
 
     public void SetDowned(bool downed)
     {
@@ -450,6 +524,8 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     private ILocomotionPhaseHandler _currentPhaseHandler;
     private Vector3 _moveInputVector;
     private Vector3 _lookInputVector;
+    private Quaternion _cameraRotation = Quaternion.identity;
+    private bool _isRawSprintHeld;
     private bool _isSprintInputHeld;
     private bool _isCrouchInputHeld;
     private bool _isJumpInputHeld;
@@ -474,6 +550,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         _phaseHandlers[LocomotionPhase.Grounded] = new GroundedPhaseHandler(this);
         _phaseHandlers[LocomotionPhase.Airborne] = new AirbornePhaseHandler(this);
         _phaseHandlers[LocomotionPhase.Vaulting] = new VaultingPhaseHandler(this);
+        _phaseHandlers[LocomotionPhase.Noclip] = new NoclipPhaseHandler(this);
         SwitchPhase(LocomotionPhase.Airborne);
     }
 
@@ -501,6 +578,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         _phaseHandlers[LocomotionPhase.Grounded] = new GroundedPhaseHandler(this);
         _phaseHandlers[LocomotionPhase.Airborne] = new AirbornePhaseHandler(this);
         _phaseHandlers[LocomotionPhase.Vaulting] = new VaultingPhaseHandler(this);
+        _phaseHandlers[LocomotionPhase.Noclip] = new NoclipPhaseHandler(this);
 
         SwitchPhase(_motor.GroundingStatus.IsStableOnGround ? LocomotionPhase.Grounded : LocomotionPhase.Airborne);
     }
@@ -542,6 +620,9 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public void SetInputs(ref PlayerCharacterInputs inputs)
     {
+        _cameraRotation = inputs.CameraRotation;
+        _isRawSprintHeld = inputs.SprintHeld;
+
         Vector3 moveInputVector = Vector3.ClampMagnitude(new Vector3(inputs.MoveAxisRight, 0f, inputs.MoveAxisForward), 1f);
 
         Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(inputs.CameraRotation * Vector3.forward, _motor.CharacterUp).normalized;
@@ -581,9 +662,9 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     public VaultEvaluation EvaluateVault()
     {
         var eval = new VaultEvaluation();
-        if (_isDowned || _isDraggingTeammate || !_motor)
+        if (_isDowned || _isDraggingTeammate || !_motor || State.Phase == LocomotionPhase.Noclip)
         {
-            eval.FailureReason = "Disabled / Downed";
+            eval.FailureReason = "Disabled / Downed / Noclip";
             return eval;
         }
 
@@ -631,7 +712,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
         eval.WallHit = wallHit;
 
-        // Ensure wall is roughly vertical (normal perpendicular to up, within ~20 deg)
         eval.IsWallVertical = Mathf.Abs(Vector3.Dot(wallHit.normal, up)) < 0.35f;
         if (!eval.IsWallVertical)
         {
@@ -639,10 +719,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             return eval;
         }
 
-        // 2. Ledge Top Detection:
-        // Step slightly past the wall front surface along inward normal
         Vector3 inwardPos = wallHit.point - (wallHit.normal * 0.15f);
-        // Start downward ray above max vault height relative to player's current feet
         Vector3 ledgeRayOrigin = Vector3.ProjectOnPlane(inwardPos - basePos, up) + basePos + up * (_maxVaultHeight + 0.15f);
         float dropDistance = _maxVaultHeight + 0.15f - (_minVaultHeight * 0.5f);
 
@@ -658,7 +735,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         float ledgeHeight = Vector3.Dot(ledgeHit.point - basePos, up);
         eval.LedgeHeight = ledgeHeight;
 
-        // Check if ledge height is within [minVaultHeight, maxVaultHeight]
         if (ledgeHeight < _minVaultHeight)
         {
             eval.FailureReason = $"Ledge too low ({ledgeHeight:F2}m < {_minVaultHeight:F2}m)";
@@ -671,7 +747,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             return eval;
         }
 
-        // Ensure top surface is walkable (normal pointing up, slope <= 45 deg)
         eval.IsLedgeSurfaceWalkable = Vector3.Dot(ledgeHit.normal, up) >= 0.7f;
         if (!eval.IsLedgeSurfaceWalkable)
         {
@@ -679,7 +754,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             return eval;
         }
 
-        // 3. Landing Clearance Check:
         Vector3 targetFootPos = ledgeHit.point + (forward * (radius * 1.15f));
         eval.TargetFootPos = targetFootPos;
 
@@ -727,6 +801,16 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private void UpdateCrouchHeight(float deltaTime)
     {
+        if (State.Phase == LocomotionPhase.Noclip)
+        {
+            if (_motor && _motor.Capsule && State.TargetHeight != _standingHeight)
+            {
+                State.TargetHeight = _standingHeight;
+                _motor.SetCapsuleDimensions(_motor.Capsule.radius, _standingHeight, _standingHeight * 0.5f);
+            }
+            return;
+        }
+
         if (_isDowned)
         {
             State.TargetHeight = _downedCapsuleHeight;
@@ -759,6 +843,8 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public void PostGroundingUpdate(float deltaTime)
     {
+        if (State.Phase == LocomotionPhase.Noclip) return;
+
         bool becameStable = _motor.GroundingStatus.IsStableOnGround && !_motor.LastGroundingStatus.IsStableOnGround;
         bool becameGroundedOnSlide = _allowJumpingWhenSliding && _motor.GroundingStatus.FoundAnyGround && !_motor.LastGroundingStatus.FoundAnyGround && !_motor.MustUnground();
 
@@ -770,6 +856,18 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public void AfterCharacterUpdate(float deltaTime)
     {
+        if (State.Phase == LocomotionPhase.Noclip)
+        {
+            State.TimeSinceJumpRequested += deltaTime;
+            State.TimeSinceLastJump += deltaTime; 
+            State.JumpBufferTimer = 0f;
+            State.CanWallJump = false;
+            State.WallJumpGraceTimer = 0f;
+            UpdateCrouchHeight(deltaTime);
+            State.WasCrouchingLastFrame = _isCrouchInputHeld;
+            return;
+        }
+
         State.TimeSinceJumpRequested += deltaTime;
         State.TimeSinceLastJump += deltaTime; 
         State.JumpBufferTimer = Mathf.Max(0f, State.JumpBufferTimer - deltaTime);
@@ -802,7 +900,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         State.WasCrouchingLastFrame = _isCrouchInputHeld;
     }
 
-    public bool IsColliderValidForCollisions(Collider coll) => true;
+    public bool IsColliderValidForCollisions(Collider coll) => State.Phase != LocomotionPhase.Noclip;
     public void OnGroundHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, ref HitStabilityReport hitStabilityReport) { }
     public void ProcessHitStabilityReport(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, Vector3 atCharacterPosition, Quaternion atCharacterRotation, ref HitStabilityReport hitStabilityReport) { }
     public void OnDiscreteCollisionDetected(Collider hitCollider) { }
@@ -822,6 +920,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, ref HitStabilityReport hitStabilityReport)
     {
+        if (State.Phase == LocomotionPhase.Noclip) return;
         if (_allowWallJump && !_motor.GroundingStatus.IsStableOnGround && !hitStabilityReport.IsStable)
             RegisterWallContact(hitNormal);
     }
@@ -844,7 +943,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     private void TryQueueJumpFromBuffer()
     {
         if (_isDowned || _isDraggingTeammate) return;
-        if (State.Phase == LocomotionPhase.Vaulting) return; // FIX: Do not queue jumps while vaulting
+        if (State.Phase is LocomotionPhase.Vaulting or LocomotionPhase.Noclip) return;
         if (State.JumpBufferTimer <= 0f || State.CurrentJumpStatus != JumpStatus.None) return;
         if (State.TimeSinceLastJump < 0.2f) return;
 
@@ -877,7 +976,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private void ApplyJumpIfRequested(ref Vector3 currentVelocity)
     {
-        if (_isDowned || _isDraggingTeammate) return;
+        if (_isDowned || _isDraggingTeammate || State.Phase == LocomotionPhase.Noclip) return;
         if (State.CurrentJumpStatus != JumpStatus.Requested) return;
 
         if (CanVault(out Vector3 vaultTargetPos))
@@ -963,7 +1062,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
         if (_isDowned)
         {
-            nextState = (_dragTarget != null || moveInputMagnitude > 0.1f)
+            nextState = (_dragTarget || moveInputMagnitude > 0.1f)
                 ? LocomotionAnimationState.Crawling
                 : LocomotionAnimationState.Downed;
         }
@@ -971,6 +1070,11 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         {
             switch (State.Phase)
             {
+                case LocomotionPhase.Noclip:
+                    nextState = moveInputMagnitude > 0.1f
+                        ? (_isSprintInputHeld ? LocomotionAnimationState.Sprinting : LocomotionAnimationState.Walking)
+                        : LocomotionAnimationState.Idle;
+                    break;
                 case LocomotionPhase.Vaulting:
                     nextState = LocomotionAnimationState.Vaulting;
                     break;
@@ -1038,7 +1142,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     {
         if (!_motor) return false;
         if (_motor.MustUnground()) return false;
-        if (State.Phase == LocomotionPhase.Airborne) return false;
+        if (State.Phase is LocomotionPhase.Airborne or LocomotionPhase.Noclip) return false;
 
         return _allowJumpingWhenSliding
             ? (_motor.GroundingStatus.IsStableOnGround || _motor.GroundingStatus.FoundAnyGround)
@@ -1047,7 +1151,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private void UpdatePhaseFromGrounding()
     {
-        if (State.Phase == LocomotionPhase.Vaulting) return; 
+        if (State.Phase is LocomotionPhase.Vaulting or LocomotionPhase.Noclip) return; 
 
         LocomotionPhase targetPhase = _motor.GroundingStatus.IsStableOnGround ? LocomotionPhase.Grounded : LocomotionPhase.Airborne;
         if (targetPhase != State.Phase) SwitchPhase(targetPhase);
@@ -1068,6 +1172,17 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         _currentPhaseHandler.Enter();
 
         OnPhaseChanged?.Invoke(nextPhase);
+    }
+    
+    public bool IsNoclipEnabled => State.IsNoclipEnabled;
+
+    public bool SetNoclipEnabled(bool enabled)
+    {
+        if (State.IsNoclipEnabled == enabled) return false;
+
+        State.IsNoclipEnabled = enabled;
+        SwitchPhase(enabled ? LocomotionPhase.Noclip : (_motor.GroundingStatus.IsStableOnGround ? LocomotionPhase.Grounded : LocomotionPhase.Airborne));
+        return true;
     }
 
 #if UNITY_EDITOR
@@ -1096,7 +1211,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         float height = _motor.Capsule ? _motor.Capsule.height : _standingHeight;
         Vector3 center = pos + up * (height * 0.5f);
 
-        // 1. Dynamic Capsule Bounds
         if (_drawCapsuleBounds)
         {
             Color capsuleColor = GetStateColor();
@@ -1104,7 +1218,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             DrawWireCapsule(pos, up, fwd, rgt, radius, height, capsuleColor);
         }
 
-        // 2. Ceiling Clearance Check (when crouched or sliding)
         if (_drawCeilingCheck && height < _standingHeight - 0.05f)
         {
             float checkDist = _standingHeight - height;
@@ -1126,7 +1239,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             }
         }
 
-        // 3. Velocity Vector
         if (_drawVelocityVector)
         {
             Vector3 velocity = _motor.Velocity;
@@ -1143,10 +1255,8 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
                 UnityEditor.Handles.DrawLine(center, velTip);
                 DrawArrowHead(velTip, velDir, up, 0.18f, velColor);
 
-                // Small center sphere
                 UnityEditor.Handles.DrawSolidDisc(center, up, 0.06f);
 
-                // Speed tag near arrow tip
                 if (selected)
                 {
                     UnityEditor.Handles.Label(velTip + up * 0.1f, $"{speed:F1} m/s", GetDebugMiniLabelStyle(velColor));
@@ -1154,7 +1264,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             }
         }
 
-        // 4. Move Input Vector
         if (_drawInputVector && _moveInputVector.sqrMagnitude > 0.01f)
         {
             Color inputColor = new Color(1.0f, 0.65f, 0.0f, 0.95f);
@@ -1169,7 +1278,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             UnityEditor.Handles.DrawWireDisc(inputOrigin, up, 0.1f);
         }
 
-        // 5. Ground Contact & Slope
         if (_drawGroundStatus)
         {
             if (_motor.GroundingStatus.FoundAnyGround)
@@ -1184,7 +1292,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
                 UnityEditor.Handles.color = new Color(groundColor.r, groundColor.g, groundColor.b, 0.15f);
                 UnityEditor.Handles.DrawSolidDisc(gPoint, gNormal, 0.35f);
 
-                // Normal Ray
                 UnityEditor.Handles.color = groundColor;
                 Vector3 normalTip = gPoint + gNormal * 0.7f;
                 UnityEditor.Handles.DrawLine(gPoint, normalTip);
@@ -1199,7 +1306,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             }
             else
             {
-                // Airborne: Drop line to nearest ground
                 if (UnityPhysics.Raycast(pos, -up, out RaycastHit hit, 50f, _ceilingCheckLayerMask, QueryTriggerInteraction.Ignore))
                 {
                     UnityEditor.Handles.color = new Color(0.6f, 0.4f, 0.95f, 0.8f);
@@ -1215,21 +1321,18 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             }
         }
 
-        // 6. Wall and Vault Checks
         if (_drawWallAndVaultChecks)
         {
             Vector3 waistPos = pos + up * (height * 0.5f);
             float wallCheckDist = radius + 0.25f;
 
-            // Cardinal wall rays
             UnityEditor.Handles.color = new Color(0.2f, 0.75f, 0.9f, 0.5f);
             UnityEditor.Handles.DrawLine(waistPos, waistPos + fwd * wallCheckDist);
             UnityEditor.Handles.DrawLine(waistPos, waistPos - fwd * wallCheckDist);
             UnityEditor.Handles.DrawLine(waistPos, waistPos + rgt * wallCheckDist);
             UnityEditor.Handles.DrawLine(waistPos, waistPos - rgt * wallCheckDist);
 
-            // Wall Jump Normal indicator
-            if (State.CanWallJump && State.WallJumpNormal.sqrMagnitude > 0.1f)
+            if (State is { CanWallJump: true, WallJumpNormal: { sqrMagnitude: > 0.1f } })
             {
                 Color wjColor = new Color(0.1f, 0.9f, 0.9f, 1f);
                 Vector3 wjTip = waistPos + State.WallJumpNormal * 1.2f;
@@ -1239,13 +1342,11 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
                 UnityEditor.Handles.Label(wjTip + up * 0.15f, "WALL JUMP READY", GetDebugMiniLabelStyle(wjColor));
             }
 
-            // Vault check (Uses exact shared EvaluateVault result)
             var vaultEval = EvaluateVault();
 
             Vector3 lookFwd = (Application.isPlaying && _lookInputVector.sqrMagnitude > 0.1f) ? _lookInputVector.normalized : fwd;
             Vector3 rayOriginMid = pos + up * Mathf.Clamp(_maxVaultHeight * 0.5f, 0.7f, 1.1f);
 
-            // Draw forward check ray
             UnityEditor.Handles.color = vaultEval.HasWallHit
                 ? (vaultEval.CanVault ? Color.green : new Color(0.95f, 0.6f, 0.1f, 0.8f))
                 : new Color(0.2f, 0.5f, 1.0f, 0.4f);
@@ -1253,11 +1354,9 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
             if (vaultEval.HasWallHit)
             {
-                // Wall hit disc
                 UnityEditor.Handles.color = vaultEval.IsWallVertical ? Color.cyan : Color.red;
                 UnityEditor.Handles.DrawWireDisc(vaultEval.WallHit.point, vaultEval.WallHit.normal, 0.08f);
 
-                // Downward ledge ray
                 Vector3 inwardPos = vaultEval.WallHit.point - (vaultEval.WallHit.normal * 0.15f);
                 Vector3 ledgeRayOrigin = Vector3.ProjectOnPlane(inwardPos - pos, up) + pos + up * (_maxVaultHeight + 0.15f);
                 float dropDistance = _maxVaultHeight + 0.15f - (_minVaultHeight * 0.5f);
@@ -1273,13 +1372,11 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
                     if (vaultEval.CanVault)
                     {
-                        // Draw green landing ghost capsule
                         DrawWireCapsule(vaultEval.TargetFootPos, up, fwd, rgt, radius, height, new Color(0.2f, 0.9f, 0.4f, 0.6f));
                         UnityEditor.Handles.Label(vaultEval.TargetFootPos + up * height, $"VAULT READY ({vaultEval.LedgeHeight:F2}m)", GetDebugMiniLabelStyle(Color.green));
                     }
                     else if (selected)
                     {
-                        // Draw red/orange reason why vault is not possible at this height
                         Color failColor = new Color(0.95f, 0.35f, 0.2f, 1f);
                         DrawWireCapsule(vaultEval.TargetFootPos, up, fwd, rgt, radius, height, new Color(0.95f, 0.35f, 0.2f, 0.25f));
                         UnityEditor.Handles.Label(vaultEval.TargetFootPos + up * (height * 0.5f), $"CANNOT VAULT:\n{vaultEval.FailureReason}", GetDebugMiniLabelStyle(failColor));
@@ -1292,7 +1389,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             }
         }
 
-        // 7. Overhead Status Label
         if (_drawOverheadStatus)
         {
             Vector3 headPos = pos + up * (height + 0.4f);
@@ -1322,6 +1418,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private Color GetStateColor()
     {
+        if (State.Phase == LocomotionPhase.Noclip) return new Color(0.2f, 0.9f, 1f, 1f);
         if (_isDowned) return new Color(0.96f, 0.26f, 0.21f, 1f);
         if (State.Phase == LocomotionPhase.Vaulting) return new Color(0.13f, 0.77f, 0.36f, 1f);
         if (State.IsSliding) return new Color(0.14f, 0.78f, 0.86f, 1f);
@@ -1352,17 +1449,14 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         Vector3 bottomSphere = center - up * halfHeightMinusRadius;
         Vector3 topSphere = center + up * halfHeightMinusRadius;
 
-        // Bottom disc and arcs
         UnityEditor.Handles.DrawWireDisc(bottomSphere, up, radius);
         UnityEditor.Handles.DrawWireArc(bottomSphere, right, forward, 180f, radius);
         UnityEditor.Handles.DrawWireArc(bottomSphere, -forward, right, 180f, radius);
 
-        // Top disc and arcs
         UnityEditor.Handles.DrawWireDisc(topSphere, up, radius);
         UnityEditor.Handles.DrawWireArc(topSphere, -right, forward, 180f, radius);
         UnityEditor.Handles.DrawWireArc(topSphere, forward, right, 180f, radius);
 
-        // Vertical cylinder lines
         UnityEditor.Handles.DrawLine(bottomSphere + forward * radius, topSphere + forward * radius);
         UnityEditor.Handles.DrawLine(bottomSphere - forward * radius, topSphere - forward * radius);
         UnityEditor.Handles.DrawLine(bottomSphere + right * radius, topSphere + right * radius);

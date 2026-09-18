@@ -64,8 +64,11 @@ namespace PedronsaDev.Console.Components
 			}
 		}
 
+		public static ConsoleCache Cache { get; private set; }
+
 		private void Awake()
 		{
+			Cache = m_Cache;
 			m_InputHandler = gameObject.GetComponent<ConsoleInputHandler>();
 			m_canvasGroup = m_Console.GetComponent<CanvasGroup>();
 			Console.LogMessages.Clear();
@@ -134,6 +137,8 @@ namespace PedronsaDev.Console.Components
 			Application.logMessageReceived -= SubmitLog;
 			OnActivate -= UnlockCursor;
 			OnDeactivate -= LockCursor;
+			
+			Console.HandleDisable();
 		}
 
 		private void Start()
@@ -509,7 +514,26 @@ namespace PedronsaDev.Console.Components
 			Console.Clear();
 		}
 
-		[Command("get_commands", "Gets available commands")]
+		[Command("get_command_groups", "Gets and lists all available command groups")]
+		private void GetCommandGroups()
+		{
+			string groups = "";
+			int count = 0;
+
+			for (int i = 0; i < m_Cache.AvailableCommands.Count; i++)
+			{
+				Command cmd = m_Cache.AvailableCommands[i];
+				if (!groups.Contains(cmd.Group))
+				{
+					groups += $"- {cmd.Group}\n";
+					count++;
+				}
+			}
+
+			Console.Log($"List of available command groups ({count}):\r\n{groups}");
+		}
+
+		[Command("get_commands", "Gets and lists all available commands")]
 		private void GetCommands()
 		{
 			string commands = "";
@@ -530,7 +554,7 @@ namespace PedronsaDev.Console.Components
 			Console.Log($"List of available commands ({m_Cache.AvailableCommands.Count}):\r\n{commands}");
 		}
 
-		[Command("get_commands_from_group", "Gets available commands from a group")]
+		[Command("get_commands_from_group", "Gets and lists all available commands from a group")]
 		private void GetCommandsFromGroup(string group = "Default")
 		{
 			List<Command> availableCommandsFromGroup = m_Cache.AvailableCommands.Where(cmd => cmd.Group.Equals(group)).ToList();
@@ -545,7 +569,7 @@ namespace PedronsaDev.Console.Components
 
 			for (int i = 0; i < availableCommandsFromGroup.Count; i++)
 			{
-				Command command = m_Cache.AvailableCommands[i];
+				Command command = availableCommandsFromGroup[i];
 
 				commands += $"- {command.Name}";
 

@@ -53,6 +53,11 @@ namespace PedronsaDev.Console
 			IsOpen = isOpen;
 			OnToggle?.Invoke(isOpen);
 		}
+		
+		internal static void HandleDisable()
+		{
+			IsOpen = false;
+		}
 
 		/// <summary>
 		/// Delegate method that takes in a LogMessage object and returns nothing.
@@ -277,7 +282,7 @@ namespace PedronsaDev.Console
 		/// <summary>
 		/// Clears the console.
 		/// </summary>
-		[Command("clear", "Clears the console")]
+		[Command("clear", "Clears the console", Aliases = new[] { "cls" })]
 		public static void Clear()
 		{
 			if (LogMessages.Count == 0)

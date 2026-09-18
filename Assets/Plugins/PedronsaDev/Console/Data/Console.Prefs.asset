@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c67112ec745e7b4cb42433f2d676b0f, type: 3}
   m_Name: Console.Prefs
   m_EditorClassIdentifier: 
-  GlobalFont: {fileID: 11400000, guid: e9b5144c3519906419cdbf7c73369a58, type: 2}
+  GlobalFont: {fileID: 11400000, guid: d2918cca111624142904e4730e17f344, type: 2}
   AvailableFonts:
   - Name: SGr-IosevkaTerm-Light
     FontAsset: {fileID: 11400000, guid: d2918cca111624142904e4730e17f344, type: 2}

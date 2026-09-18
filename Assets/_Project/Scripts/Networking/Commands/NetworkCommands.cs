@@ -19,7 +19,7 @@ namespace Project.Networking.Commands
             Console.IsHostChecker = () => NetworkManager.main && NetworkManager.main.isServer;
         }
 
-        [Command("net_status", "Displays current network session status, latency, and role", Aliases = new[] { "net", "ping" })]
+        [Command("net_status", "Displays current network session status, latency, and role.")]
         public static void PrintNetworkStatus()
         {
             var net = NetworkManager.main;
@@ -38,7 +38,7 @@ namespace Project.Networking.Commands
             Console.Log($"[Network Status]\nRole: {role}\nTransport: {transport}\nPlayers: {playerCount}\nTick Rate: {net.tickRate} Hz");
         }
 
-        [Command("net_players", "Lists all connected player IDs in the current session")]
+        [Command("net_players", "Lists all connected player IDs in the current session.")]
         public static void ListPlayers()
         {
             var net = NetworkManager.main;
@@ -83,7 +83,7 @@ namespace Project.Networking.Commands
         // HOST-AUTHORITATIVE / DEV COMMANDS (Restricted to Host)
         // -------------------------------------------------------------
 
-        [Command("net_host_scene", "Loads a new scene across all connected players (Host only)", HostOnly = true)]
+        [Command("net_host_scene", "Loads a new scene across all connected players (Host only).", HostOnly = true)]
         public static void ChangeScene(string sceneName)
         {
             if (!ValidateHostAuthority("host_scene")) return;
@@ -98,7 +98,7 @@ namespace Project.Networking.Commands
             NetworkSceneCoordinator.Instance.TransitionToScene(sceneName);
         }
 
-        [Command("net_host_kick", "Kicks a player from the session (Host only)", HostOnly = true)]
+        [Command("net_host_kick", "Kicks a player from the session (Host only). Usage: net_host_kick [playerId]", HostOnly = true)]
         public static void KickPlayer(int playerId)
         {
             if (!ValidateHostAuthority("host_kick")) return;
