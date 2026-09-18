@@ -57,8 +57,8 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
         CurrentLevel = _settings.GetLevelForXP(TotalExperience);
         
         _events.RaiseNameChanged(Name);
+        _events.RaiseExperienceChanged(TotalExperience, 0, CurrentLevel);
         _events.RaiseLevelChanged(CurrentLevel);
-        _events.RaiseExperienceChanged(TotalExperience, 0);
         _events.RaiseScripChanged(Scrip, 0);
     }
 
@@ -67,8 +67,6 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
         data.Player.Name = Name;
         data.Player.TotalExperience = TotalExperience;
         data.Player.Scrip = Scrip;
-        
-        Debug.Log(data.Player.Name);
     }
     
     public void ChangePlayerName(string newName)
@@ -103,8 +101,8 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
                 _events.RaiseLevelChanged(lvl);
             }
             
-            _events.RaiseExperienceChanged(TotalExperience,amount);
         }
+        _events.RaiseExperienceChanged(TotalExperience,amount,CurrentLevel);
     }
 
     public void AddScrip(int amount)

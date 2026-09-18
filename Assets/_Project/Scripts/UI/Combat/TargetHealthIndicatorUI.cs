@@ -1,7 +1,6 @@
 using Project.Combat;
 using Project.Player;
 using Project.Player.Detection;
-using Project.UI.ProgressBar;
 using UnityEngine;
 
 namespace Project.UI.Interaction

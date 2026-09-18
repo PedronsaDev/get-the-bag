@@ -101,7 +101,7 @@ public class RuntimePlayerProfile : NetworkBehaviour
         }
     }
 
-    private void HandleLocalExperienceChanged(int newExperience, int delta)
+    private void HandleLocalExperienceChanged(int newExperience, int delta, int level)
     {
         if (isOwner)
         {

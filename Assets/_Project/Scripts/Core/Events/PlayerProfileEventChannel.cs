@@ -8,7 +8,7 @@ public class PlayerProfileEventChannel : ScriptableObject
 {
     public event Action<string> OnNameChanged; // newName
     public event Action<int> OnLevelChanged; // newLevel
-    public event Action<int, int> OnExperienceChanged; // totalExperience, delta
+    public event Action<int, int, int> OnExperienceChanged; // totalExperience, delta, level
     public event Action<int, int> OnScripChanged; // scrip, delta
 
     public void RaiseNameChanged(string newName)
@@ -21,9 +21,9 @@ public class PlayerProfileEventChannel : ScriptableObject
         OnLevelChanged?.Invoke(newLevel);
     }
 
-    public void RaiseExperienceChanged(int totalExperience, int delta)
+    public void RaiseExperienceChanged(int totalExperience, int delta, int level)
     {
-        OnExperienceChanged?.Invoke(totalExperience, delta);
+        OnExperienceChanged?.Invoke(totalExperience, delta, level);
     }
 
     public void RaiseScripChanged(int scrip, int delta)

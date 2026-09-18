@@ -166,7 +166,7 @@ MonoBehaviour:
       Parameters:
       - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
       Flags: 24
-  - Name: dp_load
+  - Name: dp_load_game
     Description: Loads the game state.
     TargetType: 0
     Group: DataPersistence
@@ -178,7 +178,7 @@ MonoBehaviour:
       MethodName: LoadGame
       Parameters: []
       Flags: 24
-  - Name: dp_save
+  - Name: dp_save_game
     Description: Saves the current game state.
     TargetType: 0
     Group: DataPersistence
