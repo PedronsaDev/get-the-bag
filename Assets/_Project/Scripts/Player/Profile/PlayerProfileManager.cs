@@ -35,7 +35,7 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
 
     private void OnEnable()
     {
-        if (DataPersistenceManager.HasInstance)
+        if (DataPersistenceManager.Instance)
         {
             DataPersistenceManager.Instance.Register(this);
         }
@@ -127,6 +127,7 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
 
         CurrentLevel = level;
         TotalExperience = _settings.GetXPRequirementForLevel(level);
+        _events.RaiseExperienceChanged(TotalExperience, 0, level);
         _events.RaiseLevelChanged(level);
     }
 }

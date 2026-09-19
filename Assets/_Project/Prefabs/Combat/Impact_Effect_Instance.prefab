@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8519207808570149524}
   - component: {fileID: 5301227141100101331}
   m_Layer: 0
-  m_Name: Impact Effect Instance
+  m_Name: Impact_Effect_Instance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

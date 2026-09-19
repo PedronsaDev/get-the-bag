@@ -1,7 +1,7 @@
 using Project.Core;
 using UnityEngine;
 
-namespace Project.UI
+namespace Project.UI.Core
 {
 public class BillboardUI : MonoBehaviour
 {

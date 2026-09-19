@@ -307,7 +307,7 @@ namespace Project.Player.Commands
                     return false;
                 }
 
-                health = player.Health ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
+                health = player.HealthComponent ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
                 downed = player.DownedState ?? player.GetComponent<PlayerDownedState>() ?? player.GetComponentInChildren<PlayerDownedState>(true) ?? player.GetComponentInParent<PlayerDownedState>(true);
                 return true;
             }
@@ -326,7 +326,7 @@ namespace Project.Player.Commands
 
                         if (player)
                         {
-                            health = player.Health ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
+                            health = player.HealthComponent ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
                             downed = player.DownedState ?? player.GetComponent<PlayerDownedState>() ?? player.GetComponentInChildren<PlayerDownedState>(true) ?? player.GetComponentInParent<PlayerDownedState>(true);
                             return true;
                         }

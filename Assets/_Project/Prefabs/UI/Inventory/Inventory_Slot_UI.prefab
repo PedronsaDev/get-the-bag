@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8873376181571276233}
   - component: {fileID: 8755257842939621236}
   m_Layer: 5
-  m_Name: Filled State
+  m_Name: Filled_State
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 6357752237381691781}
   - component: {fileID: 1172128849757375268}
   m_Layer: 5
-  m_Name: Name Text
+  m_Name: Name_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -228,7 +228,7 @@ GameObject:
   - component: {fileID: 3982228902588170003}
   - component: {fileID: 1457687462773839330}
   m_Layer: 5
-  m_Name: Level Text
+  m_Name: Level_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -365,7 +365,7 @@ GameObject:
   - component: {fileID: 6178449216352483738}
   - component: {fileID: 1078854355701059870}
   m_Layer: 5
-  m_Name: Type Text
+  m_Name: Type_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -502,7 +502,7 @@ GameObject:
   - component: {fileID: 8022104022603971569}
   - component: {fileID: 5049408073381939590}
   m_Layer: 5
-  m_Name: Weapon Icon
+  m_Name: Weapon_Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -577,7 +577,7 @@ GameObject:
   - component: {fileID: 4904067923522057456}
   - component: {fileID: 5318311792115863396}
   m_Layer: 5
-  m_Name: Empty State
+  m_Name: Empty_State
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -652,7 +652,7 @@ GameObject:
   - component: {fileID: 8192615073198395755}
   - component: {fileID: 2270941485119439021}
   m_Layer: 5
-  m_Name: Inventory Slot UI
+  m_Name: Inventory_Slot_UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

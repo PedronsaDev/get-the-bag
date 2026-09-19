@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 7279886113420612840}
   - component: {fileID: 3462217354979453176}
   m_Layer: 0
-  m_Name: Train Door
+  m_Name: Train_Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

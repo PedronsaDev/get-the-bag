@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6872942083678716500}
   - component: {fileID: 6261999314331105793}
   m_Layer: 0
-  m_Name: Default Post Process Volume
+  m_Name: Default_Post_Process_Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

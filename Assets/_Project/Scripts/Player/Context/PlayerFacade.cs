@@ -28,7 +28,7 @@ public class PlayerFacade : NetworkBehaviour
     public PlayerInventoryController InventoryController => _inventoryController;
     public LocomotionController LocomotionController => _locomotionController;
     public PlayerDownedState DownedState => _downedState;
-    public HealthComponent Health => _healthComponent;
+    public HealthComponent HealthComponent => _healthComponent;
     public IPlayerInputProvider InputProvider => _activeInputProvider;
     public LocalPlayerInputProvider LocalInputProvider => _inputProvider;
     public PlayerInteractor Interactor => _interactor;

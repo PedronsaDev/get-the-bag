@@ -45,4 +45,33 @@ public class ProgressionSettings : ScriptableObject
 
         return 1;
     }
+    
+    public struct LevelProgress
+    {
+        public int Level;
+        public float Fill;        // 0.0 to 1.0 for the bar
+        public int CurrentXP;     // XP earned in this level
+        public int RequiredXP;    // XP needed to finish this level
+        public bool IsMax;
+    }
+    public LevelProgress GetProgress(int totalXP)
+    {
+        int level = GetLevelForXP(totalXP);
+        if (level >= MaxLevel)
+        {
+            return new LevelProgress { Level = MaxLevel, Fill = 1f, CurrentXP = MaxLevelXPRequirement, RequiredXP = MaxLevelXPRequirement, IsMax = true };
+        }
+        int floor = GetXPRequirementForLevel(level);
+        int ceil = GetXPRequirementForLevel(level + 1);
+        int current = Mathf.Max(0, totalXP - floor);
+        int required = Mathf.Max(1, ceil - floor);
+        return new LevelProgress
+        {
+            Level = level,
+            Fill = Mathf.Clamp01((float)current / required),
+            CurrentXP = current,
+            RequiredXP = required,
+            IsMax = false
+        };
+    }
 }

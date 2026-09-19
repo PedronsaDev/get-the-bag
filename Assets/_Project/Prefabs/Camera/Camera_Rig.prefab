@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1794289604096056812}
   - component: {fileID: 3805984197875414739}
   m_Layer: 0
-  m_Name: Viewmodel Camera
+  m_Name: Viewmodel_Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -141,7 +141,7 @@ GameObject:
   - component: {fileID: 8280972999258939732}
   - component: {fileID: 9024590416761108625}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: Main_Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -278,7 +278,7 @@ GameObject:
   - component: {fileID: 3085508197194574339}
   - component: {fileID: 4780670831476395780}
   m_Layer: 0
-  m_Name: Camera Rig
+  m_Name: Camera_Rig
   m_TagString: Untagged
   m_Icon: {fileID: 2800000, guid: 2291bb5b0a6fe6b4da8a90da83f3b8db, type: 3}
   m_NavMeshLayer: 0

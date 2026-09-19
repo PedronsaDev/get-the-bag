@@ -10,8 +10,6 @@ namespace Project.UI.Interaction
         [Header("References")]
         [SerializeField] private GameObject _rootContainer;
         [SerializeField] private CanvasGroup _canvasGroup;
-        [SerializeField] private ProgressBarUI _shieldBar;
-        [SerializeField] private ProgressBarUI _healthBar;
 
         [Header("Visual Polish")]
         [SerializeField] private float _lingerDuration = 0.0f;
@@ -19,8 +17,8 @@ namespace Project.UI.Interaction
 
         private HealthComponent _currentTarget;
         private PlayerTargetDetector _detector;
-        private bool _hasTarget = false;
-        private float _targetAlpha = 0f;
+        private bool _hasTarget;
+        private float _targetAlpha;
         private float _lastSeenTime = -100f;
 
         private void Awake()
@@ -162,8 +160,8 @@ namespace Project.UI.Interaction
             _currentTarget.OnDeath += HandleDeath;
 
             // Immediately set current visual values!
-            UpdateHealthBar(_currentTarget.CurrentHealth, _currentTarget.MaxHealth);
-            UpdateShieldBar(_currentTarget.CurrentShield, _currentTarget.MaxShield);
+            //_shieldBar.SetValues(_currentTarget.CurrentShield, _currentTarget.MaxShield, true);
+            //_healthBar.SetValues(_currentTarget.CurrentHealth, _currentTarget.MaxHealth, true);
 
             if (_rootContainer) _rootContainer.SetActive(true);
         }
@@ -185,7 +183,8 @@ namespace Project.UI.Interaction
 
         private void HandleShieldBroken()
         {
-            if (_shieldBar) _shieldBar.gameObject.SetActive(false);
+            // if (_shieldBar) 
+            //     _shieldBar.gameObject.SetActive(false);
         }
 
         private void HandleDeath(DamageResult result)
@@ -198,19 +197,19 @@ namespace Project.UI.Interaction
 
         private void UpdateHealthBar(float amount, float max)
         {
-            if (_healthBar && max > 0f)
-                _healthBar.SetFillAmount(Mathf.Clamp01(amount / max));
+            // if (_healthBar && max > 0f)
+            //     _healthBar.SetValues(Mathf.Clamp01(amount / max), max);
         }
 
         private void UpdateShieldBar(float amount, float max)
         {
-            if (!_shieldBar) return;
+            // if (!_shieldBar) return;
+            //
+            // bool hasShield = max > 0f;
+            // _shieldBar.gameObject.SetActive(hasShield);
 
-            bool hasShield = max > 0f;
-            _shieldBar.gameObject.SetActive(hasShield);
-
-            if (hasShield)
-                _shieldBar.SetFillAmount(Mathf.Clamp01(amount / max));
+            // if (hasShield)
+            //     _shieldBar.SetValues(Mathf.Clamp01(amount / max), max);
         }
 
         private void HideImmediate()
