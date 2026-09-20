@@ -1,32 +1,52 @@
 using Project.Core.Player;
+using PurrNet;
+using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Project.AI.Perception
 {
-public class AIVisionSensor : MonoBehaviour, IAISensoryReceiver
+public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 {
     [Header("Settings")] 
     [SerializeField] private VisionConfig _visionConfig;
     [SerializeField] private float _visionTickInterval = 0.1f; // 10Hz
     
+    [Header("References")]
+    [SerializeField] private AITargetMemory _targetMemory;
+
     public Vector3 SensoryOrigin => transform.position + (Vector3.up * _visionConfig.EyeHeight);
 
     private float _tickTimer;
     private float _cosPrimaryFOV;
     private float _cosPeripheralFOV;
+    
+    private bool _isPeripheral;
 
-    private void OnEnable()
+    protected override void OnSpawned()
     {
+        if (!isServer)
+        {
+            enabled = false;
+            return;
+        }
+        
         if (AIPerceptionBus.Instance) AIPerceptionBus.Instance.RegisterReceiver(this);
     }
 
-    private void OnDisable()
+    protected override void OnDespawned()
     {
+        if (!isServer)
+        {
+            return;
+        }
+        
         if (AIPerceptionBus.Instance) AIPerceptionBus.Instance.UnregisterReceiver(this);
     }
 
     private void Awake()
     {
+        if (!_targetMemory) _targetMemory = GetComponent<AITargetMemory>();
         _tickTimer = Random.Range(0f, _visionTickInterval);
         CacheVisionParameters();
     }
@@ -44,21 +64,42 @@ public class AIVisionSensor : MonoBehaviour, IAISensoryReceiver
 
     private void EvaluateVision()
     {
-        foreach (var player in PlayerIdentifier.ActivePlayers)
+        PlayerIdentifier closestPlayer = null;
+        float closestDistanceSqr = float.MaxValue;
+        bool isPeripheralTarget = false;
+        
+        for (int i = 0; i < PlayerIdentifier.ActivePlayers.Count; i++)
         {
-            if (!player || player.IsDead)
-                continue;
-
-            if (!CanSeeTarget(player.transform))
-                continue;
-
-            var stimulus = new StimulusPayload(StimulusType.Sight, player.transform.position, player.gameObject, 1);
-            ReceiveStimulus(stimulus);
+            var player = PlayerIdentifier.ActivePlayers[i];
+            if (!player || player.IsDead) continue;
+            if (CanSeeTarget(player.transform))
+            {
+                float distSqr = (player.transform.position - SensoryOrigin).sqrMagnitude;
+                if (distSqr < closestDistanceSqr)
+                {
+                    closestDistanceSqr = distSqr;
+                    closestPlayer = player;
+                    isPeripheralTarget = _isPeripheral;
+                }
+            }
+        }
+        
+        if (closestPlayer)
+        {
+            float distance = Mathf.Sqrt(closestDistanceSqr);
+            float maxRange = isPeripheralTarget ? _visionConfig.PeripheralDistance : _visionConfig.ViewDistance;
+            _targetMemory.ReportVisualContact(closestPlayer.gameObject, closestPlayer.transform.position, distance, maxRange, isPeripheralTarget, _visionTickInterval);
+        }
+        else
+        {
+            _targetMemory.ReportLostSight();
         }
     }
 
     public bool CanSeeTarget(Transform target)
     {
+        _isPeripheral = false;
+        
         if (!target)
             return false;
 
@@ -69,18 +110,21 @@ public class AIVisionSensor : MonoBehaviour, IAISensoryReceiver
         float distanceToTarget = directionToTarget.magnitude;
 
         bool inPrimaryCone = IsInCone(directionToTarget, distanceToTarget, _cosPrimaryFOV, _visionConfig.ViewDistance);
-        bool inPeripheralCone = IsInCone(directionToTarget, distanceToTarget, _cosPeripheralFOV,
-            _visionConfig.PeripheralDistance);
+        bool inPeripheralCone = IsInCone(directionToTarget, distanceToTarget, _cosPeripheralFOV, _visionConfig.PeripheralDistance);
 
         if (!inPrimaryCone && !inPeripheralCone)
         {
             return false;
         }
 
-        if (Physics.Raycast(eyePosition, directionToTarget.normalized, out RaycastHit hit, distanceToTarget, _visionConfig.ObstacleMask | _visionConfig.TargetMask))
+        if (Physics.Raycast(eyePosition, directionToTarget.normalized, out RaycastHit hit, distanceToTarget,
+                _visionConfig.ObstacleMask | _visionConfig.TargetMask))
         {
             if (((1 << hit.transform.gameObject.layer) & _visionConfig.TargetMask) != 0)
+            {
+                _isPeripheral = !inPrimaryCone;
                 return true;
+            }
         }
 
         return false;
@@ -103,37 +147,54 @@ public class AIVisionSensor : MonoBehaviour, IAISensoryReceiver
         _cosPrimaryFOV = Mathf.Cos((_visionConfig.FieldOfView * 0.5f) * Mathf.Deg2Rad);
         _cosPeripheralFOV = Mathf.Cos((_visionConfig.PeripheralFOV * 0.5f) * Mathf.Deg2Rad);
     }
-    
+
     public void ReceiveStimulus(in StimulusPayload stimulus)
     {
+        switch (stimulus.Type)
+        {
+            case StimulusType.Sound:
+                _targetMemory.ReportNoise(stimulus.Position, stimulus.Intensity);
+                break;
+            case StimulusType.Damage:
+                _targetMemory.ReportDamage(stimulus.Source, stimulus.Position);
+                break;
+            default:
+                // Do nothing
+                break;
+        }
     }
 
 #if UNITY_EDITOR
-    
-    private void OnValidate()
-    {
-        CacheVisionParameters();
-    }
-    
+
+    private void OnValidate() => CacheVisionParameters();
+
     private void OnDrawGizmosSelected()
     {
-        Vector3 eyePosition = transform.position + (Vector3.up * _visionConfig.EyeHeight);
-        Gizmos.color = Color.red;
-        DrawConeWireframe(eyePosition, transform.forward, _visionConfig.FieldOfView, _visionConfig.ViewDistance);
-
-        Gizmos.color = Color.yellow;
-        DrawConeWireframe(eyePosition, transform.forward, _visionConfig.PeripheralFOV,
-            _visionConfig.PeripheralDistance);
+        Vector3 eyePosition = SensoryOrigin;
+        DrawVisionFan(eyePosition, transform.forward, _visionConfig.FieldOfView, _visionConfig.ViewDistance,
+            new Color(1f, 0.2f, 0.2f));
+        DrawVisionFan(eyePosition, transform.forward, _visionConfig.PeripheralFOV, _visionConfig.PeripheralDistance,
+            new Color(1f, 0.8f, 0.2f));
     }
 
-    private void DrawConeWireframe(Vector3 origin, Vector3 forward, float fov, float distance)
+    private void DrawVisionFan(Vector3 origin, Vector3 forward, float fov, float distance, Color color)
     {
-        Vector3 leftRayDirection = Quaternion.Euler(0, -fov * 0.5f, 0) * forward;
-        Vector3 rightRayDirection = Quaternion.Euler(0, fov * 0.5f, 0) * forward;
-
-        Gizmos.DrawRay(origin, leftRayDirection * distance);
-        Gizmos.DrawRay(origin, rightRayDirection * distance);
-        Gizmos.DrawLine(origin + leftRayDirection * distance, origin + rightRayDirection * distance);
+        if (fov <= 0f || distance <= 0f) return;
+        float halfFov = fov * 0.5f;
+        Vector3 startDirection = Quaternion.Euler(0, -halfFov, 0) * forward;
+        // 1. Semi-transparent filled arc (10% alpha)
+        Handles.color = new Color(color.r, color.g, color.b, 0.08f);
+        Handles.DrawSolidArc(origin, Vector3.up, startDirection, fov, distance);
+        // 2. Solid outline arc
+        Handles.color = color;
+        Handles.DrawWireArc(origin, Vector3.up, startDirection, fov, distance);
+        // 3. Boundary lines (skip if 360 full circle)
+        if (fov < 360f)
+        {
+            Handles.DrawLine(origin, origin + (startDirection * distance));
+            Vector3 endDirection = Quaternion.Euler(0, halfFov, 0) * forward;
+            Handles.DrawLine(origin, origin + (endDirection * distance));
+        }
     }
 #endif
 }
