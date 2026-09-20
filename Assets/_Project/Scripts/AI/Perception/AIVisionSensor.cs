@@ -158,9 +158,6 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
             case StimulusType.Damage:
                 _targetMemory.ReportDamage(stimulus.Source, stimulus.Position);
                 break;
-            default:
-                // Do nothing
-                break;
         }
     }
 

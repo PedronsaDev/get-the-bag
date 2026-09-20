@@ -17,7 +17,7 @@ public class AIPerceptionBus : MonoBehaviour
     
     private readonly List<IAISensoryReceiver> _receivers = new(64);
 
-    private RaycastHit[] _rayBuffer = new RaycastHit[1];
+    private readonly RaycastHit[] _rayBuffer = new RaycastHit[1];
     
     private void Awake()
     {

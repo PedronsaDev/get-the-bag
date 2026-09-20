@@ -1,4 +1,5 @@
 using System;
+using Project.AI.Blackboard;
 using PurrNet;
 using UnityEngine;
 
@@ -10,6 +11,9 @@ public class AITargetMemory : NetworkBehaviour
     [SerializeField] private float _baseDetectionRate = 3.5f;
     [SerializeField] private float _decayRate = 0.25f;
     [SerializeField] private float _searchDuration = 5.0f;
+    
+    [Header("References")]
+    [SerializeField] private AIBlackboard _blackboard;
 
     public AlertState CurrentState { get; private set; } = AlertState.Unaware;
     public TargetRecord CurrentTarget => _primaryTarget;
@@ -19,6 +23,12 @@ public class AITargetMemory : NetworkBehaviour
 
     private TargetRecord _primaryTarget;
     private float _searchTimer;
+
+    private void Awake()
+    {
+        if (!_blackboard) 
+            _blackboard = GetComponent<AIBlackboard>();
+    }
 
     protected override void OnSpawned()
     {
@@ -71,6 +81,7 @@ public class AITargetMemory : NetworkBehaviour
         }
     }
 
+    // Reports
     public void ReportVisualContact(GameObject target, Vector3 worldPosition, float distance, float maxDistance,
         bool isPeripheral, float deltaTime)
     {
@@ -89,6 +100,8 @@ public class AITargetMemory : NetworkBehaviour
         {
             ChangeState(AlertState.Alerted);
         }
+        
+        SyncToBlackboard();
     }
 
     public void ReportLostSight()
@@ -102,6 +115,8 @@ public class AITargetMemory : NetworkBehaviour
             _searchTimer = _searchDuration;
             ChangeState(AlertState.Searching);
         }
+        
+        SyncToBlackboard();
     }
 
     public void ReportNoise(Vector3 soundPosition, float intensity)
@@ -116,6 +131,8 @@ public class AITargetMemory : NetworkBehaviour
             ChangeState(AlertState.Alerted);
         else if (CurrentState == AlertState.Unaware)
             ChangeState(AlertState.Suspicious);
+        
+        SyncToBlackboard();
     }
 
     public void ReportDamage(GameObject attacker, Vector3 attackerPosition)
@@ -125,18 +142,46 @@ public class AITargetMemory : NetworkBehaviour
         _primaryTarget.LastSeenTimestamp = Time.time;
         _primaryTarget.SuspicionLevel = 1.0f;
         ChangeState(AlertState.Alerted);
+        
+        SyncToBlackboard();
     }
 
     public void ClearTarget()
     {
         _primaryTarget = default;
+        SyncToBlackboard();
     }
 
+    // States
     private void ChangeState(AlertState newState)
     {
         if (CurrentState == newState) return;
         CurrentState = newState;
         OnStateChanged?.Invoke(CurrentState);
+        
+        _blackboard?.SetAlertState(newState);
+    }
+    
+    // Blackboard Helper
+    private void SyncToBlackboard()
+    {
+        if (!_blackboard) 
+            return;
+        
+        if (_primaryTarget.Target)
+        {
+            float distance = Vector3.Distance(transform.position, _primaryTarget.LastKnownPosition);
+            _blackboard.SetTarget(_primaryTarget.Target, _primaryTarget.LastKnownPosition, _primaryTarget.HasLineOfSight, distance);
+        } 
+        else if (_primaryTarget.LastKnownPosition != Vector3.zero && CurrentState != AlertState.Unaware)
+        {
+            float distance = Vector3.Distance(transform.position, _primaryTarget.LastKnownPosition);
+            _blackboard.SetTarget(null, _primaryTarget.LastKnownPosition, false, distance);
+        }
+        else
+        {
+            _blackboard.ClearTarget();
+        }
     }
 }
 }

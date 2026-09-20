@@ -8,7 +8,7 @@ namespace Project.AI
 public class EnemyNetworkCoordinator : NetworkBehaviour
 {
     [SerializeField] private AITargetMemory _targetMemory;
-    private SyncVar<AlertState> _alertState = new SyncVar<AlertState>(AlertState.Unaware);
+    private readonly SyncVar<AlertState> _alertState = new SyncVar<AlertState>(AlertState.Unaware);
 
     private void Awake()
     {
