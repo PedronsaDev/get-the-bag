@@ -126,7 +126,7 @@ namespace Project.Core.Match
                 return;
 
             var spawner = FindAnyObjectByType<PurrNet.PlayerSpawner>();
-            if (spawner != null)
+            if (spawner)
             {
                 spawner.SetRespawnPointProvider(new ValidatedSpawnPointProvider(spawner));
                 s_ProviderRegistered = true;
@@ -204,7 +204,7 @@ namespace Project.Core.Match
                     QueryTriggerInteraction.Ignore);
 
                 List<Collider> validHits = null;
-                if (hits != null && hits.Length > 0)
+                if (hits is { Length: > 0 })
                 {
                     for (int i = 0; i < hits.Length; i++)
                     {

@@ -1,4 +1,6 @@
 using System;
+using NaughtyAttributes;
+using Project.AI.Configuration;
 using Project.AI.Perception;
 using UnityEngine;
 
@@ -7,6 +9,10 @@ namespace Project.AI.Blackboard
 [DisallowMultipleComponent]
 public class AIBlackboard : MonoBehaviour
 {
+    [Header("References")]
+    [Expandable]
+    [SerializeField] private AIMovementConfig _movementConfig;
+    
     [Header("Perception State")] 
     [SerializeField] private GameObject _target;
     [SerializeField] private Vector3 _targetPosition;
@@ -26,6 +32,8 @@ public class AIBlackboard : MonoBehaviour
     [SerializeField] private Vector3 _coverPosition;
 
     // Public Accessors (Properties)
+    public AIMovementConfig MovementConfig => _movementConfig;
+    
     public GameObject Target => _target;
     public Vector3 TargetPosition => _targetPosition;
     public bool HasLineOfSight => _hasLineOfSight;

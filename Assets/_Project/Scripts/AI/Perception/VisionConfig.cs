@@ -1,17 +1,16 @@
-using System;
 using UnityEngine;
 
 namespace Project.AI.Perception
 {
-[Serializable]
-public struct VisionConfig
+[CreateAssetMenu(fileName = "AIVisionConfig", menuName = "AI/Configuration/AIVisionConfig")]
+public class VisionConfig : ScriptableObject
 {
-    public float ViewDistance;
-    [Range(1f, 360f)]public float FieldOfView;
-    public float PeripheralDistance;
-    [Range(1f, 360f)]public float PeripheralFOV;
+    public float ViewDistance = 40.0f;
+    [Range(1f, 360f)] public float FieldOfView = 20.0f;
+    public float PeripheralDistance = 25.0f;
+    [Range(1f, 360f)] public float PeripheralFOV = 50.0f;
     public LayerMask ObstacleMask;
     public LayerMask TargetMask;
-    public float EyeHeight;
+    public float EyeHeight = 1.5f;
 }
 }

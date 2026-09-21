@@ -1,3 +1,4 @@
+using NaughtyAttributes;
 using Project.Core.Player;
 using PurrNet;
 using UnityEditor;
@@ -9,13 +10,14 @@ namespace Project.AI.Perception
 public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 {
     [Header("Settings")] 
+    [Expandable] 
     [SerializeField] private VisionConfig _visionConfig;
     [SerializeField] private float _visionTickInterval = 0.1f; // 10Hz
     
     [Header("References")]
     [SerializeField] private AITargetMemory _targetMemory;
 
-    public Vector3 SensoryOrigin => transform.position + (Vector3.up * _visionConfig.EyeHeight);
+    public Vector3 SensoryOrigin => _visionConfig ? transform.position + (Vector3.up * _visionConfig.EyeHeight) : Vector3.zero;
 
     private float _tickTimer;
     private float _cosPrimaryFOV;
@@ -54,7 +56,7 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
     private void Update()
     {
         _tickTimer -= Time.deltaTime;
-        if (!(_tickTimer <= 0f))
+        if (_tickTimer > 0f)
             return;
 
         _tickTimer = _visionTickInterval;
@@ -144,6 +146,9 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 
     private void CacheVisionParameters()
     {
+        if (!_visionConfig)
+            return;
+        
         _cosPrimaryFOV = Mathf.Cos((_visionConfig.FieldOfView * 0.5f) * Mathf.Deg2Rad);
         _cosPeripheralFOV = Mathf.Cos((_visionConfig.PeripheralFOV * 0.5f) * Mathf.Deg2Rad);
     }
@@ -167,6 +172,22 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 
     private void OnDrawGizmosSelected()
     {
+        if (!_visionConfig)
+        {
+            var labelStyle = new GUIStyle
+            {
+                normal = { textColor = Color.red },
+                fontSize = 12,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter
+            };
+            
+            string labelText = "MISSING_VISION_CONFIGURATION";
+            Handles.Label(this.transform.position, labelText, labelStyle);
+            
+            return;
+        }
+        
         Vector3 eyePosition = SensoryOrigin;
         DrawVisionFan(eyePosition, transform.forward, _visionConfig.FieldOfView, _visionConfig.ViewDistance,
             new Color(1f, 0.2f, 0.2f));
