@@ -36,7 +36,6 @@ public class InteractionPromptUI : MonoBehaviour
     {
         HidePrompt();
 
-        // Bind to existing player if already spawned
         if (LocalPlayerContext.HasLocalPlayer && LocalPlayerContext.Player)
             BindInteractor(LocalPlayerContext.Player.Interactor);
 

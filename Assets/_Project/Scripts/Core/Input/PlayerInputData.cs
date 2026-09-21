@@ -25,6 +25,9 @@ public struct PlayerInputData
 
     public bool InteractPressed;
     public bool InteractHeld;
+    
+    public bool DropBagHeld;
+    public bool DropBagReleased;
 
     public bool InventoryPressed;
 

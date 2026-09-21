@@ -52,6 +52,7 @@ GameObject:
   - component: {fileID: 5744433141554505838}
   - component: {fileID: 5771435480062743233}
   - component: {fileID: 3890863234750818640}
+  - component: {fileID: 5177973262252475535}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -106,6 +107,7 @@ MonoBehaviour:
   _downedState: {fileID: 5771435480062743233}
   _healthComponent: {fileID: 5744433141554505838}
   _profile: {fileID: 3890863234750818640}
+  _duffleBagController: {fileID: 0}
   _remotePlayerLayerIndex: 8
 --- !u!114 &3432939826793728204
 MonoBehaviour:
@@ -227,7 +229,7 @@ MonoBehaviour:
   _weaponMount: {fileID: 3002285438313159960}
   _hitMask:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 576
   _defaultSlot1Core: {fileID: 11400000, guid: 74828dc434a1b6f4f9b1fc0d2a15f383, type: 2}
   _defaultSlot2Core: {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
 --- !u!114 &430891073094004469
@@ -388,6 +390,74 @@ MonoBehaviour:
   _invertedPathToNearestParent: 
   _directChildren: []
   _events: {fileID: 11400000, guid: 6c740ce651dc2404cbe0f5a1c401c293, type: 2}
+  _name:
+    _value: PLAYER_NAME
+    _ownerAuth: 1
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: PLAYER_NAME
+  _currentLevel:
+    _value: 1
+    _ownerAuth: 1
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 1
+  _totalExperience:
+    _value: 0
+    _ownerAuth: 1
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+--- !u!114 &5177973262252475535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094660744987473108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfff9fc494e493b4183bc7b4355ff11f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.Loot.PlayerDuffleBagController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _inputProvider: {fileID: 3432939826793728204}
+  _maxCapacityKg: 30
+  _maxChargeDuration: 1
+  _duffleBagPrefab: {fileID: 5815843284099628978, guid: e6fcb1b8b113d5846ba2f627f83a5bff, type: 3}
+  _throwSpeed: 9
+  _throwUpwardSpeed: 2.5
+  _dropSpawnPoint: {fileID: 960240798095504355}
+  _dropSpawnPointOffset: {x: 0, y: -0.2, z: 0}
+  _wornBagVisual: {fileID: 1966898175740947755}
+  _hasBag:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  _currentWeight:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  _currentValue:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
 --- !u!1 &1205406370123137721
 GameObject:
   m_ObjectHideFlags: 0
@@ -756,6 +826,96 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+--- !u!1 &1966898175740947755
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6090395236583062603}
+  - component: {fileID: 5716895765157321948}
+  - component: {fileID: 5415588023869785175}
+  m_Layer: 7
+  m_Name: Duffle_Bag_Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6090395236583062603
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1966898175740947755}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0.17142111, w: 0.9851979}
+  m_LocalPosition: {x: -0.018, y: 1.094, z: -0.208}
+  m_LocalScale: {x: 0.5713685, y: 0.19418532, z: 0.21841808}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3908915232247080255}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -19.741}
+--- !u!33 &5716895765157321948
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1966898175740947755}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &5415588023869785175
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1966898175740947755}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 20d8928fccf864023881243248608e1f, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2239640635451554003
 GameObject:
   m_ObjectHideFlags: 0
@@ -919,6 +1079,37 @@ MonoBehaviour:
   _tiltSmoothness: 8
   _tiltPivot: {fileID: 4688779203960493711}
   _locomotionController: {fileID: 7482482855676676148}
+--- !u!1 &5400436632211418639
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1959952462247133599}
+  m_Layer: 7
+  m_Name: Throw Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1959952462247133599
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5400436632211418639}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.37, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3908915232247080255}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5623175284018484902
 GameObject:
   m_ObjectHideFlags: 0
@@ -930,7 +1121,7 @@ GameObject:
   - component: {fileID: 960240798095504355}
   - component: {fileID: 1197550716529269032}
   m_Layer: 7
-  m_Name: Pitch Pivot
+  m_Name: Pitch_Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1223,7 +1414,7 @@ GameObject:
   - component: {fileID: 3908915232247080255}
   - component: {fileID: 6236053953077658925}
   m_Layer: 7
-  m_Name: Mesh Root
+  m_Name: Mesh_Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1243,6 +1434,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3174483983228246354}
+  - {fileID: 6090395236583062603}
+  - {fileID: 1959952462247133599}
   m_Father: {fileID: 6549506811574553554}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6236053953077658925

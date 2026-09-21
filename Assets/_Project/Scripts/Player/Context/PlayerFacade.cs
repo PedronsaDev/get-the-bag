@@ -23,6 +23,7 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private PlayerDownedState _downedState;
     [SerializeField] private HealthComponent _healthComponent;
     [SerializeField] private RuntimePlayerProfile _profile;
+    [SerializeField] private PlayerDuffleBagController _duffleBagController;
     [SerializeField] private int _remotePlayerLayerIndex;
     
     public PlayerInventoryController InventoryController => _inventoryController;
@@ -34,6 +35,7 @@ public class PlayerFacade : NetworkBehaviour
     public PlayerInteractor Interactor => _interactor;
     public PlayerTargetDetector TargetDetector => _targetDetector;
     public RuntimePlayerProfile Profile => _profile;
+    public PlayerDuffleBagController DuffleBagController => _duffleBagController;
     public LocomotionState LocomotionState => _locomotionController ? _locomotionController.State : default;
     public PlayerInputData CurrentInput { get; private set; }
 
@@ -60,6 +62,8 @@ public class PlayerFacade : NetworkBehaviour
             _targetDetector = GetComponent<PlayerTargetDetector>() ?? GetComponentInChildren<PlayerTargetDetector>();
         if (!_profile)
             _profile = GetComponent<RuntimePlayerProfile>() ?? GetComponentInChildren<RuntimePlayerProfile>();
+        if (!_duffleBagController) 
+            _duffleBagController = GetComponent<PlayerDuffleBagController>();
     }
 
     protected override void OnSpawned()

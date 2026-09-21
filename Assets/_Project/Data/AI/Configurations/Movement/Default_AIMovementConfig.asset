@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2a8762e025c37b408bfe7d0f37863f6, type: 3}
   m_Name: Default_AIMovementConfig
   m_EditorClassIdentifier: Project.AI::Project.AI.Configuration.AIMovementConfig
-  PatrolSpeed: 0
-  InvestigateSpeed: 0
-  CombatRunSpeed: 0
-  MinCombatDistance: 0
-  IdealCombatDistance: 0
-  MaxCombatDistance: 0
+  PatrolSpeed: 2
+  InvestigateSpeed: 3.5
+  CombatRunSpeed: 5.5
+  MinCombatDistance: 6
+  IdealCombatDistance: 12
+  MaxCombatDistance: 20

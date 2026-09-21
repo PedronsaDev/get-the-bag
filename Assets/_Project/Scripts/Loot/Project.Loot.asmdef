@@ -1,0 +1,17 @@
+{
+    "name": "Project.Loot",
+    "rootNamespace": "Project.Loot",
+    "references": [
+        "GUID:447763e3d3006514ab2897b08fd17a1c",
+        "GUID:6e20f757a1bae164fa42750dd2b27dcb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

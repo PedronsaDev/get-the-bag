@@ -66,6 +66,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     private InputAction _slot3Action;
     private InputAction _slot4Action;
     private InputAction _playerInventoryAction;
+    private InputAction _dropBagAction;
     
     // UI Map Actions
     private InputAction _cancelAction;
@@ -154,6 +155,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         _slot3Action = _playerMap.FindAction("WeaponSlot3");
         _slot4Action = _playerMap.FindAction("WeaponSlot4");
         _playerInventoryAction = _playerMap.FindAction("Inventory");
+        _dropBagAction = _playerMap.FindAction("DropBag");
 
         // UI & Meta actions
         if (_uiMap != null)
@@ -257,6 +259,10 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             
             InteractPressed = !actionsBlocked && _interactAction != null && _interactAction.WasPressedThisFrame(),
             InteractHeld = !actionsBlocked && _interactAction != null && _interactAction.IsPressed(),
+            
+            DropBagHeld = !actionsBlocked && _dropBagAction != null && _dropBagAction.IsPressed(),
+            DropBagReleased = !actionsBlocked && _dropBagAction != null && _dropBagAction.WasReleasedThisFrame(),
+            
             
             InventoryPressed = invPressed,
             WeaponSlotPressed = actionsBlocked ? 0 : GetWeaponSlotPressed(),

@@ -4,7 +4,6 @@ namespace Project.AI.Decision.States
 {
 public class AIInvestigateState : IAIState
 {
-    
     public void OnEnter(AIBlackboard blackboard)
     {
         blackboard.SetMoveDestination(blackboard.TargetPosition, blackboard.MovementConfig.InvestigateSpeed);

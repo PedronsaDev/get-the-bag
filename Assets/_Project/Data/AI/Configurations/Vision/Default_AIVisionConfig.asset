@@ -22,4 +22,4 @@ MonoBehaviour:
   TargetMask:
     serializedVersion: 2
     m_Bits: 384
-  EyeHeight: 1.7
+  EyeHeight: 1.5
