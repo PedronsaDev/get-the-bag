@@ -52,6 +52,21 @@ public class AIPerceptionBus : MonoBehaviour
     {
         if (Instance) Instance.EmitStimulus(stimulus);
     }
+    
+    public static void EmitSound(Vector3 muzzlePos, float intensity, GameObject source)
+    {
+        if (!Instance) 
+            return;
+        
+        var stimulus = new StimulusPayload(
+            type: StimulusType.Sound,
+            position: muzzlePos,
+            source: source,
+            intensity: intensity
+        );
+            
+        Instance.EmitStimulus(stimulus);
+    }
 
     public void EmitStimulus(in StimulusPayload stimulus)
     {

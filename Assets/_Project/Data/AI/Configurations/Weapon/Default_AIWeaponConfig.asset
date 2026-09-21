@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988111b90d4651e45897dd4e87bf4cdb, type: 3}
+  m_Name: Default_AIWeaponConfig
+  m_EditorClassIdentifier: Project.AI::Project.AI.Configuration.AIWeaponConfig
+  DamagePerShot: 12
+  MaxRange: 50
+  RoundsPerMinute: 450
+  MinBurstCount: 3
+  MaxBurstCount: 5
+  MinBurstPause: 0.8
+  MaxBurstPause: 1.4
+  SpreadAngleDegrees: 3.5
+  GunshotAcousticIntensity: 35
+  HitMask:
+    serializedVersion: 2
+    m_Bits: 384

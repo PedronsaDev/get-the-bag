@@ -2,7 +2,7 @@ using Project.AI.Perception;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.AI
+namespace Project.AI.Network
 {
 [RequireComponent(typeof(AITargetMemory))]
 public class EnemyNetworkCoordinator : NetworkBehaviour
