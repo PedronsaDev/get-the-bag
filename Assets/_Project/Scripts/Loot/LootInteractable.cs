@@ -1,3 +1,5 @@
+using System;
+using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;
 using PurrNet;
@@ -12,6 +14,9 @@ namespace Project.Loot
     [DisallowMultipleComponent]
     public class LootInteractable : NetworkBehaviour, IInteractable
     {
+        [Header("References")] 
+        [SerializeField] private MeshOutline _outline;
+        
         [Header("Item Data")]
         [SerializeField] private LootItemDefinition _itemDefinition;
 
@@ -29,6 +34,12 @@ namespace Project.Loot
         public Color AccentColor => new Color(0.35f, 0.85f, 1f);
         public InteractionMode Mode => InteractionMode.Instant;
         public float HoldDuration => 0f;
+
+        private void Awake()
+        {
+            if (!_outline) 
+                _outline = GetComponent<MeshOutline>();
+        }
 
         public void Initialize(LootItemDefinition definition)
         {
@@ -94,14 +105,14 @@ namespace Project.Loot
             for (int i = 0; i < PlayerIdentifier.ActivePlayers.Count; i++)
             {
                 var player = PlayerIdentifier.ActivePlayers[i];
-                if (player != null && player.PlayerID == info.sender)
+                if (player && player.PlayerID == info.sender)
                 {
                     senderPlayer = player;
                     break;
                 }
             }
 
-            if (senderPlayer != null && senderPlayer.TryGetComponent(out IDuffleBagCarrier carrier))
+            if (senderPlayer && senderPlayer.TryGetComponent(out IDuffleBagCarrier carrier))
             {
                 if (carrier.TryStowItem(_itemDefinition))
                 {
@@ -111,8 +122,17 @@ namespace Project.Loot
             }
         }
 
-        public void OnHoverEnter(IPlayerInteractor interactor) { }
-        public void OnHoverExit(IPlayerInteractor interactor) { }
+        public void OnHoverEnter(IPlayerInteractor interactor)
+        {
+            if (_outline)
+                _outline.enabled = true;
+        }
+
+        public void OnHoverExit(IPlayerInteractor interactor)
+        {
+            if (_outline)
+                _outline.enabled = false;
+        }
 
         private void SafeDespawn()
         {

@@ -3,7 +3,8 @@
     "rootNamespace": "Project.Loot",
     "references": [
         "GUID:447763e3d3006514ab2897b08fd17a1c",
-        "GUID:6e20f757a1bae164fa42750dd2b27dcb"
+        "GUID:6e20f757a1bae164fa42750dd2b27dcb",
+        "GUID:d6e60c13b98ff9545a3a50df0b53afbb"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

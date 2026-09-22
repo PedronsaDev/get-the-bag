@@ -10,9 +10,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Plugins.Outline
+{
+
+
 [DisallowMultipleComponent]
 [ExecuteAlways]
-public class Outline : MonoBehaviour {
+public class MeshOutline : MonoBehaviour {
   private static readonly HashSet<Mesh> s_RegisteredMeshes = new HashSet<Mesh>();
   private static readonly List<Vector3> s_Vertices = new List<Vector3>();
   private static readonly List<Vector3> s_Normals = new List<Vector3>();
@@ -69,8 +73,8 @@ public class Outline : MonoBehaviour {
   [SerializeField]
   private Color outlineColor = Color.white;
 
-  [SerializeField, Range(0f, 10f)]
-  private float outlineWidth = 2f;
+  [SerializeField, Range(0f, 50f)]
+  private float outlineWidth = 10f;
 
   [Header("Optional")]
   [SerializeField, Tooltip("Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. "
@@ -360,4 +364,5 @@ public class Outline : MonoBehaviour {
         break;
     }
   }
+}
 }

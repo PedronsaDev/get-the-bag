@@ -1,3 +1,4 @@
+using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;
 using PurrNet;
@@ -12,6 +13,7 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
     [Header("References")] 
     [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private Collider _collider;
+    [SerializeField] private MeshOutline _outline;
 
     [Header("Replicated Prompt Data")] 
     [SerializeField] private SyncVar<float> _netWeight = new(0f);
@@ -40,6 +42,7 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
     {
         if (!_rigidbody) _rigidbody = GetComponent<Rigidbody>();
         if (!_collider) _collider = GetComponentInChildren<Collider>();
+        if (!_outline) _outline = GetComponent<MeshOutline>();
     }
     
     public void Initialize(DuffleBagSnapshot snapshot)
@@ -135,10 +138,14 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
 
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
+        if (_outline) 
+            _outline.enabled = true;
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
+        if (_outline) 
+            _outline.enabled = false;
     }
 
     private void SafeDespawn()
