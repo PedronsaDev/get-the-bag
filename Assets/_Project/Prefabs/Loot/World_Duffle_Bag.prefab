@@ -201,12 +201,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp-firstpass::Outline
-  outlineMode: 1
-  outlineColor: {r: 1, g: 0.7300706, b: 0.28773582, a: 1}
-  outlineWidth: 5
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 10
+  widthMode: 0
+  stencilReference: 32
+  enableSurfaceFill: 0
+  fillColor: {r: 0.9716981, g: 0.49508283, b: 0.14208792, a: 0.5529412}
+  fillSecondaryColor: {r: 0, g: 0, b: 0, a: 0}
+  fillPattern: 0
+  fillTexture: {fileID: 0}
+  fillTiling: {x: 10, y: 10}
+  fillAngle: 45
+  fillScrollSpeed: 1
+  fresnelPower: 2.5
+  fillSpace: 0
+  fillOcclusion: 0
+  pulseEnabled: 0
+  pulseSpeed: 2.5
+  pulseAmplitude: 0.35
+  distanceFadeEnabled: 0
+  fadeMinDistance: 15
+  fadeMaxDistance: 45
+  jitterEnabled: 1
+  jitterSpeed: 2
+  jitterFrequency: 3
+  jitterScale: 0.5
+  jitterFramerate: 4
+  includeLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  excludedKeywords: []
+  ignoredRenderers: []
 --- !u!1 &8816106590378209030
 GameObject:
   m_ObjectHideFlags: 0
@@ -236,7 +262,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.85063726, y: 0.2874137, z: 0.3111704}
+  m_LocalScale: {x: 1.0286058, y: 0.3737815, z: 0.40467712}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7720050479156574011}

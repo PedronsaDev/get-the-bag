@@ -7,6 +7,23 @@ Shader "Custom/Outline/Fill" {
     [ColorUsage(true, true)] _OutlineColor("Outline Color (HDR)", Color) = (1, 1, 1, 1)
     _OutlineWidth("Outline Width", Range(0, 50)) = 5
     [Enum(ScreenSpacePixels,0,WorldSpaceMeters,1)] _WidthMode("Width Mode", Float) = 0
+
+    [Header(Animation and Pulse)]
+    [Toggle] _PulseEnabled("Pulse Enabled", Float) = 0
+    _PulseSpeed("Pulse Speed", Float) = 2.5
+    _PulseAmplitude("Pulse Amplitude", Range(0, 1)) = 0.35
+
+    [Header(Distance Fading)]
+    [Toggle] _DistanceFadeEnabled("Distance Fade Enabled", Float) = 0
+    _FadeMinDistance("Fade Min Distance", Float) = 15
+    _FadeMaxDistance("Fade Max Distance", Float) = 40
+
+    [Header(Stylized Jitter Wobble)]
+    [Toggle] _JitterEnabled("Jitter Enabled", Float) = 0
+    _JitterSpeed("Jitter Speed", Float) = 6.0
+    _JitterFrequency("Jitter Frequency", Float) = 4.0
+    _JitterScale("Jitter Scale", Range(0, 1)) = 0.35
+    _JitterFramerate("Jitter Framerate (0 for smooth)", Float) = 12
   }
 
   SubShader {
@@ -57,7 +74,39 @@ Shader "Custom/Outline/Fill" {
         float _ZTest;
         float _StencilRef;
         float _WidthMode;
+
+        float _PulseEnabled;
+        float _PulseSpeed;
+        float _PulseAmplitude;
+
+        float _DistanceFadeEnabled;
+        float _FadeMinDistance;
+        float _FadeMaxDistance;
+
+        float _JitterEnabled;
+        float _JitterSpeed;
+        float _JitterFrequency;
+        float _JitterScale;
+        float _JitterFramerate;
       CBUFFER_END
+
+      // Fast procedural hash for vertex wobble (zero texture sampling cost)
+      float Hash31(float3 p) {
+        p = frac(p * 0.3183099 + 0.1);
+        p *= 17.0;
+        return frac(p.x * p.y * p.z * (p.x + p.y + p.z));
+      }
+
+      float Noise3D(float3 p) {
+        float3 i = floor(p);
+        float3 f = frac(p);
+        f = f * f * (3.0 - 2.0 * f);
+        return lerp(
+          lerp(lerp(Hash31(i + float3(0,0,0)), Hash31(i + float3(1,0,0)), f.x),
+               lerp(Hash31(i + float3(0,1,0)), Hash31(i + float3(1,1,0)), f.x), f.y),
+          lerp(lerp(Hash31(i + float3(0,0,1)), Hash31(i + float3(1,0,1)), f.x),
+               lerp(Hash31(i + float3(0,1,1)), Hash31(i + float3(1,1,1)), f.x), f.y), f.z);
+      }
 
       Varyings vert(Attributes input) {
         Varyings output = (Varyings)0;
@@ -76,10 +125,38 @@ Shader "Custom/Outline/Fill" {
 
         float3 normalWS = normalize(mul(rotMatrixWS, normalOS));
 
+        // 1. Dynamic Pulse
+        float pulseFactor = 1.0;
+        if (_PulseEnabled > 0.5) {
+          pulseFactor = 1.0 + sin(_Time.y * _PulseSpeed) * _PulseAmplitude;
+        }
+
+        // 2. Stylized Jitter / Spider-Verse Wobble
+        float jitterFactor = 1.0;
+        if (_JitterEnabled > 0.5) {
+          float jitterTime = _Time.y;
+          if (_JitterFramerate > 0.5) {
+            jitterTime = floor(_Time.y * _JitterFramerate) / _JitterFramerate;
+          }
+          float n = Noise3D(positionWS * _JitterFrequency + float3(0.0, jitterTime * _JitterSpeed, 0.0));
+          jitterFactor = 1.0 + (n - 0.5) * 2.0 * _JitterScale;
+        }
+
+        // 3. Distance Fading
+        float distToCam = length(positionWS - _WorldSpaceCameraPos);
+        float distanceAlpha = 1.0;
+        float distanceWidthFactor = 1.0;
+        if (_DistanceFadeEnabled > 0.5) {
+          distanceAlpha = saturate((_FadeMaxDistance - distToCam) / max(0.001, _FadeMaxDistance - _FadeMinDistance));
+          distanceWidthFactor = lerp(0.3, 1.0, distanceAlpha);
+        }
+
+        float currentWidth = _OutlineWidth * pulseFactor * jitterFactor * distanceWidthFactor;
+
         float4 positionCS;
         if (_WidthMode > 0.5) {
           // World space meters mode
-          float3 extrudedWS = positionWS + normalWS * (_OutlineWidth * 0.01);
+          float3 extrudedWS = positionWS + normalWS * (currentWidth * 0.01);
           positionCS = TransformWorldToHClip(extrudedWS);
         } else {
           // Screen space pixels mode (scale-invariant)
@@ -96,11 +173,13 @@ Shader "Custom/Outline/Fill" {
           screenDir.x *= aspect;
 
           // Extrude in clip space pre-multiplied by w to cancel perspective division
-          positionCS.xy += screenDir * (positionCS.w * _OutlineWidth * 0.001);
+          positionCS.xy += screenDir * (positionCS.w * currentWidth * 0.001);
         }
 
         output.positionCS = positionCS;
         output.color = _OutlineColor;
+        output.color.a *= distanceAlpha;
+
         return output;
       }
 

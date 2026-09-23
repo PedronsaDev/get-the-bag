@@ -35,7 +35,8 @@ namespace Plugins.Outline
             Solid = 0,
             Stripes = 1,
             Grid = 2,
-            Texture = 3
+            Texture = 3,
+            FresnelRim = 4
         }
 
         public enum CoordSpace
@@ -52,7 +53,6 @@ namespace Plugins.Outline
             WhenVisibleOnly
         }
 
-        // Cache smooth normals per mesh instance across the entire session to prevent redundant computation
         private static readonly Dictionary<Mesh, Vector3[]> s_SmoothNormalsCache = new Dictionary<Mesh, Vector3[]>();
         private static readonly HashSet<Mesh> s_RegisteredMeshes = new HashSet<Mesh>();
 
@@ -101,6 +101,9 @@ namespace Plugins.Outline
         [SerializeField]
         private float fillScrollSpeed = 1f;
 
+        [SerializeField, Range(0.1f, 10f)]
+        private float fresnelPower = 2.5f;
+
         [SerializeField]
         private CoordSpace fillSpace = CoordSpace.ObjectUV;
 
@@ -109,7 +112,61 @@ namespace Plugins.Outline
 
         #endregion
 
-        #region Public Properties
+        #region Serialized Properties - Pulse & Distance Fading
+
+        [SerializeField]
+        private bool pulseEnabled = false;
+
+        [SerializeField]
+        private float pulseSpeed = 2.5f;
+
+        [SerializeField, Range(0f, 1f)]
+        private float pulseAmplitude = 0.35f;
+
+        [SerializeField]
+        private bool distanceFadeEnabled = false;
+
+        [SerializeField]
+        private float fadeMinDistance = 15f;
+
+        [SerializeField]
+        private float fadeMaxDistance = 45f;
+
+        #endregion
+
+        #region Serialized Properties - Stylized Jitter / Wobble
+
+        [SerializeField]
+        private bool jitterEnabled = false;
+
+        [SerializeField]
+        private float jitterSpeed = 6.0f;
+
+        [SerializeField]
+        private float jitterFrequency = 4.0f;
+
+        [SerializeField, Range(0f, 1f)]
+        private float jitterScale = 0.35f;
+
+        [SerializeField]
+        private float jitterFramerate = 12.0f;
+
+        #endregion
+
+        #region Serialized Properties - Filtering
+
+        [SerializeField]
+        private LayerMask includeLayers = ~0;
+
+        [SerializeField]
+        private List<string> excludedKeywords = new List<string>();
+
+        [SerializeField]
+        private List<Renderer> ignoredRenderers = new List<Renderer>();
+
+        #endregion
+
+        #region Public Accessors
 
         public Mode OutlineMode
         {
@@ -189,6 +246,12 @@ namespace Plugins.Outline
             set { fillScrollSpeed = value; _needsUpdate = true; }
         }
 
+        public float FresnelPower
+        {
+            get => fresnelPower;
+            set { fresnelPower = value; _needsUpdate = true; }
+        }
+
         public CoordSpace FillSpace
         {
             get => fillSpace;
@@ -200,6 +263,81 @@ namespace Plugins.Outline
             get => fillOcclusion;
             set { fillOcclusion = value; _needsUpdate = true; }
         }
+
+        public bool PulseEnabled
+        {
+            get => pulseEnabled;
+            set { pulseEnabled = value; _needsUpdate = true; }
+        }
+
+        public float PulseSpeed
+        {
+            get => pulseSpeed;
+            set { pulseSpeed = value; _needsUpdate = true; }
+        }
+
+        public float PulseAmplitude
+        {
+            get => pulseAmplitude;
+            set { pulseAmplitude = value; _needsUpdate = true; }
+        }
+
+        public bool DistanceFadeEnabled
+        {
+            get => distanceFadeEnabled;
+            set { distanceFadeEnabled = value; _needsUpdate = true; }
+        }
+
+        public float FadeMinDistance
+        {
+            get => fadeMinDistance;
+            set { fadeMinDistance = value; _needsUpdate = true; }
+        }
+
+        public float FadeMaxDistance
+        {
+            get => fadeMaxDistance;
+            set { fadeMaxDistance = value; _needsUpdate = true; }
+        }
+
+        public bool JitterEnabled
+        {
+            get => jitterEnabled;
+            set { jitterEnabled = value; _needsUpdate = true; }
+        }
+
+        public float JitterSpeed
+        {
+            get => jitterSpeed;
+            set { jitterSpeed = value; _needsUpdate = true; }
+        }
+
+        public float JitterFrequency
+        {
+            get => jitterFrequency;
+            set { jitterFrequency = value; _needsUpdate = true; }
+        }
+
+        public float JitterScale
+        {
+            get => jitterScale;
+            set { jitterScale = value; _needsUpdate = true; }
+        }
+
+        public float JitterFramerate
+        {
+            get => jitterFramerate;
+            set { jitterFramerate = value; _needsUpdate = true; }
+        }
+
+        public LayerMask IncludeLayers
+        {
+            get => includeLayers;
+            set { includeLayers = value; _needsRendererRefresh = true; }
+        }
+
+        public List<string> ExcludedKeywords => excludedKeywords;
+        public List<Renderer> IgnoredRenderers => ignoredRenderers;
 
         #endregion
 
@@ -219,6 +357,20 @@ namespace Plugins.Outline
         private bool _isOutlined;
         private bool _needsUpdate;
         private bool _needsRendererRefresh;
+
+        // Dynamic Runtime Ping & Flash state
+        private bool _isPinging;
+        private float _pingDuration;
+        private float _pingElapsed;
+        private Color _pingBaseColor;
+        private Color _pingTargetColor;
+        private float _pingBaseWidth;
+
+        private bool _isFlashing;
+        private float _flashDuration;
+        private float _flashElapsed;
+        private Color _flashBaseColor;
+        private Color _flashOverrideColor;
 
         #region Unity Lifecycle
 
@@ -244,6 +396,8 @@ namespace Plugins.Outline
         private void OnDisable()
         {
             RemoveOutlines();
+            _isPinging = false;
+            _isFlashing = false;
         }
 
         private void OnDestroy()
@@ -254,7 +408,6 @@ namespace Plugins.Outline
 
         private void OnTransformChildrenChanged()
         {
-            // Modular assembly or child parts added/removed dynamically
             _needsRendererRefresh = true;
         }
 
@@ -271,6 +424,12 @@ namespace Plugins.Outline
                 _needsUpdate = true;
             }
 
+            // Update Ping & Flash decay
+            if (Application.isPlaying)
+            {
+                UpdatePingAndFlash(Time.deltaTime);
+            }
+
             if (_needsUpdate)
             {
                 _needsUpdate = false;
@@ -281,8 +440,81 @@ namespace Plugins.Outline
         private void OnValidate()
         {
             stencilReference = Mathf.Clamp(stencilReference, 1, 255);
+            fadeMinDistance = Mathf.Max(0f, fadeMinDistance);
+            fadeMaxDistance = Mathf.Max(fadeMinDistance + 0.1f, fadeMaxDistance);
             _needsUpdate = true;
             _needsRendererRefresh = true;
+        }
+
+        #endregion
+
+        #region Dynamic Ping & Hit Flash
+
+        /// <summary>
+        /// Triggers an expanding radar ping pulse that smoothly decays back to base values.
+        /// </summary>
+        public void Ping(float duration = 1.5f, Color? pingColor = null)
+        {
+            if (!isActiveAndEnabled) enabled = true;
+
+            _isPinging = true;
+            _pingDuration = Mathf.Max(0.05f, duration);
+            _pingElapsed = 0f;
+            _pingBaseColor = outlineColor;
+            _pingBaseWidth = outlineWidth;
+            _pingTargetColor = pingColor ?? new Color(outlineColor.r * 2.5f, outlineColor.g * 2.5f, outlineColor.b * 2.5f, 1f);
+        }
+
+        /// <summary>
+        /// Triggers an instant hit flash reaction (e.g. bullet impact flare) that decays rapidly.
+        /// </summary>
+        public void Flash(Color flashColor, float duration = 0.15f)
+        {
+            if (!isActiveAndEnabled) enabled = true;
+
+            _isFlashing = true;
+            _flashDuration = Mathf.Max(0.02f, duration);
+            _flashElapsed = 0f;
+            _flashBaseColor = outlineColor;
+            _flashOverrideColor = flashColor;
+        }
+
+        private void UpdatePingAndFlash(float dt)
+        {
+            if (!_fillMaterial) return;
+
+            if (_isFlashing)
+            {
+                _flashElapsed += dt;
+                float t = Mathf.Clamp01(_flashElapsed / _flashDuration);
+                Color currentColor = Color.Lerp(_flashOverrideColor, _flashBaseColor, t);
+                _fillMaterial.SetColor("_OutlineColor", currentColor);
+
+                if (t >= 1f)
+                {
+                    _isFlashing = false;
+                    _fillMaterial.SetColor("_OutlineColor", outlineColor);
+                }
+            }
+            else if (_isPinging)
+            {
+                _pingElapsed += dt;
+                float t = Mathf.Clamp01(_pingElapsed / _pingDuration);
+                float curve = 1f - Mathf.SmoothStep(0f, 1f, t);
+
+                Color currentColor = Color.Lerp(_pingBaseColor, _pingTargetColor, curve);
+                float currentWidth = Mathf.Lerp(_pingBaseWidth, _pingBaseWidth * 1.8f, curve);
+
+                _fillMaterial.SetColor("_OutlineColor", currentColor);
+                _fillMaterial.SetFloat("_OutlineWidth", currentWidth);
+
+                if (t >= 1f)
+                {
+                    _isPinging = false;
+                    _fillMaterial.SetColor("_OutlineColor", outlineColor);
+                    _fillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                }
+            }
         }
 
         #endregion
@@ -354,14 +586,13 @@ namespace Plugins.Outline
         }
 
         /// <summary>
-        /// Scans all child MeshRenderers and SkinnedMeshRenderers, caching pre-allocated material arrays
+        /// Scans all child renderers with layer and keyword filtering, caching pre-allocated material arrays
         /// for zero-garbage swapping on hover enter/exit.
         /// </summary>
         public void RefreshRenderers()
         {
             EnsureMaterials();
 
-            // Revert existing outlines before rebuilding cache
             if (_isOutlined)
             {
                 RemoveOutlines();
@@ -377,10 +608,32 @@ namespace Plugins.Outline
                 var r = childRenderers[i];
                 if (!r || !(r is MeshRenderer || r is SkinnedMeshRenderer)) continue;
 
+                // 1. Layer filter check
+                if (((1 << r.gameObject.layer) & includeLayers.value) == 0) continue;
+
+                // 2. Explicit ignore list
+                if (ignoredRenderers != null && ignoredRenderers.Contains(r)) continue;
+
+                // 3. Excluded keywords check (e.g. "Cloth", "Shadow", "Decal")
+                if (excludedKeywords != null && excludedKeywords.Count > 0)
+                {
+                    string rName = r.gameObject.name;
+                    bool skip = false;
+                    for (int k = 0; k < excludedKeywords.Count; k++)
+                    {
+                        var kw = excludedKeywords[k];
+                        if (!string.IsNullOrEmpty(kw) && rName.IndexOf(kw, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            skip = true;
+                            break;
+                        }
+                    }
+                    if (skip) continue;
+                }
+
                 var origMaterials = r.sharedMaterials;
                 if (origMaterials == null || origMaterials.Length == 0) continue;
 
-                // Build filtered original list (stripping any accidental previous outline materials)
                 var cleanedList = new List<Material>();
                 for (int m = 0; m < origMaterials.Length; m++)
                 {
@@ -396,13 +649,8 @@ namespace Plugins.Outline
                 var origArray = cleanedList.ToArray();
                 var outlinedList = new List<Material>(origArray);
 
-                // Add mask
                 if (_maskMaterial) outlinedList.Add(_maskMaterial);
-
-                // Add fill (outline exterior)
                 if (_fillMaterial && outlineMode != Mode.SilhouetteOnly) outlinedList.Add(_fillMaterial);
-
-                // Add silhouette (interior pattern / surface fill)
                 if (_silhouetteMaterial && shouldIncludeSilhouette) outlinedList.Add(_silhouetteMaterial);
 
                 _cachedRenderers.Add(new RendererData
@@ -462,7 +710,7 @@ namespace Plugins.Outline
         {
             EnsureMaterials();
 
-            // 1. Synchronize Mask
+            // 1. Mask
             if (_maskMaterial)
             {
                 _maskMaterial.SetFloat("_StencilRef", stencilReference);
@@ -480,13 +728,34 @@ namespace Plugins.Outline
                 }
             }
 
-            // 2. Synchronize Outline Fill
+            // 2. Fill (Exterior Outline)
             if (_fillMaterial)
             {
-                _fillMaterial.SetColor("_OutlineColor", outlineColor);
-                _fillMaterial.SetFloat("_OutlineWidth", (outlineMode == Mode.SilhouetteOnly) ? 0f : outlineWidth);
+                if (!_isFlashing && !_isPinging)
+                {
+                    _fillMaterial.SetColor("_OutlineColor", outlineColor);
+                    _fillMaterial.SetFloat("_OutlineWidth", (outlineMode == Mode.SilhouetteOnly) ? 0f : outlineWidth);
+                }
+
                 _fillMaterial.SetFloat("_WidthMode", (float)widthMode);
                 _fillMaterial.SetFloat("_StencilRef", stencilReference);
+
+                // Pulse
+                _fillMaterial.SetFloat("_PulseEnabled", pulseEnabled ? 1f : 0f);
+                _fillMaterial.SetFloat("_PulseSpeed", pulseSpeed);
+                _fillMaterial.SetFloat("_PulseAmplitude", pulseAmplitude);
+
+                // Distance Fade
+                _fillMaterial.SetFloat("_DistanceFadeEnabled", distanceFadeEnabled ? 1f : 0f);
+                _fillMaterial.SetFloat("_FadeMinDistance", fadeMinDistance);
+                _fillMaterial.SetFloat("_FadeMaxDistance", fadeMaxDistance);
+
+                // Jitter Wobble
+                _fillMaterial.SetFloat("_JitterEnabled", jitterEnabled ? 1f : 0f);
+                _fillMaterial.SetFloat("_JitterSpeed", jitterSpeed);
+                _fillMaterial.SetFloat("_JitterFrequency", jitterFrequency);
+                _fillMaterial.SetFloat("_JitterScale", jitterScale);
+                _fillMaterial.SetFloat("_JitterFramerate", jitterFramerate);
 
                 switch (outlineMode)
                 {
@@ -508,7 +777,7 @@ namespace Plugins.Outline
                 }
             }
 
-            // 3. Synchronize Surface Fill / Silhouette
+            // 3. Surface Fill / Silhouette
             if (_silhouetteMaterial)
             {
                 _silhouetteMaterial.SetColor("_FillColor", fillColor);
@@ -518,8 +787,14 @@ namespace Plugins.Outline
                 _silhouetteMaterial.SetVector("_PatternTiling", fillTiling);
                 _silhouetteMaterial.SetFloat("_PatternAngle", fillAngle);
                 _silhouetteMaterial.SetFloat("_ScrollSpeed", fillScrollSpeed);
+                _silhouetteMaterial.SetFloat("_FresnelPower", fresnelPower);
                 _silhouetteMaterial.SetFloat("_CoordSpace", (float)fillSpace);
                 _silhouetteMaterial.SetFloat("_StencilRef", stencilReference);
+
+                // Distance Fade
+                _silhouetteMaterial.SetFloat("_DistanceFadeEnabled", distanceFadeEnabled ? 1f : 0f);
+                _silhouetteMaterial.SetFloat("_FadeMinDistance", fadeMinDistance);
+                _silhouetteMaterial.SetFloat("_FadeMaxDistance", fadeMaxDistance);
 
                 switch (fillOcclusion)
                 {
@@ -538,11 +813,10 @@ namespace Plugins.Outline
 
         #endregion
 
-        #region Smooth Normals Generation (Zero Asset Mutation)
+        #region Smooth Normals Generation
 
         private void LoadSmoothNormals()
         {
-            // Process static meshes
             foreach (var meshFilter in GetComponentsInChildren<MeshFilter>(true))
             {
                 if (!meshFilter) continue;
@@ -558,7 +832,6 @@ namespace Plugins.Outline
                 mesh.SetUVs(3, smoothNormals);
             }
 
-            // Process skinned meshes
             foreach (var smr in GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
                 if (!smr) continue;
@@ -588,8 +861,7 @@ namespace Plugins.Outline
                 normals = mesh.normals;
             }
 
-            // Quantize position into integer grid to cluster coincident corner vertices accurately
-            const float tolerance = 1000f; // 1mm precision
+            const float tolerance = 1000f;
             var positionGroups = new Dictionary<Vector3Int, List<int>>(vertexCount);
 
             for (int i = 0; i < vertexCount; i++)
@@ -645,6 +917,8 @@ namespace Plugins.Outline
             outlineWidth = 5f;
             widthMode = WidthMode.ScreenSpacePixels;
             enableSurfaceFill = false;
+            pulseEnabled = false;
+            jitterEnabled = false;
             RefreshRenderers();
             UpdateMaterialProperties();
         }
@@ -694,6 +968,36 @@ namespace Plugins.Outline
             enableSurfaceFill = true;
             fillColor = new Color(1f, 0.9f, 0.2f, 0.6f);
             fillPattern = PatternType.Solid;
+            fillOcclusion = FillOcclusion.Always;
+            RefreshRenderers();
+            UpdateMaterialProperties();
+        }
+
+        public void ApplyPresetSpiderVerse()
+        {
+            outlineMode = Mode.OutlineVisible;
+            outlineColor = new Color(0.95f, 0.1f, 0.25f, 1f);
+            outlineWidth = 7f;
+            jitterEnabled = true;
+            jitterSpeed = 8f;
+            jitterFrequency = 5f;
+            jitterScale = 0.45f;
+            jitterFramerate = 12f;
+            enableSurfaceFill = false;
+            RefreshRenderers();
+            UpdateMaterialProperties();
+        }
+
+        public void ApplyPresetHoloShield()
+        {
+            outlineMode = Mode.OutlineAndSilhouette;
+            outlineColor = new Color(0.1f, 0.7f, 1f, 1f);
+            outlineWidth = 4f;
+            enableSurfaceFill = true;
+            fillColor = new Color(0.2f, 0.85f, 1f, 0.8f);
+            fillSecondaryColor = new Color(0f, 0f, 0f, 0f);
+            fillPattern = PatternType.FresnelRim;
+            fresnelPower = 2.2f;
             fillOcclusion = FillOcclusion.Always;
             RefreshRenderers();
             UpdateMaterialProperties();

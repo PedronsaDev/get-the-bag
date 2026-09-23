@@ -21,7 +21,7 @@ namespace Plugins.Outline.Editor
 
             // --- Header Banner ---
             var headerBox = new VisualElement();
-            headerBox.style.backgroundColor = new Color(0.15f, 0.2f, 0.25f, 0.8f);
+            headerBox.style.backgroundColor = new Color(0.15f, 0.2f, 0.26f, 0.85f);
             headerBox.style.borderTopLeftRadius = 6;
             headerBox.style.borderTopRightRadius = 6;
             headerBox.style.borderBottomLeftRadius = 6;
@@ -32,17 +32,12 @@ namespace Plugins.Outline.Editor
             headerBox.style.paddingRight = 10;
             headerBox.style.marginBottom = 8;
 
-            var titleLabel = new Label("Linework Mesh Outline");
+            var titleLabel = new Label("Mesh Outline");
             titleLabel.style.fontSize = 14;
             titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
             titleLabel.style.color = new Color(0.4f, 0.85f, 1f);
 
-            var subtitleLabel = new Label("Scale-Invariant Inverted Hull & Silhouette Fill (URP 17)");
-            subtitleLabel.style.fontSize = 10;
-            subtitleLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
-
             headerBox.Add(titleLabel);
-            headerBox.Add(subtitleLabel);
             root.Add(headerBox);
 
             // --- Hierarchy Status & Rescan Button ---
@@ -75,91 +70,70 @@ namespace Plugins.Outline.Editor
             statusBar.Add(rescanBtn);
             root.Add(statusBar);
 
-            // --- Presets Section ---
-            var presetsBox = new VisualElement();
-            presetsBox.style.borderTopWidth = 1;
-            presetsBox.style.borderBottomWidth = 1;
-            presetsBox.style.borderTopColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-            presetsBox.style.borderBottomColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-            presetsBox.style.paddingTop = 6;
-            presetsBox.style.paddingBottom = 6;
-            presetsBox.style.marginBottom = 8;
-
-            var presetsTitle = new Label("Quick Presets");
-            presetsTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
-            presetsTitle.style.marginBottom = 4;
-            presetsBox.Add(presetsTitle);
-
-            var presetBtnRow = new VisualElement();
-            presetBtnRow.style.flexDirection = FlexDirection.Row;
-            presetBtnRow.style.flexWrap = Wrap.Wrap;
-
-            var lootBtn = new Button(() => ApplyPresetToTargets(mo => mo.ApplyPresetLootPickup())) { text = "Loot Pickup" };
-            lootBtn.style.flexGrow = 1;
-            lootBtn.style.height = 24;
-
-            var xrayBtn = new Button(() => ApplyPresetToTargets(mo => mo.ApplyPresetTacticalXRay())) { text = "Tactical X-Ray" };
-            xrayBtn.style.flexGrow = 1;
-            xrayBtn.style.height = 24;
-
-            var holoBtn = new Button(() => ApplyPresetToTargets(mo => mo.ApplyPresetHologram())) { text = "Hologram" };
-            holoBtn.style.flexGrow = 1;
-            holoBtn.style.height = 24;
-
-            var silBtn = new Button(() => ApplyPresetToTargets(mo => mo.ApplyPresetSolidSilhouette())) { text = "Silhouette Only" };
-            silBtn.style.flexGrow = 1;
-            silBtn.style.height = 24;
-
-            presetBtnRow.Add(lootBtn);
-            presetBtnRow.Add(xrayBtn);
-            presetBtnRow.Add(holoBtn);
-            presetBtnRow.Add(silBtn);
-            presetsBox.Add(presetBtnRow);
-            root.Add(presetsBox);
+            // --- Interactive Runtime Triggers ---
+            var triggersBox = new VisualElement();
+            triggersBox.style.flexDirection = FlexDirection.Row;
+            triggersBox.style.marginBottom = 8;
 
             // --- Outline Section ---
-            var outlineFoldout = new Foldout { text = "Outline Settings", value = true };
+            var outlineFoldout = new Foldout { text = "Outline Appearance", value = true };
             outlineFoldout.style.marginBottom = 6;
-
-            var outlineModeProp = serializedObject.FindProperty("outlineMode");
-            var outlineColorProp = serializedObject.FindProperty("outlineColor");
-            var outlineWidthProp = serializedObject.FindProperty("outlineWidth");
-            var widthModeProp = serializedObject.FindProperty("widthMode");
-            var stencilRefProp = serializedObject.FindProperty("stencilReference");
-
-            outlineFoldout.Add(new PropertyField(outlineModeProp));
-            outlineFoldout.Add(new PropertyField(outlineColorProp));
-            outlineFoldout.Add(new PropertyField(outlineWidthProp));
-            outlineFoldout.Add(new PropertyField(widthModeProp));
-            outlineFoldout.Add(new PropertyField(stencilRefProp));
+            outlineFoldout.Add(new PropertyField(serializedObject.FindProperty("outlineMode")));
+            outlineFoldout.Add(new PropertyField(serializedObject.FindProperty("outlineColor")));
+            outlineFoldout.Add(new PropertyField(serializedObject.FindProperty("outlineWidth")));
+            outlineFoldout.Add(new PropertyField(serializedObject.FindProperty("widthMode")));
+            outlineFoldout.Add(new PropertyField(serializedObject.FindProperty("stencilReference")));
             root.Add(outlineFoldout);
 
             // --- Surface Fill Section ---
             var fillFoldout = new Foldout { text = "Surface Fill & Scrolling Patterns", value = true };
             fillFoldout.style.marginBottom = 6;
-
-            var enableFillProp = serializedObject.FindProperty("enableSurfaceFill");
-            var fillColorProp = serializedObject.FindProperty("fillColor");
-            var fillSecColorProp = serializedObject.FindProperty("fillSecondaryColor");
-            var fillPatternProp = serializedObject.FindProperty("fillPattern");
-            var fillTexProp = serializedObject.FindProperty("fillTexture");
-            var fillTilingProp = serializedObject.FindProperty("fillTiling");
-            var fillAngleProp = serializedObject.FindProperty("fillAngle");
-            var fillSpeedProp = serializedObject.FindProperty("fillScrollSpeed");
-            var fillSpaceProp = serializedObject.FindProperty("fillSpace");
-            var fillOcclusionProp = serializedObject.FindProperty("fillOcclusion");
-
-            fillFoldout.Add(new PropertyField(enableFillProp));
-            fillFoldout.Add(new PropertyField(fillColorProp));
-            fillFoldout.Add(new PropertyField(fillSecColorProp));
-            fillFoldout.Add(new PropertyField(fillPatternProp));
-            fillFoldout.Add(new PropertyField(fillTexProp));
-            fillFoldout.Add(new PropertyField(fillTilingProp));
-            fillFoldout.Add(new PropertyField(fillAngleProp));
-            fillFoldout.Add(new PropertyField(fillSpeedProp));
-            fillFoldout.Add(new PropertyField(fillSpaceProp));
-            fillFoldout.Add(new PropertyField(fillOcclusionProp));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("enableSurfaceFill")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillColor")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillSecondaryColor")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillPattern")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fresnelPower")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillTexture")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillTiling")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillAngle")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillScrollSpeed")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillSpace")));
+            fillFoldout.Add(new PropertyField(serializedObject.FindProperty("fillOcclusion")));
             root.Add(fillFoldout);
+
+            // --- Animation & Pulse Section ---
+            var animFoldout = new Foldout { text = "Animation & Pulse", value = false };
+            animFoldout.style.marginBottom = 6;
+            animFoldout.Add(new PropertyField(serializedObject.FindProperty("pulseEnabled")));
+            animFoldout.Add(new PropertyField(serializedObject.FindProperty("pulseSpeed")));
+            animFoldout.Add(new PropertyField(serializedObject.FindProperty("pulseAmplitude")));
+            root.Add(animFoldout);
+
+            // --- Stylized Jitter Wobble Section ---
+            var jitterFoldout = new Foldout { text = "Stylized Wobble (Spider-Verse Jitter)", value = false };
+            jitterFoldout.style.marginBottom = 6;
+            jitterFoldout.Add(new PropertyField(serializedObject.FindProperty("jitterEnabled")));
+            jitterFoldout.Add(new PropertyField(serializedObject.FindProperty("jitterSpeed")));
+            jitterFoldout.Add(new PropertyField(serializedObject.FindProperty("jitterFrequency")));
+            jitterFoldout.Add(new PropertyField(serializedObject.FindProperty("jitterScale")));
+            jitterFoldout.Add(new PropertyField(serializedObject.FindProperty("jitterFramerate")));
+            root.Add(jitterFoldout);
+
+            // --- Distance Fading Section ---
+            var distFoldout = new Foldout { text = "Distance Fading", value = false };
+            distFoldout.style.marginBottom = 6;
+            distFoldout.Add(new PropertyField(serializedObject.FindProperty("distanceFadeEnabled")));
+            distFoldout.Add(new PropertyField(serializedObject.FindProperty("fadeMinDistance")));
+            distFoldout.Add(new PropertyField(serializedObject.FindProperty("fadeMaxDistance")));
+            root.Add(distFoldout);
+
+            // --- Hierarchy Filtering Section ---
+            var filterFoldout = new Foldout { text = "Hierarchy & Filtering", value = false };
+            filterFoldout.style.marginBottom = 6;
+            filterFoldout.Add(new PropertyField(serializedObject.FindProperty("includeLayers")));
+            filterFoldout.Add(new PropertyField(serializedObject.FindProperty("excludedKeywords")));
+            filterFoldout.Add(new PropertyField(serializedObject.FindProperty("ignoredRenderers")));
+            root.Add(filterFoldout);
 
             // --- Live Update Callbacks ---
             root.TrackSerializedObjectValue(serializedObject, so =>
