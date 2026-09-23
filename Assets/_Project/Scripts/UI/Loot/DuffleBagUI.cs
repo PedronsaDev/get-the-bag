@@ -20,6 +20,9 @@ public class DuffleBagUI : MonoBehaviour
     [Header("Weight Progress Bar")] 
     [SerializeField] private Image _weightFillBar;
     
+    [Header("Throw Progress Bar")]
+    [SerializeField] private Image _throwFillBar;
+    
     [Header("Visual Settings")]
     [SerializeField] private Gradient _weightBarGradient;
     [SerializeField] private float _fadeDuration;

@@ -1,4 +1,3 @@
-using System;
 using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;

@@ -432,10 +432,11 @@ MonoBehaviour:
   _invertedPathToNearestParent: 
   _directChildren: []
   _inputProvider: {fileID: 3432939826793728204}
+  _interactor: {fileID: 5463135704799499700}
   _maxCapacityKg: 30
   _maxChargeDuration: 1
   _duffleBagPrefab: {fileID: 5815843284099628978, guid: e6fcb1b8b113d5846ba2f627f83a5bff, type: 3}
-  _throwSpeed: 9
+  _throwSpeed: 1
   _throwUpwardSpeed: 2.5
   _dropSpawnPoint: {fileID: 960240798095504355}
   _dropSpawnPointOffset: {x: 0, y: -0.2, z: 0}

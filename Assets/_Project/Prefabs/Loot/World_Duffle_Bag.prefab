@@ -202,15 +202,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp-firstpass::Outline
   outlineMode: 1
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 10
+  outlineColor: {r: 1, g: 0.7300706, b: 0.28773582, a: 1}
+  outlineWidth: 5
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
-  serializedMeshFilters:
-  - {fileID: 2215230963762530589}
-  serializedOriginalMeshes:
-  - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &8816106590378209030
 GameObject:
   m_ObjectHideFlags: 0

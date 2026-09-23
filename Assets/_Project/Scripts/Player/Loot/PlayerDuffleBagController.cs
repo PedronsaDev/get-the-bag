@@ -4,6 +4,7 @@ using Project.Core.Input;
 using Project.Core.UI;
 using Project.Loot;
 using Project.Player.Input;
+using Project.Player.Interaction;
 using PurrNet;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
 {
     [Header("References")]
     [SerializeField] private LocalPlayerInputProvider _inputProvider;
+    [SerializeField] private PlayerInteractor _interactor;
     
     [Header("Capacity & Weight")] 
     [SerializeField] private float _maxCapacityKg = 30.0f;
@@ -64,6 +66,9 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
         if (!_inputProvider) 
             _inputProvider = GetComponent<LocalPlayerInputProvider>();
 
+        if (!_interactor) 
+            _interactor = GetComponent<PlayerInteractor>();
+
         _hasBag.onChanged += HandleHasBagChanged;
         _currentWeight.onChanged += HandleWeightChanged;
         _currentValue.onChanged += HandleValueChanged;
@@ -91,7 +96,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
 
     private void ProcessThrowInput(PlayerInputData input, float deltaTime)
     {
-        if (!_hasBag.value)
+        if (!_hasBag.value && _interactor.CurrentTarget != null)
         {
             _throwChargeTimer = 0f;
             return;

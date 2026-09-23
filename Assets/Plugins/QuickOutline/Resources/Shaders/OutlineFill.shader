@@ -1,91 +1,81 @@
+﻿//
+//  OutlineFill.shader
+//  QuickOutline
+//
+//  Created by Chris Nolet on 2/21/18.
+//  Copyright © 2018 Chris Nolet. All rights reserved.
+//
+
 Shader "Custom/Outline Fill" {
-    Properties {
-        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 8
-        _OutlineColor("Outline Color", Color) = (1, 1, 1, 1)
-        _OutlineWidth("Outline Width", Range(0, 10)) = 2
+  Properties {
+    [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 0
+
+    _OutlineColor("Outline Color", Color) = (1, 1, 1, 1)
+    _OutlineWidth("Outline Width", Range(0, 10)) = 2
+  }
+
+  SubShader {
+    Tags {
+      "Queue" = "Transparent+110"
+      "RenderType" = "Transparent"
+      "DisableBatching" = "True"
     }
 
-    SubShader {
-        Tags {
-            "RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Transparent+110"
-            "RenderType" = "Transparent"
-        }
+    Pass {
+      Name "Fill"
+      Cull Off
+      ZTest [_ZTest]
+      ZWrite Off
+      Blend SrcAlpha OneMinusSrcAlpha
+      ColorMask RGB
 
-        Pass {
-            Name "OutlineFill"
-            Cull Off
-            ZTest [_ZTest]
-            ZWrite Off
-            Blend SrcAlpha OneMinusSrcAlpha
-            ColorMask RGB
+      Stencil {
+        Ref 1
+        Comp NotEqual
+      }
 
-            Stencil {
-                Ref 32
-                ReadMask 32
-                Comp NotEqual
-            }
+      CGPROGRAM
+      #include "UnityCG.cginc"
 
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma multi_compile_instancing
+      #pragma vertex vert
+      #pragma fragment frag
 
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+      struct appdata {
+        float4 vertex : POSITION;
+        float3 normal : NORMAL;
+        float3 smoothNormal : TEXCOORD3;
+        UNITY_VERTEX_INPUT_INSTANCE_ID
+      };
 
-            struct Attributes {
-                float4 positionOS   : POSITION;
-                float3 normalOS     : NORMAL;
-                float3 smoothNormal : TEXCOORD3;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+      struct v2f {
+        float4 position : SV_POSITION;
+        fixed4 color : COLOR;
+        UNITY_VERTEX_OUTPUT_STEREO
+      };
 
-            struct Varyings {
-                float4 positionCS : SV_POSITION;
-                half4 color       : COLOR;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
+      uniform fixed4 _OutlineColor;
+      uniform float _OutlineWidth;
 
-            CBUFFER_START(UnityPerMaterial)
-                half4 _OutlineColor;
-                float _OutlineWidth;
-                float _ZTest;
-            CBUFFER_END
+      v2f vert(appdata input) {
+        v2f output;
 
-            Varyings vert(Attributes input) {
-                Varyings output = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+        UNITY_SETUP_INSTANCE_ID(input);
+        UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-                // Extract pure unit rotation axes to eliminate non-uniform scale distortion
-                float3 axisX = normalize(mul(GetObjectToWorldMatrix(), float4(1.0, 0.0, 0.0, 0.0)).xyz);
-                float3 axisY = normalize(mul(GetObjectToWorldMatrix(), float4(0.0, 1.0, 0.0, 0.0)).xyz);
-                float3 axisZ = normalize(mul(GetObjectToWorldMatrix(), float4(0.0, 0.0, 1.0, 0.0)).xyz);
+        float3 normal = any(input.smoothNormal) ? input.smoothNormal : input.normal;
+        float3 viewPosition = UnityObjectToViewPos(input.vertex);
+        float3 viewNormal = normalize(mul((float3x3)UNITY_MATRIX_IT_MV, normal));
 
-                float3 normalOS = any(input.smoothNormal) ? input.smoothNormal : input.normalOS;
-                float3 normalWS = normalize(normalOS.x * axisX + normalOS.y * axisY + normalOS.z * axisZ);
-                float3 normalVS = TransformWorldToViewNormal(normalWS, true);
+        output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth / 1000.0);
+        output.color = _OutlineColor;
 
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                float3 positionVS = TransformWorldToView(positionWS);
+        return output;
+      }
 
-                // Extrude in 3D view space: -positionVS.z is the depth in front of the camera
-                float depth = max(-positionVS.z, 0.01);
-                float3 extrudedVS = positionVS + normalVS * (depth * (_OutlineWidth / 1000.0));
-
-                output.positionCS = TransformWViewToHClip(extrudedVS);
-                output.color = _OutlineColor;
-
-                return output;
-            }
-
-            half4 frag(Varyings input) : SV_Target {
-                UNITY_SETUP_INSTANCE_ID(input);
-                return input.color;
-            }
-            ENDHLSL
-        }
+      fixed4 frag(v2f input) : SV_Target {
+        return input.color;
+      }
+      ENDCG
     }
+  }
 }

@@ -202,7 +202,7 @@
                     "id": "a5b311ff-9292-42e3-9584-de22990d860d",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "initialStateCheck": false,
                     "priority": 0
                 }
@@ -827,8 +827,8 @@
                 {
                     "name": "",
                     "id": "5212fb5a-560e-4241-99b1-ab7eb241f200",
-                    "path": "<Keyboard>/e",
-                    "interactions": "Hold",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "DropBag",
