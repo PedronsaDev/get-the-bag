@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Project.AI.Cover
@@ -72,34 +71,5 @@ public class CoverPoint : MonoBehaviour
         _reservedBy = default;
         _reserveExpirationTime = 0f;
     }
-
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(Position, 0.5f);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(Position, Position + Forward);
-
-        if (_availablePeeks.HasFlag(CoverPeekDirection.Left))
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(Position, Position + Quaternion.Euler(0, -45, 0) * Forward);
-        }
-
-        if (_availablePeeks.HasFlag(CoverPeekDirection.Right))
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(Position, Position + Quaternion.Euler(0, 45, 0) * Forward);
-        }
-
-        if (_availablePeeks.HasFlag(CoverPeekDirection.Over))
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(Position, Position + Vector3.up);
-        }
-    }
-#endif
 }
 }

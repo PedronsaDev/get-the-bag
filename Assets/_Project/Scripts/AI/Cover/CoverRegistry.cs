@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Project.AI.Cover
 {
-internal class CoverRegistry : MonoBehaviour
+public class CoverRegistry : MonoBehaviour
 {
     public static CoverRegistry Instance { get; private set; }
     
@@ -26,6 +25,8 @@ internal class CoverRegistry : MonoBehaviour
         {
             Instance = null;
         }
+        
+        _allPoints.Clear();
     }
 
     public static void Register(CoverPoint point)
@@ -43,14 +44,21 @@ internal class CoverRegistry : MonoBehaviour
     public static int GetCoverPointsInRangeNonAlloc(Vector3 center, float radius, List<CoverPoint> resultsBuffer)
     {
         resultsBuffer.Clear();
+        
         float radiusSqr = radius * radius;
 
-        for (int i = 0; i < _allPoints.Count; i++)
+        for (int i = _allPoints.Count - 1; i >= 0; i--)
         {
             var point = _allPoints[i];
-            if (!point || point.IsReserved) 
+            if (!point)
+            {
+                _allPoints.RemoveAt(i);
                 continue;
-            
+            }
+
+            if (point.IsReserved)
+                continue;
+
             float distSqr = (point.Position - center).sqrMagnitude;
             if (distSqr <= radiusSqr)
             {
@@ -59,6 +67,18 @@ internal class CoverRegistry : MonoBehaviour
         }
 
         return resultsBuffer.Count;
+    }
+
+    private static void PruneInvalidPoints()
+    {
+        for (int i = _allPoints.Count - 1; i >= 0; i--)
+        {
+            var point = _allPoints[i];
+            if (!point)
+            {
+                continue;
+            }
+        }
     }
 }
 }
