@@ -1,3 +1,4 @@
+using System;
 using Project.AI.Blackboard;
 using Project.AI.Configuration;
 using Project.AI.Locomotion;
@@ -23,6 +24,8 @@ public class AIWeaponExecutor : NetworkBehaviour
     private int _shotsFiredInCurrentBurst;
     private int _targetBurstCount;
     private bool _isPausingBetweenBursts;
+    
+    public event Action OnBurstCompleted;
 
     private void Awake()
     {
@@ -63,10 +66,7 @@ public class AIWeaponExecutor : NetworkBehaviour
         {
             _burstPauseTimer -= deltaTime;
             if (_burstPauseTimer <= 0f)
-            {
                 ResetBurstCycle();
-            } 
-            
             return;
         }
         
@@ -81,8 +81,8 @@ public class AIWeaponExecutor : NetworkBehaviour
 
             if (_shotsFiredInCurrentBurst >= _targetBurstCount)
             {
-                _isPausingBetweenBursts = true;
-                _burstPauseTimer = Random.Range(_weaponConfig.MinBurstPause, _weaponConfig.MaxBurstPause);
+                ResetBurstCycle(); // Reset shot counters immediately
+                OnBurstCompleted?.Invoke();
             }
         }
     }

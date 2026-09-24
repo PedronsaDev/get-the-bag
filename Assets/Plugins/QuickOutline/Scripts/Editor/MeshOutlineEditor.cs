@@ -19,27 +19,6 @@ namespace Plugins.Outline.Editor
 
             var outline = target as MeshOutline;
 
-            // --- Header Banner ---
-            var headerBox = new VisualElement();
-            headerBox.style.backgroundColor = new Color(0.15f, 0.2f, 0.26f, 0.85f);
-            headerBox.style.borderTopLeftRadius = 6;
-            headerBox.style.borderTopRightRadius = 6;
-            headerBox.style.borderBottomLeftRadius = 6;
-            headerBox.style.borderBottomRightRadius = 6;
-            headerBox.style.paddingTop = 8;
-            headerBox.style.paddingBottom = 8;
-            headerBox.style.paddingLeft = 10;
-            headerBox.style.paddingRight = 10;
-            headerBox.style.marginBottom = 8;
-
-            var titleLabel = new Label("Mesh Outline");
-            titleLabel.style.fontSize = 14;
-            titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            titleLabel.style.color = new Color(0.4f, 0.85f, 1f);
-
-            headerBox.Add(titleLabel);
-            root.Add(headerBox);
-
             // --- Hierarchy Status & Rescan Button ---
             var statusBar = new VisualElement();
             statusBar.style.flexDirection = FlexDirection.Row;
