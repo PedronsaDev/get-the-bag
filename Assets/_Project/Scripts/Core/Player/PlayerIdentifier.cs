@@ -7,6 +7,10 @@ namespace Project.Core.Player
 [DisallowMultipleComponent]
 public class PlayerIdentifier : NetworkBehaviour
 {
+    [SerializeField] private Transform _playerBody;
+    
+    public Transform BodyTransform => _playerBody ? _playerBody : transform;
+    
     public IPlayerStatusProvider StatusProvider { get; set; }
     
     public bool IsDead => StatusProvider is { IsDead: true };

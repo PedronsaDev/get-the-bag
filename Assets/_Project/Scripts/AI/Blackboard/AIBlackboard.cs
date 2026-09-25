@@ -1,6 +1,7 @@
 using System;
 using NaughtyAttributes;
-using Project.AI.Configuration;
+using Project.AI.Combat;
+using Project.AI.Cover;
 using Project.AI.Perception;
 using UnityEngine;
 
@@ -30,10 +31,15 @@ public class AIBlackboard : MonoBehaviour
     [SerializeField] private bool _wantsToShoot;
     [SerializeField] private bool _inCover;
     [SerializeField] private Vector3 _coverPosition;
+    
+    [Header("Cover State")]
+    [Expandable]
+    [SerializeField] private CoverScoringConfig _coverScoringConfig;
 
     // Public Accessors (Properties)
     public AIMovementConfig MovementConfig => _movementConfig;
-    
+    public CoverScoringConfig CoverScoringConfig => _coverScoringConfig;
+    public Vector3 AgentPosition => transform.position;
     public GameObject Target => _target;
     public Vector3 TargetPosition => _targetPosition;
     public bool HasLineOfSight => _hasLineOfSight;

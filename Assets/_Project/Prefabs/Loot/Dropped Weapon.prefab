@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 7522907986662860701}
   - component: {fileID: 1734399901596890560}
   m_Layer: 15
-  m_Name: Dropped_Weapon
+  m_Name: Dropped Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

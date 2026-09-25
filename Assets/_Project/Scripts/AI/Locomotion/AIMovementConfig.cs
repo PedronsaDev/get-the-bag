@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Project.AI.Configuration
+namespace Project.AI.Combat
 {
-[CreateAssetMenu(fileName = "AIMovementConfig", menuName = "AI/Configuration/AIMovementConfig", order = 1)]
+[CreateAssetMenu(fileName = "AIMovementConfig", menuName = "AI/AIMovementConfig", order = 1)]
 public class AIMovementConfig : ScriptableObject
 {
     public float PatrolSpeed = 2.0f;

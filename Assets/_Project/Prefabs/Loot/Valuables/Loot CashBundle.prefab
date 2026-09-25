@@ -464,7 +464,7 @@ GameObject:
   - component: {fileID: 3578157847499447045}
   - component: {fileID: 8401159940546470499}
   m_Layer: 15
-  m_Name: Loot_CashBundle
+  m_Name: Loot CashBundle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -525,7 +525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.MeshOutline
   outlineMode: 1
   outlineColor: {r: 0.2, g: 0.85, b: 1, a: 1}
-  outlineWidth: 6
+  outlineWidth: 10
   widthMode: 0
   stencilReference: 32
   enableSurfaceFill: 0
@@ -565,7 +565,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3225863096285751907}
   m_Layer: 15
-  m_Name: Mesh_Root
+  m_Name: Mesh Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

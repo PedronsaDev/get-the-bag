@@ -314,7 +314,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4206203008439415999, guid: 0b078c25882fbb14b82fafdec9f46193, type: 3}
       propertyPath: m_Name
-      value: Debug_Console
+      value: Debug Console
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -450,7 +450,7 @@ GameObject:
   - component: {fileID: 254030406}
   - component: {fileID: 254030405}
   m_Layer: 0
-  m_Name: Data_Persistence_Manager
+  m_Name: Data Persistence Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1238,7 +1238,7 @@ GameObject:
   - component: {fileID: 459383416}
   - component: {fileID: 459383419}
   m_Layer: 0
-  m_Name: Network_Manager
+  m_Name: Network Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1476,7 +1476,7 @@ GameObject:
   - component: {fileID: 553849293}
   - component: {fileID: 553849292}
   m_Layer: 0
-  m_Name: Scene_Coordinator
+  m_Name: Scene Coordinator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2131,7 +2131,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6028404867450372460, guid: e6fcb1b8b113d5846ba2f627f83a5bff, type: 3}
       propertyPath: m_Name
-      value: World_Duffle_Bag
+      value: World Duffle Bag
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2677,7 +2677,7 @@ GameObject:
   - component: {fileID: 1153513722}
   - component: {fileID: 1153513725}
   m_Layer: 0
-  m_Name: Projectile_Pools
+  m_Name: Projectile Pools
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2970,7 +2970,7 @@ GameObject:
   - component: {fileID: 1329466816}
   - component: {fileID: 1329466817}
   m_Layer: 0
-  m_Name: Player_Spawner
+  m_Name: Player Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3091,7 +3091,7 @@ GameObject:
   - component: {fileID: 1431839815}
   - component: {fileID: 1431839814}
   m_Layer: 0
-  m_Name: Player_Profile_Manager
+  m_Name: Player Profile Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3746,7 +3746,7 @@ GameObject:
   - component: {fileID: 1702452411}
   - component: {fileID: 1702452410}
   m_Layer: 0
-  m_Name: AI_Perception_Bus
+  m_Name: AI Perception Bus
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3913,7 +3913,7 @@ GameObject:
   - component: {fileID: 1748027399}
   - component: {fileID: 1748027398}
   m_Layer: 0
-  m_Name: Train_Transit_Controller
+  m_Name: Train Transit Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4017,11 +4017,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5208718796380851908, guid: 4f1c26e91dacfde4184a0f1b416a117d, type: 3}
       propertyPath: m_Name
-      value: Loot_CashBundle
-      objectReference: {fileID: 0}
-    - target: {fileID: 8401159940546470499, guid: 4f1c26e91dacfde4184a0f1b416a117d, type: 3}
-      propertyPath: outlineWidth
-      value: 10
+      value: Loot CashBundle
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4314,7 +4310,7 @@ GameObject:
   - component: {fileID: 2012273788}
   - component: {fileID: 2012273791}
   m_Layer: 15
-  m_Name: Train_Route_Console
+  m_Name: Train Route Console
   m_TagString: Untagged
   m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -4441,7 +4437,7 @@ GameObject:
   - component: {fileID: 2031498155}
   - component: {fileID: 2031498154}
   m_Layer: 0
-  m_Name: Cover Handler
+  m_Name: Cover Registry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4626,14 +4622,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 495561040757732385, guid: 6cf9909c3b17dee47bdb7d963eb82e10, type: 3}
-      propertyPath: m_CullingMask.m_Bits
-      value: 42999
-      objectReference: {fileID: 0}
-    - target: {fileID: 1794289604096056812, guid: 6cf9909c3b17dee47bdb7d963eb82e10, type: 3}
-      propertyPath: m_CullingMask.m_Bits
-      value: 4096
-      objectReference: {fileID: 0}
     - target: {fileID: 3085508197194574339, guid: 6cf9909c3b17dee47bdb7d963eb82e10, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1000
@@ -4676,7 +4664,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8252767990228182368, guid: 6cf9909c3b17dee47bdb7d963eb82e10, type: 3}
       propertyPath: m_Name
-      value: Camera_Rig
+      value: Camera Rig
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4733,13 +4721,75 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 998437978610959821, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
       propertyPath: m_Name
-      value: AI_Test_Enemy
+      value: AI Test Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 998437978610959821, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+      insertIndex: 8
+      addedObject: {fileID: 6821849007443681888}
   m_SourcePrefab: {fileID: 100100000, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+--- !u!1 &6821849007443681887 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 998437978610959821, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+  m_PrefabInstance: {fileID: 6821849007443681886}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6821849007443681888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6821849007443681887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db01e865b7e00c145ad6dda1f34e1341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Combat.AIWeaponExecutor
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _blackboard: {fileID: 6821849007443681891}
+  _aimController: {fileID: 6821849007443681890}
+  _weaponConfig: {fileID: 11400000, guid: bf0fa792ece192b46a1da915c09fa919, type: 2}
+  _muzzlePoint: {fileID: 6821849007443681889}
+--- !u!4 &6821849007443681889 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6195231419456661335, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+  m_PrefabInstance: {fileID: 6821849007443681886}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6821849007443681890 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4953292188470027647, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+  m_PrefabInstance: {fileID: 6821849007443681886}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6821849007443681887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d22768c3ea0a6841a450884bd8c681c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Locomotion.AIAimLookController
+--- !u!114 &6821849007443681891 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3167904820004691428, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+  m_PrefabInstance: {fileID: 6821849007443681886}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6821849007443681887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbef339113cd72e4a9bdf65bec4c113f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Blackboard.AIBlackboard
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -4756,8 +4806,8 @@ SceneRoots:
   - {fileID: 553849293}
   - {fileID: 1748027399}
   - {fileID: 1702452411}
+  - {fileID: 2031498155}
   - {fileID: 6821849007443681886}
   - {fileID: 784816557}
   - {fileID: 1787084975}
-  - {fileID: 2031498155}
   - {fileID: 402678069}

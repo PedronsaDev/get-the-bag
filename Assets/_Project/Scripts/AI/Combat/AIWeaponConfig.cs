@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Project.AI.Configuration
+namespace Project.AI.Combat
 {
-[CreateAssetMenu(fileName = "AIWeaponConfig", menuName = "AI/Configuration/AIWeaponConfig", order = 2)]
+[CreateAssetMenu(fileName = "AIWeaponConfig", menuName = "AI/AIWeaponConfig", order = 2)]
 public class AIWeaponConfig : ScriptableObject
 {
     [Header("Damage Tuning")]

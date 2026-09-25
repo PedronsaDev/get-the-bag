@@ -1021,7 +1021,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6195231419456661335}
   m_Layer: 6
-  m_Name: Visual_Root
+  m_Name: Visual Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3199,7 +3199,7 @@ GameObject:
   - component: {fileID: 8581748609379881303}
   - component: {fileID: 1150621334767751477}
   m_Layer: 6
-  m_Name: Player-Model
+  m_Name: Player Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

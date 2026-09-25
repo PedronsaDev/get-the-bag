@@ -11,11 +11,11 @@ public static class CoverBakerEngine
     public struct BakeSettings
     {
         public LayerMask ObstacleMask;
-        public float StepInterval; // Distance between probe points along wall (default: 1.0m)
-        public float StandoffDistance; // Offset from wall surface (default: 0.35m)
-        public float LowCoverHeight; // Test ray height for waist cover (default: 1.1m)
-        public float HighCoverHeight; // Test ray height for standing cover (default: 2.0m)
-        public float MinSpacingBetweenPointsSqr; // Deduplication threshold (default: 0.64m = 0.8m dist)
+        public float StepInterval; 
+        public float StandoffDistance; 
+        public float LowCoverHeight; 
+        public float HighCoverHeight; 
+        public float MinSpacingBetweenPointsSqr; 
     }
     
     private struct FaceSegment
@@ -53,7 +53,6 @@ public static class CoverBakerEngine
     float probeOffset = 0.5f;
     int count = 0;
 
-    // Define the 4 perimeter probe lines
     var faces = new FaceSegment[]
     {
         new() { Start = new Vector3(b.min.x, y, b.max.z + probeOffset), End = new Vector3(b.max.x, y, b.max.z + probeOffset), InwardDir = Vector3.back },
@@ -67,39 +66,34 @@ public static class CoverBakerEngine
         float length = Vector3.Distance(face.Start, face.End);
         Vector3 stepDir = (face.End - face.Start).normalized;
         
-        // Start half-step in to prevent corner overlap
         float currentDist = settings.StepInterval * 0.5f;
 
         while (currentDist < length)
         {
             Vector3 origin = face.Start + stepDir * currentDist;
-            currentDist += settings.StepInterval; // CRITICAL: Advances loop to prevent freeze
+            currentDist += settings.StepInterval;
 
-            // 1. Raycast inward to find exact wall impact
             if (!Physics.Raycast(origin, face.InwardDir, out RaycastHit hit, probeOffset * 2.5f, settings.ObstacleMask))
                 continue;
 
             if (hit.collider != col)
                 continue;
 
-            // 2. Project standoff position to NavMesh
             Vector3 pStandoff = hit.point + hit.normal * settings.StandoffDistance;
             if (!NavMesh.SamplePosition(pStandoff, out NavMeshHit navHit, 0.6f, NavMesh.AllAreas))
                 continue;
 
             Vector3 pCover = navHit.position;
 
-            // 3. Deduplication check: skip if too close to an existing point
             if (IsTooCloseToExisting(pCover, existingPoints, settings.MinSpacingBetweenPointsSqr))
                 continue;
 
-            // 4. Vertical height probes to classify Low vs High
             Vector3 lowProbe = pCover + Vector3.up * settings.LowCoverHeight;
             Vector3 highProbe = pCover + Vector3.up * settings.HighCoverHeight;
 
             bool lowHits = Physics.Raycast(lowProbe, -hit.normal, 1.0f, settings.ObstacleMask);
             if (!lowHits)
-                continue; // Obstacle too low (< 1.1m)
+                continue;
 
             bool highHits = Physics.Raycast(highProbe, -hit.normal, 1.0f, settings.ObstacleMask);
             CoverHeight height = highHits ? CoverHeight.High : CoverHeight.Low;
@@ -108,21 +102,17 @@ public static class CoverBakerEngine
             if (height == CoverHeight.Low)
                 peeks |= CoverPeekDirection.Over;
 
-            // 5. Lateral corner peek detection
             Vector3 rightDir = Vector3.Cross(Vector3.up, hit.normal).normalized;
             Vector3 leftDir = -rightDir;
 
-            // Probe right side for open air
             Vector3 rightProbe = pCover + (rightDir * 0.65f) + (Vector3.up * 1.0f);
             if (!Physics.Raycast(rightProbe, -hit.normal, 1.0f, settings.ObstacleMask))
                 peeks |= CoverPeekDirection.Right;
 
-            // Probe left side for open air
             Vector3 leftProbe = pCover + (leftDir * 0.65f) + (Vector3.up * 1.0f);
             if (!Physics.Raycast(leftProbe, -hit.normal, 1.0f, settings.ObstacleMask))
                 peeks |= CoverPeekDirection.Left;
 
-            // 6. Instantiate and configure CoverPoint GameObject
             CreateCoverPointObject(container, pCover, hit.normal, height, peeks);
             existingPoints.Add(pCover);
             count++;
@@ -151,7 +141,6 @@ public static class CoverBakerEngine
 
         var cp = go.AddComponent<CoverPoint>();
 
-        // Configure serialized fields reliably via SerializedObject in Editor
         var so = new SerializedObject(cp);
         so.FindProperty("_height").enumValueIndex = (int)height;
         so.FindProperty("_availablePeeks").intValue = (int)peeks;
@@ -187,7 +176,6 @@ public static class CoverBakerEngine
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Pickable)]
     private static void DrawUnselectedCoverPoint(CoverPoint point, GizmoType gizmoType)
     {
-        // Subtle low-cost disk and forward tick on the ground
         Gizmos.color = point.Height == CoverHeight.High 
             ? new Color(0.2f, 0.8f, 1f, 0.5f) 
             : new Color(0.3f, 1f, 0.5f, 0.5f);

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Project.AI.Perception
 {
-[CreateAssetMenu(fileName = "AIVisionConfig", menuName = "AI/Configuration/AIVisionConfig")]
+[CreateAssetMenu(fileName = "AIVisionConfig", menuName = "AI/AIVisionConfig")]
 public class VisionConfig : ScriptableObject
 {
     public float ViewDistance = 40.0f;

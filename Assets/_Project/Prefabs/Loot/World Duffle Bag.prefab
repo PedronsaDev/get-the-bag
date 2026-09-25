@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7720050479156574011}
   m_Layer: 15
-  m_Name: Mesh_Root
+  m_Name: Mesh Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 2698926175765610431}
   - component: {fileID: 389580396729036906}
   m_Layer: 15
-  m_Name: World_Duffle_Bag
+  m_Name: World Duffle Bag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
