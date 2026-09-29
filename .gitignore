@@ -59,9 +59,10 @@ CLAUDE.md
 .continue/
 .cline/
 .roo/
-Docs/
 .vscode/
 *.prompt.md
+
+/Docs/
 
 # Visual Studio cache directory
 .vs/
