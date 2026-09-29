@@ -13,6 +13,8 @@ public class AIBlackboard : MonoBehaviour
     [Header("References")]
     [Expandable]
     [SerializeField] private AIMovementConfig _movementConfig;
+    [Expandable]
+    [SerializeField] private CoverScoringConfig _coverScoringConfig;
     
     [Header("Perception State")] 
     [SerializeField] private GameObject _target;
@@ -31,10 +33,6 @@ public class AIBlackboard : MonoBehaviour
     [SerializeField] private bool _wantsToShoot;
     [SerializeField] private bool _inCover;
     [SerializeField] private Vector3 _coverPosition;
-    
-    [Header("Cover State")]
-    [Expandable]
-    [SerializeField] private CoverScoringConfig _coverScoringConfig;
 
     // Public Accessors (Properties)
     public AIMovementConfig MovementConfig => _movementConfig;

@@ -240,6 +240,7 @@ GameObject:
   - component: {fileID: 3167904820004691428}
   - component: {fileID: 7149252034832673038}
   - component: {fileID: 4953292188470027647}
+  - component: {fileID: 1098492083617536597}
   - component: {fileID: 4412340493478600296}
   - component: {fileID: 247758372139287770}
   m_Layer: 6
@@ -392,6 +393,7 @@ MonoBehaviour:
   _wantsToShoot: 0
   _inCover: 0
   _coverPosition: {x: 0, y: 0, z: 0}
+  _coverScoringConfig: {fileID: 0}
 --- !u!114 &7149252034832673038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -433,6 +435,33 @@ MonoBehaviour:
   _turnSpeedDegrees: 360
   _aimHeightOffset: 1.4
   _aimAlignmentThresholdDot: 0.96
+--- !u!114 &1098492083617536597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 998437978610959821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db01e865b7e00c145ad6dda1f34e1341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Combat.AIWeaponExecutor
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _blackboard: {fileID: 3167904820004691428}
+  _aimController: {fileID: 4953292188470027647}
+  _weaponConfig: {fileID: 11400000, guid: bf0fa792ece192b46a1da915c09fa919, type: 2}
+  _muzzlePoint: {fileID: 6195231419456661335}
 --- !u!114 &4412340493478600296
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1001,54 +1001,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1530416338}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &402678067
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 402678069}
-  - component: {fileID: 402678068}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &402678068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 402678067}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e62519f4ab51aa49bb4476aa674ae29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.AI::Project.AI.Cover.CoverPoint
-  _height: 0
-  _availablePeeks: 0
-  _reservationTimeout: 5
-  _forward: {x: 0, y: 0, z: 1}
---- !u!4 &402678069
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 402678067}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1014.85645, y: -0, z: -0.33661}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -4723,73 +4675,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: AI Test Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 3167904820004691428, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+      propertyPath: _coverScoringConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: 39d19f3df09a7444993d69656c6d3901, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 998437978610959821, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
-      insertIndex: 8
-      addedObject: {fileID: 6821849007443681888}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
---- !u!1 &6821849007443681887 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 998437978610959821, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
-  m_PrefabInstance: {fileID: 6821849007443681886}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6821849007443681888
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6821849007443681887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db01e865b7e00c145ad6dda1f34e1341, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.AI::Project.AI.Combat.AIWeaponExecutor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _blackboard: {fileID: 6821849007443681891}
-  _aimController: {fileID: 6821849007443681890}
-  _weaponConfig: {fileID: 11400000, guid: bf0fa792ece192b46a1da915c09fa919, type: 2}
-  _muzzlePoint: {fileID: 6821849007443681889}
---- !u!4 &6821849007443681889 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6195231419456661335, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
-  m_PrefabInstance: {fileID: 6821849007443681886}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6821849007443681890 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4953292188470027647, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
-  m_PrefabInstance: {fileID: 6821849007443681886}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6821849007443681887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d22768c3ea0a6841a450884bd8c681c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.AI::Project.AI.Locomotion.AIAimLookController
---- !u!114 &6821849007443681891 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3167904820004691428, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
-  m_PrefabInstance: {fileID: 6821849007443681886}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6821849007443681887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbef339113cd72e4a9bdf65bec4c113f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.AI::Project.AI.Blackboard.AIBlackboard
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -4810,4 +4704,3 @@ SceneRoots:
   - {fileID: 6821849007443681886}
   - {fileID: 784816557}
   - {fileID: 1787084975}
-  - {fileID: 402678069}

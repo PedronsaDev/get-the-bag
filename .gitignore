@@ -62,8 +62,6 @@ CLAUDE.md
 .vscode/
 *.prompt.md
 
-/Docs/
-
 # Visual Studio cache directory
 .vs/
 
