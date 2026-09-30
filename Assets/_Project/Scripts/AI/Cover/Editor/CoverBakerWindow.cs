@@ -23,6 +23,19 @@ public class CoverBakerWindow : EditorWindow
         window.titleContent = new GUIContent("Cover Baker");
         window.minSize = new Vector2(350, 420);
     }
+    
+    [MenuItem("Tools/AI/Toggle Draw Cover Points")]
+    public static void Toggle()
+    {
+        CoverBakerEngine.SetDrawPoints(!CoverBakerEngine.DrawPoints);
+    }
+    
+    public void ToggleDrawPoints()
+    {
+        CoverBakerEngine.SetDrawPoints(!CoverBakerEngine.DrawPoints);
+        _statusLabel.text = CoverBakerEngine.DrawPoints ? "Cover points are now visible." : "Cover points are now hidden.";
+        _statusLabel.style.color = Color.cyan;
+    }
 
     private void CreateGUI()
     {
@@ -80,6 +93,15 @@ public class CoverBakerWindow : EditorWindow
         // 4. Status Box
         _statusLabel = new Label("Ready. Select an environment prop or room root.");
         _statusLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
+        
+        var toggleDrawPointsBtn = new Button(ToggleDrawPoints)
+        {
+            text = "Toggle Cover Points Visibility"
+        };
+        toggleDrawPointsBtn.style.height = 24;
+        toggleDrawPointsBtn.style.marginBottom = 6;
+        root.Add(toggleDrawPointsBtn);
+        
         root.Add(_statusLabel);
     }
 

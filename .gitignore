@@ -61,6 +61,7 @@ CLAUDE.md
 .roo/
 .vscode/
 *.prompt.md
+AI_HANDOVER.md
 
 # Visual Studio cache directory
 .vs/

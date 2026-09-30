@@ -30,7 +30,7 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
         }
         
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);
+        //DontDestroyOnLoad(this.gameObject);
     }
 
     private void OnEnable()

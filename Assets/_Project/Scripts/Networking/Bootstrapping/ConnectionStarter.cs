@@ -67,6 +67,11 @@ public class ConnectionStarter : MonoBehaviour
             return;
         }
 
+        if (_networkManager.isServer || _networkManager.isClient)
+        {
+            return;
+        }
+
         if (!_purrTransport)
         {
             PurrLogger.LogError($"Failed to start connection. {nameof(PurrTransport)} is null!", this);
@@ -82,6 +87,7 @@ public class ConnectionStarter : MonoBehaviour
             StartNormal();
         }
     }
+    
     
     private void StartNormal()
     {

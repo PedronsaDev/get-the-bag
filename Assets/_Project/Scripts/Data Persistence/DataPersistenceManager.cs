@@ -83,7 +83,7 @@ public class DataPersistenceManager : MonoBehaviour
         }
 
         _instance = this;
-        DontDestroyOnLoad(gameObject);
+//        DontDestroyOnLoad(gameObject);
 
         Application.quitting -= HandleApplicationQuitting;
         Application.quitting += HandleApplicationQuitting;

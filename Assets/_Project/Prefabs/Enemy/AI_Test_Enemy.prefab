@@ -381,6 +381,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.AI::Project.AI.Blackboard.AIBlackboard
   _movementConfig: {fileID: 11400000, guid: b5be322daa53e8742bbe86d09eb1ad28, type: 2}
+  _coverScoringConfig: {fileID: 11400000, guid: 39d19f3df09a7444993d69656c6d3901, type: 2}
   _target: {fileID: 0}
   _targetPosition: {x: 0, y: 0, z: 0}
   _hasLineOfSight: 0
@@ -393,7 +394,6 @@ MonoBehaviour:
   _wantsToShoot: 0
   _inCover: 0
   _coverPosition: {x: 0, y: 0, z: 0}
-  _coverScoringConfig: {fileID: 0}
 --- !u!114 &7149252034832673038
 MonoBehaviour:
   m_ObjectHideFlags: 0

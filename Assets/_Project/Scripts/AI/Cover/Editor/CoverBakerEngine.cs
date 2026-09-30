@@ -8,6 +8,8 @@ namespace Project.AI.Cover.Editor
 
 public static class CoverBakerEngine
 {
+    public static bool DrawPoints { get; private set; } = true;
+
     public struct BakeSettings
     {
         public LayerMask ObstacleMask;
@@ -23,6 +25,11 @@ public static class CoverBakerEngine
         public Vector3 Start;
         public Vector3 End;
         public Vector3 InwardDir;
+    }
+    
+    public static void SetDrawPoints(bool draw)
+    {
+        DrawPoints = draw;
     }
 
     public static int BakeForHierarchy(GameObject root, BakeSettings settings)
@@ -176,6 +183,9 @@ public static class CoverBakerEngine
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Pickable)]
     private static void DrawUnselectedCoverPoint(CoverPoint point, GizmoType gizmoType)
     {
+        if (!DrawPoints)
+            return;
+        
         Gizmos.color = point.Height == CoverHeight.High 
             ? new Color(0.2f, 0.8f, 1f, 0.5f) 
             : new Color(0.3f, 1f, 0.5f, 0.5f);

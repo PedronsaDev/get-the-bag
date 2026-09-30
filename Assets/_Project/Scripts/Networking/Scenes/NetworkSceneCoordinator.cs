@@ -36,7 +36,7 @@ namespace Project.Networking.Scenes
             if (!Instance)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
+                //DontDestroyOnLoad(gameObject);
             }
             else if (Instance != this)
             {
@@ -51,7 +51,7 @@ namespace Project.Networking.Scenes
             if (!Instance)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
+                //DontDestroyOnLoad(gameObject);
             }
             else if (Instance != this)
             {

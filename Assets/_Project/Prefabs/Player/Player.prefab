@@ -230,8 +230,8 @@ MonoBehaviour:
   _hitMask:
     serializedVersion: 2
     m_Bits: 576
-  _defaultSlot1Core: {fileID: 11400000, guid: 74828dc434a1b6f4f9b1fc0d2a15f383, type: 2}
-  _defaultSlot2Core: {fileID: 11400000, guid: 1ce3cdb7cdef02a4285079c346dc184e, type: 2}
+  _defaultSlot1Core: {fileID: 0}
+  _defaultSlot2Core: {fileID: 0}
 --- !u!114 &430891073094004469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -762,7 +762,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   _allowJumpingWhenSliding: 1
-  _allowDoubleJump: 1
+  _allowDoubleJump: 0
   _allowWallJump: 0
   _jumpSpeed: 11
   _doubleJumpSpeed: 10
@@ -827,6 +827,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _playerBody: {fileID: 3863812860035546540}
 --- !u!1 &1966898175740947755
 GameObject:
   m_ObjectHideFlags: 0

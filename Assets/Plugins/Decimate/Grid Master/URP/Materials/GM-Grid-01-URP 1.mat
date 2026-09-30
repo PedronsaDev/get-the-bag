@@ -7,13 +7,15 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GM-Grid-26-URP
-  m_Shader: {fileID: -6465566751694194690, guid: 44f8dfd6d74d14469bb0ef07b544f59e, type: 3}
+  m_Name: GM-Grid-01-URP 1
+  m_Shader: {fileID: -6465566751694194690, guid: b4bb8b5c4862a416fa38d705dedc4d96, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _BLEND_MODE_SCREEN
+  - _COORDINATES_OBJECT
   m_InvalidKeywords:
-  - _BLEND_MODE_ADD
+  - _BLEND_MODE_OVERLAY
   - _EMISSION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
@@ -26,20 +28,36 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Base_Texture:
-        m_Texture: {fileID: 2800000, guid: 5a64d6e2a2f3e47b5bd7fefb70dfad1d, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _Emission_Texture:
-        m_Texture: {fileID: 2800000, guid: aa84ae26e60524c918bc2d71ae98862b, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 5a64d6e2a2f3e47b5bd7fefb70dfad1d, type: 3}
+        m_Texture: {fileID: 2800000, guid: bc19c3279968a4cd7ba8bbc70af1138b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Metallic_Texture:
-        m_Texture: {fileID: 2800000, guid: 4370a808eff4549229eed13aafc646db, type: 3}
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Side_Texture:
+        m_Texture: {fileID: 2800000, guid: bc19c3279968a4cd7ba8bbc70af1138b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2D:
+        m_Texture: {fileID: 2800000, guid: 583384ba064432b41891bec94e35c8af, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture_Sides:
+        m_Texture: {fileID: 2800000, guid: 583384ba064432b41891bec94e35c8af, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture_Top:
+        m_Texture: {fileID: 2800000, guid: a7ff24a0f3bd4dd4aaf9265ba8da09ba, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Top_Texture:
+        m_Texture: {fileID: 2800000, guid: bc19c3279968a4cd7ba8bbc70af1138b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -56,21 +74,34 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BLEND_MODE: 0
+    - _BLEND_MODE: 3
     - _BUILTIN_QueueControl: -1
     - _BUILTIN_QueueOffset: 0
-    - _Emission: 1
-    - _Metallic: 1
+    - _Blend_Opacity: 0.5
+    - _COORDINATES: 0
+    - _Dirt: 0
+    - _Dirt_Blend: 0.875
+    - _Dirt_Height: 2
+    - _Edge_Sharpness: 50
+    - _Emission: 0
+    - _Emission_Tiling: 1
+    - _Metallic: 0
+    - _Metallic_Tiling: 1
+    - _Offset: 1.39
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothness: 0
     - _Tiling: 1
     m_Colors:
-    - _Base_Color: {r: 0, g: 0, b: 0, a: 0}
+    - _Dirt_Color: {r: 0.18117811, g: 0.10346209, b: 0.23584908, a: 0}
     - _Emission_Color: {r: 0, g: 0, b: 0, a: 0}
+    - _Side_Color: {r: 0.38039216, g: 0.38039216, b: 0.38039216, a: 0}
+    - _Side_Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _Top_Color: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 0}
+    - _Top_Offset: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &3729133454598192734
+--- !u!114 &427184906883024837
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -83,7 +114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 10
---- !u!114 &6790046976772069195
+--- !u!114 &6692641437153718112
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,5 +125,5 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 639247ca83abc874e893eb93af2b5e44, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Unity.ShaderGraph.Editor::UnityEditor.Rendering.BuiltIn.AssetVersion
   version: 0
