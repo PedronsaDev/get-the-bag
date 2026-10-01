@@ -34,6 +34,11 @@ public class AIBlackboard : MonoBehaviour
     [SerializeField] private bool _inCover;
     [SerializeField] private Vector3 _coverPosition;
 
+    [Header("Cover Stance State")] 
+    [SerializeField] private bool _isPeeking;
+    [SerializeField] private CoverHeight _coverHeight;
+    [SerializeField] private CoverPeekDirection _activePeekDirection;
+
     // Public Accessors (Properties)
     public AIMovementConfig MovementConfig => _movementConfig;
     public CoverScoringConfig CoverScoringConfig => _coverScoringConfig;
@@ -52,6 +57,10 @@ public class AIBlackboard : MonoBehaviour
     public bool WantsToShoot => _wantsToShoot;
     public bool InCover => _inCover;
     public Vector3 CoverPosition => _coverPosition;
+    
+    public bool IsPeeking => _isPeeking;
+    public CoverHeight CoverHeight => _coverHeight;
+    public CoverPeekDirection ActivePeekDirection => _activePeekDirection;
 
     public event Action<GameObject> OnTargetChanged;
     public event Action<AlertState> OnAlertStateChanged;
@@ -67,6 +76,14 @@ public class AIBlackboard : MonoBehaviour
 
         if (targetChanged) 
             OnTargetChanged?.Invoke(newTarget);
+    }
+
+    public void SetCoverStance(bool isPeeking, CoverHeight coverHeight,
+        CoverPeekDirection direction = CoverPeekDirection.None)
+    {
+        _isPeeking = isPeeking;
+        _coverHeight = coverHeight;
+        _activePeekDirection = direction;
     }
     
     public void SetMoveDestination(Vector3 destination, float speed)
