@@ -1,3 +1,4 @@
+using Project.Player.FPSCamera;
 using Project.Player.Input;
 
 namespace Project.Player

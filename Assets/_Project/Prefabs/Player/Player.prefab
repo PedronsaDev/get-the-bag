@@ -754,8 +754,8 @@ MonoBehaviour:
   _sprintSpeedMultiplier: 1.5
   _crouchSpeedMultiplier: 0.5
   _stableMovementSharpness: 15
-  _downhillSpeedMultiplier: 0.4
-  _uphillSpeedPenalty: 0.3
+  _downhillSpeedMultiplier: 0.2
+  _uphillSpeedPenalty: 0
   _airAccelerationSpeed: 15
   _drag: 0.1
   _wallJumpLayerMask:
@@ -1061,7 +1061,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4059090198446306671}
+  - {fileID: 8823753590213702285}
   m_Father: {fileID: 3225786322309376769}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2241172572447419723
@@ -1081,6 +1081,60 @@ MonoBehaviour:
   _tiltSmoothness: 8
   _tiltPivot: {fileID: 4688779203960493711}
   _locomotionController: {fileID: 7482482855676676148}
+--- !u!1 &5270024497065559137
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8823753590213702285}
+  - component: {fileID: 6048315748849366030}
+  m_Layer: 7
+  m_Name: Impact Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8823753590213702285
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270024497065559137}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4059090198446306671}
+  m_Father: {fileID: 4688779203960493711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6048315748849366030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270024497065559137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 478c9fa2b5c1d81459701638ba18c770, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Player::Project.Player.FPSCamera.FPSCameraImpact
+  _impactPivot: {fileID: 8823753590213702285}
+  _locomotionController: {fileID: 7482482855676676148}
+  _landVelocity: -12
+  _jumpVelocity: 10
+  _doubleJumpVelocity: -12
+  _vaultVelocity: -30
+  _impactSpring:
+    Stiffness: 100
+    Damping: 12
 --- !u!1 &5400436632211418639
 GameObject:
   m_ObjectHideFlags: 0
@@ -1106,7 +1160,7 @@ Transform:
   m_GameObject: {fileID: 5400436632211418639}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.37, z: 0}
+  m_LocalPosition: {x: 0, y: 1.341, z: 0.105}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1183,6 +1237,8 @@ MonoBehaviour:
   _inputProvider: {fileID: 3432939826793728204}
   _locomotionController: {fileID: 7482482855676676148}
   _playerFacade: {fileID: 3916750346549361147}
+  _cameraTilt: {fileID: 2241172572447419723}
+  _cameraImpact: {fileID: 6048315748849366030}
 --- !u!1 &6303042502626767974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1639,7 +1695,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2273004474598381845}
-  m_Father: {fileID: 4688779203960493711}
+  m_Father: {fileID: 8823753590213702285}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &3135825993361653433
 PrefabInstance:

@@ -3,7 +3,7 @@ using Project.Player.Input;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Player
+namespace Project.Player.FPSCamera
 {
 public class FPSCameraController : NetworkBehaviour
 {
@@ -30,8 +30,12 @@ public class FPSCameraController : NetworkBehaviour
     [SerializeField] private LocalPlayerInputProvider _inputProvider;
     [SerializeField] private LocomotionController _locomotionController;
     [SerializeField] private PlayerFacade _playerFacade;
+    
+    [Header("Camera References")]
+    [SerializeField] private FPSCameraTilt _cameraTilt;
+    [SerializeField] private FPSCameraImpact _cameraImpact;
 
-    private Camera _cam;
+    private UnityEngine.Camera _cam;
 
     private float _currentPitch;
     private float _currentYaw;
@@ -97,9 +101,13 @@ public class FPSCameraController : NetworkBehaviour
             return;
 
         var dt = Time.deltaTime;
+        
         HandleLookInput();
         HandleDynamicFOV(dt);
         ApplyTransforms(dt);
+        
+        _cameraTilt.OnUpdate(dt);
+        _cameraImpact.OnUpdate(dt);
     }
 
     private void HandleDynamicFOV(float dt)
@@ -123,7 +131,7 @@ public class FPSCameraController : NetworkBehaviour
 
     private void ApplyTransforms(float dt)
     {
-        var targetY = 0f;
+        float targetY;
         var loco = CurrentLocomotionState;
 
         if (loco.IsDowned)

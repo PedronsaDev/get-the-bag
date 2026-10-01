@@ -1,6 +1,7 @@
 using System;
 using Project.Combat;
 using Project.Core.UI;
+using Project.Player.FPSCamera;
 using PurrNet;
 using UnityEngine;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Project.Core.Input;
 using Project.Core.UI;
 using Project.Loot;
+using Project.Player.FPSCamera;
 using Project.Player.Input;
 using Project.Player.Interaction;
 using PurrNet;

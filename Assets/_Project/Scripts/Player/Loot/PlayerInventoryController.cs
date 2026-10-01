@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Project.Combat;
+using Project.Player.FPSCamera;
 using Project.Player.Weapons;
 using PurrNet;
 using UnityEngine;

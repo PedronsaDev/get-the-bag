@@ -143,11 +143,9 @@ public class AICombatState : IAIState
         if (CoverScoringEngine.IsThreatOccluded(_activeCover, blackboard.TargetPosition,
                 blackboard.CoverScoringConfig.ObstacleMask)) return;
         
-        // Edge case: Cover nao eh mais valido
         _activeCover.Release(_entityId);
         _activeCover = null;
 
-        // Passo 1: Tenta atacar o player
         if (CombatTokenDirector.Instance && CombatTokenDirector.Instance.TryAcquireToken(_entityId, CombatTokenType.RangedBurst))
         {
             _hasToken = true;
@@ -155,7 +153,6 @@ public class AICombatState : IAIState
         }
         else
         {
-            // Passo 2: Token negado -> procurar novo cover ou flanquear
             _hasToken = false;
             _stance = CombatStance.FlakingInOpen;
         }
@@ -202,7 +199,7 @@ public class AICombatState : IAIState
                 blackboard.SetCoverStance(isPeeking: true, CoverHeight.Low, CoverPeekDirection.Over);
                 blackboard.SetCombatIntent(shoot: true, inCover: true, coverPos: _activeCover.Position);
             }
-            else // High Cover
+            else
             {
                 if (_activePeekDirection != CoverPeekDirection.None)
                 {
@@ -221,7 +218,7 @@ public class AICombatState : IAIState
                 }
             }
         }
-        else // Hiding / Returning to Anchor
+        else
         {
             if (_activeCover.Height == CoverHeight.Low)
             {
@@ -229,7 +226,7 @@ public class AICombatState : IAIState
                 blackboard.SetCoverStance(isPeeking: false, CoverHeight.Low);
                 blackboard.SetCombatIntent(shoot: false, inCover: true, coverPos: _activeCover.Position);
             }
-            else // High Cover Return
+            else
             {
                 float distToAnchorSqr = (blackboard.AgentPosition - _activeCover.Position).sqrMagnitude;
                 if (distToAnchorSqr > 0.09f)

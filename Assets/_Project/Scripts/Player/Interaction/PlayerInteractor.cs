@@ -1,6 +1,7 @@
 using System;
 using Project.Core.Interaction;
 using Project.Core.UI;
+using Project.Player.FPSCamera;
 using Project.Player.Input;
 using PurrNet;
 using UnityEngine;

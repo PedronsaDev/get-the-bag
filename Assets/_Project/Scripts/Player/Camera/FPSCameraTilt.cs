@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Player
+namespace Project.Player.FPSCamera
 {
 public class FPSCameraTilt : MonoBehaviour
 {
@@ -22,9 +22,8 @@ public class FPSCameraTilt : MonoBehaviour
             _locomotionController = GetComponent<LocomotionController>() ?? GetComponentInParent<LocomotionController>() ?? GetComponentInChildren<LocomotionController>();
     }
 
-    private void Update()
+    public void OnUpdate(float dt)
     {
-        float dt = Time.deltaTime;
         HandleTilt(dt);
         ApplyTransforms();
     }
