@@ -29,7 +29,7 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
     public int ItemCount => _netItemCount.value;
 
     public string InteractionPrompt =>
-        $"Press [F] to pick up Duffle Bag (${_netValue.value} - {_netWeight.value:F1}kg)";
+        $"[F] to pick up Duffle Bag (${_netValue.value} - {_netWeight.value:F1}kg)";
 
     public string HoldPrompt => null;
     public string TargetName => "Duffle Bag";

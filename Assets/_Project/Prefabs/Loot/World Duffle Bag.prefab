@@ -42,8 +42,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1490903314281532965}
   - component: {fileID: 5806624605092260815}
-  - component: {fileID: 5815843284099628978}
   - component: {fileID: 2698926175765610431}
+  - component: {fileID: 5815843284099628978}
   - component: {fileID: 389580396729036906}
   m_Layer: 15
   m_Name: World Duffle Bag
@@ -95,50 +95,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &5815843284099628978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6028404867450372460}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3ce993ab2cdb7f438df18d161f11714, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Loot::Project.Loot.WorldDuffleBag
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _rigidbody: {fileID: 5806624605092260815}
-  _collider: {fileID: 4960941044384002047}
-  _outline: {fileID: 389580396729036906}
-  _netWeight:
-    _value: 0
-    _ownerAuth: 0
-    _ownerOnly: 0
-    _sendIntervalInSeconds: 0
-    _initialValue: 0
-  _netValue:
-    _value: 0
-    _ownerAuth: 0
-    _ownerOnly: 0
-    _sendIntervalInSeconds: 0
-    _initialValue: 0
-  _netItemCount:
-    _value: 0
-    _ownerAuth: 0
-    _ownerOnly: 0
-    _sendIntervalInSeconds: 0
-    _initialValue: 0
 --- !u!114 &2698926175765610431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,6 +145,50 @@ MonoBehaviour:
   _positionChangeThreshold: 0.001
   _rotationChangeThreshold: 0.001
   _velocityStopThreshold: 0.001
+--- !u!114 &5815843284099628978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6028404867450372460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ce993ab2cdb7f438df18d161f11714, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.WorldDuffleBag
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _rigidbody: {fileID: 5806624605092260815}
+  _collider: {fileID: 4960941044384002047}
+  _outline: {fileID: 389580396729036906}
+  _netWeight:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  _netValue:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
+  _netItemCount:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
 --- !u!114 &389580396729036906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203,7 +203,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-firstpass::Outline
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 10
+  outlineWidth: 15
   widthMode: 0
   stencilReference: 32
   enableSurfaceFill: 0
@@ -227,7 +227,7 @@ MonoBehaviour:
   jitterSpeed: 2
   jitterFrequency: 3
   jitterScale: 0.5
-  jitterFramerate: 4
+  jitterFramerate: 5
   includeLayers:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -300,7 +300,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 20d8928fccf864023881243248608e1f, type: 2}
+  - {fileID: 2100000, guid: f961abd46da3c714f900853348237ffd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

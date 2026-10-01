@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e070140f55bacf44b8437a76869fddf, type: 3}
+  m_Name: Loot_GoldBar
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
+  _id: Loot_GoldBar
+  _displayName: Gold Bar
+  _description: A gold bar, worth more than money!
+  _icon: {fileID: 6032170974666196668, guid: 6504898ad77030c41bf2d694c6f54bd8, type: 3}
+  _baseValue: 5000
+  _weightKg: 12.4
+  _category: 0
+  _rarity: 3
+  _worldPrefab: {fileID: 5208718796380851908, guid: c6785e3e328185c43a72318a5dcf0e3c, type: 3}

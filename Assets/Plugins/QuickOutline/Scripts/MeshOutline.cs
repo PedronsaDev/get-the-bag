@@ -65,7 +65,7 @@ namespace Plugins.Outline
         private Color outlineColor = Color.white;
 
         [SerializeField, Range(0f, 50f)]
-        private float outlineWidth = 6f;
+        private float outlineWidth = 15f;
 
         [SerializeField]
         private WidthMode widthMode = WidthMode.ScreenSpacePixels;
@@ -140,16 +140,16 @@ namespace Plugins.Outline
         private bool jitterEnabled = false;
 
         [SerializeField]
-        private float jitterSpeed = 6.0f;
+        private float jitterSpeed = 2.0f;
 
         [SerializeField]
-        private float jitterFrequency = 4.0f;
+        private float jitterFrequency = 3.0f;
 
         [SerializeField, Range(0f, 1f)]
-        private float jitterScale = 0.35f;
+        private float jitterScale = 0.5f;
 
         [SerializeField]
-        private float jitterFramerate = 12.0f;
+        private float jitterFramerate = 5.0f;
 
         #endregion
 
