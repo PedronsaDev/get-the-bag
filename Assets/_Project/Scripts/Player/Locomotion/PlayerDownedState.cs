@@ -2,7 +2,6 @@ using System;
 using Project.Combat;
 using Project.Core;
 using Project.Core.Player;
-using Project.Player.Weapons;
 using PurrNet;
 using UnityEngine;
 
@@ -14,7 +13,6 @@ namespace Project.Player.Locomotion
         [SerializeField] private HealthComponent _healthComponent;
         [SerializeField] private LocomotionController _locomotionController;
         [SerializeField] private PlayerDownedInteractable _playerDownedInteractable;
-        [SerializeField] private PlayerWeaponController _weaponController;
 
         [Header("Settings")]
         [SerializeField] private float _bleedOutTimer = 45f;
@@ -48,9 +46,6 @@ namespace Project.Player.Locomotion
 
             if (!_playerDownedInteractable)
                 _playerDownedInteractable = GetComponentInChildren<PlayerDownedInteractable>() ?? GetComponent<PlayerDownedInteractable>();
-
-            if (!_weaponController)
-                _weaponController = GetComponent<PlayerWeaponController>() ?? GetComponentInParent<PlayerWeaponController>() ?? GetComponentInChildren<PlayerWeaponController>();
 
             var identifier = GetComponentInChildren<PlayerIdentifier>() ?? GetComponent<PlayerIdentifier>();
             if (identifier)
@@ -473,10 +468,10 @@ namespace Project.Player.Locomotion
                     _locomotionController?.ClearDragTarget();
                 }
 
-                if (_weaponController)
-                {
-                    _weaponController.SetDowned(isDown);
-                }
+                // if (_weaponController)
+                // {
+                //     _weaponController.SetDowned(isDown);
+                // }
             }
 
             UpdateInteractableCollider(isDown);

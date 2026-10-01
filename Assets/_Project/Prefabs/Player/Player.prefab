@@ -45,9 +45,6 @@ GameObject:
   - component: {fileID: 3916750346549361147}
   - component: {fileID: 3432939826793728204}
   - component: {fileID: 5463135704799499700}
-  - component: {fileID: 2094813003998146038}
-  - component: {fileID: 2553554251463300523}
-  - component: {fileID: 430891073094004469}
   - component: {fileID: -670673465751686037}
   - component: {fileID: 5744433141554505838}
   - component: {fileID: 5771435480062743233}
@@ -103,7 +100,6 @@ MonoBehaviour:
   _locomotionController: {fileID: 7482482855676676148}
   _interactor: {fileID: 5463135704799499700}
   _targetDetector: {fileID: -670673465751686037}
-  _inventoryController: {fileID: 2094813003998146038}
   _downedState: {fileID: 5771435480062743233}
   _healthComponent: {fileID: 5744433141554505838}
   _profile: {fileID: 3890863234750818640}
@@ -170,81 +166,6 @@ MonoBehaviour:
   _inputProvider: {fileID: 3432939826793728204}
   _playerFacade: {fileID: 3916750346549361147}
   _cameraController: {fileID: 1197550716529269032}
---- !u!114 &2094813003998146038
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1094660744987473108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a020d3494041a546bef8a610e978f81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Player::Project.Player.Loot.PlayerInventory
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _playerWeaponController: {fileID: 2553554251463300523}
-  _dropSpawnPoint: {fileID: 3863812860035546540}
-  _maxEquippedSlots: 2
-  _backpackCapacity: 18
---- !u!114 &2553554251463300523
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1094660744987473108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02a4ee92d8746c74a8ad0b20bafd6d7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Player::Project.Player.Weapons.PlayerWeaponController
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _inventoryController: {fileID: 2094813003998146038}
-  _pickup: {fileID: 1734399901596890560, guid: 81dbb612579037a4ebdef59175954b2f, type: 3}
-  _inputProvider: {fileID: 3432939826793728204}
-  _locomotionController: {fileID: 7482482855676676148}
-  _playerFacade: {fileID: 3916750346549361147}
-  _visualAssembler: {fileID: 430891073094004469}
-  _weaponMount: {fileID: 3002285438313159960}
-  _hitMask:
-    serializedVersion: 2
-    m_Bits: 576
-  _defaultSlot1Core: {fileID: 0}
-  _defaultSlot2Core: {fileID: 0}
---- !u!114 &430891073094004469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1094660744987473108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8cdff5d813b4e0248bf255ffc172abf1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Combat::Project.Combat.WeaponVisualAssembler
-  _visualContainer: {fileID: 3002285438313159960}
 --- !u!114 &-670673465751686037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,7 +267,6 @@ MonoBehaviour:
   _healthComponent: {fileID: 5744433141554505838}
   _locomotionController: {fileID: 7482482855676676148}
   _playerDownedInteractable: {fileID: 9123012756974877717}
-  _weaponController: {fileID: 2553554251463300523}
   _bleedOutTimer: 45
   _reviveHealthPercent: 0.35
   _maxDragDistance: 4.5
@@ -785,7 +705,7 @@ MonoBehaviour:
   _vaultCheckDistance: 1.6
   _minVaultHeight: 1
   _maxVaultHeight: 2.4
-  _vaultDuration: 0.5
+  _vaultDuration: 0.7
   _fallGravityMultiplier: 1
   _slideGravityMultiplier: 2.5
   _gravity: {x: 0, y: -29, z: 0}

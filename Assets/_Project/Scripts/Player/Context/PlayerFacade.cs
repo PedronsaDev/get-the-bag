@@ -19,14 +19,12 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private LocomotionController _locomotionController;
     [SerializeField] private PlayerInteractor _interactor;
     [SerializeField] private PlayerTargetDetector _targetDetector;
-    [SerializeField] private PlayerInventoryController _inventoryController;
     [SerializeField] private PlayerDownedState _downedState;
     [SerializeField] private HealthComponent _healthComponent;
     [SerializeField] private RuntimePlayerProfile _profile;
     [SerializeField] private PlayerDuffleBagController _duffleBagController;
     [SerializeField] private int _remotePlayerLayerIndex;
     
-    public PlayerInventoryController InventoryController => _inventoryController;
     public LocomotionController LocomotionController => _locomotionController;
     public PlayerDownedState DownedState => _downedState;
     public HealthComponent HealthComponent => _healthComponent;
@@ -43,8 +41,6 @@ public class PlayerFacade : NetworkBehaviour
 
     private void Awake()
     {
-        if (!_inventoryController)
-            _inventoryController = GetComponent<PlayerInventoryController>() ?? GetComponentInChildren<PlayerInventoryController>();
         if (!_inputProvider)
             _inputProvider = GetComponent<LocalPlayerInputProvider>() ?? GetComponentInChildren<LocalPlayerInputProvider>();
 
@@ -68,11 +64,11 @@ public class PlayerFacade : NetworkBehaviour
 
     protected override void OnSpawned()
     {
-        this.enabled = isOwner;
+        enabled = isOwner;
         
         if (!isOwner)
         {
-            this.gameObject.layer = _remotePlayerLayerIndex;
+            gameObject.layer = _remotePlayerLayerIndex;
             return;
         }
         
