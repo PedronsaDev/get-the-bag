@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using PedronsaDev.Console;
 using Project.Core.Player;
+using Project.Player.Locomotion;
 using UnityEngine;
 
 namespace Project.Player.Commands

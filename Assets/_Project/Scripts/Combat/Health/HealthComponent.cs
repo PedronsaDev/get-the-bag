@@ -1,14 +1,11 @@
 using System;
+using Project.Combat.Core;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Combat
+namespace Project.Combat.Health
 {
-/// <summary>
-/// Server-authoritative vitality manager supporting health, shields, armor, and elemental interactions.
-/// Works for Players, AI Enemies, Bosses, and interactive entities.
-/// </summary>
 public class HealthComponent : NetworkBehaviour, IDamageable
 {
     [Header("Health Settings")] 

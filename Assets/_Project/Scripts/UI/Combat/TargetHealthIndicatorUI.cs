@@ -1,4 +1,6 @@
 using Project.Combat;
+using Project.Combat.Core;
+using Project.Combat.Health;
 using Project.Player;
 using Project.Player.Detection;
 using UnityEngine;
@@ -158,8 +160,7 @@ namespace Project.UI.Interaction
             _currentTarget.OnShieldChanged += HandleShieldChanged;
             _currentTarget.OnShieldBroken += HandleShieldBroken;
             _currentTarget.OnDeath += HandleDeath;
-
-            // Immediately set current visual values!
+            
             //_shieldBar.SetValues(_currentTarget.CurrentShield, _currentTarget.MaxShield, true);
             //_healthBar.SetValues(_currentTarget.CurrentHealth, _currentTarget.MaxHealth, true);
 

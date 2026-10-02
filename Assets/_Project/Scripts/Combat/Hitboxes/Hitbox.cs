@@ -1,11 +1,9 @@
+using Project.Combat.Core;
+using Project.Combat.Health;
 using UnityEngine;
 
 namespace Project.Combat
 {
-/// <summary>
-/// Locational hitbox router. Attaches to individual body part colliders (Head, Limbs, Armor Plating).
-/// Applies multipliers and flat reductions, tags the HitLocation, and forwards to the owning HealthComponent.
-/// </summary>
 [RequireComponent(typeof(Collider))]
 public class Hitbox : MonoBehaviour, IDamageable
 {
@@ -40,7 +38,7 @@ public class Hitbox : MonoBehaviour, IDamageable
         }
 
         var fallbackDamageable = transform.parent ? transform.parent.GetComponentInParent<IDamageable>() : null;
-        if (fallbackDamageable != null && fallbackDamageable != (IDamageable)this)
+        if (fallbackDamageable != null && (Hitbox)fallbackDamageable != this)
         {
             return fallbackDamageable.TakeDamage(payload);
         }

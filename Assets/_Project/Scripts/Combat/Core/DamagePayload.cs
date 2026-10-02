@@ -2,14 +2,8 @@ using System;
 using PurrNet;
 using UnityEngine;
 
-#pragma warning disable UAC1001 // Unity serializer skips nullable struct, but PurrNet RPC handles it natively
-
-namespace Project.Combat
+namespace Project.Combat.Core
 {
-    /// <summary>
-    /// Encapsulates all data required to execute a hit or attack against an IDamageable entity.
-    /// Fully serializable across network RPCs.
-    /// </summary>
     [Serializable]
     public struct DamagePayload
     {
@@ -40,10 +34,6 @@ namespace Project.Combat
         }
     }
 
-    /// <summary>
-    /// Feedback report generated after damage evaluation.
-    /// Used by UI, audio, hit-markers, damage numbers, and kill counters.
-    /// </summary>
     [Serializable]
     public struct DamageResult
     {

@@ -1298,6 +1298,8 @@ MonoBehaviour:
     SpawnTransform: {fileID: 505244074}
   - ItemDefinition: {fileID: 11400000, guid: 120b5dacb74231e469754c6194b1ff90, type: 2}
     SpawnTransform: {fileID: 19757360}
+  - ItemDefinition: {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
+    SpawnTransform: {fileID: 139020887}
 --- !u!1 &2105472108
 GameObject:
   m_ObjectHideFlags: 0

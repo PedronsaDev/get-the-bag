@@ -1,5 +1,6 @@
 using Project.Core;
 using Project.Player.Input;
+using Project.Player.Locomotion;
 using PurrNet;
 using UnityEngine;
 

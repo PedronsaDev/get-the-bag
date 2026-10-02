@@ -1,3 +1,4 @@
+using Project.Player.Locomotion;
 using UnityEngine;
 
 namespace Project.Player.FPSCamera

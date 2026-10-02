@@ -1,7 +1,7 @@
 using Project.Player.FPSCamera;
 using Project.Player.Input;
 
-namespace Project.Player
+namespace Project.Player.Locomotion
 {
 using System;
 using System.Collections.Generic;

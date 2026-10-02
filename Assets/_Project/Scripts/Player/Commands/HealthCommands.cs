@@ -1,6 +1,8 @@
 using System.Text;
 using PedronsaDev.Console;
 using Project.Combat;
+using Project.Combat.Core;
+using Project.Combat.Health;
 using Project.Core.Player;
 using Project.Player.Locomotion;
 using UnityEngine;
@@ -50,7 +52,7 @@ namespace Project.Player.Commands
                 sb.AppendLine($"IsDowned: {loco.IsDowned} | IsDraggingTeammate: {loco.IsDraggingTeammate}");
             }
 
-            PedronsaDev.Console.Console.Log(sb.ToString());
+            Console.Log(sb.ToString());
         }
 
         [Command("hp_damage", "Deals damage to the player (absorbed by shields first). Usage: hp_damage <amount> [playerId]")]
@@ -61,13 +63,13 @@ namespace Project.Player.Commands
 
             if (!health)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no HealthComponent.");
+                Console.LogError("[Combat & Health] Target has no HealthComponent.");
                 return;
             }
 
             if (health.IsDead || (downed && downed.IsDown.value))
             {
-                PedronsaDev.Console.Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed/dead (HP: {health.CurrentHealth:F1}). Use 'revive' first.");
+                Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed/dead (HP: {health.CurrentHealth:F1}). Use 'revive' first.");
                 return;
             }
 
@@ -82,11 +84,11 @@ namespace Project.Player.Commands
 
             if (!result.Applied)
             {
-                PedronsaDev.Console.Console.LogWarning($"[Combat & Health] Damage was not applied to {player.gameObject.name} (Invulnerable: {health.Invulnerable}, IsDead: {health.IsDead}).");
+                Console.LogWarning($"[Combat & Health] Damage was not applied to {player.gameObject.name} (Invulnerable: {health.Invulnerable}, IsDead: {health.IsDead}).");
                 return;
             }
 
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} damage to {player.gameObject.name} (Shield: -{result.DamageToShield:F1}, HP: -{result.DamageToHealth:F1}) | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
+            Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} damage to {player.gameObject.name} (Shield: -{result.DamageToShield:F1}, HP: -{result.DamageToHealth:F1}) | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
         [Command("hp_true_damage", "Deals true damage directly to health, bypassing shields. Usage: hp_true_damage <amount> [playerId]")]
@@ -97,13 +99,13 @@ namespace Project.Player.Commands
 
             if (!health)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no HealthComponent.");
+                Console.LogError("[Combat & Health] Target has no HealthComponent.");
                 return;
             }
 
             if (health.IsDead || (downed && downed.IsDown.value))
             {
-                PedronsaDev.Console.Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed/dead (HP: {health.CurrentHealth:F1}). Use 'revive' first.");
+                Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed/dead (HP: {health.CurrentHealth:F1}). Use 'revive' first.");
                 return;
             }
 
@@ -118,11 +120,11 @@ namespace Project.Player.Commands
 
             if (!result.Applied)
             {
-                PedronsaDev.Console.Console.LogWarning($"[Combat & Health] Damage was not applied to {player.gameObject.name} (Invulnerable: {health.Invulnerable}, IsDead: {health.IsDead}).");
+                Console.LogWarning($"[Combat & Health] Damage was not applied to {player.gameObject.name} (Invulnerable: {health.Invulnerable}, IsDead: {health.IsDead}).");
                 return;
             }
 
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} TRUE damage to {player.gameObject.name} | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
+            Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} TRUE damage to {player.gameObject.name} | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
         [Command("hp_heal", "Heals the player by specified amount. Usage: hp_heal <amount> [playerId]")]
@@ -133,12 +135,12 @@ namespace Project.Player.Commands
 
             if (!health)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no HealthComponent.");
+                Console.LogError("[Combat & Health] Target has no HealthComponent.");
                 return;
             }
 
             health.RequestHeal(amount);
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Requested {amount:F1} HP heal for {player.gameObject.name}. Current HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
+            Console.Log($"[Combat & Health] Requested {amount:F1} HP heal for {player.gameObject.name}. Current HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
         [Command("hp_heal_full", "Fully heals, restores shields, and revives the player if downed or dead. Usage: hp_heal_full [playerId]")]
@@ -149,7 +151,7 @@ namespace Project.Player.Commands
 
             if (!health)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no HealthComponent.");
+                Console.LogError("[Combat & Health] Target has no HealthComponent.");
                 return;
             }
 
@@ -164,7 +166,7 @@ namespace Project.Player.Commands
 
             health.RequestHeal(health.MaxHealth);
             health.RequestRechargeShield(health.MaxShield);
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Fully restored health ({health.MaxHealth:F1}) and shields ({health.MaxShield:F1}) for {player.gameObject.name}.");
+            Console.Log($"[Combat & Health] Fully restored health ({health.MaxHealth:F1}) and shields ({health.MaxShield:F1}) for {player.gameObject.name}.");
         }
 
         [Command("hp_down", "Forces the target player into the downed state. Usage: hp_down [playerId]")]
@@ -175,18 +177,18 @@ namespace Project.Player.Commands
 
             if (!downed)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
+                Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
                 return;
             }
 
             if (downed.IsDown.value)
             {
-                PedronsaDev.Console.Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed!");
+                Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed!");
                 return;
             }
 
             downed.RequestDown();
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Successfully downed {player.gameObject.name}.");
+            Console.Log($"[Combat & Health] Successfully downed {player.gameObject.name}.");
         }
 
         [Command("hp_revive", "Revives a downed or dead player. Usage: hp_revive [playerId]")]
@@ -213,7 +215,7 @@ namespace Project.Player.Commands
                 health.Revive(health.MaxHealth * 0.5f);
             }
 
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Successfully revived {player.gameObject.name}. Remaining HP: {(health ? health.CurrentHealth : 0f):F1}");
+            Console.Log($"[Combat & Health] Successfully revived {player.gameObject.name}. Remaining HP: {(health ? health.CurrentHealth : 0f):F1}");
         }
 
         [Command("hp_bleedout_set", "Sets the remaining bleedout timer on a downed player. Usage: hp_bleedout_set <seconds> [playerId]")]
@@ -224,18 +226,18 @@ namespace Project.Player.Commands
 
             if (!downed)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
+                Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
                 return;
             }
 
             if (!downed.IsDown.value)
             {
-                PedronsaDev.Console.Console.LogWarning($"[Combat & Health] {player.gameObject.name} is not currently downed.");
+                Console.LogWarning($"[Combat & Health] {player.gameObject.name} is not currently downed.");
                 return;
             }
 
             downed.RequestSetBleedOutTimer(seconds);
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Set bleedout timer to {seconds:F1}s for {player.gameObject.name}.");
+            Console.Log($"[Combat & Health] Set bleedout timer to {seconds:F1}s for {player.gameObject.name}.");
         }
 
         [Command("hp_god", "Toggles invulnerability on the player. Usage: hp_god [playerId]")]
@@ -246,13 +248,13 @@ namespace Project.Player.Commands
 
             if (!health)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no HealthComponent.");
+                Console.LogError("[Combat & Health] Target has no HealthComponent.");
                 return;
             }
 
             bool newState = !health.Invulnerable;
             health.RequestSetInvulnerable(newState);
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Invulnerability for {player.gameObject.name} set to: {newState}");
+            Console.Log($"[Combat & Health] Invulnerability for {player.gameObject.name} set to: {newState}");
         }
 
         [Command("hp_kill", "Instantly executes true death on the player. Usage: hp_kill [playerId]")]
@@ -263,12 +265,12 @@ namespace Project.Player.Commands
 
             if (!downed)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
+                Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
                 return;
             }
 
             downed.RequestKill();
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Executed true death for {player.gameObject.name}.");
+            Console.Log($"[Combat & Health] Executed true death for {player.gameObject.name}.");
         }
 
         [Command("hc_drag_release", "Forces release of any active dragging on this player. Usage: drag_release [playerId]")]
@@ -279,12 +281,12 @@ namespace Project.Player.Commands
 
             if (!downed)
             {
-                PedronsaDev.Console.Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
+                Console.LogError("[Combat & Health] Target has no PlayerDownedState.");
                 return;
             }
 
             downed.RequestStopDrag();
-            PedronsaDev.Console.Console.Log($"[Combat & Health] Drag released for {player.gameObject.name}.");
+            Console.Log($"[Combat & Health] Drag released for {player.gameObject.name}.");
         }
 
         private static bool TryResolveTarget(int playerId, out PlayerFacade player, out HealthComponent health, out PlayerDownedState downed)
@@ -298,12 +300,12 @@ namespace Project.Player.Commands
                 player = LocalPlayerContext.Player;
                 if (!player)
                 {
-                    player = UnityEngine.Object.FindAnyObjectByType<PlayerFacade>();
+                    player = Object.FindAnyObjectByType<PlayerFacade>();
                 }
 
                 if (!player)
                 {
-                    PedronsaDev.Console.Console.LogError("[Combat & Health] No local player found in scene.");
+                    Console.LogError("[Combat & Health] No local player found in scene.");
                     return false;
                 }
 
@@ -334,7 +336,7 @@ namespace Project.Player.Commands
                 }
             }
 
-            PedronsaDev.Console.Console.LogError($"[Combat & Health] Could not find player with ID {playerId}.");
+            Console.LogError($"[Combat & Health] Could not find player with ID {playerId}.");
             return false;
         }
     }

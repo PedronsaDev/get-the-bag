@@ -1,13 +1,10 @@
 using System;
+using Project.Combat.Core;
 using PurrNet;
 using UnityEngine;
 
 namespace Project.Combat.Props
 {
-/// <summary>
-/// Network-synchronized destructible prop (crates, barrels, barricades).
-/// Supports debris spawning and optional area-of-effect explosions.
-/// </summary>
 public class DestructibleProp : NetworkBehaviour, IDamageable
 {
     [Header("Durability")] 
@@ -139,7 +136,6 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
                 target.TakeDamage(aoePayload);
             }
 
-            // Physics force
             if (coll.attachedRigidbody && !coll.attachedRigidbody.isKinematic)
             {
                 coll.attachedRigidbody.AddExplosionForce(_explosionForce, origin, _explosionRadius, 1f,
@@ -169,14 +165,13 @@ public class DestructibleProp : NetworkBehaviour, IDamageable
             AudioSource.PlayClipAtPoint(_destructionAudio, position);
         }
 
-        // Disable renderers and colliders
+        // TODO: Cache renderers and colliders for performance instead of searching every time
         foreach (var r in GetComponentsInChildren<Renderer>())
             r.enabled = false;
 
         foreach (var c in GetComponentsInChildren<Collider>())
             c.enabled = false;
 
-        // Despawn or destroy object
         if (NetworkManager.main && isServer)
         {
             Despawn();

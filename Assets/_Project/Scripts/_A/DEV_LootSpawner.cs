@@ -26,6 +26,12 @@ public class DEV_LootSpawner : MonoBehaviour, IInteractable
     public Color AccentColor { get; }
     public InteractionMode Mode => InteractionMode.Instant;
     public float HoldDuration { get; }
+    
+    private void Start()
+    {
+        CreateLoot();
+    }
+    
     public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
         return true;
@@ -37,6 +43,11 @@ public class DEV_LootSpawner : MonoBehaviour, IInteractable
     }
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
+    {
+        CreateLoot();
+    }
+
+    private void CreateLoot()
     {
         foreach (var spawnDef in _spawnDefs)
         {

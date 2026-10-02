@@ -185,8 +185,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.MeshOutline
   outlineMode: 1
   outlineColor: {r: 4, g: 4, b: 4, a: 1}
-  outlineWidth: 15
-  widthMode: 0
+  outlineWidth: 4
+  widthMode: 1
   stencilReference: 32
   enableSurfaceFill: 0
   fillColor: {r: 1, g: 0.35, b: 0.05, a: 0.35}

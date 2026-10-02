@@ -24,12 +24,7 @@ namespace Plugins.Outline.Editor
             statusBar.style.flexDirection = FlexDirection.Row;
             statusBar.style.alignItems = Align.Center;
             statusBar.style.marginBottom = 8;
-
-            int childCount = outline ? outline.GetComponentsInChildren<Renderer>(true).Length : 0;
-            var statusLabel = new Label($"Renderers detected: {childCount}");
-            statusLabel.style.flexGrow = 1;
-            statusLabel.style.fontSize = 11;
-            statusLabel.style.color = childCount > 0 ? new Color(0.5f, 0.9f, 0.5f) : new Color(0.9f, 0.5f, 0.4f);
+            
 
             var rescanBtn = new Button(() =>
             {
@@ -45,7 +40,6 @@ namespace Plugins.Outline.Editor
             }) { text = "Rescan Hierarchy" };
             rescanBtn.style.height = 22;
 
-            statusBar.Add(statusLabel);
             statusBar.Add(rescanBtn);
             root.Add(statusBar);
 

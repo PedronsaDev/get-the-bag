@@ -6,6 +6,7 @@ using Project.Loot;
 using Project.Player.FPSCamera;
 using Project.Player.Input;
 using Project.Player.Interaction;
+using Project.Player.Locomotion;
 using PurrNet;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
 {
     [Header("References")]
     [SerializeField] private LocalPlayerInputProvider _inputProvider;
+    [SerializeField] private LocomotionController _locomotionController;
     [SerializeField] private PlayerInteractor _interactor;
     
     [Header("Capacity & Weight")] 
@@ -24,7 +26,8 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
     [Header("Throwing Tuning")] 
     [SerializeField] private float _maxChargeDuration = 1f;
     [SerializeField] private WorldDuffleBag _duffleBagPrefab;
-    [SerializeField] private float _throwSpeed = 9.0f;
+    [SerializeField] private float _minThrowForce = 4f;
+    [SerializeField] private float _maxThrowForce = 10f;
     [SerializeField] private float _throwUpwardSpeed = 2.5f;
     [SerializeField] private Transform _dropSpawnPoint;
     [SerializeField] private Vector3 _dropSpawnPointOffset;
@@ -111,10 +114,10 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
         if (input.DropBagReleased)
         {
             float chargeRatio = _throwChargeTimer / _maxChargeDuration;
-            float rawSpeed = Mathf.Lerp(6.0f, 15.0f, chargeRatio);
+            float rawSpeed = Mathf.Lerp(_minThrowForce, _maxThrowForce, chargeRatio);
 
             float finalThrowSpeed = rawSpeed * Mathf.Lerp(1.0f, 0.65f, EncumbranceRatio);
-
+            
             ThrowBag(finalThrowSpeed);
             _throwChargeTimer = 0f;
         }
@@ -203,22 +206,65 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
     
     public void ThrowBag(float throwSpeed)
     {
-        if (!_hasBag.value) return;
-        Vector3 aimDirection = _dropSpawnPoint ? _dropSpawnPoint.forward : transform.forward;
+        if (!_hasBag.value)
+            return;
+
+        Vector3 aimDirection = _dropSpawnPoint
+            ? _dropSpawnPoint.forward
+            : transform.forward;
+
+        Vector3 playerVelocity = _locomotionController
+            ? _locomotionController.Motor.Velocity
+            : Vector3.zero;
+
         if (isServer)
         {
-            ExecuteThrowServer(aimDirection, throwSpeed);
+            ExecuteThrowServer(aimDirection, throwSpeed, playerVelocity);
         }
         else
         {
-            RpcRequestThrowBag(aimDirection, throwSpeed);
+            RpcRequestThrowBag(aimDirection, throwSpeed, playerVelocity);
         }
     }
-    
+
     [ServerRpc(requireOwnership: true)]
-    private void RpcRequestThrowBag(Vector3 aimForward, float throwSpeed, RPCInfo info = default)
+    private void RpcRequestThrowBag(
+        Vector3 aimForward,
+        float throwSpeed,
+        Vector3 playerVelocity,
+        RPCInfo info = default)
     {
-        ExecuteThrowServer(aimForward, throwSpeed);
+        ExecuteThrowServer(aimForward, throwSpeed, playerVelocity);
+    }
+    
+    private void ExecuteThrowServer(
+        Vector3 aimForward,
+        float throwSpeed,
+        Vector3 playerVelocity)
+    {
+        if (!isServer || !_hasBag.value) return;
+        if (!_duffleBagPrefab) return;
+        var snapshot = new DuffleBagSnapshot(_stowedItems, _currentWeight.value, _currentValue.value);
+        Vector3 spawnOrigin = _dropSpawnPoint ? _dropSpawnPoint.position : transform.position + Vector3.up * 1.2f;
+        Vector3 spawnPos = spawnOrigin + (aimForward * 0.8f);
+        var instance = Instantiate(_duffleBagPrefab, spawnPos + _dropSpawnPointOffset, Quaternion.LookRotation(aimForward));
+        if (NetworkManager.main && isSpawned)
+        {
+            NetworkManager.main.Spawn(instance.gameObject);
+        }
+        instance.Initialize(snapshot);
+
+        _stowedItems.Clear();
+        _hasBag.value = false;
+        _currentWeight.value = 0f;
+        _currentValue.value = 0;
+
+        Vector3 throwVelocity =
+            aimForward * throwSpeed +
+            playerVelocity +
+            Vector3.up * _throwUpwardSpeed;
+
+        instance.Throw(throwVelocity);
     }
     
     private void ExecuteThrowServer(Vector3 aimForward, float throwSpeed)

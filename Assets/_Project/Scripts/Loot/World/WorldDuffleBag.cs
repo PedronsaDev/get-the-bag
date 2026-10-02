@@ -19,6 +19,12 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
     [SerializeField] private SyncVar<float> _netWeight = new(0f);
     [SerializeField] private SyncVar<int> _netValue = new(0);
     [SerializeField] private SyncVar<int> _netItemCount = new(0);
+    
+    [Header("Visual Settings")]
+    [SerializeField, ColorUsage(true, true)]
+    private Color _outlineColor = new Color(1f, 0.85f, 0.2f);
+    [SerializeField, ColorUsage(true, true)] 
+    private Color _hoverOutlineColor = new Color(1f, 1f, 1f);
 
     private DuffleBagSnapshot _snapshot;
     private bool _isClaimed;
@@ -52,6 +58,7 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
         _netValue.value = snapshot.TotalValue;
         _netItemCount.value = snapshot.Items?.Count ?? 0;
         _isClaimed = false;
+        _outline.OutlineColor = _outlineColor;
     }
     
     public void Throw(Vector3 velocity)
@@ -139,13 +146,13 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
         if (_outline) 
-            _outline.enabled = true;
+            _outline.OutlineColor = _hoverOutlineColor; 
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
         if (_outline) 
-            _outline.enabled = false;
+            _outline.OutlineColor = _outlineColor;
     }
 
     private void SafeDespawn()

@@ -189,6 +189,8 @@ MonoBehaviour:
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
+  _outlineColor: {r: 1.9433962, g: 0.87326825, b: 0, a: 1}
+  _hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &389580396729036906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,15 +198,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6028404867450372460}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp-firstpass::Outline
   outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 15
-  widthMode: 0
+  outlineColor: {r: 1.9433962, g: 0.87326825, b: 0, a: 1}
+  outlineWidth: 4
+  widthMode: 1
   stencilReference: 32
   enableSurfaceFill: 0
   fillColor: {r: 0.9716981, g: 0.49508283, b: 0.14208792, a: 0.5529412}
@@ -301,6 +303,8 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: f961abd46da3c714f900853348237ffd, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

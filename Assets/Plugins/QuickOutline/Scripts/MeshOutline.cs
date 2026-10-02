@@ -2,6 +2,7 @@
 //  MeshOutline.cs
 //  Advanced Outline & Surface Fill Toolkit for Unity 6.6 / URP
 //  Zero-GC, Scale-Invariant, Multi-Mesh & Compound Hierarchy Support
+//  Author: PedronsaDev
 //
 
 using System;

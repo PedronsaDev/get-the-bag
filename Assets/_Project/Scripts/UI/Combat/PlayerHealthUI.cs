@@ -1,8 +1,9 @@
-using Project.Combat;
+using Project.Combat.Core;
+using Project.Combat.Health;
 using Project.Player;
 using UnityEngine;
 
-namespace Project.UI.PLayer
+namespace Project.UI.Player
 {
 public class PlayerHealthUI : MonoBehaviour
 {

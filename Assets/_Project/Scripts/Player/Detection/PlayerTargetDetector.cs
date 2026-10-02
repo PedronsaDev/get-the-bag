@@ -1,5 +1,7 @@
 using System;
 using Project.Combat;
+using Project.Combat.Core;
+using Project.Combat.Health;
 using Project.Core.UI;
 using Project.Player.FPSCamera;
 using PurrNet;
@@ -41,8 +43,7 @@ namespace Project.Player.Detection
             {
                 _occlusionLayers = 1 << 0; // Default layer
             }
-
-            // Sanitize inspector values if legacy bloated radius was saved
+            
             if (_assistRadius > 10f)
                 _assistRadius = 1.5f;
 
@@ -80,10 +81,8 @@ namespace Project.Player.Detection
             LayerMask combinedMask = _detectableLayers | _occlusionLayers;
             float maxRange = _detectionRange;
 
-            // 1. Direct Center Raycast (highest priority - dead on crosshair)
             if (Physics.Raycast(origin, forward, out RaycastHit hit, _detectionRange, combinedMask, QueryTriggerInteraction.Ignore))
             {
-                // If we hit an obstacle/wall, cap search distance so proximity search won't see through that wall
                 if ((_occlusionLayers.value & (1 << hit.collider.gameObject.layer)) != 0)
                 {
                     maxRange = hit.distance;
@@ -99,7 +98,6 @@ namespace Project.Player.Detection
                 }
             }
 
-            // 2. Near Crosshair Cone Scan (if crosshair isn't directly on a living target)
             if (bestTarget == null && maxRange > 0.5f)
             {
                 int count = Physics.OverlapSphereNonAlloc(origin, maxRange, _overlapBuffer, _detectableLayers, QueryTriggerInteraction.Ignore);
@@ -115,16 +113,13 @@ namespace Project.Player.Detection
                     Vector3 toTarget = targetCenter - origin;
                     float dist = toTarget.magnitude;
 
-                    // Out of range or behind camera
                     if (dist > maxRange || dist < 0.2f || Vector3.Dot(forward, toTarget) <= 0f) continue;
 
                     Vector3 dirToTarget = toTarget / dist;
                     float angle = Vector3.Angle(forward, dirToTarget);
 
-                    // Check if inside crosshair cone
                     if (angle < bestAngle)
                     {
-                        // Check line of sight (ensure walls/obstacles don't block visibility)
                         if (!Physics.Linecast(origin, targetCenter, _occlusionLayers, QueryTriggerInteraction.Ignore))
                         {
                             var candidate = col.GetComponentInParent<IDamageable>();
@@ -149,12 +144,12 @@ namespace Project.Player.Detection
         private static bool IsTargetDead(IDamageable damageable)
         {
             if (damageable == null) return true;
-            if (damageable is Hitbox hb) return hb.TargetHealth != null && hb.TargetHealth.IsDead;
+            if (damageable is Hitbox hb) return hb.TargetHealth && hb.TargetHealth.IsDead;
             if (damageable is HealthComponent hc) return hc.IsDead;
             if (damageable is Component comp)
             {
                 var health = comp.GetComponentInParent<HealthComponent>();
-                if (health != null) return health.IsDead;
+                if (health) return health.IsDead;
             }
             return false;
         }

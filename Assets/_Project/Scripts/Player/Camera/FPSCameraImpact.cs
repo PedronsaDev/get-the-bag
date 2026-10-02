@@ -1,4 +1,5 @@
 using Project.Player.Camera.Helpers;
+using Project.Player.Locomotion;
 using UnityEngine;
 
 namespace Project.Player.FPSCamera
@@ -12,12 +13,12 @@ public class FPSCameraImpact : MonoBehaviour
     [Header("Impact Intensities")] 
     [SerializeField] private float _landVelocity = -15f;
     [SerializeField] private float _jumpVelocity = 10f;
-    [SerializeField] private float _doubleJumpVelocity = -12f;
+    //[SerializeField] private float _doubleJumpVelocity = -12f;
     [SerializeField] private float _vaultVelocity = -10f;
 
     [SerializeField] private SpringSettings _impactSpring = new(100f, 12f);
 
-    private Vector3Spring _impactMath = new();
+    private readonly Vector3Spring _impactMath = new();
 
     private LocomotionPhase _lastPhase;
     private bool _wasJumped;

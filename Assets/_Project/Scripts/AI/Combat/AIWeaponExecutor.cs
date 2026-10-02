@@ -3,6 +3,7 @@ using Project.AI.Blackboard;
 using Project.AI.Locomotion;
 using Project.AI.Perception;
 using Project.Combat;
+using Project.Combat.Core;
 using PurrNet;
 using UnityEngine;
 using Random = UnityEngine.Random;
