@@ -2,13 +2,13 @@ using Project.Core.Persistence;
 using Project.Persistence;
 using UnityEngine;
 
-namespace Project.Player
+namespace Project.Player.Loot
 {
 public class InventoryPersistenceBridge : MonoBehaviour, IDataPersistence
 {
     private void OnEnable()
     {
-        if (DataPersistenceManager.Instance != null)
+        if (DataPersistenceManager.Instance)
         {
             DataPersistenceManager.Instance.Register(this);
         }

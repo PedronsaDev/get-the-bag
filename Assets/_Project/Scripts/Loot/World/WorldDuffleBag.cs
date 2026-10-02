@@ -1,10 +1,11 @@
 using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;
+using Project.Loot.Data;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Loot
+namespace Project.Loot.World
 {
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody))]

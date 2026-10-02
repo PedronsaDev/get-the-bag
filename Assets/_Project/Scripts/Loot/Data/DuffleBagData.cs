@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Project.Loot
+namespace Project.Loot.Data
 {
 [Serializable]
 public struct DuffleBagItemEntry

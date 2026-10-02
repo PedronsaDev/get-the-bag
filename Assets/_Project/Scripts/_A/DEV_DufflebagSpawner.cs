@@ -1,6 +1,6 @@
-using System;
 using Project.Core.Interaction;
-using Project.Loot;
+using Project.Loot.Data;
+using Project.Loot.World;
 using UnityEngine;
 
 public class DEV_DufflebagSpawner : MonoBehaviour, IInteractable

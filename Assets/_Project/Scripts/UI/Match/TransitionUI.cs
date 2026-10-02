@@ -3,7 +3,7 @@ using Project.Core;
 using Project.Core.UI;
 using UnityEngine;
 
-namespace Project.UI
+namespace Project.UI.Match
 {
 public class TransitionUI : InputBlockerUI
 {

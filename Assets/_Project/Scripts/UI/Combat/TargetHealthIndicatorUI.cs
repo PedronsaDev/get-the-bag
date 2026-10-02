@@ -5,7 +5,7 @@ using Project.Player;
 using Project.Player.Detection;
 using UnityEngine;
 
-namespace Project.UI.Interaction
+namespace Project.UI.Combat
 {
     public class TargetHealthIndicatorUI : MonoBehaviour
     {

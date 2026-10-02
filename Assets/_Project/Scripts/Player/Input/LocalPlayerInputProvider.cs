@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Project.Core.Input;
 using Project.Core.UI;
 using PurrNet;
@@ -7,22 +6,13 @@ using UnityEngine.InputSystem;
 
 namespace Project.Player.Input
 {
-/// <summary>
-/// Polls Unity's Input System for the local player instance.
-/// Converts hardware inputs into a pure PlayerInputData struct every frame/tick.
-/// Dispatches UI and meta inputs to UIInput so UI actions remain responsive even when gameplay blockers are active.
-/// Remote players should instead use RemotePlayerInputProvider.
-/// </summary>
 public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 {
     [Header("Settings")]
     [SerializeField] private float _lookSensitivity = 0.5f;
     [SerializeField] private bool _invertY;
     [SerializeField] private bool _enableCursorLock = true;
-
-    /// <summary>
-    /// Dynamic multiplier for sensitivity (e.g. 0.5f during ADS / sniper zoom).
-    /// </summary>
+    
     public float SensitivityMultiplier { get; set; } = 1.0f;
 
     public float LookSensitivity
@@ -47,7 +37,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     private InputActionMap _playerMap;
     private InputActionMap _uiMap;
     
-    // Player Map Actions
     private InputAction _moveAction;
     private InputAction _lookAction;
     private InputAction _attackAction;
@@ -68,7 +57,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     private InputAction _playerInventoryAction;
     private InputAction _dropBagAction;
     
-    // UI Map Actions
     private InputAction _cancelAction;
     private InputAction _uiInventoryAction;
     private InputAction _dropItemAction;
@@ -285,8 +273,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 
     private void HandleBlockerStateChanged(bool isBlocked)
     {
-        // UI blockers selectively gate movement, look, and actions inside GetCurrentInput().
-        // Action maps remain active so that UI navigation, cancellation, and toggle actions never stall.
+        
     }
 
     private int GetWeaponSlotPressed()

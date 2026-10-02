@@ -28,6 +28,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0a66996a9a1c5664196192040c2ead8c, type: 2}
   - {fileID: 11400000, guid: 120b5dacb74231e469754c6194b1ff90, type: 2}
   - {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
+  - {fileID: 11400000, guid: f6da18507d0e1a74e9315f34b891526d, type: 2}
   _availableTypeNames:
   - UnityEngine.AnimationClip, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.Animator, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -177,7 +178,8 @@ MonoBehaviour:
   - 0a66996a9a1c5664196192040c2ead8c
   - 120b5dacb74231e469754c6194b1ff90
   - 2045d54e0ed4c9e4ea1ec08b7b4290ca
-  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000i
+  - f6da18507d0e1a74e9315f34b891526d
+  _bakedIds: 00000000010000000200000003000000040000000500000006000000070000000800000009000000i
   _bakedAssets:
   - {fileID: 11400000, guid: 0362d9aaf8592d8408c17994f20e117f, type: 2}
   - {fileID: 11400000, guid: b5be322daa53e8742bbe86d09eb1ad28, type: 2}
@@ -188,6 +190,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0a66996a9a1c5664196192040c2ead8c, type: 2}
   - {fileID: 11400000, guid: 120b5dacb74231e469754c6194b1ff90, type: 2}
   - {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
+  - {fileID: 11400000, guid: f6da18507d0e1a74e9315f34b891526d, type: 2}
   _bakedPersistentIds:
   - 0362d9aaf8592d8408c17994f20e117f
   - b5be322daa53e8742bbe86d09eb1ad28
@@ -198,3 +201,4 @@ MonoBehaviour:
   - 0a66996a9a1c5664196192040c2ead8c
   - 120b5dacb74231e469754c6194b1ff90
   - 2045d54e0ed4c9e4ea1ec08b7b4290ca
+  - f6da18507d0e1a74e9315f34b891526d

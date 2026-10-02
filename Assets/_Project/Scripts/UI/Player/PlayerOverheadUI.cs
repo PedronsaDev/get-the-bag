@@ -1,10 +1,10 @@
 using Project.Core;
-using Project.Player.Data;
+using Project.Player.Profile;
 using PurrNet;
 using TMPro;
 using UnityEngine;
 
-namespace Project.UI.PLayer
+namespace Project.UI.Player
 {
 public class PlayerOverheadUI : NetworkBehaviour
 {

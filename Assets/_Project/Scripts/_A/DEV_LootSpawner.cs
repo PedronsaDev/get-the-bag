@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Project.Core.Interaction;
 using Project.Loot;
+using Project.Loot.Data;
 using UnityEngine;
 
 [Serializable]

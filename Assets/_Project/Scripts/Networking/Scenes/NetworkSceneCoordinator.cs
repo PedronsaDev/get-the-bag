@@ -70,19 +70,12 @@ namespace Project.Networking.Scenes
                 Instance = null;
             }
         }
-
-        /// <summary>
-        /// Fires and forgets an asynchronous scene transition.
-        /// </summary>
+        
         public void TransitionToScene(string sceneName)
         {
             TransitionToSceneAsync(sceneName).Forget();
         }
-
-        /// <summary>
-        /// Host-only entry point to asynchronously transition all connected players to a new scene.
-        /// Awaits until all clients have loaded and avatars are spawned.
-        /// </summary>
+        
         public async UniTask TransitionToSceneAsync(string sceneName)
         {
             bool isOffline = !networkManager || networkManager.isOffline;
@@ -130,8 +123,7 @@ namespace Project.Networking.Scenes
 
             AppLog.Log(LogChannel.Network, $"Host initiating PurrNet transition to scene: {sceneName}", this);
             OnSceneTransitionStarted?.Invoke(sceneName);
-
-            // Notify all clients to display transition screens/VFX
+            
             RpcInstructTransitionStarted(sceneName);
 
             var nm = networkManager ? networkManager : NetworkManager.main;
@@ -236,7 +228,6 @@ namespace Project.Networking.Scenes
 
         private IEnumerator CompleteTransitionRoutine()
         {
-            // Allow 1 frame for newly loaded scene objects to execute Awake/Start
             yield return null;
 
             _isTransitioning = false;

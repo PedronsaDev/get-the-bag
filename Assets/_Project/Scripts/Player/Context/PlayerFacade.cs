@@ -1,12 +1,11 @@
-using Project.Combat;
 using Project.Combat.Health;
 using Project.Core.Input;
-using Project.Player.Data;
 using Project.Player.Detection;
 using Project.Player.Input;
 using Project.Player.Interaction;
 using Project.Player.Locomotion;
 using Project.Player.Loot;
+using Project.Player.Profile;
 using PurrNet;
 using UnityEngine;
 

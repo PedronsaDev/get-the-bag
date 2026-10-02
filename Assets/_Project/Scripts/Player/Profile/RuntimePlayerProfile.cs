@@ -1,11 +1,10 @@
 using System;
 using Project.Core;
 using Project.Logging;
-using Project.Player.Profile;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Player.Data
+namespace Project.Player.Profile
 {
 public class RuntimePlayerProfile : NetworkBehaviour
 {

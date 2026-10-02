@@ -3,7 +3,7 @@ using Project.Combat.Health;
 using Project.Player;
 using UnityEngine;
 
-namespace Project.UI.Player
+namespace Project.UI.Combat
 {
 public class PlayerHealthUI : MonoBehaviour
 {

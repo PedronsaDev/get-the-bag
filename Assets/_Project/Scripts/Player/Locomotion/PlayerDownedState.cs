@@ -3,6 +3,7 @@ using Project.Combat.Core;
 using Project.Combat.Health;
 using Project.Core;
 using Project.Core.Player;
+using Project.Player.Interaction;
 using PurrNet;
 using UnityEngine;
 
