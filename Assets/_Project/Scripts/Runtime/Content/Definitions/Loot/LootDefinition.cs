@@ -4,7 +4,7 @@ using UnityEngine.AddressableAssets;
 
 namespace Project.Loot.Data
 {
-[CreateAssetMenu(fileName = "Loot_Name", menuName = "Loot/Loot Definition")]
+[CreateAssetMenu(fileName = "LOOT_Name", menuName = "Loot/Loot Definition")]
 public class LootDefinition : ScriptableObject, IRegistryItem
 {
     private readonly string _guid = System.Guid.NewGuid().ToString();

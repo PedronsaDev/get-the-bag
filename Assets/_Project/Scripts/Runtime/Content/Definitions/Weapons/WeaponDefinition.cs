@@ -10,18 +10,37 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
     private readonly string _guid = System.Guid.NewGuid().ToString();
     
     [Header("Identity")] 
-    [SerializeField] private string _weaponId;
+    [SerializeField] private string _id;
     [SerializeField] private string _name;
+    
+    [Header("Weapon Data")]
+    [SerializeField] private WeaponCategory _category = WeaponCategory.Pistol;
+    [SerializeField] private int _baseDamage = 10;
+    [SerializeField] private int _baseMagazineSize = 12;
 
     [Header("Addressables Visual References")] 
     [SerializeField] private AssetReferenceT<GameObject> _prefabReference;
     [SerializeField] private AssetReferenceT<Sprite> _iconReference;
 
     public string Guid => _guid;
-    public string Id => _weaponId;
+    public string Id => _id;
     public string Name => string.IsNullOrEmpty(_name) ? name : _name;
+    
+    public WeaponCategory Category => _category;
+    public int BaseDamage => _baseDamage;
+    public int BaseMagazineSize => _baseMagazineSize;
 
     public AssetReferenceT<GameObject> PrefabReference => _prefabReference;
     public AssetReferenceT<Sprite> IconReference => _iconReference;
+    
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (string.IsNullOrEmpty(_id))
+        {
+            _id = name.ToLowerInvariant().Replace(" ", "_");
+        }
+    }
+#endif
 }
 }

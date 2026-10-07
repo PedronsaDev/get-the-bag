@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Project.Combat.Data;
 using Project.Logging;
 using Project.Loot.Data;
 using UnityEngine;
@@ -19,7 +20,7 @@ public enum GameContentLoadState
 
 public static class GameContent
 {
-    
+
     private static GameContentLoadState _loadState = GameContentLoadState.NotLoaded;
     private static UniTaskCompletionSource _loadCompletionSource = new();
     private static UniTaskCompletionSource _shutdownCompletionSource = new();
@@ -30,8 +31,12 @@ public static class GameContent
     private static AsyncOperationHandle<LootRegistry> _lootRegistryHandle;
     private static LootRegistry _lootRegistry;
 
+    private static AsyncOperationHandle<WeaponRegistry> _weaponRegistryHandle;
+    private static WeaponRegistry _weaponRegistry;
+    
     public static bool IsLoaded => _loadState == GameContentLoadState.Ready;
     public static LootRegistry LootRegistry => _lootRegistry;
+    public static WeaponRegistry WeaponRegistry => _weaponRegistry;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -44,8 +49,12 @@ public static class GameContent
         _loadCompletionSource = new UniTaskCompletionSource();
         _shutdownCompletionSource = new UniTaskCompletionSource();
         _shutdownRequested = false;
+        
         _lootRegistryHandle = default;
         _lootRegistry = null;
+        
+        _weaponRegistryHandle = default;
+        _weaponRegistry = null;
     }
 
     public static async UniTask InitializeRegistriesAsync()
@@ -74,8 +83,13 @@ public static class GameContent
         
         try
         {
+            // Loot registry
             _lootRegistryHandle = Addressables.LoadAssetAsync<LootRegistry>("LootRegistry");
             var lootRegistry = await _lootRegistryHandle.ToUniTask();
+            
+            // Weapon registry
+            _weaponRegistryHandle = Addressables.LoadAssetAsync<WeaponRegistry>("WeaponRegistry");
+            var weaponRegistry = await _weaponRegistryHandle.ToUniTask();
 
             if (generation != _generation)
                 throw new OperationCanceledException("The content lifetime has ended.");
@@ -87,6 +101,9 @@ public static class GameContent
             
             lootRegistry.InitializeLookup();
             _lootRegistry = lootRegistry;
+            
+            weaponRegistry.InitializeLookup();
+            _weaponRegistry = weaponRegistry;
             
         }
         catch (Exception e)
@@ -120,10 +137,18 @@ public static class GameContent
     private static void UnloadRegistries()
     {
         _lootRegistry = null;
-        var handle = _lootRegistryHandle;
+        var lootHandle = _lootRegistryHandle;
         _lootRegistryHandle = default;
-        if (handle.IsValid())
-            Addressables.Release(handle);
+        
+        if (lootHandle.IsValid())
+            Addressables.Release(lootHandle);
+        
+        _weaponRegistry = null;
+        var weaponHandle = _weaponRegistryHandle;
+        _weaponRegistryHandle = default;
+
+        if (weaponHandle.IsValid())
+            Addressables.Release(weaponHandle);
     }
 
     private static void CompleteShutdown()

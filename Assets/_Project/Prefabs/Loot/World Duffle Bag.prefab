@@ -215,7 +215,6 @@ MonoBehaviour:
   _syncParent: 1
   _syncVelocityRelativeToParent: 1
   _useParentFramePositionError: 0
-  _settingsOverride: {fileID: 0}
   _interpolationDelay: 0.05
   _autoInterpolationDelay: 1
   _predictionFactor: 0
@@ -235,6 +234,7 @@ MonoBehaviour:
   _positionChangeThreshold: 0.001
   _rotationChangeThreshold: 0.001
   _velocityStopThreshold: 0.001
+  _settingsOverride: {fileID: 0}
 --- !u!1 &8816106590378209030
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,7 +264,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.0286058, y: 0.3737815, z: 0.40467712}
+  m_LocalScale: {x: 0.8168272, y: 0.296824, z: 0.32135856}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7720050479156574011}

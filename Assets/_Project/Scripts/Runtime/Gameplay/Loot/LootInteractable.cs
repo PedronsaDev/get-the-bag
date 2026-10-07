@@ -13,22 +13,21 @@ public class LootInteractable : NetworkBehaviour, IInteractable
     [Header("References")] 
     [SerializeField] private MeshOutline _outline;
     
-    [Header("Item Data")] 
-    [SerializeField] private LootDefinition _definition;
+    private SyncVar<LootDefinition> _definition = new();
     
     private bool _isClaimed;
 
     public LootDefinition Definition => _definition;
 
-    public string InteractionPrompt => _definition
-        ? $"[F] to stow {_definition.Name} (${_definition.BaseValue} - {_definition.WeightKg:F1}kg)"
+    public string InteractionPrompt => _definition.value
+        ? $"[F] to stow {_definition.value.Name} (${_definition.value.BaseValue} - {_definition.value.WeightKg:F1}kg)"
         : "[F] to stow";
 
     public string HoldPrompt => null;
-    public string TargetName => _definition ? _definition.Name : "Valuable";
+    public string TargetName => _definition.value ? _definition.value.Name : "Valuable";
 
     public string Subtext =>
-        _definition ? $"${_definition.BaseValue} ({_definition.WeightKg:F1} kg)" : null;
+        _definition.value ? $"${_definition.value.BaseValue} ({_definition.value.WeightKg:F1} kg)" : null;
 
     public Color AccentColor => new Color(0.35f, 0.85f, 1f);
     public InteractionMode Mode => InteractionMode.Instant;
@@ -40,20 +39,21 @@ public class LootInteractable : NetworkBehaviour, IInteractable
             _outline = GetComponent<MeshOutline>();
     }
 
+    [ObserversRpc(runLocally: true)]
     public void Initialize(LootDefinition definition)
     {
-        _definition = definition;
+        _definition.value = definition;
         _isClaimed = false;
     }
 
     public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
-        if (_isClaimed || interactor == null || !_definition) return false;
+        if (_isClaimed || interactor == null || !_definition.value) return false;
 
         if (interactor.InteractorGameObject.TryGetComponent(out IDuffleBagCarrier carrier))
         {
             if (!carrier.HasBag) return false;
-            return carrier.CurrentWeight + _definition.WeightKg <= carrier.MaxCapacityKg;
+            return carrier.CurrentWeight + _definition.value.WeightKg <= carrier.MaxCapacityKg;
         }
 
         return false;
@@ -66,7 +66,7 @@ public class LootInteractable : NetworkBehaviour, IInteractable
             if (!carrier.HasBag)
                 return "No Duffle Bag equipped";
 
-            if (_definition && carrier.CurrentWeight + _definition.WeightKg > carrier.MaxCapacityKg)
+            if (_definition.value && carrier.CurrentWeight + _definition.value.WeightKg > carrier.MaxCapacityKg)
                 return $"Bag Full ({carrier.CurrentWeight:F1}/{carrier.MaxCapacityKg:F1}kg)";
         }
 
@@ -75,7 +75,7 @@ public class LootInteractable : NetworkBehaviour, IInteractable
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
     {
-        if (_isClaimed || interactor == null || !_definition) return;
+        if (_isClaimed || interactor == null || !_definition.value) return;
 
         if (NetworkManager.main && NetworkManager.main.isClient && !isServer)
         {
@@ -98,7 +98,7 @@ public class LootInteractable : NetworkBehaviour, IInteractable
     [ServerRpc(requireOwnership: false)]
     private void RpcRequestStow(RPCInfo info = default)
     {
-        if (_isClaimed || !_definition) return;
+        if (_isClaimed || !_definition.value) return;
 
         PlayerIdentifier senderPlayer = null;
         for (int i = 0; i < PlayerIdentifier.ActivePlayers.Count; i++)

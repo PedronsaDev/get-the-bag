@@ -35,11 +35,14 @@ public static class LootSpawnService
             if (!GameContent.IsLoaded || !manager || !manager.isServer)
                 throw new OperationCanceledException("The spawning session ended.");
             
-            if (!instance.TryGetComponent<LootInteractable>(out var loot) || !loot.Definition ||
-                !string.Equals(loot.Definition.Id, definition.Id, StringComparison.OrdinalIgnoreCase))
+            if (!instance.TryGetComponent<LootInteractable>(out var loot))
                 throw new InvalidOperationException($"Prefab for '{id}' needs a matching LootInteractable definition on every peer.");
             
             loot.Initialize(definition);
+
+            if (!loot.Definition || !string.Equals(loot.Definition.Id, definition.Id, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"LootInteractable for '{id}' failed to initialize with the correct definition.");
+            
             return loot;
         }
         catch

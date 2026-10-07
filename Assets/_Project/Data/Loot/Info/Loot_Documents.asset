@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e070140f55bacf44b8437a76869fddf, type: 3}
-  m_Name: Loot_Documents
+  m_Name: LOOT_Documents
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
   _id: Loot_Documents
   _name: Documents

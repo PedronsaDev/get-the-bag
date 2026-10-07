@@ -1290,15 +1290,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DEV_LootSpawner
   _spawnDefs:
-  - ItemDefinition: {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}
+  - Definition: {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}
     SpawnTransform: {fileID: 2105472109}
-  - ItemDefinition: {fileID: 11400000, guid: aaff3e7e43ac664408ff31d4aecfc301, type: 2}
+  - Definition: {fileID: 11400000, guid: 120b5dacb74231e469754c6194b1ff90, type: 2}
     SpawnTransform: {fileID: 1059521061}
-  - ItemDefinition: {fileID: 11400000, guid: 0a66996a9a1c5664196192040c2ead8c, type: 2}
+  - Definition: {fileID: 11400000, guid: 0a66996a9a1c5664196192040c2ead8c, type: 2}
     SpawnTransform: {fileID: 505244074}
-  - ItemDefinition: {fileID: 11400000, guid: 120b5dacb74231e469754c6194b1ff90, type: 2}
+  - Definition: {fileID: 11400000, guid: aaff3e7e43ac664408ff31d4aecfc301, type: 2}
     SpawnTransform: {fileID: 19757360}
-  - ItemDefinition: {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
+  - Definition: {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
     SpawnTransform: {fileID: 139020887}
 --- !u!1 &2105472108
 GameObject:

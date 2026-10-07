@@ -282,7 +282,7 @@ MonoBehaviour:
   _invertedPathToNearestParent: 
   _directChildren: []
   _outline: {fileID: 8401159940546470499}
-  _itemDefinition: {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
+  _definition: {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
 --- !u!114 &8401159940546470499
 MonoBehaviour:
   m_ObjectHideFlags: 0
