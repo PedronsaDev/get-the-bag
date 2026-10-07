@@ -1,0 +1,27 @@
+{
+  "name": "Project.Player",
+  "rootNamespace": "Project.Player",
+  "references": [
+    "Project.Core",
+    "Project.Networking",
+    "Project.Combat",
+    "KinematicCharacterController",
+    "Unity.InputSystem",
+    "PurrNet.Runtime",
+    "PrimeTween.Runtime",
+    "SmartConsole",
+    "Project.Persistence",
+    "Project.Logging",
+    "Project.Loot",
+    "Project.Definitions"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

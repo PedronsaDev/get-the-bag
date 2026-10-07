@@ -1,0 +1,22 @@
+{
+  "name": "Project.Core.Editor",
+  "rootNamespace": "Project.Core.Editor",
+  "references": [
+    "Project.Core",
+    "PurrNet.Runtime",
+    "Project.Logging",
+    "Project.Definitions",
+    "Project.Match"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

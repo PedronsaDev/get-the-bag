@@ -1,0 +1,21 @@
+{
+  "name": "Project.Content",
+  "rootNamespace": "Project.Content",
+  "references": [
+    "Project.Definitions",
+    "Project.Logging",
+    "UniTask",
+    "Unity.Addressables",
+    "Unity.ResourceManager",
+    "UniTask.Addressables"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

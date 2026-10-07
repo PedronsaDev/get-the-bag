@@ -1,0 +1,22 @@
+{
+  "name": "Project.Match",
+  "rootNamespace": "Project.Match",
+  "references": [
+    "Project.Core",
+    "Project.Networking",
+    "Project.Logging",
+    "PurrNet.Runtime",
+    "UniTask",
+    "PrimeTween.Runtime",
+    "ImprovedTimers"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

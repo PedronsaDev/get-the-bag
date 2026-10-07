@@ -1,0 +1,25 @@
+{
+  "name": "Project.UI",
+  "rootNamespace": "Project.UI",
+  "references": [
+    "Project.Combat",
+    "Project.Player",
+    "Project.Core",
+    "PurrNet.Runtime",
+    "Unity.TextMeshPro",
+    "PrimeTween.Runtime",
+    "KinematicCharacterController",
+    "UniTask",
+    "Project.Definitions",
+    "Project.Match"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

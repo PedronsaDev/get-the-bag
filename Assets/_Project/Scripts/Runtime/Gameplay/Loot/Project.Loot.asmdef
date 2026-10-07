@@ -1,0 +1,24 @@
+{
+  "name": "Project.Loot",
+  "rootNamespace": "Project.Loot",
+  "references": [
+    "Project.Core",
+    "PurrNet.Runtime",
+    "Plugins.Outline",
+    "NaughtyAttributes.Core",
+    "Unity.Addressables",
+    "Project.Definitions",
+    "Project.Content",
+    "Project.Logging",
+    "UniTask"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

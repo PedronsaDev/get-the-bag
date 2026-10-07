@@ -1,0 +1,23 @@
+{
+  "name": "Project.AI",
+  "rootNamespace": "Project.AI",
+  "references": [
+    "PurrNet.Runtime",
+    "Project.Combat",
+    "Project.Core",
+    "Project.Logging",
+    "UniTask",
+    "NaughtyAttributes.Core",
+    "GUID:4539cfcf2225a14488ccba7d2033eabe",
+    "Project.Definitions"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

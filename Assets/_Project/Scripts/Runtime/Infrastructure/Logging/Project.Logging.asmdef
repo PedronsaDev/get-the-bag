@@ -1,0 +1,16 @@
+{
+  "name": "Project.Logging",
+  "rootNamespace": "Project.Logging",
+  "references": [
+    "SmartConsole"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Project.Bootstrap",
+  "rootNamespace": "Project.Bootstrap",
+  "references": [
+    "Project.Core",
+    "Project.Game",
+    "Project.Content",
+    "Project.Loot",
+    "Project.Networking",
+    "Project.Logging",
+    "PurrNet.Runtime",
+    "UniTask"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

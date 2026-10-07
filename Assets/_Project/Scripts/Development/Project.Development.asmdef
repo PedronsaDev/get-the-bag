@@ -1,0 +1,23 @@
+{
+  "name": "Project.Development",
+  "rootNamespace": "Project.Development",
+  "references": [
+    "Project.Core",
+    "Project.Content",
+    "Project.Definitions",
+    "Project.Loot",
+    "Project.Logging",
+    "PurrNet.Runtime",
+    "UniTask",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

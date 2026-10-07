@@ -1,0 +1,20 @@
+{
+  "name": "Project.Networking",
+  "rootNamespace": "Project.Networking",
+  "references": [
+    "PurrNet.Runtime",
+    "PurrNetLobbySetup",
+    "SmartConsole",
+    "UniTask",
+    "Project.Logging"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
