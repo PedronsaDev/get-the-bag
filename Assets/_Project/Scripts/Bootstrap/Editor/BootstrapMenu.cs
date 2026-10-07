@@ -1,22 +1,22 @@
 using UnityEditor;
 
-namespace Project.Core.Editor
+namespace Project.Bootstrap.Editor
 {
 public static class BootstrapMenu
 {
-    private const string MenuPath = "Tools/Core/Auto-Bootstrap On Play";
+    private const string MENU_PATH = "Tools/Core/Auto-Bootstrap On Play";
 
-    [MenuItem(MenuPath)]
+    [MenuItem(MENU_PATH)]
     private static void ToggleAutoBootstrap()
     {
         bool current = EditorPrefs.GetBool("AutoBootstrap_Enabled", true);
         EditorPrefs.SetBool("AutoBootstrap_Enabled", !current);
     }
 
-    [MenuItem(MenuPath, true)]
+    [MenuItem(MENU_PATH, true)]
     private static bool ValidateToggleAutoBootstrap()
     {
-        Menu.SetChecked(MenuPath, EditorPrefs.GetBool("AutoBootstrap_Enabled", true));
+        Menu.SetChecked(MENU_PATH, EditorPrefs.GetBool("AutoBootstrap_Enabled", true));
         return true;
     }
 }

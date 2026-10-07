@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Loot_Documents
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
   _id: Loot_Documents
-  _displayName: Company Documents
+  _name: Documents
   _description: 'Company documents containing sensitive information.
 
 '
@@ -22,4 +22,9 @@ MonoBehaviour:
   _weightKg: 1
   _category: 2
   _rarity: 4
-  _worldPrefab: {fileID: 5208718796380851908, guid: f4fcff260bbc4c449b072c724dc8a4a3, type: 3}
+  _prefabReference:
+    m_AssetGUID: f4fcff260bbc4c449b072c724dc8a4a3
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

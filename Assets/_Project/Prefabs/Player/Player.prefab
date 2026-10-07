@@ -49,7 +49,8 @@ GameObject:
   - component: {fileID: 5744433141554505838}
   - component: {fileID: 5771435480062743233}
   - component: {fileID: 3890863234750818640}
-  - component: {fileID: 5177973262252475535}
+  - component: {fileID: 1110250348622865925}
+  - component: {fileID: 8344428670646863682}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -328,7 +329,7 @@ MonoBehaviour:
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
---- !u!114 &5177973262252475535
+--- !u!114 &1110250348622865925
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -381,6 +382,30 @@ MonoBehaviour:
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
+--- !u!114 &8344428670646863682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094660744987473108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94d6f96d9ca155f42a8e6494efec2ec9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Core::Project.Core.Player.PlayerIdentifier
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _playerBody: {fileID: 3863812860035546540}
 --- !u!1 &1205406370123137721
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,7 +515,6 @@ GameObject:
   - component: {fileID: 1117931757033441777}
   - component: {fileID: 6988986901440066400}
   - component: {fileID: 7482482855676676148}
-  - component: {fileID: 3808258064417614414}
   m_Layer: 7
   m_Name: Character
   m_TagString: Untagged
@@ -726,30 +750,6 @@ MonoBehaviour:
   _drawCeilingCheck: 1
   _drawWallAndVaultChecks: 1
   _drawOverheadStatus: 1
---- !u!114 &3808258064417614414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1786933655831568332}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94d6f96d9ca155f42a8e6494efec2ec9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Core::Project.Core.Player.PlayerIdentifier
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _playerBody: {fileID: 3863812860035546540}
 --- !u!1 &1966898175740947755
 GameObject:
   m_ObjectHideFlags: 0

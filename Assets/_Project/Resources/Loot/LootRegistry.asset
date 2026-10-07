@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootRegistry
   _registeredItems:
   - {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}
+  - {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Core.Bootstrap
+namespace Project.Bootstrap
 {
 [DisallowMultipleComponent]
 [SelectionBase]

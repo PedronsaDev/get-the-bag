@@ -46,6 +46,8 @@ _ReSharper*/
 /[Aa]ssets/Plugins/Editor/JetBrains*
 
 # AI Assistants, Agents & Tools
+.codex/
+/AGENTS.md
 .agents/
 .gemini/
 GEMINI.md

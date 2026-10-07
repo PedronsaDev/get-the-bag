@@ -42,9 +42,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1490903314281532965}
   - component: {fileID: 5806624605092260815}
-  - component: {fileID: 2698926175765610431}
   - component: {fileID: 5815843284099628978}
   - component: {fileID: 389580396729036906}
+  - component: {fileID: 7528057547923597392}
   m_Layer: 15
   m_Name: World Duffle Bag
   m_TagString: Untagged
@@ -95,56 +95,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2698926175765610431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6028404867450372460}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d497b70c6fb6adc46b663609bee66dfd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkRigidbody
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _debugGizmos: 0
-  _debugTextOffset: 2
-  _ownerAuth: 1
-  _space: 0
-  _syncParent: 1
-  _syncVelocityRelativeToParent: 1
-  _useParentFramePositionError: 0
-  _settingsOverride: {fileID: 0}
-  _interpolationDelay: 0.05
-  _autoInterpolationDelay: 1
-  _predictionFactor: 0
-  _maxExtrapolationDuration: 0.25
-  _positionStrength: 5
-  _correctionRange: 2
-  _rotationCorrection: 0
-  _rotationStrength: 12
-  _hardSnapDistance: 3
-  _resetLinearVelocityOnSnap: 0
-  _hardSnapAngle: 120
-  _resetAngularVelocityOnSnap: 0
-  _acceptableRotationError: 1
-  _stallRecoveryDelay: 0.25
-  _settledSnapPositionError: 0.01
-  _hardSnapOnStall: 0
-  _positionChangeThreshold: 0.001
-  _rotationChangeThreshold: 0.001
-  _velocityStopThreshold: 0.001
 --- !u!114 &5815843284099628978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,6 +185,56 @@ MonoBehaviour:
     m_Bits: 4294967295
   excludedKeywords: []
   ignoredRenderers: []
+--- !u!114 &7528057547923597392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6028404867450372460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d497b70c6fb6adc46b663609bee66dfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkRigidbody
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _debugGizmos: 0
+  _debugTextOffset: 2
+  _ownerAuth: 1
+  _space: 0
+  _syncParent: 1
+  _syncVelocityRelativeToParent: 1
+  _useParentFramePositionError: 0
+  _settingsOverride: {fileID: 0}
+  _interpolationDelay: 0.05
+  _autoInterpolationDelay: 1
+  _predictionFactor: 0
+  _maxExtrapolationDuration: 0.25
+  _positionStrength: 5
+  _correctionRange: 2
+  _rotationCorrection: 0
+  _rotationStrength: 12
+  _hardSnapDistance: 3
+  _resetLinearVelocityOnSnap: 0
+  _hardSnapAngle: 120
+  _resetAngularVelocityOnSnap: 0
+  _acceptableRotationError: 1
+  _stallRecoveryDelay: 0.25
+  _settledSnapPositionError: 0.01
+  _hardSnapOnStall: 0
+  _positionChangeThreshold: 0.001
+  _rotationChangeThreshold: 0.001
+  _velocityStopThreshold: 0.001
 --- !u!1 &8816106590378209030
 GameObject:
   m_ObjectHideFlags: 0

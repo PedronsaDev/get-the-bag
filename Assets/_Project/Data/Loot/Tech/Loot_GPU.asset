@@ -13,11 +13,16 @@ MonoBehaviour:
   m_Name: Loot_GPU
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
   _id: Loot_GPU
-  _displayName: Graphics Card
+  _name: Graphics Card
   _description: A top of the line piece of tech.
   _icon: {fileID: 6032170974666196668, guid: 6504898ad77030c41bf2d694c6f54bd8, type: 3}
   _baseValue: 1000
   _weightKg: 3
   _category: 1
   _rarity: 2
-  _worldPrefab: {fileID: 5208718796380851908, guid: 55afb2f0a9fb0aa47abb42ea23478875, type: 3}
+  _prefabReference:
+    m_AssetGUID: 55afb2f0a9fb0aa47abb42ea23478875
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

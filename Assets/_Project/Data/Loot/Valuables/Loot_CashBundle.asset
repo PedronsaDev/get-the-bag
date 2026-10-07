@@ -13,11 +13,16 @@ MonoBehaviour:
   m_Name: Loot_CashBundle
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
   _id: Loot_CashBundle
-  _displayName: Cash
+  _name: Cash
   _description: Just a stack of cash.
   _icon: {fileID: 6032170974666196668, guid: 6504898ad77030c41bf2d694c6f54bd8, type: 3}
   _baseValue: 100
   _weightKg: 3
   _category: 0
   _rarity: 0
-  _worldPrefab: {fileID: 5208718796380851908, guid: 4f1c26e91dacfde4184a0f1b416a117d, type: 3}
+  _prefabReference:
+    m_AssetGUID: 4f1c26e91dacfde4184a0f1b416a117d
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

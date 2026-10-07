@@ -1,6 +1,8 @@
 using Project.Core.Interaction;
 using Project.Loot.Data;
 using Project.Loot.World;
+using System.Collections;
+using PurrNet;
 using UnityEngine;
 
 public class DEV_DufflebagSpawner : MonoBehaviour, IInteractable
@@ -16,20 +18,21 @@ public class DEV_DufflebagSpawner : MonoBehaviour, IInteractable
     public Color AccentColor { get; }
     public InteractionMode Mode => InteractionMode.Instant;
     public float HoldDuration { get; }
-    
-    private void Start()
+
+    private IEnumerator Start()
     {
+        yield return new WaitUntil(() => NetworkManager.main && !NetworkManager.main.isOffline);
         CreateBag();
     }
-    
+
     public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
-        return true;
+        return NetworkManager.main && NetworkManager.main.isServer;
     }
 
     public string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false)
     {
-        return null;
+        return "Only the host can spawn a test bag.";
     }
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
@@ -39,6 +42,8 @@ public class DEV_DufflebagSpawner : MonoBehaviour, IInteractable
 
     private void CreateBag()
     {
+        if (!NetworkManager.main || !NetworkManager.main.isServer || !_dufflebagPrefab || !_spawnPoint)
+            return;
         if (Instantiate(_dufflebagPrefab, _spawnPoint.position, _spawnPoint.rotation).TryGetComponent(out WorldDuffleBag bag))
         {
             bag.Initialize(DuffleBagSnapshot.Empty);
@@ -47,11 +52,11 @@ public class DEV_DufflebagSpawner : MonoBehaviour, IInteractable
 
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
-        
+
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
-        
+
     }
 }

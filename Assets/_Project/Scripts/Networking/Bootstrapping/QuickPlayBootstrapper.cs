@@ -1,4 +1,7 @@
 using PurrNet;
+using Cysharp.Threading.Tasks;
+using Project.Network.Bootstrapping;
+using Project.Logging;
 using PurrNet.Transports;
 using Unity.Multiplayer.PlayMode;
 using UnityEngine;
@@ -21,7 +24,7 @@ public class QuickPlayBootstrapper : MonoBehaviour
     [SerializeField] private string _serverAddress = "127.0.0.1";
 
     [SerializeField] private ushort _serverPort = 5000;
-    [Header("Debug Overlay")] 
+    [Header("Debug Overlay")]
     [SerializeField] private bool _showDebugGui = true;
 
     public bool ShowDebugGui
@@ -37,11 +40,12 @@ public class QuickPlayBootstrapper : MonoBehaviour
         _networkManager = NetworkManager.main ? NetworkManager.main : FindAnyObjectByType<NetworkManager>();
     }
 
-    private void Start()
+    public void StartConfiguredMode()
     {
+        if (!_networkManager) _networkManager = NetworkManager.main;
         if (!_networkManager)
         {
-            Debug.LogWarning(
+            AppLog.LogWarning(LogChannel.Network,
                 $"[{nameof(QuickPlayBootstrapper)}] No NetworkManager found in scene! Quick-Play is standing by.",
                 this);
             return;
@@ -80,13 +84,13 @@ public class QuickPlayBootstrapper : MonoBehaviour
             case QuickPlayMode.AutoDetect:
                 if (IsCloneOrVirtualInstance())
                 {
-                    Debug.Log(
+                    AppLog.Log(LogChannel.Network,
                         $"[{nameof(QuickPlayBootstrapper)}] Detected Virtual/Clone Editor instance -> Starting as Client.");
                     StartClient();
                 }
                 else
                 {
-                    Debug.Log(
+                    AppLog.Log(LogChannel.Network,
                         $"[{nameof(QuickPlayBootstrapper)}] Detected Main Editor instance -> Starting as Host (Server + Client).");
                     StartHost();
                 }
@@ -100,16 +104,27 @@ public class QuickPlayBootstrapper : MonoBehaviour
 
     public void StartHost()
     {
-        if (!_networkManager || !_networkManager.isOffline) return;
-        ConfigureUdpTransport();
-        _networkManager.StartHost();
+        StartConnectionAsync(true).Forget();
     }
 
     public void StartClient()
     {
-        if (!_networkManager || !_networkManager.isOffline) return;
-        ConfigureUdpTransport();
-        _networkManager.StartClient();
+        StartConnectionAsync(false).Forget();
+    }
+
+    private async UniTask StartConnectionAsync(bool host)
+    {
+        try
+        {
+            await NetworkStartupGate.WaitAsync();
+            if (!this || !isActiveAndEnabled) return;
+            if (!_networkManager) _networkManager = NetworkManager.main;
+            if (!_networkManager || !_networkManager.isOffline) return;
+            ConfigureUdpTransport();
+            if (host) _networkManager.StartHost(); else _networkManager.StartClient();
+        }
+        catch (System.OperationCanceledException) { }
+        catch (System.Exception exception) { AppLog.LogException(LogChannel.Network, exception, this); }
     }
 
     public void Disconnect()

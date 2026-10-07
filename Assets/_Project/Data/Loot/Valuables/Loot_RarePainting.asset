@@ -13,11 +13,16 @@ MonoBehaviour:
   m_Name: Loot_RarePainting
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
   _id: Loot_RarePainting
-  _displayName: Painting
+  _name: Painting
   _description: A rare painting.
   _icon: {fileID: 6032170974666196668, guid: 6504898ad77030c41bf2d694c6f54bd8, type: 3}
   _baseValue: 3500
   _weightKg: 5
   _category: 0
   _rarity: 2
-  _worldPrefab: {fileID: 5208718796380851908, guid: 950810fb3c467c14d8780b6343cb3503, type: 3}
+  _prefabReference:
+    m_AssetGUID: 950810fb3c467c14d8780b6343cb3503
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

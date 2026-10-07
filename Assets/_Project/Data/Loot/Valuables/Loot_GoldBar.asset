@@ -13,11 +13,16 @@ MonoBehaviour:
   m_Name: Loot_GoldBar
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
   _id: Loot_GoldBar
-  _displayName: Gold Bar
+  _name: Gold Bar
   _description: A gold bar, worth more than money!
   _icon: {fileID: 6032170974666196668, guid: 6504898ad77030c41bf2d694c6f54bd8, type: 3}
   _baseValue: 5000
   _weightKg: 12.4
   _category: 0
   _rarity: 3
-  _worldPrefab: {fileID: 5208718796380851908, guid: c6785e3e328185c43a72318a5dcf0e3c, type: 3}
+  _prefabReference:
+    m_AssetGUID: c6785e3e328185c43a72318a5dcf0e3c
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

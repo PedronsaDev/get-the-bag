@@ -1,24 +1,43 @@
 using System.Collections;
+using System;
+using Cysharp.Threading.Tasks;
+using Project.Logging;
 using Project.Networking.Scenes;
 using PurrLobby;
 using PurrNet;
-using PurrNet.Logging;
 using PurrNet.Transports;
 using UnityEngine;
 using Unity.Multiplayer.PlayMode;
 
 namespace Project.Network.Bootstrapping
 {
+public static class NetworkStartupGate
+{
+    private static Func<UniTask> _wait;
+    private static Func<bool> _canStart;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void Reset() { _wait = null; _canStart = null; }
+    public static void Configure(Func<UniTask> wait, Func<bool> canStart) { _wait = wait; _canStart = canStart; }
+    public static async UniTask WaitAsync()
+    {
+        if (_wait == null) throw new InvalidOperationException("Application bootstrap has not configured networking.");
+        await _wait();
+        if (_canStart == null || !_canStart()) throw new OperationCanceledException("Application is not accepting connections.");
+    }
+}
 
 public class ConnectionStarter : MonoBehaviour
 {
     [SerializeField] private UDPTransport _udpTransport;
     [SerializeField] private PurrTransport _purrTransport;
-    
+
     private NetworkManager _networkManager;
     private LobbyDataHolder _lobbyDataHolder;
 
     private bool _isFromLobby;
+    private bool _connectionPending;
+    private Coroutine _clientRoutine;
+    public static bool HasLobbyConnection => FindAnyObjectByType<LobbyDataHolder>();
 
     private void Awake()
     {
@@ -30,40 +49,64 @@ public class ConnectionStarter : MonoBehaviour
 
         if (!TryGetComponent(out _networkManager))
         {
-            PurrLogger.LogError($"Failed to get {nameof(NetworkManager)} component.", this);
+            AppLog.LogError(LogChannel.Network, $"Failed to get {nameof(NetworkManager)} component.", this);
             return;
         }
 
         if (!_udpTransport)
         {
-            PurrLogger.LogError($"Failed to get {nameof(UDPTransport)} component.", this);
+            AppLog.LogError(LogChannel.Network, $"Failed to get {nameof(UDPTransport)} component.", this);
             return;
         }
 
         if (!_purrTransport)
         {
-            PurrLogger.LogError($"Failed to get {nameof(PurrTransport)} component.", this);
+            AppLog.LogError(LogChannel.Network, $"Failed to get {nameof(PurrTransport)} component.", this);
             return;
         }
 
         _lobbyDataHolder = FindAnyObjectByType<LobbyDataHolder>();
-        
+
         if (_lobbyDataHolder)
         {
             _isFromLobby = true;
         }
     }
-    
-    private void Start()
+
+    public void StartRequestedConnection()
     {
-        StartNetworkStandard();
+        if (_connectionPending || _clientRoutine != null) return;
+        _connectionPending = true;
+        StartRequestedConnectionAsync().Forget();
+    }
+
+    private async UniTask StartRequestedConnectionAsync()
+    {
+        try
+        {
+            await NetworkStartupGate.WaitAsync();
+            if (!this || !isActiveAndEnabled) return;
+            _lobbyDataHolder = FindAnyObjectByType<LobbyDataHolder>();
+            _isFromLobby = _lobbyDataHolder;
+            StartNetworkStandard();
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception exception) { AppLog.LogException(LogChannel.Network, exception, this); }
+        finally { if (this) _connectionPending = false; }
+    }
+
+    public void StopPendingConnection()
+    {
+        StopAllCoroutines();
+        _clientRoutine = null;
+        _connectionPending = false;
     }
 
     private void StartNetworkStandard()
     {
         if (!_networkManager)
         {
-            PurrLogger.LogError($"Failed to start connection. {nameof(NetworkManager)} is null!", this);
+            AppLog.LogError(LogChannel.Network, $"Failed to start connection. {nameof(NetworkManager)} is null!", this);
             return;
         }
 
@@ -74,7 +117,7 @@ public class ConnectionStarter : MonoBehaviour
 
         if (!_purrTransport)
         {
-            PurrLogger.LogError($"Failed to start connection. {nameof(PurrTransport)} is null!", this);
+            AppLog.LogError(LogChannel.Network, $"Failed to start connection. {nameof(PurrTransport)} is null!", this);
             return;
         }
 
@@ -87,8 +130,8 @@ public class ConnectionStarter : MonoBehaviour
             StartNormal();
         }
     }
-    
-    
+
+
     private void StartNormal()
     {
         var host = CurrentPlayer.IsMainEditor;
@@ -102,21 +145,21 @@ public class ConnectionStarter : MonoBehaviour
 
     public void ReturnToHub()
     {
-        NetworkSceneCoordinator.Instance.TransitionToScene("HubScene");
+        NetworkSceneCoordinator.Instance.TransitionToScene("Scene_Hub");
     }
-    
+
     private void StartFromLobby()
     {
         _networkManager.transport = _purrTransport;
         if (!_lobbyDataHolder)
         {
-            PurrLogger.LogError($"Failed to start connection. {nameof(LobbyDataHolder)} is null!", this);
+            AppLog.LogError(LogChannel.Network, $"Failed to start connection. {nameof(LobbyDataHolder)} is null!", this);
             return;
         }
 
         if (!_lobbyDataHolder.CurrentLobby.IsValid)
         {
-            PurrLogger.LogError($"Failed to start connection. Lobby is invalid!", this);
+            AppLog.LogError(LogChannel.Network, $"Failed to start connection. Lobby is invalid!", this);
             return;
         }
 
@@ -124,19 +167,21 @@ public class ConnectionStarter : MonoBehaviour
         {
             transport.roomName = _lobbyDataHolder.CurrentLobby.LobbyId;
         }
-        
+
         if (_lobbyDataHolder.CurrentLobby.IsOwner)
             _networkManager.StartServer();
-        
-        StartCoroutine(StartClient());
+
+        _clientRoutine = StartCoroutine(StartClient());
     }
-    
-    
+
+
 
     private IEnumerator StartClient()
     {
         yield return new WaitForSeconds(1f);
-        _networkManager.StartClient();
+        if (_networkManager && !_networkManager.isClient)
+            _networkManager.StartClient();
+        _clientRoutine = null;
     }
 }
 }

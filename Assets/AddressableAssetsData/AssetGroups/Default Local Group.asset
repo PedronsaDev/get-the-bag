@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Default Local Group
+  m_GUID: 06c35edf487d2024492c2ef736bc9000
+  m_SerializeEntries:
+  - m_GUID: 0f7baf934ca3f3245abc7043a99161ab
+    m_Address: WeaponRegistry
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Registry
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f1c26e91dacfde4184a0f1b416a117d
+    m_Address: Loot_Prefabs/CashBundle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 55afb2f0a9fb0aa47abb42ea23478875
+    m_Address: Loot_Prefabs/GPU
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 950810fb3c467c14d8780b6343cb3503
+    m_Address: Loot_Prefabs/RarePainting
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c6785e3e328185c43a72318a5dcf0e3c
+    m_Address: Loot_Prefabs/GoldBar
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e91ec5a3c8d68504a852749a7e835270
+    m_Address: LootRegistry
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Registry
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4fcff260bbc4c449b072c724dc8a4a3
+    m_Address: Loot_Prefabs/Documents
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 05c98efe22dc04546a01a4fb09eab0f1, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 3e83e5cfd618a154cbfbcd2277777c2c, type: 2}
+    - {fileID: 11400000, guid: 858e3b85b8b7cd3428b89eb22f4b8d55, type: 2}

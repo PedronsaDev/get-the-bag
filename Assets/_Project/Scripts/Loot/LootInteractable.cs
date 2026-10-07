@@ -15,17 +15,17 @@ public class LootInteractable : NetworkBehaviour, IInteractable
     
     [Header("Item Data")] 
     [SerializeField] private LootItemDefinition _itemDefinition;
-
+    
     private bool _isClaimed;
 
     public LootItemDefinition ItemDefinition => _itemDefinition;
 
     public string InteractionPrompt => _itemDefinition
-        ? $"[F] to stow {_itemDefinition.DisplayName} (${_itemDefinition.BaseValue} - {_itemDefinition.WeightKg:F1}kg)"
+        ? $"[F] to stow {_itemDefinition.Name} (${_itemDefinition.BaseValue} - {_itemDefinition.WeightKg:F1}kg)"
         : "[F] to stow";
 
     public string HoldPrompt => null;
-    public string TargetName => _itemDefinition ? _itemDefinition.DisplayName : "Valuable";
+    public string TargetName => _itemDefinition ? _itemDefinition.Name : "Valuable";
 
     public string Subtext =>
         _itemDefinition ? $"${_itemDefinition.BaseValue} ({_itemDefinition.WeightKg:F1} kg)" : null;

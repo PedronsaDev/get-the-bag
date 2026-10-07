@@ -83,7 +83,6 @@ public class DataPersistenceManager : MonoBehaviour
         }
 
         _instance = this;
-//        DontDestroyOnLoad(gameObject);
 
         Application.quitting -= HandleApplicationQuitting;
         Application.quitting += HandleApplicationQuitting;
@@ -99,7 +98,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     private void Start()
     {
-        LoadGame();
+        //LoadGame();
     }
 
     /// <summary>

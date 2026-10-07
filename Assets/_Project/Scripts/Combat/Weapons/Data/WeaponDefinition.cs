@@ -1,39 +1,27 @@
-using NaughtyAttributes;
+using Project.Core.Data;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Project.Combat.Data
 {
 [CreateAssetMenu(fileName = "WEAP_TYPE_NAME", menuName = "Weapons/Weapon Definition", order = 1)]
-public class WeaponDefinition : ScriptableObject
+public class WeaponDefinition : ScriptableObject, IRegistryItem
 {
-    [Header("Registry & Identity")]
-    [SerializeField, ReadOnly] private string _guid = string.Empty;
-    public string WeaponID = "weap_string_id";
-    public string DisplayName = "[DEFAULT_WEAPON_NAME]";
-    public GameObject WorldPrefab;
+    private readonly string _guid = System.Guid.NewGuid().ToString();
     
-    [Header("Weapon Stats")]
-    public WeaponCategory Category = WeaponCategory.Pistol;
-    
+    [Header("Identity")] 
+    [SerializeField] private string _weaponId;
+    [SerializeField] private string _name;
+
+    [Header("Addressables Visual References")] 
+    [SerializeField] private AssetReferenceT<GameObject> _prefabReference;
+    [SerializeField] private AssetReferenceT<Sprite> _iconReference;
+
     public string Guid => _guid;
-    
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        if (string.IsNullOrEmpty(_guid))
-        {
-            string path = UnityEditor.AssetDatabase.GetAssetPath(this);
-            if (!string.IsNullOrEmpty(path))
-            {
-                _guid = UnityEditor.AssetDatabase.AssetPathToGUID(path);
-            }
-            if (string.IsNullOrEmpty(_guid))
-            {
-                _guid = System.Guid.NewGuid().ToString("N");
-            }
-            UnityEditor.EditorUtility.SetDirty(this);
-        }
-    }
-#endif
+    public string Id => _weaponId;
+    public string Name => string.IsNullOrEmpty(_name) ? name : _name;
+
+    public AssetReferenceT<GameObject> PrefabReference => _prefabReference;
+    public AssetReferenceT<Sprite> IconReference => _iconReference;
 }
 }

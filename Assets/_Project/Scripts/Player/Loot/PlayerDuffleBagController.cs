@@ -192,17 +192,17 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
         _currentWeight.value += item.WeightKg;
         _currentValue.value += item.BaseValue;
         
-        RpcNotifyItemStowed(item.Id);
+        RpcNotifyItemStowed(item.Guid);
         return true;
     }
     
     [ObserversRpc(runLocally: true)]
-    private void RpcNotifyItemStowed(string itemId)
+    private void RpcNotifyItemStowed(string itemGuid)
     {
-        if (LootRegistry.Instance.TryGetItem(itemId, out var def))
-        {
-            OnItemStowed?.Invoke(def);
-        }
+        // if (LootRegistry.Instance.TryGetByGuid(itemGuid, out var def))
+        // {
+        //     OnItemStowed?.Invoke(def);
+        // }
     }
     
     public void ThrowBag(float throwSpeed)

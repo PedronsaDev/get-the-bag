@@ -236,6 +236,7 @@ MonoBehaviour:
   _dontDestroyOnLoad: 0
   _transport: {fileID: 894655629530243170}
   _networkPrefabs: {fileID: 11400000, guid: 4609389d10e05a547aec4378b06931d8, type: 2}
+  _addressableNetworkPrefabs: {fileID: 11400000, guid: fa4fa32020373bc48b1c1b064af20c0a, type: 2}
   _networkAssets: {fileID: 11400000, guid: f81f647505c22ad48b3af6dd09dc5ff8, type: 2}
   _networkRules: {fileID: 11400000, guid: d8799083b96579a42b8b2d03e4ceae98, type: 2}
   _visibilityRules: {fileID: 11400000, guid: 8f014a5bd8dc68646a2a3c0b18c5bbd8, type: 2}
