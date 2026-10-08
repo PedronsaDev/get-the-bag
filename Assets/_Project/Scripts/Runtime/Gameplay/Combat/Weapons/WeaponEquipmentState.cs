@@ -12,9 +12,8 @@ public enum WeaponSlot
 
 public enum WeaponActionState
 {
-    Idle,
-    Equipping,
-    Reloading
+    Idle = 0,
+    Reloading = 2
 }
 
 [Serializable]
@@ -23,7 +22,6 @@ public struct WeaponItemState : IPackedAuto
     public string WeaponId;
     public int MagazineAmmo;
     public int ReserveAmmo;
-    // TODO (later): Stable part IDs, rolled modifiers, durability and persistent instance ID.
 }
 
 [Serializable]
@@ -34,8 +32,13 @@ public struct WeaponEquipmentState : IPackedAuto
     public WeaponSlot ActiveSlot;
     public WeaponActionState Action;
 
-    public uint Revision;
     public uint EquipRevision;
-    public float ReloadDuration;
+
+    public WeaponItemState ActiveWeapon => ActiveSlot switch
+    {
+        WeaponSlot.Main => Main,
+        WeaponSlot.Secondary => Secondary,
+        _ => default
+    };
 }
 }

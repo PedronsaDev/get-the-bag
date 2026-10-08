@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using Project.Combat.Data;
 using Project.Combat.Weapons;
 using Project.Content;
@@ -15,7 +13,7 @@ namespace Project.Player.Combat
 {
 public class PlayerWeaponController : NetworkBehaviour
 {
-    [Header("References")]
+    [Header("References")] 
     [SerializeField] private PlayerDownedState _downedState;
     [SerializeField] private LocalPlayerInputProvider _inputProvider;
     [SerializeField] private LocomotionController _locomotionController;
@@ -23,7 +21,7 @@ public class PlayerWeaponController : NetworkBehaviour
     [SerializeField] private FPSCameraController _cameraController;
     [SerializeField] private Transform _aimOrigin;
 
-    [Header("Default Weapons (Optional)")]
+    [Header("Default Weapons (Optional)")] 
     [SerializeField] private WeaponDefinition _defaultMainWeapon;
     [SerializeField] private WeaponDefinition _defaultSecondaryWeapon;
 
@@ -31,8 +29,6 @@ public class PlayerWeaponController : NetworkBehaviour
     private RuntimeWeapon _secondaryWeapon;
     private readonly SyncVar<WeaponEquipmentState> _confirmedState = new();
     private readonly WeaponHitscan _hitscan = new();
-    private CancellationTokenSource _presentationLifetime;
-    private RuntimeWeapon _reloadWeapon;
     private double _reloadEndsAt;
     private Vector3 _serverAim;
     private double _lastTriggerUpdate;
@@ -43,10 +39,6 @@ public class PlayerWeaponController : NetworkBehaviour
     private double _nextInputSend;
     private uint _shotSequence;
     private bool _running;
-    private string _presentedId;
-    private WeaponSlot _presentedSlot;
-    private WeaponActionState _presentedAction;
-    private uint _presentationVersion;
 
     private const double AIM_SEND_INTERVAL = 0.05;
     private const double TRIGGER_TIMEOUT = 0.5;
@@ -69,46 +61,64 @@ public class PlayerWeaponController : NetworkBehaviour
         _lastSentHeld = false;
         _lastSentEquipRevision = 0;
         _nextInputSend = 0;
-        _presentedId = null;
-        _presentedSlot = WeaponSlot.None;
-        _presentedAction = WeaponActionState.Idle;
-        _presentationLifetime = new CancellationTokenSource();
-        if (isServer) InitializeLoadoutServer();
-        if (_presenter) _presenter.ConfigureView(isOwner);
+        
+        if (isServer) 
+            InitializeLoadoutServer();
+        
+        if (_presenter) 
+            _presenter.ConfigureView(isOwner);
+        
         _confirmedState.onChanged += HandleEquipmentChanged;
+        
         HandleEquipmentChanged(_confirmedState.value);
     }
 
     protected override void OnDespawned()
     {
         _running = false;
+        
         _confirmedState.onChanged -= HandleEquipmentChanged;
+        
         StopFiring();
-        _reloadWeapon = null;
         _mainWeapon = _secondaryWeapon = null;
-        _presentationVersion++;
-        var lifetime = _presentationLifetime;
-        _presentationLifetime = null;
-        lifetime?.Cancel();
-        lifetime?.Dispose();
-        if (_presenter) _presenter.ClearVisuals();
+        
+        if (_presenter) 
+            _presenter.ClearVisuals();
     }
 
     private void Update()
     {
-        if (!_running) return;
-        if (isServer) 
-            TickServer(Time.timeAsDouble);
+        if (!_running) 
+            return;
         
-        if (!isOwner || !_inputProvider) return;
+        if (isServer)
+            TickServer(Time.timeAsDouble);
 
+        if (!isOwner || !_inputProvider) 
+            return;
+        
+        SendOwnerInput();
+    }
+
+    private void SendOwnerInput()
+    {
         var input = _inputProvider.GetCurrentInput();
-        if (input.WeaponSlotPressed == 1) RequestEquip(WeaponSlot.Main);
-        else if (input.WeaponSlotPressed == 2) RequestEquip(WeaponSlot.Secondary);
-        if (input.ReloadPressed) RequestReload();
+
+        if (input.WeaponSlotPressed == 1)
+        {
+            RequestEquip(WeaponSlot.Main);
+        } 
+        else if (input.WeaponSlotPressed == 2)
+        {
+            RequestEquip(WeaponSlot.Secondary);
+        } 
+        
+        if (input.ReloadPressed) 
+            RequestReload();
 
         var held = input.PrimaryFireHeld;
         var state = ConfirmedState;
+        
         if (held != _lastSentHeld || input.PrimaryFirePressed ||
             state.EquipRevision != _lastSentEquipRevision || (held && Time.timeAsDouble >= _nextInputSend))
         {
@@ -119,6 +129,7 @@ public class PlayerWeaponController : NetworkBehaviour
     }
 
     private bool CanAct => !_downedState || (!_downedState.IsDowned && !_downedState.IsDead);
+
     private RuntimeWeapon ActiveWeapon => ConfirmedState.ActiveSlot switch
     {
         WeaponSlot.Main => _mainWeapon,
@@ -133,12 +144,13 @@ public class PlayerWeaponController : NetworkBehaviour
             AppLog.LogError(LogChannel.Combat, "Cannot initialize player loadout: weapon content is not ready.", this);
             return;
         }
+
         _mainWeapon = CreateDefaultWeapon(_defaultMainWeapon);
         _secondaryWeapon = CreateDefaultWeapon(_defaultSecondaryWeapon);
-        _reloadWeapon = null;
         _serverTriggerHeld = false;
         _triggerBlockedUntilRelease = false;
         _shotSequence = 0;
+        
         _confirmedState.value = new WeaponEquipmentState
         {
             Main = _mainWeapon?.CaptureState() ?? default,
@@ -146,20 +158,25 @@ public class PlayerWeaponController : NetworkBehaviour
             ActiveSlot = _mainWeapon != null ? WeaponSlot.Main :
                 _secondaryWeapon != null ? WeaponSlot.Secondary : WeaponSlot.None,
             Action = WeaponActionState.Idle,
-            Revision = 1,
             EquipRevision = 1
         };
     }
 
     private RuntimeWeapon CreateDefaultWeapon(WeaponDefinition definition)
     {
-        if (!definition) return null;
+        if (!definition) 
+            return null;
+        
         if (!GameContent.WeaponRegistry.TryGetById(definition.Id, out var weapon))
         {
             AppLog.LogError(LogChannel.Combat, $"Weapon '{definition.Id}' is absent from the registry.", this);
             return null;
         }
-        try { return new RuntimeWeapon(weapon); }
+
+        try
+        {
+            return new RuntimeWeapon(weapon);
+        }
         catch (Exception exception)
         {
             AppLog.LogException(LogChannel.Combat, exception, this);
@@ -176,23 +193,29 @@ public class PlayerWeaponController : NetworkBehaviour
     private void RpcRequestEquip(WeaponSlot slot)
     {
         if (!_running || !CanAct || slot == ConfirmedState.ActiveSlot ||
-            (slot != WeaponSlot.Main && slot != WeaponSlot.Secondary)) return;
+            (slot != WeaponSlot.Main && slot != WeaponSlot.Secondary))
+            return;
+
         var weapon = slot == WeaponSlot.Main ? _mainWeapon : _secondaryWeapon;
-        if (weapon == null || ConfirmedState.Action == WeaponActionState.Equipping) return;
+
+        if (weapon == null)
+            return;
+
         StopFiring();
-        _reloadWeapon = null;
         weapon.FireStrategy.Reset(_triggerBlockedUntilRelease);
+
         var state = ConfirmedState;
         state.ActiveSlot = slot;
         state.Action = WeaponActionState.Idle;
-        state.ReloadDuration = 0;
         state.EquipRevision++;
         Publish(state);
     }
 
     public void SetFireInput(bool held, Vector3 aimDirection)
     {
-        if (!_running || !isOwner) return;
+        if (!_running || !isOwner)
+            return;
+
         var state = ConfirmedState;
         RpcSetFireInput(held, aimDirection, state.ActiveSlot, state.EquipRevision);
         _lastSentHeld = held;
@@ -209,9 +232,13 @@ public class PlayerWeaponController : NetworkBehaviour
     [ServerRpc(requireOwnership: true)]
     private void RpcSetFireInput(bool held, Vector3 direction, WeaponSlot slot, uint equipRevision)
     {
-        if (!_running || slot != ConfirmedState.ActiveSlot || equipRevision != ConfirmedState.EquipRevision) return;
+        if (!_running || slot != ConfirmedState.ActiveSlot || equipRevision != ConfirmedState.EquipRevision)
+            return;
+
         var weapon = ActiveWeapon;
-        if (weapon == null) return;
+        if (weapon == null)
+            return;
+
         if (!held)
         {
             _serverTriggerHeld = false;
@@ -219,50 +246,49 @@ public class PlayerWeaponController : NetworkBehaviour
             weapon.FireStrategy.SetTrigger(false);
             return;
         }
-        if (!ValidAim(direction)) return;
+
+        if (!ValidAim(direction))
+            return;
+
         if (!CanAct || ConfirmedState.Action != WeaponActionState.Idle)
         {
             _triggerBlockedUntilRelease = true;
             weapon.FireStrategy.Reset(requireRelease: true);
             return;
         }
-        if (_triggerBlockedUntilRelease) return;
+
+        if (_triggerBlockedUntilRelease)
+            return;
+
         _serverAim = direction.normalized;
         _lastTriggerUpdate = Time.timeAsDouble;
         _serverTriggerHeld = true;
+
         weapon.FireStrategy.SetTrigger(true);
         TryFireServer(Time.timeAsDouble);
     }
 
     private static bool ValidAim(Vector3 direction) => float.IsFinite(direction.x) &&
-        float.IsFinite(direction.y) && float.IsFinite(direction.z) &&
-        direction.sqrMagnitude >= 0.01f && direction.sqrMagnitude <= 4f;
+                                                       float.IsFinite(direction.y) && float.IsFinite(direction.z) &&
+                                                       direction.sqrMagnitude is >= 0.01f and <= 4f;
 
     private void TickServer(double now)
     {
         if (!CanAct)
         {
             StopFiring();
-            if (_reloadWeapon != null)
-            {
-                _reloadWeapon = null;
-                var canceled = ConfirmedState;
-                canceled.Action = WeaponActionState.Idle;
-                canceled.ReloadDuration = 0;
-                Publish(canceled);
-            }
+            if (ConfirmedState.Action == WeaponActionState.Reloading)
+                SetActionServer(WeaponActionState.Idle);
             return;
         }
-        if (_reloadWeapon != null)
+
+        if (ConfirmedState.Action == WeaponActionState.Reloading)
         {
             if (now < _reloadEndsAt) return;
-            _reloadWeapon.CompleteReloadFromReserve();
-            _reloadWeapon = null;
-            var completed = ConfirmedState;
-            completed.Action = WeaponActionState.Idle;
-            completed.ReloadDuration = 0;
-            Publish(completed);
+            ActiveWeapon.CompleteReloadFromReserve();
+            SetActionServer(WeaponActionState.Idle);
         }
+
         if (_serverTriggerHeld && now - _lastTriggerUpdate > TRIGGER_TIMEOUT) StopFiring();
         TryFireServer(now);
     }
@@ -278,7 +304,8 @@ public class PlayerWeaponController : NetworkBehaviour
     {
         if (_aimOrigin) return _aimOrigin.position;
         if (_cameraController && _cameraController.PitchPivot) return _cameraController.PitchPivot.position;
-        return (_locomotionController ? _locomotionController.transform.position : transform.position) + Vector3.up * 1.5f;
+        return (_locomotionController ? _locomotionController.transform.position : transform.position) +
+               Vector3.up * 1.5f;
     }
 
     private void TryFireServer(double now)
@@ -312,13 +339,16 @@ public class PlayerWeaponController : NetworkBehaviour
         if (!_running || !CanAct || slot != ConfirmedState.ActiveSlot ||
             equipRevision != ConfirmedState.EquipRevision || ConfirmedState.Action != WeaponActionState.Idle) return;
         var weapon = ActiveWeapon;
-        if (weapon == null || !weapon.CanReload) return;
+        if (weapon is not { CanReload: true }) return;
         StopFiring();
-        _reloadWeapon = weapon;
         _reloadEndsAt = Time.timeAsDouble + weapon.Definition.ReloadDuration;
+        SetActionServer(WeaponActionState.Reloading);
+    }
+
+    private void SetActionServer(WeaponActionState action)
+    {
         var state = ConfirmedState;
-        state.Action = WeaponActionState.Reloading;
-        state.ReloadDuration = weapon.Definition.ReloadDuration;
+        state.Action = action;
         Publish(state);
     }
 
@@ -326,57 +356,12 @@ public class PlayerWeaponController : NetworkBehaviour
     {
         state.Main = _mainWeapon?.CaptureState() ?? default;
         state.Secondary = _secondaryWeapon?.CaptureState() ?? default;
-        state.Revision++;
         _confirmedState.value = state;
-    }
-
-    public void RequestDrop()
-    {
-        // TODO: Validated server world spawn; preserve ammo and roll back on failure.
-    }
-
-    public bool TryPickupServer(WorldWeapon worldWeapon, WeaponSlot destination)
-    {
-        // TODO: Validate reach, claim atomically, transfer ammo, then despawn world object.
-        return false;
     }
 
     private void HandleEquipmentChanged(WeaponEquipmentState state)
     {
-        if (!_presenter || _presentationLifetime == null || !isClient) return;
-        var id = state.ActiveSlot == WeaponSlot.Main ? state.Main.WeaponId :
-            state.ActiveSlot == WeaponSlot.Secondary ? state.Secondary.WeaponId : null;
-        if (_presentedId != id || _presentedSlot != state.ActiveSlot)
-        {
-            _presentedId = id;
-            _presentedSlot = state.ActiveSlot;
-            var version = ++_presentationVersion;
-            PresentEquipmentAsync(state, version, _presentationLifetime.Token).Forget(exception =>
-            {
-                if (!(exception is OperationCanceledException))
-                    AppLog.LogException(LogChannel.Combat, exception, this);
-            });
-        }
-        if (_presentedAction != state.Action)
-        {
-            _presentedAction = state.Action;
-            _presenter.SetReloading(state.Action == WeaponActionState.Reloading);
-        }
-    }
-
-    private async UniTask PresentEquipmentAsync(WeaponEquipmentState state, uint version, CancellationToken token)
-    {
-        try
-        {
-            await _presenter.PresentAsync(state, token);
-            if (version == _presentationVersion && _presenter)
-                _presenter.SetReloading(ConfirmedState.Action == WeaponActionState.Reloading);
-        }
-        catch
-        {
-            if (version == _presentationVersion) _presentedId = null;
-            throw;
-        }
+        if (isClient && _presenter) _presenter.ApplyState(state);
     }
 }
 }

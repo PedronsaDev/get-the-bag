@@ -37,22 +37,10 @@ public class WeaponInstance : MonoBehaviour
         }
     }
 
-    public void Despawn()
-    {
-        // TODO: Ask the owner to release this instance. Local presenter and world service
-        // have different ownership; this visual component must not guess release policy.
-        
-    }
-
     public void PlayFire()
     {
         WeaponAnimation.PlayFire(_animator);
         Fired?.Invoke();
-    }
-
-    public void PlayReload()
-    {
-        SetReloading(true);
     }
 
     public void SetReloading(bool reloading)

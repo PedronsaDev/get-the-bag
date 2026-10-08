@@ -33,6 +33,8 @@ public class PlayerWeaponPresenter : MonoBehaviour
     private CancellationTokenSource _equipCancellation;
     private uint _requestVersion;
     private bool _isReloading;
+    private string _requestedId;
+    private WeaponSlot _requestedSlot;
     public event Action Fired;
     public event Action<bool> ReloadingChanged;
 
@@ -63,6 +65,21 @@ public class PlayerWeaponPresenter : MonoBehaviour
         }
     }
 
+    // Ammo/action updates never restart an in-flight equipment load.
+    public void ApplyState(WeaponEquipmentState state)
+    {
+        SetReloading(state.Action == WeaponActionState.Reloading);
+        var id = state.ActiveWeapon.WeaponId;
+        if (_requestedId == id && _requestedSlot == state.ActiveSlot) return;
+        _requestedId = id;
+        _requestedSlot = state.ActiveSlot;
+        PresentAsync(state, default).Forget(exception =>
+        {
+            if (!(exception is OperationCanceledException))
+                AppLog.LogException(LogChannel.Combat, exception, this);
+        });
+    }
+
     public async UniTask PresentAsync(WeaponEquipmentState state, CancellationToken lifetimeToken)
     {
         lifetimeToken.ThrowIfCancellationRequested();
@@ -71,14 +88,20 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
         CancelPendingRequest();
         var version = _requestVersion;
-        var weaponState = state.ActiveSlot switch
+        // Reset on failure so the next state update may retry this equipment.
+        try
         {
-            WeaponSlot.Main => state.Main,
-            WeaponSlot.Secondary => state.Secondary,
-            WeaponSlot.None => default,
-            _ => throw new ArgumentOutOfRangeException(nameof(state), "Unknown weapon slot.")
-        };
-        var id = weaponState.WeaponId;
+            await LoadVisualAsync(state.ActiveWeapon.WeaponId, version, lifetimeToken);
+        }
+        catch
+        {
+            if (version == _requestVersion) _requestedId = null;
+            throw;
+        }
+    }
+
+    private async UniTask LoadVisualAsync(string id, uint version, CancellationToken lifetimeToken)
+    {
 
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -155,6 +178,8 @@ public class PlayerWeaponPresenter : MonoBehaviour
     
     public void ClearVisuals()
     {
+        _requestedId = null;
+        _requestedSlot = WeaponSlot.None;
         SetReloading(false);
         CancelPendingRequest();
         ReleaseActiveVisual();
@@ -186,11 +211,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
             Addressables.Release(handle);
     }
 
-    public void PlayFire()
-    {
-        if (_activeVisual) PlayFire(_activeVisual.Definition.Id);
-    }
-
     public void PlayFire(string weaponId)
     {
         if (!_activeVisual || _activeVisual.Definition.Id != weaponId) return;
@@ -199,16 +219,11 @@ public class PlayerWeaponPresenter : MonoBehaviour
         Fired?.Invoke();
     }
 
-    public void PlayReload()
-    {
-        SetReloading(true);
-    }
-
     public void SetReloading(bool reloading)
     {
-        if (_activeVisual) _activeVisual.SetReloading(reloading);
         if (_isReloading == reloading) return;
         _isReloading = reloading;
+        if (_activeVisual) _activeVisual.SetReloading(reloading);
         WeaponAnimation.SetReloading(_isLocalOwner ? _firstPersonAnimator : _thirdPersonAnimator, reloading);
         ReloadingChanged?.Invoke(reloading);
     }
