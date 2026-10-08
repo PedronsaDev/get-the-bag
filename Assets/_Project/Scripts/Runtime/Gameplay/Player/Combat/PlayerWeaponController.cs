@@ -186,7 +186,8 @@ public class PlayerWeaponController : NetworkBehaviour
 
     public void RequestEquip(WeaponSlot slot)
     {
-        if (_running && isOwner) RpcRequestEquip(slot);
+        if (_running && isOwner) 
+            RpcRequestEquip(slot);
     }
 
     [ServerRpc(requireOwnership: true)]

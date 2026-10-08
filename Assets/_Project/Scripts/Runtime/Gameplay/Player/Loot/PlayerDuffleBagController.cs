@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Project.Content;
 using Project.Core.Input;
 using Project.Loot;
 using Project.Loot.Data;
@@ -37,9 +38,9 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
     [SerializeField] private GameObject _wornBagVisual;
 
     [Header("Networked State")] 
-    [SerializeField] private SyncVar<bool> _hasBag = new(false);
-    [SerializeField] private SyncVar<float> _currentWeight = new(0f);
-    [SerializeField] private SyncVar<int> _currentValue = new(0);
+    [SerializeField] private SyncVar<bool> _hasBag = new();
+    [SerializeField] private SyncVar<float> _currentWeight = new();
+    [SerializeField] private SyncVar<int> _currentValue = new();
 
     private readonly List<DuffleBagItemEntry> _stowedItems = new();
     private float _throwChargeTimer;
@@ -199,10 +200,8 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
     [ObserversRpc(runLocally: true)]
     private void RpcNotifyItemStowed(string itemGuid)
     {
-        // if (LootRegistry.Instance.TryGetByGuid(itemGuid, out var def))
-        // {
-        //     OnItemStowed?.Invoke(def);
-        // }
+        if (GameContent.LootRegistry.TryGetByGuid(itemGuid, out var def)) 
+            OnItemStowed?.Invoke(def);
     }
     
     public void ThrowBag(float throwSpeed)
