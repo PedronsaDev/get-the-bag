@@ -25,10 +25,16 @@ public class PlayerWeaponController : NetworkBehaviour
     [SerializeField] private WeaponDefinition _defaultMainWeapon;
     [SerializeField] private WeaponDefinition _defaultSecondaryWeapon;
 
+    [Header("Default Attachments (Resolved On Spawn)")]
+    [SerializeField] private WeaponAttachmentDefinition[] _defaultMainAttachments = Array.Empty<WeaponAttachmentDefinition>();
+    [SerializeField] private WeaponAttachmentDefinition[] _defaultSecondaryAttachments = Array.Empty<WeaponAttachmentDefinition>();
+
     private RuntimeWeapon _mainWeapon;
     private RuntimeWeapon _secondaryWeapon;
+    
     private readonly SyncVar<WeaponEquipmentState> _confirmedState = new();
     private readonly WeaponHitscan _hitscan = new();
+    
     private double _reloadEndsAt;
     private Vector3 _serverAim;
     private double _lastTriggerUpdate;
@@ -145,8 +151,8 @@ public class PlayerWeaponController : NetworkBehaviour
             return;
         }
 
-        _mainWeapon = CreateDefaultWeapon(_defaultMainWeapon);
-        _secondaryWeapon = CreateDefaultWeapon(_defaultSecondaryWeapon);
+        _mainWeapon = CreateDefaultWeapon(_defaultMainWeapon, _defaultMainAttachments);
+        _secondaryWeapon = CreateDefaultWeapon(_defaultSecondaryWeapon, _defaultSecondaryAttachments);
         _serverTriggerHeld = false;
         _triggerBlockedUntilRelease = false;
         _shotSequence = 0;
@@ -155,14 +161,13 @@ public class PlayerWeaponController : NetworkBehaviour
         {
             Main = _mainWeapon?.CaptureState() ?? default,
             Secondary = _secondaryWeapon?.CaptureState() ?? default,
-            ActiveSlot = _mainWeapon != null ? WeaponSlot.Main :
-                _secondaryWeapon != null ? WeaponSlot.Secondary : WeaponSlot.None,
+            ActiveSlot = _mainWeapon != null ? WeaponSlot.Main : _secondaryWeapon != null ? WeaponSlot.Secondary : WeaponSlot.None,
             Action = WeaponActionState.Idle,
             EquipRevision = 1
         };
     }
 
-    private RuntimeWeapon CreateDefaultWeapon(WeaponDefinition definition)
+    private RuntimeWeapon CreateDefaultWeapon(WeaponDefinition definition, WeaponAttachmentDefinition[] attachments)
     {
         if (!definition) 
             return null;
@@ -175,7 +180,13 @@ public class PlayerWeaponController : NetworkBehaviour
 
         try
         {
-            return new RuntimeWeapon(weapon);
+            var ids = new string[attachments?.Length ?? 0];
+            for (var i = 0; i < ids.Length; i++)
+            {
+                if (!attachments[i]) throw new ArgumentException("Default loadout contains a missing attachment.");
+                ids[i] = attachments[i].Id;
+            }
+            return new RuntimeWeapon(weapon, ids);
         }
         catch (Exception exception)
         {
@@ -314,7 +325,7 @@ public class PlayerWeaponController : NetworkBehaviour
         var weapon = ActiveWeapon;
         if (weapon == null || !CanAct || ConfirmedState.Action != WeaponActionState.Idle ||
             !ValidAim(_serverAim) || !weapon.TryFire(now)) return;
-        var shot = _hitscan.Execute(weapon.Definition, transform, owner, GetServerAimOrigin(), _serverAim);
+        var shot = _hitscan.Execute(weapon.Definition, weapon.ResolvedStats, transform, owner, GetServerAimOrigin(), _serverAim);
         shot.Slot = ConfirmedState.ActiveSlot;
         shot.Sequence = ++_shotSequence;
         Publish(ConfirmedState);
@@ -342,7 +353,7 @@ public class PlayerWeaponController : NetworkBehaviour
         var weapon = ActiveWeapon;
         if (weapon is not { CanReload: true }) return;
         StopFiring();
-        _reloadEndsAt = Time.timeAsDouble + weapon.Definition.ReloadDuration;
+        _reloadEndsAt = Time.timeAsDouble + weapon.ResolvedStats.ReloadDuration;
         SetActionServer(WeaponActionState.Reloading);
     }
 
@@ -362,7 +373,8 @@ public class PlayerWeaponController : NetworkBehaviour
 
     private void HandleEquipmentChanged(WeaponEquipmentState state)
     {
-        if (isClient && _presenter) _presenter.ApplyState(state);
+        if (isClient && _presenter) 
+            _presenter.ApplyState(state);
     }
 }
 }

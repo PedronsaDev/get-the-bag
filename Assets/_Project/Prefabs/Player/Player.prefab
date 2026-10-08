@@ -272,9 +272,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _healthType: 0
   _maxHealth: 100
-  _armorRating: 0
   _invulnerable: 0
   _maxShield: 100
   _shieldRegenDelay: 4
@@ -480,6 +478,10 @@ MonoBehaviour:
   _aimOrigin: {fileID: 960240798095504355}
   _defaultMainWeapon: {fileID: 11400000, guid: f6da18507d0e1a74e9315f34b891526d, type: 2}
   _defaultSecondaryWeapon: {fileID: 11400000, guid: 698bb7cee5b1a4b4d8e4a7c815ed608e, type: 2}
+  _defaultMainAttachments:
+  - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}
+  - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
+  _defaultSecondaryAttachments: []
 --- !u!114 &2088912157696552025
 MonoBehaviour:
   m_ObjectHideFlags: 0

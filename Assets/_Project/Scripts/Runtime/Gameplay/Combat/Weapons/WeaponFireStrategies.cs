@@ -5,17 +5,17 @@ namespace Project.Combat.Weapons
 {
 public static class WeaponFireStrategies
 {
-    public static IWeaponFireStrategy Create(WeaponDefinition weapon)
+    public static IWeaponFireStrategy Create(WeaponDefinition weapon, WeaponResolvedStats stats)
     {
         if (weapon.CustomFireMode)
-            return weapon.CustomFireMode.CreateStrategy(weapon) ??
+            return weapon.CustomFireMode.CreateStrategy(weapon, stats) ??
                    throw new InvalidOperationException("Custom fire mode returned no strategy.");
         return weapon.FireMode switch
         {
             WeaponFireMode.SemiAutomatic => new SemiAutomaticFireStrategy(),
             WeaponFireMode.FullAutomatic => new FullAutomaticFireStrategy(),
             WeaponFireMode.Burst => new BurstFireStrategy(weapon.BurstSize,
-                weapon.FireRateSeconds, weapon.BurstCooldown),
+                stats.FireRateSeconds, weapon.BurstCooldown),
             _ => throw new ArgumentOutOfRangeException(nameof(weapon), "Unknown fire mode.")
         };
     }

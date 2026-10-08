@@ -1,17 +1,18 @@
 {
-  "name": "Project.Definitions",
-  "rootNamespace": "Project.Definitions",
-  "references": [
-    "Project.Logging",
-    "Unity.Addressables"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "Project.Definitions",
+    "rootNamespace": "Project.Definitions",
+    "references": [
+        "Project.Logging",
+        "Unity.Addressables",
+        "NaughtyAttributes.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

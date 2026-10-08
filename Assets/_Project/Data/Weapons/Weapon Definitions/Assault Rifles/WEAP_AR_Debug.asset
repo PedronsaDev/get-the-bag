@@ -15,19 +15,20 @@ MonoBehaviour:
   _id: weap_ar_debug
   _name: '[DEBUG_AR]'
   _category: 1
-  _baseDamage: 8
   _baseMagazineSize: 30
-  _reloadDuration: 1.5
-  _fireRate: 600
   _startingReserveAmmo: 90
-  _range: 100
-  _hitMask:
-    serializedVersion: 2
-    m_Bits: 46967
-  _fireMode: 0
+  _baseReloadDuration: 1.5
+  _baseDamage: 8
+  _fireMode: 1
+  _baseFireRate: 600
+  _baseRange: 100
   _burstSize: 3
   _burstCooldown: 0.25
   _customFireMode: {fileID: 0}
+  _hitMask:
+    serializedVersion: 2
+    m_Bits: 46967
+  _compatibleAttachments: []
   _prefabReference:
     m_AssetGUID: e3a7db3a0247b26489d283f3a7d4a933
     m_SubObjectName: 

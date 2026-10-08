@@ -65,7 +65,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
         }
     }
 
-    // Ammo/action updates never restart an in-flight equipment load.
     public void ApplyState(WeaponEquipmentState state)
     {
         SetReloading(state.Action == WeaponActionState.Reloading);
@@ -73,9 +72,9 @@ public class PlayerWeaponPresenter : MonoBehaviour
         if (_requestedId == id && _requestedSlot == state.ActiveSlot) return;
         _requestedId = id;
         _requestedSlot = state.ActiveSlot;
-        PresentAsync(state, default).Forget(exception =>
+        PresentAsync(state, CancellationToken.None).Forget(exception =>
         {
-            if (!(exception is OperationCanceledException))
+            if (exception is not OperationCanceledException)
                 AppLog.LogException(LogChannel.Combat, exception, this);
         });
     }
@@ -88,7 +87,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
         CancelPendingRequest();
         var version = _requestVersion;
-        // Reset on failure so the next state update may retry this equipment.
         try
         {
             await LoadVisualAsync(state.ActiveWeapon.WeaponId, version, lifetimeToken);

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afa7a2efa75774b46b72e799ad82014f, type: 3}
+  m_Name: MOD_Magazine_Extended
+  m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponAttachmentDefinition
+  _id: mod_magazine_extended
+  _displayName: Extended Magazine
+  _slot: 0
+  _damage:
+    _add: 0
+    _percent: 0
+  _magazineSize:
+    _add: 12
+    _percent: 0
+  _reloadDuration:
+    _add: 0
+    _percent: 0
+  _fireRate:
+    _add: 0
+    _percent: 0
+  _range:
+    _add: 0
+    _percent: 0

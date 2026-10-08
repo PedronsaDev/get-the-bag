@@ -18,6 +18,6 @@ public interface IWeaponFireStrategy
 
 public abstract class WeaponFireModeDefinition : ScriptableObject
 {
-    public abstract IWeaponFireStrategy CreateStrategy(WeaponDefinition weapon);
+    public abstract IWeaponFireStrategy CreateStrategy(WeaponDefinition weapon, WeaponResolvedStats stats);
 }
 }

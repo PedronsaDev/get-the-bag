@@ -9,15 +9,15 @@ public sealed class WeaponHitscan
 {
     private readonly RaycastHit[] _hits = new RaycastHit[32];
 
-    public WeaponShot Execute(WeaponDefinition definition, Transform shooter,
+    public WeaponShot Execute(WeaponDefinition definition, WeaponResolvedStats stats, Transform shooter,
         PlayerID? attacker, Vector3 origin, Vector3 direction)
     {
-        var count = Physics.RaycastNonAlloc(origin, direction, _hits, definition.Range,
+        var count = Physics.RaycastNonAlloc(origin, direction, _hits, stats.Range,
             definition.HitMask, QueryTriggerInteraction.Collide);
         var hits = _hits;
         if (count == _hits.Length)
         {
-            hits = Physics.RaycastAll(origin, direction, definition.Range,
+            hits = Physics.RaycastAll(origin, direction, stats.Range,
                 definition.HitMask, QueryTriggerInteraction.Collide);
             count = hits.Length;
         }
@@ -40,10 +40,10 @@ public sealed class WeaponHitscan
         var shot = new WeaponShot
         {
             WeaponId = definition.Id, Origin = origin, Hit = closest.collider,
-            EndPoint = closest.collider ? closest.point : origin + direction * definition.Range,
+            EndPoint = closest.collider ? closest.point : origin + direction * stats.Range,
             HitNormal = closest.normal
         };
-        target?.TakeDamage(new DamagePayload(definition.BaseDamage, hitPoint: shot.EndPoint,
+        target?.TakeDamage(new DamagePayload(stats.Damage, hitPoint: shot.EndPoint,
             hitNormal: shot.HitNormal, impactDirection: direction, attackerId: attacker));
         return shot;
     }

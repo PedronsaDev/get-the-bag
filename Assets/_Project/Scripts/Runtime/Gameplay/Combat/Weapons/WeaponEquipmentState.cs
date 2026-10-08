@@ -20,6 +20,7 @@ public enum WeaponActionState
 public struct WeaponItemState : IPackedAuto
 {
     public string WeaponId;
+    public string[] AttachmentIds;
     public int MagazineAmmo;
     public int ReserveAmmo;
 }
@@ -41,4 +42,5 @@ public struct WeaponEquipmentState : IPackedAuto
         _ => default
     };
 }
+
 }
