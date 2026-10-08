@@ -476,6 +476,8 @@ MonoBehaviour:
   _inputProvider: {fileID: 3432939826793728204}
   _locomotionController: {fileID: 7482482855676676148}
   _presenter: {fileID: 2088912157696552025}
+  _cameraController: {fileID: 1197550716529269032}
+  _aimOrigin: {fileID: 960240798095504355}
   _defaultMainWeapon: {fileID: 11400000, guid: f6da18507d0e1a74e9315f34b891526d, type: 2}
   _defaultSecondaryWeapon: {fileID: 11400000, guid: 698bb7cee5b1a4b4d8e4a7c815ed608e, type: 2}
 --- !u!114 &2088912157696552025

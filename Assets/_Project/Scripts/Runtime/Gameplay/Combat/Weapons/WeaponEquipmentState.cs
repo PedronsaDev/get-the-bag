@@ -22,7 +22,7 @@ public struct WeaponItemState : IPackedAuto
 {
     public string WeaponId;
     public int MagazineAmmo;
-    // TODO: Add reserve ammo after deciding whether it belongs to the weapon or inventory.
+    public int ReserveAmmo;
     // TODO (later): Stable part IDs, rolled modifiers, durability and persistent instance ID.
 }
 
@@ -35,6 +35,7 @@ public struct WeaponEquipmentState : IPackedAuto
     public WeaponActionState Action;
 
     public uint Revision;
-    // TODO: Add authoritative action timing for reload completion/reconstruction.
+    public uint EquipRevision;
+    public float ReloadDuration;
 }
 }

@@ -32,6 +32,9 @@ public class PlayerWeaponPresenter : MonoBehaviour
     
     private CancellationTokenSource _equipCancellation;
     private uint _requestVersion;
+    private bool _isReloading;
+    public event Action Fired;
+    public event Action<bool> ReloadingChanged;
 
     public void ConfigureView(bool isLocalOwner)
     {
@@ -66,7 +69,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
         if (!this)
             return;
 
-        // Even an invalid/new empty selection supersedes older in-flight work.
         CancelPendingRequest();
         var version = _requestVersion;
         var weaponState = state.ActiveSlot switch
@@ -94,7 +96,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
         if (!socket)
             throw new InvalidOperationException($"Weapon '{id}' has no configured presentation socket.");
 
-        // Ammo/action updates do not recreate an already equipped visual.
         if (_activeVisual && _activeVisual.Definition == definition &&
             _activeVisual.transform.parent == socket && _ownsPrefabHandle && _activeWeaponHandle.IsValid())
             return;
@@ -112,7 +113,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
         try
         {
             token.ThrowIfCancellationRequested();
-            // The shared AssetReference must not own a single load for all player presenters.
             handle = Addressables.LoadAssetAsync<GameObject>(definition.PrefabReference.RuntimeKey);
             var prefab = await handle.ToUniTask(cancellationToken: token, autoReleaseWhenCanceled: false);
 
@@ -126,7 +126,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
             var visual = instance.GetComponent<WeaponInstance>();
             visual.Initialize(definition);
 
-            // Instantiation invokes user callbacks; recheck before publishing ownership.
             token.ThrowIfCancellationRequested();
             if (version != _requestVersion || !this || !socket)
                 throw new OperationCanceledException("Weapon presentation was superseded.", token);
@@ -135,12 +134,12 @@ public class PlayerWeaponPresenter : MonoBehaviour
             _activeVisual = visual;
             _activeWeaponHandle = handle;
             _ownsPrefabHandle = true;
+            visual.SetReloading(_isReloading);
             instance = null;
-            handle = default; // Ownership moved to the active visual.
+            handle = default;
         }
         finally
         {
-            // Failure/cancellation releases only this request's resources, never another's.
             if (instance)
             {
                 instance.SetActive(false);
@@ -156,6 +155,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
     
     public void ClearVisuals()
     {
+        SetReloading(false);
         CancelPendingRequest();
         ReleaseActiveVisual();
     }
@@ -188,12 +188,29 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
     public void PlayFire()
     {
-        // TODO: Cosmetic animation, flash, sound and owner recoil; no damage/ammo mutation.
+        if (_activeVisual) PlayFire(_activeVisual.Definition.Id);
+    }
+
+    public void PlayFire(string weaponId)
+    {
+        if (!_activeVisual || _activeVisual.Definition.Id != weaponId) return;
+        _activeVisual.PlayFire();
+        WeaponAnimation.PlayFire(_isLocalOwner ? _firstPersonAnimator : _thirdPersonAnimator);
+        Fired?.Invoke();
     }
 
     public void PlayReload()
     {
-        // TODO: Start representation-specific reload clips and blend hand IK as needed.
+        SetReloading(true);
+    }
+
+    public void SetReloading(bool reloading)
+    {
+        if (_activeVisual) _activeVisual.SetReloading(reloading);
+        if (_isReloading == reloading) return;
+        _isReloading = reloading;
+        WeaponAnimation.SetReloading(_isLocalOwner ? _firstPersonAnimator : _thirdPersonAnimator, reloading);
+        ReloadingChanged?.Invoke(reloading);
     }
 
     private void OnDestroy()

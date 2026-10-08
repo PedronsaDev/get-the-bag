@@ -18,6 +18,16 @@ MonoBehaviour:
   _baseDamage: 10
   _baseMagazineSize: 12
   _reloadDuration: 1.5
+  _fireRate: 600
+  _startingReserveAmmo: 90
+  _range: 100
+  _hitMask:
+    serializedVersion: 2
+    m_Bits: 46967
+  _fireMode: 0
+  _burstSize: 3
+  _burstCooldown: 0.25
+  _customFireMode: {fileID: 0}
   _prefabReference:
     m_AssetGUID: 3f1021088e345194e8bae8a1f5e4dd63
     m_SubObjectName: 

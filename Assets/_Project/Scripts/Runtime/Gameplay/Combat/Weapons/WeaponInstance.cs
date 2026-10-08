@@ -1,3 +1,4 @@
+using System;
 using Project.Combat.Data;
 using Project.Logging;
 using UnityEngine;
@@ -19,10 +20,14 @@ public class WeaponInstance : MonoBehaviour
     public Transform LeftHandGrip => _leftHandGrip;
     public Transform RightHandGrip => _rightHandGrip;
     public WeaponDefinition Definition => _definition;
+    public event Action Fired;
+    public event Action<bool> ReloadingChanged;
+    private bool _isReloading;
     
     public void Initialize(WeaponDefinition definition)
     {
         _definition = definition;
+        if (!_animator) _animator = GetComponent<Animator>();
         
         if (!_firePoint)
         {
@@ -41,12 +46,21 @@ public class WeaponInstance : MonoBehaviour
 
     public void PlayFire()
     {
-        // TODO: Cosmetic effects/animation; no authoritative ammo or damage.
+        WeaponAnimation.PlayFire(_animator);
+        Fired?.Invoke();
     }
 
     public void PlayReload()
     {
-        // TODO: Magazine/bolt animation coordinated with arms; no gameplay decisions.
+        SetReloading(true);
+    }
+
+    public void SetReloading(bool reloading)
+    {
+        if (_isReloading == reloading) return;
+        _isReloading = reloading;
+        WeaponAnimation.SetReloading(_animator, reloading);
+        ReloadingChanged?.Invoke(reloading);
     }
 }
 }
