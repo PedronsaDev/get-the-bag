@@ -9,21 +9,4 @@ public enum HitLocation
     ArmorPlating
 }
 
-public enum DamageType
-{
-    Physical,
-    Incendiary,
-    Corrosive,
-    Shock,
-    Explosive,
-    TrueDamage
-}
-
-public enum HealthType
-{
-    Flesh,
-    Armored,
-    Mechanical,
-    Structure
-}
 }

@@ -15,7 +15,7 @@ namespace Project.Player.Commands
         [Command("hp_status", "Displays comprehensive health, shield, downed state, and bleedout timers for a player (default: local player). Usage: hp_status [playerId]")]
         public static void HealthStatus(int playerId = -1)
         {
-            if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
+            if (!TryResolveTarget(playerId, out var player, out var health, out var downed, requireServer: false))
                 return;
 
             StringBuilder sb = new();
@@ -75,8 +75,7 @@ namespace Project.Player.Commands
 
             var result = health.TakeDamage(new DamagePayload
             {
-                Amount = Mathf.Max(0.1f, amount),
-                Type = DamageType.Physical,
+                Amount = amount,
                 Location = HitLocation.Core,
                 HitPoint = player.transform.position + Vector3.up,
                 HitNormal = Vector3.up
@@ -91,42 +90,6 @@ namespace Project.Player.Commands
             Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} damage to {player.gameObject.name} (Shield: -{result.DamageToShield:F1}, HP: -{result.DamageToHealth:F1}) | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
-        [Command("hp_true_damage", "Deals true damage directly to health, bypassing shields. Usage: hp_true_damage <amount> [playerId]")]
-        public static void DamageHp(float amount = 25f, int playerId = -1)
-        {
-            if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
-                return;
-
-            if (!health)
-            {
-                Console.LogError("[Combat & Health] Target has no HealthComponent.");
-                return;
-            }
-
-            if (health.IsDead || (downed && downed.IsDowned))
-            {
-                Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed/dead (HP: {health.CurrentHealth:F1}). Use 'revive' first.");
-                return;
-            }
-
-            var result = health.TakeDamage(new DamagePayload
-            {
-                Amount = Mathf.Max(0.1f, amount),
-                Type = DamageType.TrueDamage,
-                Location = HitLocation.Core,
-                HitPoint = player.transform.position + Vector3.up,
-                HitNormal = Vector3.up
-            });
-
-            if (!result.Applied)
-            {
-                Console.LogWarning($"[Combat & Health] Damage was not applied to {player.gameObject.name} (Invulnerable: {health.Invulnerable}, IsDead: {health.IsDead}).");
-                return;
-            }
-
-            Console.Log($"[Combat & Health] Dealt {result.EffectiveDamage:F1} TRUE damage to {player.gameObject.name} | Shield: {health.CurrentShield:F1}/{health.MaxShield:F1} | HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
-        }
-
         [Command("hp_heal", "Heals the player by specified amount. Usage: hp_heal <amount> [playerId]")]
         public static void Heal(float amount = 50f, int playerId = -1)
         {
@@ -139,7 +102,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            health.RequestHeal(amount);
+            health.Heal(amount);
             Console.Log($"[Combat & Health] Requested {amount:F1} HP heal for {player.gameObject.name}. Current HP: {health.CurrentHealth:F1}/{health.MaxHealth:F1}");
         }
 
@@ -157,15 +120,15 @@ namespace Project.Player.Commands
 
             if (downed && downed.IsDowned)
             {
-                downed.RequestDirectRevive(1f);
+                downed.ReviveServer(1f);
             }
             else if (health.IsDead)
             {
                 health.Revive(health.MaxHealth);
             }
 
-            health.RequestHeal(health.MaxHealth);
-            health.RequestRechargeShield(health.MaxShield);
+            health.Heal(health.MaxHealth);
+            health.RechargeShield(health.MaxShield);
             Console.Log($"[Combat & Health] Fully restored health ({health.MaxHealth:F1}) and shields ({health.MaxShield:F1}) for {player.gameObject.name}.");
         }
 
@@ -187,7 +150,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            downed.RequestDown();
+            downed.DownServer();
             Console.Log($"[Combat & Health] Successfully downed {player.gameObject.name}.");
         }
 
@@ -208,7 +171,7 @@ namespace Project.Player.Commands
 
             if (downed)
             {
-                downed.RequestDirectRevive();
+                downed.ReviveServer();
             }
             else if (health)
             {
@@ -236,7 +199,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            downed.RequestSetBleedOutTimer(seconds);
+            downed.SetBleedOutTimerServer(seconds);
             Console.Log($"[Combat & Health] Set bleedout timer to {seconds:F1}s for {player.gameObject.name}.");
         }
 
@@ -253,7 +216,7 @@ namespace Project.Player.Commands
             }
 
             bool newState = !health.Invulnerable;
-            health.RequestSetInvulnerable(newState);
+            health.SetInvulnerable(newState);
             Console.Log($"[Combat & Health] Invulnerability for {player.gameObject.name} set to: {newState}");
         }
 
@@ -269,7 +232,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            downed.RequestKill();
+            downed.KillServer();
             Console.Log($"[Combat & Health] Executed true death for {player.gameObject.name}.");
         }
 
@@ -289,7 +252,14 @@ namespace Project.Player.Commands
             Console.Log($"[Combat & Health] Drag released for {player.gameObject.name}.");
         }
 
-        private static bool TryResolveTarget(int playerId, out PlayerFacade player, out HealthComponent health, out PlayerDownedState downed)
+        private static bool CheckAuthority(PlayerFacade player, bool requireServer)
+        {
+            if (!requireServer || player.isServer) return true;
+            Console.LogWarning("[Combat & Health] Run health-changing commands on the host/server.");
+            return false;
+        }
+
+        private static bool TryResolveTarget(int playerId, out PlayerFacade player, out HealthComponent health, out PlayerDownedState downed, bool requireServer = true)
         {
             player = null;
             health = null;
@@ -311,7 +281,7 @@ namespace Project.Player.Commands
 
                 health = player.HealthComponent ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
                 downed = player.DownedState ?? player.GetComponent<PlayerDownedState>() ?? player.GetComponentInChildren<PlayerDownedState>(true) ?? player.GetComponentInParent<PlayerDownedState>(true);
-                return true;
+                return CheckAuthority(player, requireServer);
             }
 
             var activePlayers = PlayerIdentifier.ActivePlayers;
@@ -330,7 +300,7 @@ namespace Project.Player.Commands
                         {
                             health = player.HealthComponent ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
                             downed = player.DownedState ?? player.GetComponent<PlayerDownedState>() ?? player.GetComponentInChildren<PlayerDownedState>(true) ?? player.GetComponentInParent<PlayerDownedState>(true);
-                            return true;
+                            return CheckAuthority(player, requireServer);
                         }
                     }
                 }
@@ -341,4 +311,3 @@ namespace Project.Player.Commands
         }
     }
 }
-

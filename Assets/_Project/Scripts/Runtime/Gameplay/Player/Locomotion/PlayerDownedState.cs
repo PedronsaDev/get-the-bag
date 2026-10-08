@@ -3,6 +3,7 @@ using Project.Combat.Core;
 using Project.Combat.Health;
 using Project.Core;
 using Project.Core.Player;
+using Project.Logging;
 using Project.Player.Interaction;
 using PurrNet;
 using UnityEngine;
@@ -36,7 +37,7 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
     public event Action<PlayerID?> OnDraggedByChanged;
     public event Action OnTrueDeath;
 
-    public bool IsDead => _healthComponent is { IsDead: true };
+    public bool IsDead => !IsDowned && _healthComponent is { IsDead: true };
     public bool IsDowned => IsDown.value;
     public bool IsStanding => !IsDead && !IsDowned;
 
@@ -69,7 +70,7 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
     {
         base.OnSpawned();
 
-        if (isServer || !NetworkManager.main || NetworkManager.main.isOffline)
+        if (isServer)
         {
             if (_healthComponent)
             {
@@ -115,7 +116,7 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
 
     private void Update()
     {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
+        bool isMatchHost = isServer;
 
         if (isMatchHost && IsDown.value)
         {
@@ -161,14 +162,14 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
 
     private void HandleDeathOrDowned(DamageResult result)
     {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
+        bool isMatchHost = isServer;
         if (!isMatchHost) return;
 
         if (IsDown.value) return;
 
         if (IsTeamWiped())
         {
-            Debug.Log("[PlayerDownedState] Team wiped! Triggering true death.");
+            AppLog.Log(LogChannel.Player, "Team wiped; triggering true death.", this);
             ExecuteTrueDeath();
             return;
         }
@@ -226,8 +227,8 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
 
     public void RequestRevive()
     {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-        if (isMatchHost)
+        if (!isSpawned) return;
+        if (isServer)
         {
             ExecuteRevive(GetLocalPlayerId() ?? PurrNet.PlayerID.Server);
         }
@@ -245,124 +246,63 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
 
     private void ExecuteRevive(PlayerID reviver)
     {
-        if (!IsDown.value && (!_healthComponent || !_healthComponent.IsDead)) return;
+        if (!isServer || !IsDown.value || !_healthComponent ||
+            !TryGetLivingInteractor(reviver, out _)) return;
+        ReviveServer();
+    }
 
-        if (PlayerIdentifier.TryGetPlayer(reviver, out var reviverPlayer))
-        {
-            // Only validate distance and teammate downed state if another player is reviving us
-            if (reviverPlayer.transform.root != transform.root)
-            {
-                float dist = Vector3.Distance(reviverPlayer.transform.position, BodyPosition);
-                if (dist > _maxDragDistance) return;
+    // Gameplay RPCs send interaction intent. The server resolves the actor and range.
+    private bool TryGetLivingInteractor(PlayerID playerId, out PlayerIdentifier player)
+    {
+        if (!PlayerIdentifier.TryGetPlayer(playerId, out player) || !player) return false;
+        var status = player.GetComponentInParent<PlayerDownedState>();
+        var health = player.GetComponentInParent<HealthComponent>();
+        return status && status != this && status.IsStanding && health && !health.IsDead &&
+               (player.BodyTransform.position - BodyPosition).sqrMagnitude <= _maxDragDistance * _maxDragDistance;
+    }
 
-                var reviverDowned = reviverPlayer.GetComponentInParent<PlayerDownedState>();
-                if (reviverDowned && reviverDowned.IsDown.value) return;
-            }
-        }
-
+    // Administrative/server gameplay APIs. No RPC exposes arbitrary health or timers.
+    public bool ReviveServer(float? healthPercent = null)
+    {
+        if (!isServer || !_healthComponent) return false;
+        var fraction = healthPercent ?? _reviveHealthPercent;
+        if (!float.IsFinite(fraction) || fraction <= 0f ||
+            (!IsDown.value && !_healthComponent.IsDead)) return false;
+        if (_healthComponent.IsDead &&
+            !_healthComponent.Revive(_healthComponent.MaxHealth * Mathf.Clamp01(fraction))) return false;
         DraggedByPlayer.value = null;
         IsDown.value = false;
-
-        if (_healthComponent)
-        {
-            float hp = Mathf.Max(1f, _healthComponent.MaxHealth * _reviveHealthPercent);
-            _healthComponent.Revive(hp);
-        }
+        BleedOutTimer.value = 0f;
+        return true;
     }
 
-    public void RequestDirectRevive(float? healthPercent = null)
+    public void DownServer()
     {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-        if (isMatchHost)
-        {
-            ExecuteDirectRevive(healthPercent);
-        }
-        else
-        {
-            RpcDirectRevive(healthPercent ?? -1f);
-        }
+        if (!isServer || IsDown.value || IsDead || !_healthComponent) return;
+        _healthComponent.TakeDamage(new DamagePayload(
+            _healthComponent.CurrentHealth + _healthComponent.CurrentShield));
     }
 
-    [ServerRpc(requireOwnership: false)]
-    private void RpcDirectRevive(float healthPercent = -1f)
+    public void SetBleedOutTimerServer(float seconds)
     {
-        ExecuteDirectRevive(healthPercent < 0 ? null : healthPercent);
+        if (isServer && IsDown.value && float.IsFinite(seconds))
+            BleedOutTimer.value = Mathf.Max(0f, seconds);
     }
 
-    public void ExecuteDirectRevive(float? healthPercent = null)
+    public void KillServer()
     {
-        DraggedByPlayer.value = null;
-        IsDown.value = false;
-
-        if (_healthComponent)
-        {
-            float pct = healthPercent ?? _reviveHealthPercent;
-            float hp = Mathf.Clamp(_healthComponent.MaxHealth * pct, 1f, _healthComponent.MaxHealth);
-            _healthComponent.Revive(hp);
-        }
-    }
-
-    public void RequestDown()
-    {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-        if (isMatchHost)
-        {
-            ExecuteDowned();
-        }
-        else
-        {
-            RpcRequestDown();
-        }
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestDown()
-    {
-        ExecuteDowned();
-    }
-
-    public void RequestSetBleedOutTimer(float seconds)
-    {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-        if (isMatchHost)
-        {
-            BleedOutTimer.value = Mathf.Max(0.1f, seconds);
-        }
-        else
-        {
-            RpcRequestSetBleedOutTimer(seconds);
-        }
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestSetBleedOutTimer(float seconds)
-    {
-        BleedOutTimer.value = Mathf.Max(0.1f, seconds);
-    }
-
-    public void RequestKill()
-    {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-        if (isMatchHost)
-        {
-            ExecuteTrueDeath();
-        }
-        else
-        {
-            RpcRequestKill();
-        }
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestKill()
-    {
-        ExecuteTrueDeath();
+        if (!isServer || IsDead || !_healthComponent) return;
+        if (!_healthComponent.IsDead &&
+            !_healthComponent.TakeDamage(new DamagePayload(
+                _healthComponent.CurrentHealth + _healthComponent.CurrentShield)).Applied) return;
+        // Fatal damage may already have triggered true death through the team-wipe rule.
+        if (IsDown.value) ExecuteTrueDeath();
     }
 
     public void RequestStartDrag()
     {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-        if (isMatchHost)
+        if (!isSpawned) return;
+        if (isServer)
         {
             ExecuteStartDrag(GetLocalPlayerId() ?? PurrNet.PlayerID.Server);
         }
@@ -380,25 +320,15 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
 
     private void ExecuteStartDrag(PlayerID sender)
     {
-        if (!IsDown.value) return;
-        if (DraggedByPlayer.value.HasValue) return;
-
-        if (PlayerIdentifier.TryGetPlayer(sender, out var dragger))
-        {
-            float dist = Vector3.Distance(dragger.transform.position, BodyPosition);
-            if (dist > _maxDragDistance) return;
-
-            var draggerDowned = dragger.GetComponentInParent<PlayerDownedState>();
-            if (draggerDowned && draggerDowned.IsDown.value) return;
-        }
-
+        if (!isServer || !IsDown.value || DraggedByPlayer.value.HasValue ||
+            !TryGetLivingInteractor(sender, out _)) return;
         DraggedByPlayer.value = sender;
     }
 
     public void RequestStopDrag()
     {
-        bool isMatchHost = isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-        if (isMatchHost)
+        if (!isSpawned) return;
+        if (isServer)
         {
             ExecuteStopDrag(GetLocalPlayerId() ?? PurrNet.PlayerID.Server);
         }
@@ -416,7 +346,7 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
 
     private void ExecuteStopDrag(PlayerID sender)
     {
-        if (DraggedByPlayer.value.HasValue && (DraggedByPlayer.value.Value == sender || sender.isServer))
+        if (isServer && DraggedByPlayer.value.HasValue && (DraggedByPlayer.value.Value == sender || sender.isServer))
         {
             DraggedByPlayer.value = null;
         }
@@ -441,7 +371,7 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
             return;
         }
 
-        float dist = Vector3.Distance(dragger.transform.position, BodyPosition);
+        float dist = Vector3.Distance(dragger.BodyTransform.position, BodyPosition);
         if (dist > _maxDragDistance + 1.0f)
         {
             DraggedByPlayer.value = null;
@@ -458,7 +388,7 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
 
         if (PlayerIdentifier.TryGetPlayer(DraggedByPlayer.value.Value, out var dragger))
         {
-            _locomotionController?.SetDragTarget(dragger.transform);
+            _locomotionController?.SetDragTarget(dragger.BodyTransform);
         }
         else
         {
@@ -476,10 +406,7 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
                 _locomotionController?.ClearDragTarget();
             }
 
-            // if (_weaponController)
-            // {
-            //     _weaponController.SetDowned(isDown);
-            // }
+
         }
 
         UpdateInteractableCollider(isDown);

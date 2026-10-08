@@ -29,6 +29,7 @@ public class Hitbox : MonoBehaviour, IDamageable
 
     public DamageResult TakeDamage(DamagePayload payload)
     {
+        if (!float.IsFinite(payload.Amount) || payload.Amount <= 0f) return default;
         payload.Location = _location;
         payload.Amount = Mathf.Max(0f, (payload.Amount - _flatDamageReduction) * _damageMultiplier);
 
@@ -38,7 +39,7 @@ public class Hitbox : MonoBehaviour, IDamageable
         }
 
         var fallbackDamageable = transform.parent ? transform.parent.GetComponentInParent<IDamageable>() : null;
-        if (fallbackDamageable != null && (Hitbox)fallbackDamageable != this)
+        if (fallbackDamageable != null && !ReferenceEquals(fallbackDamageable, this))
         {
             return fallbackDamageable.TakeDamage(payload);
         }
@@ -53,6 +54,8 @@ public class Hitbox : MonoBehaviour, IDamageable
 
     private void OnValidate()
     {
+        _damageMultiplier = float.IsFinite(_damageMultiplier) ? Mathf.Max(0f, _damageMultiplier) : 1f;
+        _flatDamageReduction = float.IsFinite(_flatDamageReduction) ? Mathf.Max(0f, _flatDamageReduction) : 0f;
         TryGetComponent(out _boxCollider);
         TryGetComponent(out _capsuleCollider);
         TryGetComponent(out _sphereCollider);

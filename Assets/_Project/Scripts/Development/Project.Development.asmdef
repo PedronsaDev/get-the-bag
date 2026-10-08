@@ -9,7 +9,8 @@
     "Project.Logging",
     "PurrNet.Runtime",
     "UniTask",
-    "Unity.TextMeshPro"
+    "Unity.TextMeshPro",
+    "Project.Combat"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

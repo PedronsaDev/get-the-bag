@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Project.Combat.Core;
+using Project.Combat.Health;
 using PurrNet;
 using UnityEngine;
 
@@ -7,189 +9,116 @@ namespace Project.Combat.Props
 {
 public class DestructibleProp : NetworkBehaviour, IDamageable
 {
-    [Header("Durability")] 
-    [SerializeField] private float _maxHealth = 40f;
+    [Header("Durability")]
+    [Min(1f)] [SerializeField] private float _maxHealth = 40f;
     [SerializeField] private SyncVar<float> _currentHealth = new(40f);
 
-    [Header("Destruction Effects")] 
+    [Header("Destruction Effects")]
     [SerializeField] private GameObject _debrisPrefab;
     [SerializeField] private GameObject _explosionVfxPrefab;
     [SerializeField] private AudioClip _destructionAudio;
 
-    [Header("Explosive Attributes")] 
-    [SerializeField] private bool _isExplosive = false;
-    [SerializeField] private float _explosionRadius = 4.5f;
-    [SerializeField] private float _explosionDamage = 80f;
-    [SerializeField] private float _explosionForce = 600f;
+    [Header("Explosion")]
+    [SerializeField] private bool _isExplosive;
+    [Min(0.01f)] [SerializeField] private float _explosionRadius = 4.5f;
+    [Min(0f)] [SerializeField] private float _explosionDamage = 80f;
+    [Min(0f)] [SerializeField] private float _explosionForce = 600f;
     [SerializeField] private LayerMask _damageLayerMask = ~0;
 
-    private bool _isDestroyed;
-
+    public float CurrentHealth => _currentHealth.value;
+    public bool IsDestroyed => CurrentHealth <= 0f;
     public event Action OnDestroyed;
 
     protected override void OnSpawned()
     {
-        if (!NetworkManager.main || isServer)
-        {
-            _currentHealth.value = _maxHealth;
-            _isDestroyed = false;
-        }
+        if (isServer) _currentHealth.value = _maxHealth;
     }
 
     public DamageResult TakeDamage(DamagePayload payload)
     {
-        if (_isDestroyed)
-            return new DamageResult { Applied = false };
-
-        if (NetworkManager.main && !NetworkManager.main.isOffline && !isServer)
+        if (!isServer || IsDestroyed || !float.IsFinite(payload.Amount) || payload.Amount <= 0f)
+            return default;
+        var appliedDamage = Mathf.Min(CurrentHealth, payload.Amount);
+        _currentHealth.value -= appliedDamage;
+        var result = new DamageResult
         {
-            RpcRequestTakeDamage(payload);
-            return new DamageResult
-            {
-                Applied = true,
-                RawDamage = payload.Amount,
-                EffectiveDamage = payload.Amount
-            };
-        }
-
-        return ProcessDamageAuthoritative(payload);
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestTakeDamage(DamagePayload payload, RPCInfo info = default)
-    {
-        if (!payload.AttackerId.HasValue)
-        {
-            payload.AttackerId = info.sender;
-        }
-
-        ProcessDamageAuthoritative(payload);
-    }
-
-    private DamageResult ProcessDamageAuthoritative(DamagePayload payload)
-    {
-        if (_isDestroyed)
-            return new DamageResult { Applied = false };
-
-        _currentHealth.value = Mathf.Max(0f, _currentHealth.value - payload.Amount);
-        bool isFatal = _currentHealth.value <= 0.001f;
-
-        DamageResult result = new DamageResult
-        {
-            Applied = true,
-            RawDamage = payload.Amount,
-            EffectiveDamage = payload.Amount,
-            IsFatal = isFatal,
-            HitPoint = payload.HitPoint,
-            HitNormal = payload.HitNormal,
-            Location = payload.Location,
-            AttackerId = payload.AttackerId,
-            RemainingHealth = _currentHealth.value
+            Applied = true, RawDamage = payload.Amount, EffectiveDamage = appliedDamage,
+            DamageToHealth = appliedDamage, IsFatal = IsDestroyed,
+            HitPoint = payload.HitPoint, HitNormal = payload.HitNormal,
+            Location = payload.Location, AttackerId = payload.AttackerId,
+            RemainingHealth = CurrentHealth
         };
+        if (!result.IsFatal) return result;
 
-        if (isFatal)
-        {
-            _isDestroyed = true;
-
-            // Server executes explosion AoE damage
-            if (_isExplosive)
-            {
-                ExecuteExplosionAoE(payload.AttackerId);
-            }
-
-            RpcHandleDestruction(transform.position);
-        }
-
+        // Marked destroyed before chain explosions can attempt to hit this prop again.
+        if (_isExplosive) ExecuteExplosion(payload.AttackerId);
+        RpcNotifyDestroyed(transform.position, transform.rotation);
+        Despawn();
         return result;
     }
 
-    private void ExecuteExplosionAoE(PlayerID? attackerId)
+    private void ExecuteExplosion(PlayerID? attackerId)
     {
-        Vector3 origin = transform.position;
-        Collider[] colliders =
-            Physics.OverlapSphere(origin, _explosionRadius, _damageLayerMask, QueryTriggerInteraction.Ignore);
-
-        for (int i = 0; i < colliders.Length; i++)
+        var origin = transform.position;
+        var targets = new Dictionary<IDamageable, Vector3>();
+        var bodies = new HashSet<Rigidbody>();
+        var colliders = Physics.OverlapSphere(origin, _explosionRadius, _damageLayerMask,
+            QueryTriggerInteraction.Collide);
+        foreach (var collider in colliders)
         {
-            Collider coll = colliders[i];
-            if (coll.gameObject == gameObject) continue;
-
-            // Check distance falloff
-            float distance = Vector3.Distance(origin, coll.transform.position);
-            float falloff = Mathf.Clamp01(1f - (distance / _explosionRadius));
-            float calculatedDamage = _explosionDamage * falloff;
-
-            var target = coll.GetComponentInParent<IDamageable>();
+            if (collider.transform.IsChildOf(transform)) continue;
+            if (collider.isTrigger && !collider.TryGetComponent<IDamageable>(out _)) continue;
+            // AoE damages a character once, rather than once for every limb hitbox.
+            IDamageable target = collider.GetComponentInParent<HealthComponent>();
+            target ??= collider.GetComponentInParent<DestructibleProp>();
+            target ??= collider.GetComponentInParent<IDamageable>();
+            if (target is Hitbox hitbox && hitbox.TargetHealth) target = hitbox.TargetHealth;
             if (target != null)
             {
-                Vector3 direction = (coll.transform.position - origin).normalized;
-                DamagePayload aoePayload = new DamagePayload(
-                    calculatedDamage,
-                    DamageType.Explosive,
-                    HitLocation.Core,
-                    coll.bounds.center,
-                    -direction,
-                    direction,
-                    attackerId
-                );
-
-                target.TakeDamage(aoePayload);
+                var point = collider.ClosestPoint(origin);
+                if (!targets.TryGetValue(target, out var previous) ||
+                    (point - origin).sqrMagnitude < (previous - origin).sqrMagnitude)
+                    targets[target] = point;
             }
-
-            if (coll.attachedRigidbody && !coll.attachedRigidbody.isKinematic)
-            {
-                coll.attachedRigidbody.AddExplosionForce(_explosionForce, origin, _explosionRadius, 1f,
-                    ForceMode.Impulse);
-            }
+            if (!collider.isTrigger && collider.attachedRigidbody &&
+                !collider.attachedRigidbody.isKinematic) bodies.Add(collider.attachedRigidbody);
         }
+        foreach (var pair in targets)
+        {
+            var offset = pair.Value - origin;
+            var falloff = Mathf.Clamp01(1f - offset.magnitude / _explosionRadius);
+            pair.Key.TakeDamage(new DamagePayload(_explosionDamage * falloff,
+                hitPoint: pair.Value, hitNormal: -offset.normalized,
+                impactDirection: offset.normalized, attackerId: attackerId));
+        }
+        foreach (var body in bodies)
+            if (body) body.AddExplosionForce(_explosionForce, origin, _explosionRadius, 1f, ForceMode.Impulse);
     }
 
     [ObserversRpc(runLocally: true)]
-    private void RpcHandleDestruction(Vector3 position)
+    private void RpcNotifyDestroyed(Vector3 position, Quaternion rotation)
     {
-        _isDestroyed = true;
         OnDestroyed?.Invoke();
-
-        if (_debrisPrefab)
-        {
-            Instantiate(_debrisPrefab, position, transform.rotation);
-        }
-
-        if (_explosionVfxPrefab)
-        {
-            Instantiate(_explosionVfxPrefab, position, Quaternion.identity);
-        }
-
-        if (_destructionAudio)
-        {
-            AudioSource.PlayClipAtPoint(_destructionAudio, position);
-        }
-
-        // TODO: Cache renderers and colliders for performance instead of searching every time
-        foreach (var r in GetComponentsInChildren<Renderer>())
-            r.enabled = false;
-
-        foreach (var c in GetComponentsInChildren<Collider>())
-            c.enabled = false;
-
-        if (NetworkManager.main && isServer)
-        {
-            Despawn();
-        }
-        else if (!NetworkManager.main)
-        {
-            Destroy(gameObject, 0.2f);
-        }
+        if (!isClient) return;
+        if (_debrisPrefab) Instantiate(_debrisPrefab, position, rotation);
+        if (_explosionVfxPrefab) Instantiate(_explosionVfxPrefab, position, Quaternion.identity);
+        if (_destructionAudio) AudioSource.PlayClipAtPoint(_destructionAudio, position);
     }
 
 #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        _maxHealth = float.IsFinite(_maxHealth) ? Mathf.Max(1f, _maxHealth) : 40f;
+        _explosionRadius = float.IsFinite(_explosionRadius) ? Mathf.Max(0.01f, _explosionRadius) : 4.5f;
+        _explosionDamage = float.IsFinite(_explosionDamage) ? Mathf.Max(0f, _explosionDamage) : 80f;
+        _explosionForce = float.IsFinite(_explosionForce) ? Mathf.Max(0f, _explosionForce) : 600f;
+    }
+
     private void OnDrawGizmosSelected()
     {
-        if (_isExplosive)
-        {
-            Gizmos.color = new Color(1f, 0.4f, 0f, 0.3f);
-            Gizmos.DrawWireSphere(transform.position, _explosionRadius);
-        }
+        if (!_isExplosive) return;
+        Gizmos.color = new Color(1f, 0.4f, 0f, 0.3f);
+        Gizmos.DrawWireSphere(transform.position, _explosionRadius);
     }
 #endif
 }

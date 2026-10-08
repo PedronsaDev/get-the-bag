@@ -49,7 +49,7 @@ public class AIWeaponExecutor : NetworkBehaviour
 
     private void Update()
     {
-        if (!_blackboard || !_weaponConfig)
+        if (!isServer || !_blackboard || !_weaponConfig || !_aimController)
             return;
         
         UpdateBurstCadence(Time.deltaTime);
@@ -102,7 +102,6 @@ public class AIWeaponExecutor : NetworkBehaviour
             {
                 var payload = new DamagePayload(
                     amount: _weaponConfig.DamagePerShot,
-                    type: DamageType.Physical,
                     location: HitLocation.Core,
                     hitPoint: hit.point,
                     hitNormal: hit.normal,

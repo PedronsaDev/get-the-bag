@@ -1,6 +1,5 @@
 using System;
 using Project.Combat.Core;
-using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -8,393 +7,143 @@ namespace Project.Combat.Health
 {
 public class HealthComponent : NetworkBehaviour, IDamageable
 {
-    [Header("Health Settings")] 
-    [SerializeField] private HealthType _healthType = HealthType.Flesh;
-    [SerializeField] private float _maxHealth = 100f;
-    [SerializeField, Range(0f, 0.9f)] private float _armorRating = 0f;
-    [SerializeField] private bool _invulnerable = false;
+    [Header("Health")]
+    [Min(1f)] [SerializeField] private float _maxHealth = 100f;
+    [SerializeField] private bool _invulnerable;
 
-    [Header("Shield Settings")] 
-    [SerializeField] private float _maxShield = 0f;
-    [SerializeField] private float _shieldRegenDelay = 4f;
-    [SerializeField] private float _shieldRegenRate = 15f;
+    [Header("Shield")]
+    [Min(0f)] [SerializeField] private float _maxShield;
+    [Min(0f)] [SerializeField] private float _shieldRegenDelay = 4f;
+    [Min(0f)] [SerializeField] private float _shieldRegenRate = 15f;
 
-    [Header("Networked State")] 
     [SerializeField] private SyncVar<float> _currentHealth = new(100f);
     [SerializeField] private SyncVar<float> _currentShield = new(0f);
+    private readonly SyncVar<bool> _isInvulnerable = new();
+    private float _lastDamageTime;
 
-    private float _lastDamageTime = -100f;
-    private bool _isDead;
-
-    public bool HasShield => _maxShield > 0f;
     public float CurrentHealth => _currentHealth.value;
     public float MaxHealth => _maxHealth;
     public float CurrentShield => _currentShield.value;
     public float MaxShield => _maxShield;
-    public HealthType HealthType => _healthType;
-    public bool IsDead => _isDead || _currentHealth.value <= 0f;
-
-    public bool Invulnerable
-    {
-        get => _invulnerable;
-        set => _invulnerable = value;
-    }
+    public bool HasShield => _maxShield > 0f;
+    public bool IsDead => CurrentHealth <= 0f;
+    public bool Invulnerable => isSpawned ? _isInvulnerable.value : _invulnerable;
 
     public event Action<DamageResult> OnDamaged;
     public event Action<DamageResult> OnDeath;
-    public event Action<float, float> OnHealthChanged; // (current, max)
-    public event Action<float, float> OnShieldChanged; // (current, max)
+    public event Action<float, float> OnHealthChanged;
+    public event Action<float, float> OnShieldChanged;
     public event Action OnShieldBroken;
 
     private void Awake()
     {
-        _currentHealth.onChanged += (val) => OnHealthChanged?.Invoke(val, _maxHealth);
-        _currentShield.onChanged += (val) => OnShieldChanged?.Invoke(val, _maxShield);
+        _currentHealth.onChanged += HandleHealthChanged;
+        _currentShield.onChanged += HandleShieldChanged;
     }
 
-    private bool IsServerAuthoritative => isServer || !NetworkManager.main || NetworkManager.main.isOffline;
-    private bool IsNetworkClient => NetworkManager.main && !NetworkManager.main.isOffline && !isServer;
+    protected override void OnDestroy()
+    {
+        _currentHealth.onChanged -= HandleHealthChanged;
+        _currentShield.onChanged -= HandleShieldChanged;
+        base.OnDestroy();
+    }
 
     protected override void OnSpawned()
     {
-        if (IsServerAuthoritative)
-        {
-            _currentHealth.value = _maxHealth;
-            _currentShield.value = _maxShield;
-            _isDead = false;
-        }
+        if (!isServer) return;
+        _currentHealth.value = _maxHealth;
+        _currentShield.value = _maxShield;
+        _isInvulnerable.value = _invulnerable;
+        _lastDamageTime = Time.time;
     }
 
     private void Update()
     {
-        // Server-authoritative shield regeneration
-        if (!IsServerAuthoritative) return;
-        if (_isDead || _maxShield <= 0f) return;
-
-        if (Time.time >= _lastDamageTime + _shieldRegenDelay && _currentShield.value < _maxShield)
-        {
-            float newShield = Mathf.Min(_maxShield, _currentShield.value + _shieldRegenRate * Time.deltaTime);
-            _currentShield.value = newShield;
-        }
+        if (!isServer || IsDead || !HasShield || _shieldRegenRate <= 0f ||
+            Time.time < _lastDamageTime + _shieldRegenDelay) return;
+        RechargeShield(_shieldRegenRate * Time.deltaTime);
     }
 
-    /// <summary>
-    /// IDamageable entry point.
-    /// If called on client, delegates to ServerRpc; if server or offline, evaluates immediately.
-    /// </summary>
     public DamageResult TakeDamage(DamagePayload payload)
     {
-        if (_invulnerable || _isDead)
-        {
-            return new DamageResult { Applied = false };
-        }
+        if (!isServer || IsDead || Invulnerable || !PositiveFinite(payload.Amount)) return default;
 
-        if (IsNetworkClient)
-        {
-            // Client detected hit -> ask server to process
-            RpcRequestTakeDamage(payload);
-            return new DamageResult
-            {
-                Applied = true,
-                RawDamage = payload.Amount,
-                EffectiveDamage = payload.Amount,
-                HitPoint = payload.HitPoint,
-                HitNormal = payload.HitNormal,
-                Location = payload.Location,
-                AttackerId = payload.AttackerId
-            };
-        }
-
-        // Server-side evaluation
-        return ProcessDamageAuthoritative(payload);
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestTakeDamage(DamagePayload payload, RPCInfo info = default)
-    {
-        // Inject sender as attacker if not explicitly specified
-        if (!payload.AttackerId.HasValue)
-        {
-            payload.AttackerId = info.sender;
-        }
-
-        ProcessDamageAuthoritative(payload);
-    }
-
-    private DamageResult ProcessDamageAuthoritative(DamagePayload payload)
-    {
-        if (_invulnerable || _isDead)
-        {
-            return new DamageResult { Applied = false };
-        }
-
+        var shieldDamage = Mathf.Min(CurrentShield, payload.Amount);
+        var healthDamage = Mathf.Min(CurrentHealth, payload.Amount - shieldDamage);
         _lastDamageTime = Time.time;
-        float rawDamage = payload.Amount;
-        float remainingToAbsorb = rawDamage;
-        float damageToShield = 0f;
-        float damageToHealth = 0f;
-        bool shieldWasActive = _currentShield.value > 0f;
+        _currentShield.value -= shieldDamage;
+        _currentHealth.value -= healthDamage;
 
-        // 1. True Damage bypasses all shields and armor
-        if (payload.Type == DamageType.TrueDamage)
-        {
-            damageToHealth = remainingToAbsorb;
-            _currentHealth.value = Mathf.Max(0f, _currentHealth.value - damageToHealth);
-        }
-        else
-        {
-            // 2. Shield absorption (Shock deals 1.5x bonus to shields)
-            if (_currentShield.value > 0f)
-            {
-                float shieldMultiplier = payload.Type == DamageType.Shock ? 1.5f : 1.0f;
-                float effectiveDamageVsShield = remainingToAbsorb * shieldMultiplier;
-
-                if (_currentShield.value >= effectiveDamageVsShield)
-                {
-                    damageToShield = effectiveDamageVsShield;
-                    _currentShield.value -= effectiveDamageVsShield;
-                    remainingToAbsorb = 0f;
-                }
-                else
-                {
-                    // Shield broken! Remaining damage pierces through
-                    damageToShield = _currentShield.value;
-                    float leftoverDamage = (effectiveDamageVsShield - _currentShield.value) / shieldMultiplier;
-                    _currentShield.value = 0f;
-                    remainingToAbsorb = leftoverDamage;
-
-                    if (shieldWasActive)
-                    {
-                        RpcOnShieldBroken();
-                    }
-                }
-            }
-
-            // 3. Health absorption & Elemental / Armor interactions
-            if (remainingToAbsorb > 0f)
-            {
-                float healthMultiplier = 1.0f;
-
-                switch (_healthType)
-                {
-                    case HealthType.Armored:
-                        // Armor resists kinetic, but corrosive melts it
-                        if (payload.Type == DamageType.Corrosive)
-                            healthMultiplier = 1.5f;
-                        else if (payload.Type == DamageType.Physical)
-                            healthMultiplier = Mathf.Max(0.1f, 1f - _armorRating);
-                        break;
-
-                    case HealthType.Flesh:
-                        // Flesh takes bonus damage from fire
-                        if (payload.Type == DamageType.Incendiary)
-                            healthMultiplier = 1.5f;
-                        break;
-
-                    case HealthType.Mechanical:
-                        // Machines take bonus damage from corrosive and shock
-                        if (payload.Type == DamageType.Shock || payload.Type == DamageType.Corrosive)
-                            healthMultiplier = 1.3f;
-                        break;
-                }
-
-                damageToHealth = remainingToAbsorb * healthMultiplier;
-                _currentHealth.value = Mathf.Max(0f, _currentHealth.value - damageToHealth);
-            }
-        }
-
-        bool isFatal = _currentHealth.value <= 0.001f;
-        if (isFatal)
-        {
-            _isDead = true;
-        }
-
-        DamageResult result = new DamageResult
+        var result = new DamageResult
         {
             Applied = true,
-            RawDamage = rawDamage,
-            EffectiveDamage = damageToShield + damageToHealth,
-            DamageToShield = damageToShield,
-            DamageToHealth = damageToHealth,
+            RawDamage = payload.Amount,
+            EffectiveDamage = shieldDamage + healthDamage,
+            DamageToShield = shieldDamage,
+            DamageToHealth = healthDamage,
             IsCritical = payload.Location is HitLocation.Head or HitLocation.WeakPoint,
-            IsFatal = isFatal,
+            IsFatal = IsDead,
             Location = payload.Location,
             HitPoint = payload.HitPoint,
             HitNormal = payload.HitNormal,
             AttackerId = payload.AttackerId,
-            RemainingHealth = _currentHealth.value,
-            RemainingShield = _currentShield.value
+            RemainingHealth = CurrentHealth,
+            RemainingShield = CurrentShield
         };
-
-        RpcOnDamaged(result);
-
-        if (isFatal)
-        {
-            RpcOnDeath(result);
-        }
-
+        RpcNotifyDamage(result);
         return result;
     }
 
     [ObserversRpc(runLocally: true)]
-    private void RpcOnDamaged(DamageResult result)
+    private void RpcNotifyDamage(DamageResult result)
     {
         OnDamaged?.Invoke(result);
-        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Entity {gameObject.name} took damage. Raw: {result.RawDamage}, Effective: {result.EffectiveDamage}, Remaining Health: {_currentHealth.value}, Remaining Shield: {_currentShield.value}");
+        if (result.DamageToShield > 0f && result.RemainingShield == 0f)
+            OnShieldBroken?.Invoke();
+        if (result.IsFatal) OnDeath?.Invoke(result);
     }
 
-    [ObserversRpc(runLocally: true)]
-    private void RpcOnShieldBroken()
+    public bool Heal(float amount)
     {
-        OnShieldBroken?.Invoke();
-        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Entity {gameObject.name} shield broken. Remaining Health: {_currentHealth.value}, Remaining Shield: {_currentShield.value}");
+        if (!isServer || IsDead || !PositiveFinite(amount) || CurrentHealth >= _maxHealth) return false;
+        _currentHealth.value += Mathf.Min(amount, _maxHealth - CurrentHealth);
+        return true;
     }
 
-    [ObserversRpc(runLocally: true)]
-    private void RpcOnDeath(DamageResult result)
+    public bool RechargeShield(float amount)
     {
-        _isDead = true;
-        OnDeath?.Invoke(result);
-        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Entity {gameObject.name} died. Remaining Health: {_currentHealth.value}, Remaining Shield: {_currentShield.value}");
+        if (!isServer || IsDead || !PositiveFinite(amount) || CurrentShield >= _maxShield) return false;
+        _currentShield.value += Mathf.Min(amount, _maxShield - CurrentShield);
+        return true;
     }
 
-    /// <summary>
-    /// Server-authoritative revival from death or downed state.
-    /// Resets isDead flag and restores health.
-    /// </summary>
-    public void Revive(float healthAmount)
+    public bool Revive(float healthAmount)
     {
-        if (IsNetworkClient)
-        {
-            RpcRequestRevive(healthAmount);
-            return;
-        }
-
-        _isDead = false;
+        if (!isServer || !IsDead || !PositiveFinite(healthAmount)) return false;
         _currentHealth.value = Mathf.Clamp(healthAmount, 1f, _maxHealth);
-        RpcOnRevived(_currentHealth.value);
+        _lastDamageTime = Time.time;
+        return true;
     }
 
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestRevive(float healthAmount)
+    public bool SetInvulnerable(bool value)
     {
-        Revive(healthAmount);
+        if (!isServer) return false;
+        _isInvulnerable.value = value;
+        return true;
     }
 
-    [ObserversRpc(runLocally: true)]
-    private void RpcOnRevived(float currentHealth)
+    private void HandleHealthChanged(float current) => OnHealthChanged?.Invoke(current, _maxHealth);
+    private void HandleShieldChanged(float current) => OnShieldChanged?.Invoke(current, _maxShield);
+    private static bool PositiveFinite(float amount) => float.IsFinite(amount) && amount > 0f;
+
+#if UNITY_EDITOR
+    private void OnValidate()
     {
-        _isDead = false;
-        _currentHealth.value = currentHealth;
-        OnHealthChanged?.Invoke(currentHealth, _maxHealth);
-        
-        AppLog.Log(LogChannel.Combat, $"[HealthComponent] Revived with {currentHealth}/{_maxHealth} health.");
+        _maxHealth = float.IsFinite(_maxHealth) ? Mathf.Max(1f, _maxHealth) : 100f;
+        _maxShield = float.IsFinite(_maxShield) ? Mathf.Max(0f, _maxShield) : 0f;
+        _shieldRegenDelay = float.IsFinite(_shieldRegenDelay) ? Mathf.Max(0f, _shieldRegenDelay) : 4f;
+        _shieldRegenRate = float.IsFinite(_shieldRegenRate) ? Mathf.Max(0f, _shieldRegenRate) : 15f;
     }
-
-    /// <summary>
-    /// Restores health up to maximum.
-    /// </summary>
-    public void Heal(float amount)
-    {
-        if (_isDead || amount <= 0f) return;
-        if (!IsServerAuthoritative) return;
-
-        _currentHealth.value = Mathf.Min(_maxHealth, _currentHealth.value + amount);
-    }
-    
-    /// <summary>
-    /// Restores health by a percentage of the maximum. 0-100. For example, 25 heals 25% of max health.
-    /// </summary>
-    public void HealPercent(float percent)
-    {
-        if (_isDead || percent <= 0f) return;
-        if (!IsServerAuthoritative) return;
-
-        float amount = _maxHealth * percent / 100f;
-        _currentHealth.value = Mathf.Min(_maxHealth, _currentHealth.value + amount);
-    }
-
-    /// <summary>
-    /// Restores shield up to maximum.
-    /// </summary>
-    public void RechargeShield(float amount)
-    {
-        if (_isDead || amount <= 0f) return;
-        if (!IsServerAuthoritative) return;
-
-        _currentShield.value = Mathf.Min(_maxShield, _currentShield.value + amount);
-    }
-
-    public void RequestHeal(float amount)
-    {
-        if (IsServerAuthoritative)
-        {
-            Heal(amount);
-        }
-        else
-        {
-            RpcRequestHeal(amount);
-        }
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestHeal(float amount)
-    {
-        Heal(amount);
-    }
-
-    public void RequestHealPercent(float percent)
-    {
-        if (IsServerAuthoritative)
-        {
-            HealPercent(percent);
-        }
-        else
-        {
-            RpcRequestHealPercent(percent);
-        }
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestHealPercent(float percent)
-    {
-        HealPercent(percent);
-    }
-
-    public void RequestRechargeShield(float amount)
-    {
-        if (IsServerAuthoritative)
-        {
-            RechargeShield(amount);
-        }
-        else
-        {
-            RpcRequestRechargeShield(amount);
-        }
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcRequestRechargeShield(float amount)
-    {
-        RechargeShield(amount);
-    }
-
-    public void RequestSetInvulnerable(bool invulnerable)
-    {
-        if (IsServerAuthoritative)
-        {
-            _invulnerable = invulnerable;
-        }
-        else
-        {
-            RpcSetInvulnerable(invulnerable);
-        }
-    }
-
-    [ServerRpc(requireOwnership: false)]
-    private void RpcSetInvulnerable(bool invulnerable)
-    {
-        _invulnerable = invulnerable;
-    }
+#endif
 }
 }

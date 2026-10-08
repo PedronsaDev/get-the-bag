@@ -1,5 +1,6 @@
 using System;
 using PurrNet;
+using PurrNet.Packing;
 using UnityEngine;
 
 namespace Project.Combat.Core
@@ -8,7 +9,6 @@ namespace Project.Combat.Core
     public struct DamagePayload
     {
         public float Amount;
-        public DamageType Type;
         public HitLocation Location;
         public Vector3 HitPoint;
         public Vector3 HitNormal;
@@ -17,7 +17,6 @@ namespace Project.Combat.Core
 
         public DamagePayload(
             float amount, 
-            DamageType type = DamageType.Physical, 
             HitLocation location = HitLocation.Core,
             Vector3 hitPoint = default,
             Vector3 hitNormal = default,
@@ -25,7 +24,6 @@ namespace Project.Combat.Core
             PlayerID? attackerId = null)
         {
             Amount = amount;
-            Type = type;
             Location = location;
             HitPoint = hitPoint;
             HitNormal = hitNormal == default ? Vector3.up : hitNormal;
@@ -35,7 +33,7 @@ namespace Project.Combat.Core
     }
 
     [Serializable]
-    public struct DamageResult
+    public struct DamageResult : IPackedAuto
     {
         public bool Applied;
         public float RawDamage;

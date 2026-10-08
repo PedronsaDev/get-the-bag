@@ -100,6 +100,7 @@ modes, cadence, ammo snapshots/depletion, reserve transfer, shield damage, shoot
 and trigger filtering, wall obstruction, invalid aim, duplicate requests, reload
 completion/cancellation, burst interruption, downed blocking, and heartbeat timeout.
 A separate remote client, dedicated server, and player build remain untested.
-The existing general-purpose `HealthComponent.RpcRequestTakeDamage` still accepts
-client damage payloads; that older path needs its own authority review before
-claiming the whole game's damage system is secure against malicious clients.
+Health and destructible props now reject client damage calls and expose no generic
+damage/heal/revive RPC. See [Health.md](Health.md) for the server-owned damage flow.
+The health simplification has also been checked with a separate Multiplayer Play
+Mode client; the broader weapon tests above remain the original host-only suite.
