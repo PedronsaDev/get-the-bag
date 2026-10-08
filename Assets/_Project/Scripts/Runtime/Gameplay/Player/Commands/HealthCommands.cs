@@ -35,7 +35,7 @@ namespace Project.Player.Commands
 
             if (downed)
             {
-                sb.AppendLine($"IsDown: {downed.IsDown.value}");
+                sb.AppendLine($"IsDown: {downed.IsDowned}");
                 sb.AppendLine($"Bleedout Timer: {downed.BleedOutTimer.value:F1}s");
                 sb.AppendLine($"IsBeingDragged: {downed.IsBeingDragged}");
                 sb.AppendLine($"DraggedBy: {(downed.DraggedByPlayer.value.HasValue ? downed.DraggedByPlayer.value.Value.ToString() : "None")}");
@@ -67,7 +67,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            if (health.IsDead || (downed && downed.IsDown.value))
+            if (health.IsDead || (downed && downed.IsDowned))
             {
                 Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed/dead (HP: {health.CurrentHealth:F1}). Use 'revive' first.");
                 return;
@@ -103,7 +103,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            if (health.IsDead || (downed && downed.IsDown.value))
+            if (health.IsDead || (downed && downed.IsDowned))
             {
                 Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed/dead (HP: {health.CurrentHealth:F1}). Use 'revive' first.");
                 return;
@@ -155,7 +155,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            if (downed && downed.IsDown.value)
+            if (downed && downed.IsDowned)
             {
                 downed.RequestDirectRevive(1f);
             }
@@ -181,7 +181,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            if (downed.IsDown.value)
+            if (downed.IsDowned)
             {
                 Console.LogWarning($"[Combat & Health] {player.gameObject.name} is already downed!");
                 return;
@@ -197,7 +197,7 @@ namespace Project.Player.Commands
             if (!TryResolveTarget(playerId, out var player, out var health, out var downed))
                 return;
 
-            bool isDowned = downed && downed.IsDown.value;
+            bool isDowned = downed && downed.IsDowned;
             bool isDead = health && health.IsDead;
 
             if (!isDowned && !isDead)
@@ -230,7 +230,7 @@ namespace Project.Player.Commands
                 return;
             }
 
-            if (!downed.IsDown.value)
+            if (!downed.IsDowned)
             {
                 Console.LogWarning($"[Combat & Health] {player.gameObject.name} is not currently downed.");
                 return;

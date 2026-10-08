@@ -21,8 +21,8 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
     [SerializeField] private float _reviveHealthPercent = 0.35f;
     [SerializeField] private float _maxDragDistance = 4.5f;
 
+    protected readonly SyncVar<bool> IsDown = new();
     public SyncVar<float> BleedOutTimer = new(45f);
-    public SyncVar<bool> IsDown = new();
     public SyncVar<PlayerID?> DraggedByPlayer = new();
 
     private PlayerID? _currentDragger;

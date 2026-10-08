@@ -32,7 +32,7 @@ public class PlayerDownedInteractable : NetworkBehaviour, IInteractable
     {
         get
         {
-            if (_playerDownedState && _playerDownedState.IsDown.value)
+            if (_playerDownedState && _playerDownedState.IsDowned)
                 return $"Bleeding Out: {Mathf.CeilToInt(_playerDownedState.BleedOutTimer.value)}s";
             return "";
         }
@@ -72,7 +72,7 @@ public class PlayerDownedInteractable : NetworkBehaviour, IInteractable
 
     public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
-        if (!_playerDownedState || !_playerDownedState.IsDown.value)
+        if (!_playerDownedState || !_playerDownedState.IsDowned)
             return false;
 
         if (interactor == null || !interactor.InteractorGameObject)
@@ -84,7 +84,7 @@ public class PlayerDownedInteractable : NetworkBehaviour, IInteractable
 
         var interactorDowned = interactor.InteractorGameObject.GetComponentInParent<PlayerDownedState>() ??
                                interactor.InteractorGameObject.GetComponentInChildren<PlayerDownedState>();
-        if (interactorDowned && interactorDowned.IsDown.value)
+        if (interactorDowned && interactorDowned.IsDowned)
             return false;
 
         if (isHold)
@@ -98,7 +98,7 @@ public class PlayerDownedInteractable : NetworkBehaviour, IInteractable
 
     public string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false)
     {
-        if (!_playerDownedState || !_playerDownedState.IsDown.value)
+        if (!_playerDownedState || !_playerDownedState.IsDowned)
             return "Teammate is not downed";
 
         if (interactor != null && interactor.InteractorGameObject)
@@ -109,7 +109,7 @@ public class PlayerDownedInteractable : NetworkBehaviour, IInteractable
 
             var interactorDowned = interactor.InteractorGameObject.GetComponentInParent<PlayerDownedState>() ??
                                    interactor.InteractorGameObject.GetComponentInChildren<PlayerDownedState>();
-            if (interactorDowned && interactorDowned.IsDown.value)
+            if (interactorDowned && interactorDowned.IsDowned)
                 return "Cannot interact while downed";
         }
 

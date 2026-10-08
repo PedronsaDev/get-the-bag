@@ -10,7 +10,8 @@
     "Project.Logging",
     "UniTask.Addressables",
     "Unity.Addressables",
-    "Project.Definitions"
+    "Project.Definitions",
+    "Project.Content"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

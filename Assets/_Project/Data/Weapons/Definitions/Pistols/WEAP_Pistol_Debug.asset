@@ -10,10 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4459c860e0de4ec4199b576a1dcc6ef7, type: 3}
-  m_Name: WEAP_Pistol_Test
+  m_Name: WEAP_Pistol_Debug
   m_EditorClassIdentifier: Project.Combat::Project.Combat.Data.WeaponDefinition
-  _guid: f6da18507d0e1a74e9315f34b891526d
-  WeaponID: weap_string_id
-  DisplayName: '[DEFAULT_WEAPON_NAME]'
-  WorldPrefab: {fileID: 0}
-  Category: 0
+  _id: weap_pistol_debug
+  _name: '[DEBUG_PISTOL]'
+  _category: 0
+  _baseDamage: 10
+  _baseMagazineSize: 12
+  _reloadDuration: 1.5
+  _prefabReference:
+    m_AssetGUID: 3f1021088e345194e8bae8a1f5e4dd63
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

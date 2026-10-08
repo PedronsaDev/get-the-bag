@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4459c860e0de4ec4199b576a1dcc6ef7, type: 3}
+  m_Name: WEAP_AR_Debug
+  m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponDefinition
+  _id: weap_ar_debug
+  _name: '[DEBUG_AR]'
+  _category: 1
+  _baseDamage: 8
+  _baseMagazineSize: 30
+  _reloadDuration: 1.5
+  _prefabReference:
+    m_AssetGUID: e3a7db3a0247b26489d283f3a7d4a933
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

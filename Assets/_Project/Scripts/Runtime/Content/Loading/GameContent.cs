@@ -20,7 +20,6 @@ public enum GameContentLoadState
 
 public static class GameContent
 {
-
     private static GameContentLoadState _loadState = GameContentLoadState.NotLoaded;
     private static UniTaskCompletionSource _loadCompletionSource = new();
     private static UniTaskCompletionSource _shutdownCompletionSource = new();

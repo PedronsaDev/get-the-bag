@@ -17,10 +17,10 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
     [SerializeField] private WeaponCategory _category = WeaponCategory.Pistol;
     [SerializeField] private int _baseDamage = 10;
     [SerializeField] private int _baseMagazineSize = 12;
+    [SerializeField] private float _reloadDuration = 1.5f;
 
     [Header("Addressables Visual References")] 
     [SerializeField] private AssetReferenceT<GameObject> _prefabReference;
-    [SerializeField] private AssetReferenceT<Sprite> _iconReference;
 
     public string Guid => _guid;
     public string Id => _id;
@@ -31,7 +31,6 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
     public int BaseMagazineSize => _baseMagazineSize;
 
     public AssetReferenceT<GameObject> PrefabReference => _prefabReference;
-    public AssetReferenceT<Sprite> IconReference => _iconReference;
     
 #if UNITY_EDITOR
     private void OnValidate()

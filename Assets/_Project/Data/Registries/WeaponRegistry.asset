@@ -11,6 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d2c9d15a58684635a49df560331029e4, type: 3}
   m_Name: WeaponRegistry
-  m_EditorClassIdentifier: Project.Combat::Project.Combat.Data.WeaponRegistry
+  m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponRegistry
   _items:
+  - {fileID: 11400000, guid: 698bb7cee5b1a4b4d8e4a7c815ed608e, type: 2}
   - {fileID: 11400000, guid: f6da18507d0e1a74e9315f34b891526d, type: 2}

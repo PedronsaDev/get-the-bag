@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 06c35edf487d2024492c2ef736bc9000
   m_currentHash:
     serializedVersion: 2
-    Hash: 46433abf2c597d9ac8bea0a4ca174b57
+    Hash: 00000000000000000000000000000000
   m_ExtractTypeTreeData: 0
   m_DisableWriteTypeTree: 0
   m_OptimizeCatalogSize: 0
@@ -104,6 +104,8 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - Registry
+    - Weapons
+    - Loot
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 6d7b749c2b94b9e4db39ade75770d883, type: 2}

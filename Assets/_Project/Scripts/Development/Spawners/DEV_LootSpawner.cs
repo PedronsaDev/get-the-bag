@@ -72,9 +72,14 @@ public class DEV_LootSpawner : MonoBehaviour, IInteractable
                         this.GetCancellationTokenOnDestroy());
                     spawnDef.SpawnedObject = loot.gameObject;
                 }
-                catch (OperationCanceledException) { return; }
-                catch (Exception exception) { AppLog.LogException(LogChannel.Network, exception, this); }
-
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (Exception exception)
+                {
+                    AppLog.LogException(LogChannel.Network, exception, this);
+                }
             }
         }
         finally
@@ -83,6 +88,11 @@ public class DEV_LootSpawner : MonoBehaviour, IInteractable
         }
     }
 
-    public void OnHoverEnter(IPlayerInteractor interactor) { }
-    public void OnHoverExit(IPlayerInteractor interactor) { }
+    public void OnHoverEnter(IPlayerInteractor interactor)
+    {
+    }
+
+    public void OnHoverExit(IPlayerInteractor interactor)
+    {
+    }
 }
