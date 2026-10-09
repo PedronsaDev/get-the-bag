@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: mod_muzzle_basic
   _displayName: Basic Flash Hider
   _slot: 1
+  _compatibleCategories: 1
   _damage:
     _add: 0
     _percent: 0.08

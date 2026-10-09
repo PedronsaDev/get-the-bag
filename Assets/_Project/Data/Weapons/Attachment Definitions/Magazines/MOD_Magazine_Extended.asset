@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: mod_magazine_extended
   _displayName: Extended Magazine
   _slot: 0
+  _compatibleCategories: 1
   _damage:
     _add: 0
     _percent: 0

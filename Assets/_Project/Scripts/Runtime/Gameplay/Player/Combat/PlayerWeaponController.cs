@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Project.Combat.Data;
 using Project.Combat.Weapons;
 using Project.Content;
@@ -51,6 +52,7 @@ public class PlayerWeaponController : NetworkBehaviour
 
     public WeaponEquipmentState ConfirmedState => _confirmedState.value;
     public event Action<WeaponShot> OnShotAccepted;
+    public event Action<WeaponEquipmentState> OnEquipmentChanged;
 
     private void Awake()
     {
@@ -84,6 +86,7 @@ public class PlayerWeaponController : NetworkBehaviour
         _running = false;
         
         _confirmedState.onChanged -= HandleEquipmentChanged;
+        OnEquipmentChanged?.Invoke(default);
         
         StopFiring();
         _mainWeapon = _secondaryWeapon = null;
@@ -180,13 +183,16 @@ public class PlayerWeaponController : NetworkBehaviour
 
         try
         {
-            var ids = new string[attachments?.Length ?? 0];
-            for (var i = 0; i < ids.Length; i++)
+            var validIds = new List<string>();
+            if (attachments != null)
             {
-                if (!attachments[i]) throw new ArgumentException("Default loadout contains a missing attachment.");
-                ids[i] = attachments[i].Id;
+                for (var i = 0; i < attachments.Length; i++)
+                {
+                    if (attachments[i] && !string.IsNullOrWhiteSpace(attachments[i].Id))
+                        validIds.Add(attachments[i].Id);
+                }
             }
-            return new RuntimeWeapon(weapon, ids);
+            return new RuntimeWeapon(weapon, validIds);
         }
         catch (Exception exception)
         {
@@ -375,6 +381,7 @@ public class PlayerWeaponController : NetworkBehaviour
     {
         if (isClient && _presenter) 
             _presenter.ApplyState(state);
+        OnEquipmentChanged?.Invoke(state);
     }
 }
 }

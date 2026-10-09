@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Registry
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57fa962e76d33244db8f346912ed412a
+    m_Address: WeaponAttachmentRegistry
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Registry
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3f1021088e345194e8bae8a1f5e4dd63
     m_Address: Weapon_Prefabs/WEAP_PF_Pistol_Debug
     m_ReadOnly: 0

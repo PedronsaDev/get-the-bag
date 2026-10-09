@@ -10,7 +10,7 @@ public readonly struct WeaponResolvedStats
     public float FireRateSeconds => 60f / FireRate;
     public float Range { get; }
 
-    internal WeaponResolvedStats(int damage, int magazineSize, float reloadDuration, int fireRate, float range)
+    public WeaponResolvedStats(int damage, int magazineSize, float reloadDuration, int fireRate, float range)
     {
         Damage = damage;
         MagazineSize = magazineSize;

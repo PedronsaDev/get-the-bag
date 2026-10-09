@@ -1,5 +1,6 @@
 using Project.Combat.Health;
 using Project.Core.Input;
+using Project.Player.Combat;
 using Project.Player.Detection;
 using Project.Player.Input;
 using Project.Player.Interaction;
@@ -23,6 +24,7 @@ public class PlayerFacade : NetworkBehaviour
     [SerializeField] private HealthComponent _healthComponent;
     [SerializeField] private RuntimePlayerProfile _profile;
     [SerializeField] private PlayerDuffleBagController _duffleBagController;
+    [SerializeField] private PlayerWeaponController _weaponController;
     [SerializeField] private int _remotePlayerLayerIndex;
     
     public LocomotionController LocomotionController => _locomotionController;
@@ -34,6 +36,7 @@ public class PlayerFacade : NetworkBehaviour
     public PlayerTargetDetector TargetDetector => _targetDetector;
     public RuntimePlayerProfile Profile => _profile;
     public PlayerDuffleBagController DuffleBagController => _duffleBagController;
+    public PlayerWeaponController WeaponController => _weaponController;
     public LocomotionState LocomotionState => _locomotionController ? _locomotionController.State : default;
     public PlayerInputData CurrentInput { get; private set; }
 
@@ -60,6 +63,8 @@ public class PlayerFacade : NetworkBehaviour
             _profile = GetComponent<RuntimePlayerProfile>() ?? GetComponentInChildren<RuntimePlayerProfile>();
         if (!_duffleBagController) 
             _duffleBagController = GetComponent<PlayerDuffleBagController>();
+        if (!_weaponController) 
+            _weaponController = GetComponent<PlayerWeaponController>() ?? GetComponentInChildren<PlayerWeaponController>();
     }
 
     protected override void OnSpawned()

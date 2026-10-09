@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e27eb1e2f4b3d4b8edd35abb1cc68e, type: 3}
+  m_Name: WeaponAttachmentRegistry
+  m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponAttachmentRegistry
+  _items:
+  - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
+  - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}

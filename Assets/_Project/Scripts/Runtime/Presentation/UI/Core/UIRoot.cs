@@ -56,6 +56,8 @@ public class UIRoot : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             EnsureSingleEventSystem();
+            if (!TryGetComponent<PlayerHUDBinder>(out _))
+                gameObject.AddComponent<PlayerHUDBinder>();
         }
         else if (Instance != this)
         {

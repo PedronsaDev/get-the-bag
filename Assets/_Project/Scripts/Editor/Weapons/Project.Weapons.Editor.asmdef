@@ -1,0 +1,24 @@
+{
+  "name": "Project.Weapons.Editor",
+  "rootNamespace": "Project.Weapons.Editor",
+  "references": [
+    "Project.Definitions",
+    "Project.Logging",
+    "Project.Core",
+    "Unity.Addressables",
+    "Unity.Addressables.Editor",
+    "NaughtyAttributes.Core",
+    "NaughtyAttributes.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

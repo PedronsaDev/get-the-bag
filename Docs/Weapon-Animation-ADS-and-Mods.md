@@ -20,6 +20,12 @@ The first pass does not need per-weapon bespoke locomotion, complex optical rend
 
 ## Current project state
 
+Update after this plan: the mod/stat foundation is now implemented, including
+attachment definitions/registry, compatibility rules, immutable resolved stats and
+replicated selected IDs. See [Weapons.md](Weapons.md) for current behavior and setup.
+The presentation/ADS proposals below remain future work; the original inventory
+of missing modification support below describes the state when this plan was written.
+
 The following is based on the code and prefabs inspected for this plan:
 
 - `WeaponDefinition` provides stable weapon identity, baseline combat values, fire mode, and one Addressables visual prefab reference. It has no ADS configuration, animation set, or modification model yet.

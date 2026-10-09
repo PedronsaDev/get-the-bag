@@ -1,79 +1,78 @@
-using Project.Combat.Core;
 using Project.Combat.Health;
-using Project.Player;
+using TMPro;
 using UnityEngine;
 
 namespace Project.UI.Combat
 {
 public class PlayerHealthUI : MonoBehaviour
 {
-    [Header("References")]
-    
+    [SerializeField] private TMP_Text _healthText;
+    [SerializeField] private TMP_Text _shieldText;
     private HealthComponent _health;
+    private bool _subscribed;
 
-    private void OnEnable()
+    public void Bind(HealthComponent health)
     {
-        if (LocalPlayerContext.HasLocalPlayer && LocalPlayerContext.Player)
-            BindHealthComponent(LocalPlayerContext.Player.HealthComponent);
-
-        LocalPlayerContext.OnLocalPlayerSpawned += HandleLocalPlayerSpawned;
-        LocalPlayerContext.OnLocalPlayerDespawned += HandleLocalPlayerDespawned;
+        if (ReferenceEquals(_health, health)) return;
+        Unbind();
+        _health = health;
+        if (isActiveAndEnabled) Subscribe();
     }
-    
+
+    public void Unbind()
+    {
+        Unsubscribe();
+        _health = null;
+        Clear();
+    }
+
+    private void OnEnable() => Subscribe();
+
     private void OnDisable()
     {
-        LocalPlayerContext.OnLocalPlayerSpawned -= HandleLocalPlayerSpawned;
-        LocalPlayerContext.OnLocalPlayerDespawned -= HandleLocalPlayerDespawned;
-        UnbindHealthComponent();
-    }
-    
-    private void HandleLocalPlayerDespawned(PlayerFacade player)
-    {
-        if (player) 
-            UnbindHealthComponent();
+        Unsubscribe();
+        Clear();
     }
 
-    private void HandleLocalPlayerSpawned(PlayerFacade player)
+    private void Subscribe()
     {
-        if (player) 
-            BindHealthComponent(player.HealthComponent);
-    }
-    
-    private void BindHealthComponent(HealthComponent healthComponent)
-    {
-        _health  = healthComponent;
-        if (_health)
+        if (!_health) { Clear(); return; }
+        if (!_subscribed)
         {
-            _health.OnHealthChanged += HandleHealthChanged;
-            _health.OnShieldChanged += HandleShieldChanged;
-            _health.OnDeath += HandlePlayerDeath;
+            _health.OnHealthChanged += RenderHealth;
+            _health.OnShieldChanged += RenderShield;
+            _subscribed = true;
         }
+        RenderHealth(_health.CurrentHealth, _health.MaxHealth);
+        RenderShield(_health.CurrentShield, _health.MaxShield);
     }
 
-    private void UnbindHealthComponent()
+    private void Unsubscribe()
     {
-        if (_health)
+        if (_subscribed && !ReferenceEquals(_health, null))
         {
-            _health.OnHealthChanged -= HandleHealthChanged;
-            _health.OnShieldChanged -= HandleShieldChanged;
-            _health.OnDeath -= HandlePlayerDeath;
+            _health.OnHealthChanged -= RenderHealth;
+            _health.OnShieldChanged -= RenderShield;
         }
-        _health = null;
-    }
-    
-    private void HandleHealthChanged(float current, float max)
-    {
-        
+        _subscribed = false;
     }
 
-    private void HandleShieldChanged(float current, float max)
+    private void RenderHealth(float current, float max)
     {
-        
+        if (_healthText) _healthText.SetText("{0:0} / {1:0}", current, max);
     }
-    
-    private void HandlePlayerDeath(DamageResult result)
+
+    private void RenderShield(float current, float max)
     {
-        
+        if (!_shieldText) return;
+        if (max > 0) _shieldText.SetText("{0:0} / {1:0}", current, max);
+        else _shieldText.text = string.Empty;
+    }
+
+    private void Clear()
+    {
+        if (_healthText) _healthText.text = string.Empty;
+        if (_shieldText) _shieldText.text = string.Empty;
     }
 }
 }

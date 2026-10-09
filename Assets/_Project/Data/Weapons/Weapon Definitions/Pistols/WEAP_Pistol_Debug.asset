@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4459c860e0de4ec4199b576a1dcc6ef7, type: 3}
   m_Name: WEAP_Pistol_Debug
-  m_EditorClassIdentifier: Project.Combat::Project.Combat.Data.WeaponDefinition
+  m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponDefinition
   _id: weap_pistol_debug
   _name: '[DEBUG_PISTOL]'
   _category: 0
@@ -28,6 +28,9 @@ MonoBehaviour:
   _hitMask:
     serializedVersion: 2
     m_Bits: 46967
+  _autoMatchByCategory: 1
+  _additionalAttachments: []
+  _excludedAttachments: []
   _compatibleAttachments:
   - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
   - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}

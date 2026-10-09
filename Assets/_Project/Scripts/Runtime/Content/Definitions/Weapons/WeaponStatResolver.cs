@@ -1,43 +1,97 @@
 using System;
 using System.Collections.Generic;
+using Project.Logging;
 
 namespace Project.Combat.Data
 {
 public static class WeaponStatResolver
 {
     public static WeaponResolvedStats Resolve(WeaponDefinition weapon, IReadOnlyList<string> attachmentIds = null)
-        => Resolve(weapon, attachmentIds, out _);
+        => Resolve(weapon, attachmentIds, out _, false);
 
     public static WeaponResolvedStats Resolve(WeaponDefinition weapon, IReadOnlyList<string> attachmentIds,
         out string[] canonicalIds)
+        => Resolve(weapon, attachmentIds, out canonicalIds, false);
+
+    public static WeaponResolvedStats Resolve(WeaponDefinition weapon, IReadOnlyList<string> attachmentIds,
+        out string[] canonicalIds, bool strictValidation)
     {
         ValidateBaseStats(weapon);
-        var compatible = new Dictionary<string, WeaponAttachmentDefinition>(StringComparer.Ordinal);
+        var compatible = new Dictionary<string, WeaponAttachmentDefinition>(StringComparer.OrdinalIgnoreCase);
         foreach (var attachment in weapon.CompatibleAttachments)
         {
             if (!attachment || string.IsNullOrWhiteSpace(attachment.Id))
-                throw new ArgumentException($"Weapon '{weapon.Id}' has an empty compatible attachment.");
+            {
+                if (strictValidation)
+                    throw new ArgumentException($"Weapon '{weapon.Id}' has an empty compatible attachment.");
+                AppLog.LogWarning(LogChannel.Combat, $"Weapon '{weapon.Id}' has an unassigned compatible attachment entry.", weapon);
+                continue;
+            }
+
+            if (!weapon.IsAttachmentCompatible(attachment)) continue;
+
             if (!compatible.TryAdd(attachment.Id, attachment))
-                throw new ArgumentException($"Weapon '{weapon.Id}' lists duplicate attachment ID '{attachment.Id}'.");
+            {
+                if (strictValidation)
+                    throw new ArgumentException($"Weapon '{weapon.Id}' lists duplicate attachment ID '{attachment.Id}'.");
+                AppLog.LogWarning(LogChannel.Combat, $"Weapon '{weapon.Id}' lists duplicate attachment ID '{attachment.Id}'.", weapon);
+            }
         }
 
         var selected = new List<WeaponAttachmentDefinition>();
         var slots = new HashSet<WeaponAttachmentSlot>();
         if (attachmentIds != null)
         {
-            if (attachmentIds.Count > Enum.GetValues(typeof(WeaponAttachmentSlot)).Length)
-                throw new ArgumentException("Too many attachments for one weapon.");
             foreach (var id in attachmentIds)
             {
-                if (string.IsNullOrWhiteSpace(id) || !compatible.TryGetValue(id, out var attachment))
-                    throw new ArgumentException($"Attachment '{id}' is not compatible with weapon '{weapon.Id}'.");
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    if (strictValidation) throw new ArgumentException("Attachment IDs cannot be empty.");
+                    continue;
+                }
+
+                if (!compatible.TryGetValue(id, out var attachment))
+                {
+                    if (WeaponDefinition.AttachmentLookup != null)
+                    {
+                        var lookedUp = WeaponDefinition.AttachmentLookup(id);
+                        if (lookedUp && string.Equals(lookedUp.Id, id, StringComparison.OrdinalIgnoreCase) &&
+                            weapon.IsAttachmentCompatible(lookedUp))
+                        {
+                            attachment = lookedUp;
+                            compatible[id] = attachment;
+                        }
+                    }
+                }
+
+                if (!attachment)
+                {
+                    if (strictValidation)
+                        throw new ArgumentException($"Attachment '{id}' is not compatible with weapon '{weapon.Id}'.");
+                    AppLog.LogWarning(LogChannel.Combat, $"Attachment '{id}' is not compatible with weapon '{weapon.Id}'. Ignoring.", weapon);
+                    continue;
+                }
+
                 if (!Enum.IsDefined(typeof(WeaponAttachmentSlot), attachment.Slot))
-                    throw new ArgumentException($"Attachment '{id}' has an invalid slot.");
+                {
+                    if (strictValidation)
+                        throw new ArgumentException($"Attachment '{id}' has an invalid slot.");
+                    AppLog.LogWarning(LogChannel.Combat, $"Attachment '{id}' has an invalid slot. Ignoring.", weapon);
+                    continue;
+                }
+
                 if (!slots.Add(attachment.Slot))
-                    throw new ArgumentException($"Only one attachment may occupy slot '{attachment.Slot}'.");
+                {
+                    if (strictValidation)
+                        throw new ArgumentException($"Only one attachment may occupy slot '{attachment.Slot}'.");
+                    AppLog.LogWarning(LogChannel.Combat, $"Duplicate attachment for slot '{attachment.Slot}' on weapon '{weapon.Id}'. Ignoring.", weapon);
+                    continue;
+                }
+
                 selected.Add(attachment);
             }
         }
+
         selected.Sort((a, b) => a.Slot.CompareTo(b.Slot));
         canonicalIds = new string[selected.Count];
         for (var i = 0; i < selected.Count; i++) canonicalIds[i] = selected[i].Id;

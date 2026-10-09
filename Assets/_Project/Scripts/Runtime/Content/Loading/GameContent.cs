@@ -32,10 +32,14 @@ public static class GameContent
 
     private static AsyncOperationHandle<WeaponRegistry> _weaponRegistryHandle;
     private static WeaponRegistry _weaponRegistry;
+
+    private static AsyncOperationHandle<WeaponAttachmentRegistry> _weaponAttachmentRegistryHandle;
+    private static WeaponAttachmentRegistry _weaponAttachmentRegistry;
     
     public static bool IsLoaded => _loadState == GameContentLoadState.Ready;
     public static LootRegistry LootRegistry => _lootRegistry;
     public static WeaponRegistry WeaponRegistry => _weaponRegistry;
+    public static WeaponAttachmentRegistry WeaponAttachmentRegistry => _weaponAttachmentRegistry;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -54,15 +58,16 @@ public static class GameContent
         
         _weaponRegistryHandle = default;
         _weaponRegistry = null;
+
+        _weaponAttachmentRegistryHandle = default;
+        _weaponAttachmentRegistry = null;
     }
 
     public static async UniTask InitializeRegistriesAsync()
     {
         if (_shutdownRequested || _loadState == GameContentLoadState.Stopped)
-        {
-            throw new OperationCanceledException("Game content is shutting down.");
-        }
-        
+            throw new OperationCanceledException("Content initialization aborted: system is shutting down.");
+
         switch (_loadState)
         {
             case GameContentLoadState.Ready:
@@ -72,8 +77,6 @@ public static class GameContent
             case GameContentLoadState.Failed:
                 await _loadCompletionSource.Task;
                 return;
-            default:
-                break;
         }
 
         _loadState = GameContentLoadState.Loading;
@@ -90,6 +93,10 @@ public static class GameContent
             _weaponRegistryHandle = Addressables.LoadAssetAsync<WeaponRegistry>("WeaponRegistry");
             var weaponRegistry = await _weaponRegistryHandle.ToUniTask();
 
+            // Weapon Attachment registry
+            _weaponAttachmentRegistryHandle = Addressables.LoadAssetAsync<WeaponAttachmentRegistry>("WeaponAttachmentRegistry");
+            var attachmentRegistry = await _weaponAttachmentRegistryHandle.ToUniTask();
+
             if (generation != _generation)
                 throw new OperationCanceledException("The content lifetime has ended.");
 
@@ -103,7 +110,11 @@ public static class GameContent
             
             weaponRegistry.InitializeLookup();
             _weaponRegistry = weaponRegistry;
-            
+
+            attachmentRegistry.InitializeLookup();
+            _weaponAttachmentRegistry = attachmentRegistry;
+            WeaponDefinition.AttachmentLookup = id =>
+                _weaponAttachmentRegistry != null && _weaponAttachmentRegistry.TryGetById(id, out var att) ? att : null;
         }
         catch (Exception e)
         {
@@ -148,6 +159,14 @@ public static class GameContent
 
         if (weaponHandle.IsValid())
             Addressables.Release(weaponHandle);
+
+        WeaponDefinition.AttachmentLookup = null;
+        _weaponAttachmentRegistry = null;
+        var attachmentHandle = _weaponAttachmentRegistryHandle;
+        _weaponAttachmentRegistryHandle = default;
+
+        if (attachmentHandle.IsValid())
+            Addressables.Release(attachmentHandle);
     }
 
     private static void CompleteShutdown()
@@ -166,6 +185,11 @@ public static class GameContent
         return _shutdownCompletionSource.Task;
     }
 
-    public static void RequestShutdown() => ShutdownAsync().Forget();
+    public static void RequestShutdown()
+    {
+        _shutdownRequested = true;
+        if (_loadState != GameContentLoadState.Loading)
+            CompleteShutdown();
+    }
 }
 }
