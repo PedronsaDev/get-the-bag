@@ -35,7 +35,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
   - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}
   - {fileID: 11400000, guid: 57fa962e76d33244db8f346912ed412a, type: 2}
-  - {fileID: 11400000, guid: 54a553b719d2ab64fa66233c4b5a2061, type: 2}
   _availableTypeNames:
   - UnityEngine.ScriptableObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEditor.AddressableAssets.Settings.AddressableAssetGroup, Unity.Addressables.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -312,8 +311,7 @@ MonoBehaviour:
   - 9253f50e12cb103449ea94c6c9ad9010
   - 12940e83e87a3274ba994efb65b9b84a
   - 57fa962e76d33244db8f346912ed412a
-  - 54a553b719d2ab64fa66233c4b5a2061
-  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f00000010000000i
+  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000i
   _bakedAssets:
   - {fileID: 11400000, guid: 0362d9aaf8592d8408c17994f20e117f, type: 2}
   - {fileID: 11400000, guid: b5be322daa53e8742bbe86d09eb1ad28, type: 2}
@@ -331,7 +329,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
   - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}
   - {fileID: 11400000, guid: 57fa962e76d33244db8f346912ed412a, type: 2}
-  - {fileID: 11400000, guid: 54a553b719d2ab64fa66233c4b5a2061, type: 2}
   _bakedPersistentIds:
   - 0362d9aaf8592d8408c17994f20e117f
   - b5be322daa53e8742bbe86d09eb1ad28
@@ -349,4 +346,3 @@ MonoBehaviour:
   - 9253f50e12cb103449ea94c6c9ad9010
   - 12940e83e87a3274ba994efb65b9b84a
   - 57fa962e76d33244db8f346912ed412a
-  - 54a553b719d2ab64fa66233c4b5a2061

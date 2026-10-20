@@ -21,12 +21,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - Registry
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 3f1021088e345194e8bae8a1f5e4dd63
-    m_Address: Weapon_Prefabs/WEAP_PF_Pistol_Debug
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Weapons
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4f1c26e91dacfde4184a0f1b416a117d
     m_Address: Loot_Prefabs/CashBundle
     m_ReadOnly: 0
@@ -50,11 +44,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Loot
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c1d011948ba11474ca3d21e4f20136ea
-    m_Address: Weapon/Prototype/PistolFirstPerson
-    m_ReadOnly: 0
-    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c6785e3e328185c43a72318a5dcf0e3c
     m_Address: Loot_Prefabs/GoldBar

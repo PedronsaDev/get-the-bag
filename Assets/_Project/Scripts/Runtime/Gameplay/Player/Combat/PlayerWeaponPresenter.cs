@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Project.Combat.Weapons;
 using Project.Combat.Data;
 using Project.Player.Locomotion;
+using Project.Player.FPSCamera;
 using Project.Content;
 using Project.Logging;
 using UnityEngine;
@@ -36,6 +37,11 @@ public class PlayerWeaponPresenter : MonoBehaviour
     private double _reloadStartedAt;
     private WeaponEquipmentState _latestState;
     private LocomotionController _locomotion;
+    private FPSCameraController _cameraController;
+    private WeaponAimPose _aimPose;
+    private WeaponLookSway _lookSway;
+    private Vector2 _lookDelta;
+    private bool _aimHeld;
     private string _requestedId;
     private WeaponSlot _requestedSlot;
     public event Action Fired;
@@ -45,6 +51,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
     {
         if (_isLocalOwner != isLocalOwner) ClearVisuals();
         _isLocalOwner = isLocalOwner;
+        _cameraController = GetComponentInParent<PlayerWeaponController>()?.GetComponentInChildren<FPSCameraController>(true);
         _locomotion = GetComponentInParent<LocomotionController>();
         if (!_locomotion) _locomotion = transform.root.GetComponentInChildren<LocomotionController>();
         
@@ -161,9 +168,10 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
             ReleaseActiveVisual();
             _activeVisual = visual;
+            _aimPose = visual.GetComponent<WeaponAimPose>();
+            _lookSway = visual.GetComponent<WeaponLookSway>();
             _activeWeaponHandle = handle;
             _ownsPrefabHandle = true;
-            visual.SetReloading(_isReloading);
             SynchronizeReload();
             instance = null;
             handle = default;
@@ -185,6 +193,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
     
     public void ClearVisuals()
     {
+        _aimHeld = false;
         _requestedId = null;
         _requestedSlot = WeaponSlot.None;
         SetReloading(false);
@@ -202,6 +211,12 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
     private void ReleaseActiveVisual()
     {
+        if (_lookSway) _lookSway.ResetPose();
+        _lookSway = null;
+        _lookDelta = Vector2.zero;
+        if (_aimPose) _aimPose.ResetPose();
+        _aimPose = null;
+        if (_isLocalOwner && _cameraController) _cameraController.SetAimPresentation(0f, 75f);
         var visual = _activeVisual;
         var handle = _activeWeaponHandle;
         var ownsHandle = _ownsPrefabHandle;
@@ -230,23 +245,57 @@ public class PlayerWeaponPresenter : MonoBehaviour
         if (_isReloading == reloading) return;
         _isReloading = reloading;
         if (reloading) _reloadStartedAt = Time.timeAsDouble;
-        if (_activeVisual) _activeVisual.SetReloading(reloading);
         SynchronizeReload();
         ReloadingChanged?.Invoke(reloading);
     }
 
     private void SynchronizeReload()
     {
-        if (!_isReloading || !_activeVisual ||
-            _activeVisual.Definition.Id != _latestState.ActiveWeapon.WeaponId) 
+        if (!_activeVisual) return;
+        if (!_isReloading)
+        {
+            _activeVisual.SetReloading(false);
+            return;
+        }
+        if (_activeVisual.Definition.Id != _latestState.ActiveWeapon.WeaponId)
             return;
         
         var duration = WeaponStatResolver.Resolve(_activeVisual.Definition,
             _latestState.ActiveWeapon.AttachmentIds).ReloadDuration;
+        _activeVisual.SetReloading(true, duration, _reloadStartedAt);
     }
 
     private void Update()
     {
+        if (!_isLocalOwner) return;
+        if (!_aimPose || !_aimPose.isActiveAndEnabled)
+        {
+            if (_cameraController) _cameraController.SetAimPresentation(0f, 75f);
+            return;
+        }
+        var currentWeapon = _activeVisual && _activeVisual.Definition &&
+                            _activeVisual.Definition.Id == _latestState.ActiveWeapon.WeaponId;
+        _aimPose.Tick(_aimHeld && !_isReloading && currentWeapon, Time.deltaTime);
+        if (_cameraController) _cameraController.SetAimPresentation(_aimPose.Progress, _aimPose.AimFov);
+    }
+
+    public void SetAimHeld(bool held) => _aimHeld = held;
+    public void SetLookDelta(Vector2 delta) => _lookDelta = delta;
+
+    private void LateUpdate()
+    {
+        if (_isLocalOwner && _lookSway && _lookSway.isActiveAndEnabled)
+            _lookSway.Tick(_lookDelta, _aimPose ? _aimPose.EvaluatedWeight : 0f, _isReloading, Time.deltaTime);
+        _lookDelta = Vector2.zero;
+    }
+
+    private void OnDisable()
+    {
+        _aimHeld = false;
+        _lookDelta = Vector2.zero;
+        if (_lookSway) _lookSway.ResetPose();
+        if (_aimPose) _aimPose.ResetPose();
+        if (_isLocalOwner && _cameraController) _cameraController.SetAimPresentation(0f, 75f);
     }
 
     public void PlayInspect()

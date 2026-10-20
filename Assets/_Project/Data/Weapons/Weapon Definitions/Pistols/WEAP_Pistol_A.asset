@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4459c860e0de4ec4199b576a1dcc6ef7, type: 3}
-  m_Name: WEAP_Shotgun_A
+  m_Name: WEAP_Pistol_A
   m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponDefinition
-  _id: weap_shotgun_a
-  _name: Spas-12
-  _category: 2
+  _id: weap_pistol_a
+  _name: Pistol A
+  _category: 0
   _baseMagazineSize: 12
-  _startingReserveAmmo: 85
-  _baseReloadDuration: 1.5
+  _startingReserveAmmo: 90
+  _baseReloadDuration: 1.6
   _baseDamage: 10
   _fireMode: 0
   _baseFireRate: 600
@@ -27,19 +27,21 @@ MonoBehaviour:
   _customFireMode: {fileID: 0}
   _hitMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 849
   _autoMatchByCategory: 1
   _additionalAttachments: []
   _excludedAttachments: []
-  _compatibleAttachments: []
+  _compatibleAttachments:
+  - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
+  - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}
   _prefabReference:
-    m_AssetGUID: 
+    m_AssetGUID: 3f1021088e345194e8bae8a1f5e4dd63
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
   _firstPersonPrefabReference:
-    m_AssetGUID: 
+    m_AssetGUID: e77b0608ae43a23408d013ec5443596b
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 

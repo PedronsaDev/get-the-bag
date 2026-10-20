@@ -97,14 +97,20 @@ public class PlayerWeaponController : NetworkBehaviour
 
     private void Update()
     {
-        if (!_running) 
+        if (!_running)
+        {
+            if (_presenter) _presenter.SetAimHeld(false);
             return;
+        }
         
         if (isServer)
             TickServer(Time.timeAsDouble);
 
-        if (!isOwner || !_inputProvider) 
+        if (!isOwner || !_inputProvider)
+        {
+            if (_presenter) _presenter.SetAimHeld(false);
             return;
+        }
         
         SendOwnerInput();
     }
@@ -112,6 +118,10 @@ public class PlayerWeaponController : NetworkBehaviour
     private void SendOwnerInput()
     {
         var input = _inputProvider.GetCurrentInput();
+        if (_presenter) _presenter.SetLookDelta(CanAct ? input.LookVector : Vector2.zero);
+        var movingFast = _locomotionController &&
+                         (_locomotionController.State.IsSprinting || _locomotionController.State.IsSliding);
+        if (_presenter) _presenter.SetAimHeld(input.AimHeld && CanAct && !movingFast);
 
         if (input.WeaponSlotPressed == 1)
         {
@@ -135,6 +145,11 @@ public class PlayerWeaponController : NetworkBehaviour
             SetFireInput(held || input.PrimaryFirePressed, direction);
             if (input.PrimaryFirePressed && !held) SetFireInput(false, direction);
         }
+    }
+
+    private void OnDisable()
+    {
+        if (_presenter) _presenter.SetAimHeld(false);
     }
 
     private bool CanAct => !_downedState || (!_downedState.IsDowned && !_downedState.IsDead);

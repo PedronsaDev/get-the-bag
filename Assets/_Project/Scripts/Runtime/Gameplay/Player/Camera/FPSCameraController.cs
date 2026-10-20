@@ -37,6 +37,14 @@ public class FPSCameraController : NetworkBehaviour
     [SerializeField] private FPSCameraImpact _cameraImpact;
 
     private UnityEngine.Camera _cam;
+    private float _aimProgress;
+    private float _aimFov = 75f;
+
+    public void SetAimPresentation(float progress, float fov)
+    {
+        _aimProgress = Mathf.Clamp01(progress);
+        _aimFov = Mathf.Clamp(fov, 20f, 120f);
+    }
 
     private float _currentPitch;
     private float _currentYaw;
@@ -90,6 +98,7 @@ public class FPSCameraController : NetworkBehaviour
 
     protected override void OnDespawned()
     {
+        _aimProgress = 0f;
         if (isOwner && CameraRig.Instance)
         {
             CameraRig.Instance.StopFollowing();
@@ -116,6 +125,8 @@ public class FPSCameraController : NetworkBehaviour
         var loco = CurrentLocomotionState;
         var wantsFastFOV = loco.IsSprinting || loco.IsSliding;
         var targetFOV = wantsFastFOV ? _sprintFOV : _baseFOV;
+        targetFOV = Mathf.Lerp(targetFOV, _aimFov, Mathf.SmoothStep(0f, 1f, _aimProgress));
+        if (!_cam) return;
         _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, targetFOV, dt * _fovSmoothness);
     }
 

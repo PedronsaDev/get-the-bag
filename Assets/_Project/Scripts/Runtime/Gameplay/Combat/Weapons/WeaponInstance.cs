@@ -15,8 +15,12 @@ public class WeaponInstance : MonoBehaviour
     public Transform FirePoint => _firePoint;
     public WeaponDefinition Definition => _definition;
     public event Action Fired;
-    public event Action<bool> ReloadingChanged;
+    public event Action<bool> ReloadingChanged; // True if reloading, false if finished reloading
     private bool _isReloading;
+    public bool IsReloading => _isReloading;
+    public float ReloadDuration { get; private set; }
+    // Presentation clock: local time when the confirmed reload was first observed.
+    public double ReloadStartedAt { get; private set; }
     
     public void Initialize(WeaponDefinition definition)
     {
@@ -35,9 +39,16 @@ public class WeaponInstance : MonoBehaviour
         Fired?.Invoke();
     }
 
-    public void SetReloading(bool reloading)
+    public void SetReloading(bool reloading, float duration = 0f, double startedAt = 0d)
     {
         if (_isReloading == reloading) return;
+        if (reloading)
+        {
+            if (!float.IsFinite(duration) || duration <= 0f || !double.IsFinite(startedAt))
+                throw new ArgumentOutOfRangeException(nameof(duration), "Reload presentation requires valid timing.");
+            ReloadDuration = duration;
+            ReloadStartedAt = startedAt;
+        }
         _isReloading = reloading;
         ReloadingChanged?.Invoke(reloading);
     }
