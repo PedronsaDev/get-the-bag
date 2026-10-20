@@ -48,7 +48,7 @@ namespace Project.Player.Commands
             if (player.LocomotionController)
             {
                 var loco = player.LocomotionController;
-                sb.AppendLine($"Locomotion Phase: {loco.State.Phase} | AnimationState: {loco.State.AnimationState}");
+                sb.AppendLine($"Locomotion Phase: {loco.State.Phase}");
                 sb.AppendLine($"IsDowned: {loco.IsDowned} | IsDraggingTeammate: {loco.IsDraggingTeammate}");
             }
 

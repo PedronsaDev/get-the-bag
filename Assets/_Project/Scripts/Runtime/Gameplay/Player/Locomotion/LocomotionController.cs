@@ -37,21 +37,6 @@ public enum LocomotionPhase
     Noclip
 }
 
-public enum LocomotionAnimationState
-{
-    Idle,
-    Walking,
-    Sprinting,
-    Crouching,
-    Sliding,
-    CrouchWalking,
-    Jumping,
-    Falling,
-    Vaulting,
-    Downed,
-    Crawling
-}
-
 [Serializable]
 public struct LocomotionState
 {
@@ -69,7 +54,6 @@ public struct LocomotionState
     public bool CoyoteJumpQueued;
     public float LandingTime;
     public LocomotionPhase Phase;
-    public LocomotionAnimationState AnimationState;
     public Vector2 MoveInput;
     public float MoveInputMagnitude;
     public bool IsSprinting;
@@ -396,7 +380,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public LocomotionState State;
     public event Action<LocomotionPhase> OnPhaseChanged;
-    public event Action<LocomotionAnimationState> OnAnimationStateChanged;
 
     [Header("References")] 
     [SerializeField] private KinematicCharacterMotor _motor;
@@ -600,7 +583,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             LandingTime = -100f,
             CurrentJumpStatus = JumpStatus.None,
             Phase = LocomotionPhase.Airborne,
-            AnimationState = LocomotionAnimationState.Falling
         };
 
         _phaseHandlers.Clear();
@@ -839,7 +821,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         _currentPhaseHandler?.UpdateVelocity(ref currentVelocity, deltaTime);
 
         ApplyJumpIfRequested(ref currentVelocity);
-        UpdateAnimationState(currentVelocity);
     }
 
     private void UpdateCrouchHeight(float deltaTime)
@@ -1121,71 +1102,6 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
         return _maxStableMoveSpeed * speedMultiplier * globalBuffMult;
     }
-
-    private void UpdateAnimationState(Vector3 currentVelocity)
-    {
-        LocomotionAnimationState nextState;
-        float moveInputMagnitude = _moveInputVector.magnitude;
-        float verticalSpeed = Vector3.Dot(currentVelocity, _motor.CharacterUp);
-
-        if (_isDowned)
-        {
-            nextState = (_dragTarget || moveInputMagnitude > 0.1f)
-                ? LocomotionAnimationState.Crawling
-                : LocomotionAnimationState.Downed;
-        }
-        else
-        {
-            switch (State.Phase)
-            {
-                case LocomotionPhase.Noclip:
-                    nextState = moveInputMagnitude > 0.1f
-                        ? (_isSprintInputHeld ? LocomotionAnimationState.Sprinting : LocomotionAnimationState.Walking)
-                        : LocomotionAnimationState.Idle;
-                    break;
-                case LocomotionPhase.Vaulting:
-                    nextState = LocomotionAnimationState.Vaulting;
-                    break;
-                case LocomotionPhase.Airborne:
-                    nextState = verticalSpeed >= 0f
-                        ? LocomotionAnimationState.Jumping
-                        : LocomotionAnimationState.Falling;
-                    break;
-                case LocomotionPhase.Grounded:
-                default:
-                {
-                    if (State.IsSliding)
-                    {
-                        nextState = LocomotionAnimationState.Sliding;
-                    }
-                    else if (_isCrouchInputHeld)
-                    {
-                        nextState = moveInputMagnitude > 0.1f
-                            ? LocomotionAnimationState.CrouchWalking
-                            : LocomotionAnimationState.Crouching;
-                    }
-                    else if (moveInputMagnitude > 0.1f)
-                    {
-                        nextState = _isSprintInputHeld
-                            ? LocomotionAnimationState.Sprinting
-                            : LocomotionAnimationState.Walking;
-                    }
-                    else
-                    {
-                        nextState = LocomotionAnimationState.Idle;
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        if (State.AnimationState == nextState) return;
-
-        State.AnimationState = nextState;
-        OnAnimationStateChanged?.Invoke(nextState);
-    }
-
 
     private void UpdateProximityWallCheck()
     {
@@ -1493,7 +1409,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
                 ? Vector3.Angle(_motor.GroundingStatus.GroundNormal, Vector3.up)
                 : 0f;
 
-            string statusText = $"[LOCO] {State.Phase} | {State.AnimationState}\n" +
+            string statusText = $"[LOCO] {State.Phase}\n" +
                                 $"Speed: {totalSpeed:F1} m/s (H:{hSpeed:F1} V:{vSpeed:+0.0;-0.0;0.0})\n" +
                                 $"Ground: {(_motor.GroundingStatus.FoundAnyGround ? (_motor.GroundingStatus.IsStableOnGround ? "Stable" : "Unstable") : "Airborne")} ({slopeAngle:F1}\u00b0)\n" +
                                 $"Height: {height:F2}m / {_standingHeight:F2}m";

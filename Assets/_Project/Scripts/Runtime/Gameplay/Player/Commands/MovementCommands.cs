@@ -73,7 +73,7 @@ public static class MovementCommands
         sb.AppendLine("=== PLAYER MOVEMENT STATUS ===");
         sb.AppendLine(
             $"Target: {player.gameObject.name} (PlayerID: {(player.TryGetComponent<PlayerIdentifier>(out var id) && id.PlayerID.HasValue ? id.PlayerID.Value.ToString() : "Local")})");
-        sb.AppendLine($"Phase: <b>{state.Phase}</b> | Animation State: <b>{state.AnimationState}</b>");
+        sb.AppendLine($"Phase: <b>{state.Phase}</b>");
         sb.AppendLine(
             $"Speed: <b>{totalSpeed:F2} m/s</b> (Horizontal: {hSpeed:F2} m/s, Vertical: {vSpeed:+0.00;-0.00;0.00} m/s)");
         sb.AppendLine($"Velocity: ({velocity.x:F2}, {velocity.y:F2}, {velocity.z:F2})");

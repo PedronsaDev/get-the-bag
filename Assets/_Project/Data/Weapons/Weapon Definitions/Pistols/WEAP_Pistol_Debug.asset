@@ -27,7 +27,7 @@ MonoBehaviour:
   _customFireMode: {fileID: 0}
   _hitMask:
     serializedVersion: 2
-    m_Bits: 46967
+    m_Bits: 849
   _autoMatchByCategory: 1
   _additionalAttachments: []
   _excludedAttachments: []
@@ -36,6 +36,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}
   _prefabReference:
     m_AssetGUID: 3f1021088e345194e8bae8a1f5e4dd63
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  _firstPersonPrefabReference:
+    m_AssetGUID: e77b0608ae43a23408d013ec5443596b
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 

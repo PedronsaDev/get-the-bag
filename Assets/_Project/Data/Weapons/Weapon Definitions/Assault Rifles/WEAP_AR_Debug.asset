@@ -27,7 +27,7 @@ MonoBehaviour:
   _customFireMode: {fileID: 0}
   _hitMask:
     serializedVersion: 2
-    m_Bits: 46967
+    m_Bits: 849
   _autoMatchByCategory: 1
   _additionalAttachments: []
   _excludedAttachments: []

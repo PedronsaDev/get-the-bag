@@ -236,7 +236,7 @@ DefaultImporter:
             };
         }
 
-        internal const string version = "1.4.12";
+        internal const string version = "1.5.0";
     }
 
     internal static class FixedUpdateParameterMigration {
@@ -461,7 +461,7 @@ DefaultImporter:
             string methodAssemblyName = methodsWithBug[0].Module.Assembly.FullName;
             const BindingFlags findAll = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
             int numPotentialIssues =
-                #if UNITY_6000_7_OR_NEWER
+                #if UNITY_6000_5_OR_NEWER
                 UnityEngine.Assemblies.CurrentAssemblies.GetLoadedAssemblies()
                 #else
                 AppDomain.CurrentDomain.GetAssemblies()

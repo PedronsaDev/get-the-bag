@@ -53,7 +53,10 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
     [SerializeField] private WeaponAttachmentDefinition[] _compatibleAttachments = Array.Empty<WeaponAttachmentDefinition>();
 
     [Header("Addressables Visual References")]
+    [Tooltip("Weapon-only prefab for other players. Also used for the owner when no first-person prefab is assigned.")]
     [SerializeField] private AssetReferenceT<GameObject> _prefabReference;
+    [Tooltip("Owner-only combined arms + weapon prefab. Leave empty to use the regular weapon visual.")]
+    [SerializeField] private AssetReferenceT<GameObject> _firstPersonPrefabReference;
 
     public static Func<string, WeaponAttachmentDefinition> AttachmentLookup { get; set; }
 
@@ -80,6 +83,7 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
     public IReadOnlyList<WeaponAttachmentDefinition> CompatibleAttachments => _compatibleAttachments ?? Array.Empty<WeaponAttachmentDefinition>();
 
     public AssetReferenceT<GameObject> PrefabReference => _prefabReference;
+    public AssetReferenceT<GameObject> FirstPersonPrefabReference => _firstPersonPrefabReference;
 
     public bool IsAttachmentCompatible(WeaponAttachmentDefinition attachment)
     {

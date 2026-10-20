@@ -236,8 +236,8 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 
             PrimaryFirePressed = !actionsBlocked && _attackAction != null && _attackAction.WasPressedThisFrame(),
             PrimaryFireHeld = !actionsBlocked && _attackAction != null && _attackAction.IsPressed(),
-            SecondaryFirePressed = !actionsBlocked && _aimAction != null && _aimAction.WasPressedThisFrame(),
-            SecondaryFireHeld = !actionsBlocked && _aimAction != null && _aimAction.IsPressed(),
+            AimPressed = !actionsBlocked && _aimAction != null && _aimAction.WasPressedThisFrame(),
+            AimHeld = !actionsBlocked && _aimAction != null && _aimAction.IsPressed(),
 
             ReloadPressed = !actionsBlocked && _reloadAction != null && _reloadAction.WasPressedThisFrame(),
             GrenadePressed = !actionsBlocked && _grenadeAction != null && _grenadeAction.WasPressedThisFrame(),

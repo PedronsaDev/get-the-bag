@@ -3,6 +3,7 @@
   "rootNamespace": "Project.Weapons.Editor",
   "references": [
     "Project.Definitions",
+    "Project.Combat",
     "Project.Logging",
     "Project.Core",
     "Unity.Addressables",

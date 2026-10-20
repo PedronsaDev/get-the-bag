@@ -100,7 +100,7 @@
                     "name": "Aim",
                     "type": "Button",
                     "id": "4e910609-b638-43d9-95a2-97216ab7e901",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false,

@@ -21,12 +21,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - Registry
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 57fa962e76d33244db8f346912ed412a
-    m_Address: WeaponAttachmentRegistry
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Registry
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3f1021088e345194e8bae8a1f5e4dd63
     m_Address: Weapon_Prefabs/WEAP_PF_Pistol_Debug
     m_ReadOnly: 0
@@ -45,11 +39,22 @@ MonoBehaviour:
     m_SerializedLabels:
     - Loot
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57fa962e76d33244db8f346912ed412a
+    m_Address: WeaponAttachmentRegistry
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Registry
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 950810fb3c467c14d8780b6343cb3503
     m_Address: Loot_Prefabs/RarePainting
     m_ReadOnly: 0
     m_SerializedLabels:
     - Loot
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c1d011948ba11474ca3d21e4f20136ea
+    m_Address: Weapon/Prototype/PistolFirstPerson
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c6785e3e328185c43a72318a5dcf0e3c
     m_Address: Loot_Prefabs/GoldBar
@@ -59,6 +64,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e3a7db3a0247b26489d283f3a7d4a933
     m_Address: Weapon_Prefabs/WEAP_PF_AR_Debug
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Weapons
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e77b0608ae43a23408d013ec5443596b
+    m_Address: Weapon_Prefabs/WEAP_FP_Pistol_A
     m_ReadOnly: 0
     m_SerializedLabels:
     - Weapons

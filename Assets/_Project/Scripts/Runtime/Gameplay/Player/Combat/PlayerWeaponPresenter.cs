@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Project.Combat.Weapons;
+using Project.Combat.Data;
+using Project.Player.Locomotion;
 using Project.Content;
 using Project.Logging;
 using UnityEngine;
@@ -17,12 +19,10 @@ public class PlayerWeaponPresenter : MonoBehaviour
     [Header("First Person References")]
     [SerializeField] private Transform _firstPersonSocket;
     [SerializeField] private GameObject _firstPersonArms;
-    [SerializeField] private Animator _firstPersonAnimator;
     
     [Header("Third Person References")]
     [SerializeField] private List<SkinnedMeshRenderer> _thirdPersonMeshes = new();
     [SerializeField] private Transform _thirdPersonSocket;
-    [SerializeField] private Animator _thirdPersonAnimator;
 
     private bool _isLocalOwner;
     private WeaponInstance _activeVisual;
@@ -33,6 +33,9 @@ public class PlayerWeaponPresenter : MonoBehaviour
     private CancellationTokenSource _equipCancellation;
     private uint _requestVersion;
     private bool _isReloading;
+    private double _reloadStartedAt;
+    private WeaponEquipmentState _latestState;
+    private LocomotionController _locomotion;
     private string _requestedId;
     private WeaponSlot _requestedSlot;
     public event Action Fired;
@@ -40,16 +43,15 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
     public void ConfigureView(bool isLocalOwner)
     {
+        if (_isLocalOwner != isLocalOwner) ClearVisuals();
         _isLocalOwner = isLocalOwner;
+        _locomotion = GetComponentInParent<LocomotionController>();
+        if (!_locomotion) _locomotion = transform.root.GetComponentInChildren<LocomotionController>();
         
         if (_firstPersonArms)
         {
             _firstPersonArms.SetActive(isLocalOwner);
         } 
-        else
-        {
-            AppLog.LogWarning(LogChannel.Combat, "First person arms reference is missing. Assign a GameObject to the PlayerWeaponPresenter.", this);
-        }
         
         var thirdPersonShadowMode = isLocalOwner ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
         
@@ -67,6 +69,9 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
     public void ApplyState(WeaponEquipmentState state)
     {
+        if (_requestedId != state.ActiveWeapon.WeaponId || _requestedSlot != state.ActiveSlot)
+            SetReloading(false);
+        _latestState = state;
         SetReloading(state.Action == WeaponActionState.Reloading);
         var id = state.ActiveWeapon.WeaponId;
         if (_requestedId == id && _requestedSlot == state.ActiveSlot) return;
@@ -121,7 +126,10 @@ public class PlayerWeaponPresenter : MonoBehaviour
             _activeVisual.transform.parent == socket && _ownsPrefabHandle && _activeWeaponHandle.IsValid())
             return;
 
-        if (definition.PrefabReference == null || !definition.PrefabReference.RuntimeKeyIsValid())
+        var reference = _isLocalOwner && definition.FirstPersonPrefabReference != null &&
+                        definition.FirstPersonPrefabReference.RuntimeKeyIsValid()
+            ? definition.FirstPersonPrefabReference : definition.PrefabReference;
+        if (reference == null || !reference.RuntimeKeyIsValid())
             throw new InvalidOperationException($"Weapon '{id}' has no valid prefab reference.");
 
         var cancellation = CancellationTokenSource.CreateLinkedTokenSource(
@@ -134,7 +142,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
         try
         {
             token.ThrowIfCancellationRequested();
-            handle = Addressables.LoadAssetAsync<GameObject>(definition.PrefabReference.RuntimeKey);
+            handle = Addressables.LoadAssetAsync<GameObject>(reference.RuntimeKey);
             var prefab = await handle.ToUniTask(cancellationToken: token, autoReleaseWhenCanceled: false);
 
             token.ThrowIfCancellationRequested();
@@ -156,6 +164,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
             _activeWeaponHandle = handle;
             _ownsPrefabHandle = true;
             visual.SetReloading(_isReloading);
+            SynchronizeReload();
             instance = null;
             handle = default;
         }
@@ -213,7 +222,6 @@ public class PlayerWeaponPresenter : MonoBehaviour
     {
         if (!_activeVisual || _activeVisual.Definition.Id != weaponId) return;
         _activeVisual.PlayFire();
-        WeaponAnimation.PlayFire(_isLocalOwner ? _firstPersonAnimator : _thirdPersonAnimator);
         Fired?.Invoke();
     }
 
@@ -221,9 +229,28 @@ public class PlayerWeaponPresenter : MonoBehaviour
     {
         if (_isReloading == reloading) return;
         _isReloading = reloading;
+        if (reloading) _reloadStartedAt = Time.timeAsDouble;
         if (_activeVisual) _activeVisual.SetReloading(reloading);
-        WeaponAnimation.SetReloading(_isLocalOwner ? _firstPersonAnimator : _thirdPersonAnimator, reloading);
+        SynchronizeReload();
         ReloadingChanged?.Invoke(reloading);
+    }
+
+    private void SynchronizeReload()
+    {
+        if (!_isReloading || !_activeVisual ||
+            _activeVisual.Definition.Id != _latestState.ActiveWeapon.WeaponId) 
+            return;
+        
+        var duration = WeaponStatResolver.Resolve(_activeVisual.Definition,
+            _latestState.ActiveWeapon.AttachmentIds).ReloadDuration;
+    }
+
+    private void Update()
+    {
+    }
+
+    public void PlayInspect()
+    {
     }
 
     private void OnDestroy()

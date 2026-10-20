@@ -14,8 +14,11 @@ public struct PlayerInputData
 
     public bool PrimaryFirePressed;
     public bool PrimaryFireHeld;
-    public bool SecondaryFirePressed;
-    public bool SecondaryFireHeld;
+    //public bool SecondaryFirePressed;
+    //public bool SecondaryFireHeld;
+    
+    public bool AimPressed;
+    public bool AimHeld;
 
     public bool ReloadPressed;
     public bool GrenadePressed;

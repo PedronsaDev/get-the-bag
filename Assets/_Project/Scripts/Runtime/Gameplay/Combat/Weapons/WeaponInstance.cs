@@ -5,20 +5,14 @@ using UnityEngine;
 
 namespace Project.Combat.Weapons
 {
-[RequireComponent(typeof(Animator))]
 public class WeaponInstance : MonoBehaviour
 {
     
     [Header("References")]
     [SerializeField] private Transform _firePoint;
-    [SerializeField] private Transform _leftHandGrip;
-    [SerializeField] private Transform _rightHandGrip;
-    [SerializeField] private Animator _animator;
     private WeaponDefinition _definition;
     
     public Transform FirePoint => _firePoint;
-    public Transform LeftHandGrip => _leftHandGrip;
-    public Transform RightHandGrip => _rightHandGrip;
     public WeaponDefinition Definition => _definition;
     public event Action Fired;
     public event Action<bool> ReloadingChanged;
@@ -27,7 +21,6 @@ public class WeaponInstance : MonoBehaviour
     public void Initialize(WeaponDefinition definition)
     {
         _definition = definition;
-        if (!_animator) _animator = GetComponent<Animator>();
         
         if (!_firePoint)
         {
@@ -39,7 +32,6 @@ public class WeaponInstance : MonoBehaviour
 
     public void PlayFire()
     {
-        WeaponAnimation.PlayFire(_animator);
         Fired?.Invoke();
     }
 
@@ -47,7 +39,6 @@ public class WeaponInstance : MonoBehaviour
     {
         if (_isReloading == reloading) return;
         _isReloading = reloading;
-        WeaponAnimation.SetReloading(_animator, reloading);
         ReloadingChanged?.Invoke(reloading);
     }
 }

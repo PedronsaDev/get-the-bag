@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1422289379457963283}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: LeftHandPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24,13 +24,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2543904998515122981}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0055, y: 0, z: 0.0385}
+  m_LocalRotation: {x: 0.2624677, y: 0.67236847, z: -0.31798348, w: 0.6147502}
+  m_LocalPosition: {x: -0.0354, y: -0.0637, z: -0.0391}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3776805135357835667}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 87.958, y: -328.44, z: -439.201}
 --- !u!1 &4846567115418055061
 GameObject:
   m_ObjectHideFlags: 0
@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 3776805135357835667}
   - component: {fileID: 7198752072556739997}
   - component: {fileID: 4688375096355377150}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: WEAP_PF_Pistol_Debug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7092006802020741155}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: Mesh Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8382161182164941942}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: RightHandPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,8 +163,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6620295000432994751}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0005, y: 0, z: -0.0074}
+  m_LocalRotation: {x: -0.6384696, y: -0.42815226, z: -0.3957937, w: 0.502384}
+  m_LocalPosition: {x: 0.0221, y: -0.0243, z: -0.0756}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 2060678958714663808}
   - component: {fileID: 3512030634973066662}
   - component: {fileID: 1266250666585248452}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: Core
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -271,7 +271,7 @@ GameObject:
   - component: {fileID: 9051284233947450891}
   - component: {fileID: 6273822732230808832}
   - component: {fileID: 8295282714256569235}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: Core_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -359,7 +359,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5678992956515410381}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
