@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4459c860e0de4ec4199b576a1dcc6ef7, type: 3}
+  m_Name: WEAP_Shotgun_A
+  m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponDefinition
+  _id: weap_shotgun_a
+  _name: Spas-12
+  _category: 2
+  _baseMagazineSize: 12
+  _startingReserveAmmo: 85
+  _baseReloadDuration: 1.5
+  _baseDamage: 10
+  _fireMode: 0
+  _baseFireRate: 600
+  _baseRange: 100
+  _burstSize: 3
+  _burstCooldown: 0.25
+  _customFireMode: {fileID: 0}
+  _hitMask:
+    serializedVersion: 2
+    m_Bits: 0
+  _autoMatchByCategory: 1
+  _additionalAttachments: []
+  _excludedAttachments: []
+  _compatibleAttachments: []
+  _prefabReference:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  _firstPersonPrefabReference:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

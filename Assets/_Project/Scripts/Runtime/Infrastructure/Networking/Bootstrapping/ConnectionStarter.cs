@@ -1,5 +1,6 @@
 using System.Collections;
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Project.Logging;
 using Project.Networking.Scenes;
@@ -7,6 +8,7 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Transports;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Unity.Multiplayer.PlayMode;
 
 namespace Project.Network.Bootstrapping
@@ -30,13 +32,16 @@ public class ConnectionStarter : MonoBehaviour
 {
     [SerializeField] private UDPTransport _udpTransport;
     [SerializeField] private PurrTransport _purrTransport;
+    [SerializeField, Min(1f)] private float _lobbyConnectionTimeoutSeconds = 30f;
 
     private NetworkManager _networkManager;
     private LobbyDataHolder _lobbyDataHolder;
+    private LobbyManager _lobbyManager;
+    private CancellationTokenSource _connectionCancellation;
 
     private bool _isFromLobby;
     private bool _connectionPending;
-    private Coroutine _clientRoutine;
+    private bool _lobbyHubTransitionRequested;
     public static bool HasLobbyConnection => FindAnyObjectByType<LobbyDataHolder>();
 
     private void Awake()
@@ -65,44 +70,96 @@ public class ConnectionStarter : MonoBehaviour
             return;
         }
 
-        _lobbyDataHolder = FindAnyObjectByType<LobbyDataHolder>();
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+        TrySubscribeToLobbyReady();
+    }
 
-        if (_lobbyDataHolder)
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+        if (_lobbyManager)
+            _lobbyManager.OnAllReady.RemoveListener(HandleLobbyAllReady);
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Scene_Lobby")
         {
-            _isFromLobby = true;
+            TrySubscribeToLobbyReady();
+            return;
         }
+
+        if (_lobbyManager)
+        {
+            _lobbyManager.OnAllReady.RemoveListener(HandleLobbyAllReady);
+            _lobbyManager = null;
+        }
+    }
+
+    private void TrySubscribeToLobbyReady()
+    {
+        if (_lobbyManager) return;
+
+        _lobbyManager = FindAnyObjectByType<LobbyManager>();
+        if (_lobbyManager)
+            _lobbyManager.OnAllReady.AddListener(HandleLobbyAllReady);
+    }
+
+    private void HandleLobbyAllReady()
+    {
+        _lobbyDataHolder = FindAnyObjectByType<LobbyDataHolder>();
+        _isFromLobby = _lobbyDataHolder;
+        if (!_isFromLobby)
+        {
+            AppLog.LogError(LogChannel.Network,
+                $"Cannot start the lobby session: {nameof(LobbyDataHolder)} is missing.", this);
+            return;
+        }
+
+        StartRequestedConnection();
     }
 
     public void StartRequestedConnection()
     {
-        if (_connectionPending || _clientRoutine != null) return;
+        if (_connectionPending) return;
         _connectionPending = true;
-        StartRequestedConnectionAsync().Forget();
+        _connectionCancellation = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        StartRequestedConnectionAsync(_connectionCancellation).Forget();
     }
 
-    private async UniTask StartRequestedConnectionAsync()
+    private async UniTask StartRequestedConnectionAsync(CancellationTokenSource cancellationSource)
     {
+        CancellationToken cancellationToken = cancellationSource.Token;
         try
         {
             await NetworkStartupGate.WaitAsync();
+            cancellationToken.ThrowIfCancellationRequested();
             if (!this || !isActiveAndEnabled) return;
             _lobbyDataHolder = FindAnyObjectByType<LobbyDataHolder>();
             _isFromLobby = _lobbyDataHolder;
-            StartNetworkStandard();
+            await StartNetworkStandardAsync(cancellationToken);
         }
         catch (OperationCanceledException) { }
         catch (Exception exception) { AppLog.LogException(LogChannel.Network, exception, this); }
-        finally { if (this) _connectionPending = false; }
+        finally
+        {
+            cancellationSource.Dispose();
+            if (this)
+            {
+                if (_connectionCancellation == cancellationSource)
+                    _connectionCancellation = null;
+                _connectionPending = false;
+            }
+        }
     }
 
     public void StopPendingConnection()
     {
-        StopAllCoroutines();
-        _clientRoutine = null;
+        _connectionCancellation?.Cancel();
         _connectionPending = false;
     }
 
-    private void StartNetworkStandard()
+    private async UniTask StartNetworkStandardAsync(CancellationToken cancellationToken)
     {
         if (!_networkManager)
         {
@@ -115,15 +172,9 @@ public class ConnectionStarter : MonoBehaviour
             return;
         }
 
-        if (!_purrTransport)
-        {
-            AppLog.LogError(LogChannel.Network, $"Failed to start connection. {nameof(PurrTransport)} is null!", this);
-            return;
-        }
-
         if (_isFromLobby)
         {
-            StartFromLobby();
+            await StartFromLobbyAsync(cancellationToken);
         }
         else
         {
@@ -148,9 +199,8 @@ public class ConnectionStarter : MonoBehaviour
         NetworkSceneCoordinator.Instance.TransitionToScene("Scene_Hub");
     }
 
-    private void StartFromLobby()
+    private async UniTask StartFromLobbyAsync(CancellationToken cancellationToken)
     {
-        _networkManager.transport = _purrTransport;
         if (!_lobbyDataHolder)
         {
             AppLog.LogError(LogChannel.Network, $"Failed to start connection. {nameof(LobbyDataHolder)} is null!", this);
@@ -163,25 +213,85 @@ public class ConnectionStarter : MonoBehaviour
             return;
         }
 
+        if (!_purrTransport)
+        {
+            AppLog.LogError(LogChannel.Network, $"Failed to start connection. {nameof(PurrTransport)} is null!", this);
+            return;
+        }
+
+        _networkManager.transport = _purrTransport;
         if (_networkManager.transport is PurrTransport transport)
         {
             transport.roomName = _lobbyDataHolder.CurrentLobby.LobbyId;
         }
 
-        if (_lobbyDataHolder.CurrentLobby.IsOwner)
+        bool isLobbyHost = _lobbyDataHolder.CurrentLobby.IsOwner;
+        if (isLobbyHost)
+        {
             _networkManager.StartServer();
 
-        _clientRoutine = StartCoroutine(StartClient());
-    }
+            float serverDeadline = Time.realtimeSinceStartup + _lobbyConnectionTimeoutSeconds;
+            while (_networkManager &&
+                   _networkManager.serverState != ConnectionState.Connected &&
+                   Time.realtimeSinceStartup < serverDeadline)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+            }
 
+            if (!_networkManager || _networkManager.serverState != ConnectionState.Connected)
+            {
+                AppLog.LogError(LogChannel.Network,
+                    $"Lobby host server did not become ready within {_lobbyConnectionTimeoutSeconds:0.#} seconds.", this);
+                return;
+            }
 
-
-    private IEnumerator StartClient()
-    {
-        yield return new WaitForSeconds(1f);
-        if (_networkManager && !_networkManager.isClient)
+            // PurrTransport needs its hosted relay session ready before the host joins it as a client.
             _networkManager.StartClient();
-        _clientRoutine = null;
+        }
+        else
+            _networkManager.StartClient();
+
+        float deadline = Time.realtimeSinceStartup + _lobbyConnectionTimeoutSeconds;
+        while (Time.realtimeSinceStartup < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!_networkManager) return;
+
+            bool clientConnected = _networkManager.clientState == ConnectionState.Connected;
+            bool hostConnected = !isLobbyHost || _networkManager.serverState == ConnectionState.Connected;
+            if (clientConnected && hostConnected)
+                break;
+
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+        }
+
+        bool connected = _networkManager &&
+                         _networkManager.clientState == ConnectionState.Connected &&
+                         (!isLobbyHost || _networkManager.serverState == ConnectionState.Connected);
+        if (!connected)
+        {
+            AppLog.LogError(LogChannel.Network,
+                $"Lobby network connection did not become ready within {_lobbyConnectionTimeoutSeconds:0.#} seconds.", this);
+            return;
+        }
+
+        if (!isLobbyHost || _lobbyHubTransitionRequested)
+            return;
+
+        await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+
+        var sceneCoordinator = NetworkSceneCoordinator.Instance;
+        if (!sceneCoordinator)
+        {
+            AppLog.LogError(LogChannel.Network,
+                $"Cannot enter the hub: {nameof(NetworkSceneCoordinator)} is missing.", this);
+            return;
+        }
+
+        _lobbyHubTransitionRequested = true;
+        AppLog.Log(LogChannel.Network, "Lobby session connected. Host is loading Scene_Hub through PurrNet.", this);
+        sceneCoordinator.TransitionToScene("Scene_Hub");
     }
 }
 }

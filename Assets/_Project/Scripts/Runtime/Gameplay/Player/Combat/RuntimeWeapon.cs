@@ -28,6 +28,7 @@ public sealed class RuntimeWeapon
     {
         if (_currentAmmo <= 0 || now < _nextShotTime || !FireStrategy.TryScheduleShot(now))
             return false;
+        
         _currentAmmo--;
         _nextShotTime = now + _resolvedStats.FireRateSeconds;
         return true;
