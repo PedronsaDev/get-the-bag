@@ -169,7 +169,7 @@ GameObject:
   - component: {fileID: -2399722829405683302}
   - component: {fileID: 2222797630996847785}
   m_Layer: 12
-  m_Name: WEAP_PF_AR_Debug
+  m_Name: WEAP_PF_Rifle_Debug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

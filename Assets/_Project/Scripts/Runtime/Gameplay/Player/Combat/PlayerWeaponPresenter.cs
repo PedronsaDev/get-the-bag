@@ -40,7 +40,10 @@ public class PlayerWeaponPresenter : MonoBehaviour
     private FPSCameraController _cameraController;
     private WeaponAimPose _aimPose;
     private WeaponLookSway _lookSway;
+    private WeaponMovementSway _movementSway;
+    private WeaponRecoil _recoil;
     private Vector2 _lookDelta;
+    private Vector2 _moveInput;
     private bool _aimHeld;
     private string _requestedId;
     private WeaponSlot _requestedSlot;
@@ -170,6 +173,8 @@ public class PlayerWeaponPresenter : MonoBehaviour
             _activeVisual = visual;
             _aimPose = visual.GetComponent<WeaponAimPose>();
             _lookSway = visual.GetComponent<WeaponLookSway>();
+            _movementSway = visual.GetComponent<WeaponMovementSway>();
+            _recoil = visual.GetComponent<WeaponRecoil>();
             _activeWeaponHandle = handle;
             _ownsPrefabHandle = true;
             SynchronizeReload();
@@ -211,6 +216,11 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
     private void ReleaseActiveVisual()
     {
+        if (_recoil) _recoil.ResetPose();
+        _recoil = null;
+        if (_movementSway) _movementSway.ResetPose();
+        _movementSway = null;
+        _moveInput = Vector2.zero;
         if (_lookSway) _lookSway.ResetPose();
         _lookSway = null;
         _lookDelta = Vector2.zero;
@@ -281,18 +291,32 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
     public void SetAimHeld(bool held) => _aimHeld = held;
     public void SetLookDelta(Vector2 delta) => _lookDelta = delta;
+    public void SetMoveInput(Vector2 input) => _moveInput = input;
 
     private void LateUpdate()
     {
+        if (_isLocalOwner && _recoil && _recoil.isActiveAndEnabled)
+            _recoil.Tick(_isReloading, Time.deltaTime);
         if (_isLocalOwner && _lookSway && _lookSway.isActiveAndEnabled)
             _lookSway.Tick(_lookDelta, _aimPose ? _aimPose.EvaluatedWeight : 0f, _isReloading, Time.deltaTime);
+        if (_isLocalOwner && _movementSway && _movementSway.isActiveAndEnabled)
+        {
+            var grounded = _locomotion && _locomotion.State.Phase == LocomotionPhase.Grounded &&
+                           !_locomotion.State.IsSliding && !_locomotion.State.IsDowned;
+            _movementSway.Tick(grounded ? _moveInput : Vector2.zero,
+                _aimPose ? _aimPose.EvaluatedWeight : 0f, _isReloading, Time.deltaTime);
+        }
         _lookDelta = Vector2.zero;
+        _moveInput = Vector2.zero;
     }
 
     private void OnDisable()
     {
         _aimHeld = false;
         _lookDelta = Vector2.zero;
+        _moveInput = Vector2.zero;
+        if (_recoil) _recoil.ResetPose();
+        if (_movementSway) _movementSway.ResetPose();
         if (_lookSway) _lookSway.ResetPose();
         if (_aimPose) _aimPose.ResetPose();
         if (_isLocalOwner && _cameraController) _cameraController.SetAimPresentation(0f, 75f);

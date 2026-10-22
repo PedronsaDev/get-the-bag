@@ -15,11 +15,11 @@ MonoBehaviour:
   _id: weap_pistol_a
   _name: Pistol A
   _category: 0
-  _baseMagazineSize: 12
-  _startingReserveAmmo: 90
+  _baseMagazineSize: 9999
+  _startingReserveAmmo: 9999999
   _baseReloadDuration: 1.6
   _baseDamage: 10
-  _fireMode: 0
+  _fireMode: 1
   _baseFireRate: 600
   _baseRange: 100
   _burstSize: 3

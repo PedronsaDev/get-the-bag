@@ -46,7 +46,9 @@ public sealed class WeaponAimPose : MonoBehaviour
 
     public void CachePositionsAndRotations()
     {
-        if (!_motionRoot) return;
+        if (!_motionRoot) 
+            return;
+        
         _hipPosition = _motionRoot.localPosition;
         _hipRotation = _motionRoot.localRotation;
         _aimRotation = Quaternion.Euler(_aimLocalEulerAngles);

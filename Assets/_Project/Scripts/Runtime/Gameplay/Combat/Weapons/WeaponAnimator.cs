@@ -12,6 +12,7 @@ public sealed class WeaponAnimator : MonoBehaviour
 
     [Header("References")] 
     [SerializeField] private Animator _animator;
+    [SerializeField] private WeaponInstance _weapon;
 
     [SerializeField, Min(0)] private int _layer;
 
@@ -21,7 +22,6 @@ public sealed class WeaponAnimator : MonoBehaviour
     private string _fireState = "Fire";
     private string _reloadState = "Reload";
 
-    private WeaponInstance _weapon;
 
     private int _fireStateHash;
     private int _reloadStateHash;
@@ -30,7 +30,9 @@ public sealed class WeaponAnimator : MonoBehaviour
 
     private void Awake()
     {
-        _weapon = GetComponent<WeaponInstance>();
+        if (!_weapon) 
+            _weapon = GetComponent<WeaponInstance>();
+        
         _fireStateHash = Animator.StringToHash(_fireState);
         _reloadStateHash = Animator.StringToHash(_reloadState);
     }

@@ -119,6 +119,7 @@ public class PlayerWeaponController : NetworkBehaviour
     {
         var input = _inputProvider.GetCurrentInput();
         if (_presenter) _presenter.SetLookDelta(CanAct ? input.LookVector : Vector2.zero);
+        if (_presenter) _presenter.SetMoveInput(CanAct ? input.MoveVector : Vector2.zero);
         var movingFast = _locomotionController &&
                          (_locomotionController.State.IsSprinting || _locomotionController.State.IsSliding);
         if (_presenter) _presenter.SetAimHeld(input.AimHeld && CanAct && !movingFast);

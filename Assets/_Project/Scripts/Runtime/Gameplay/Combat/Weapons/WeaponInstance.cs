@@ -15,11 +15,11 @@ public class WeaponInstance : MonoBehaviour
     public Transform FirePoint => _firePoint;
     public WeaponDefinition Definition => _definition;
     public event Action Fired;
-    public event Action<bool> ReloadingChanged; // True if reloading, false if finished reloading
+    public event Action<bool> ReloadingChanged; // isReloading, ammoInMag
+    
     private bool _isReloading;
     public bool IsReloading => _isReloading;
     public float ReloadDuration { get; private set; }
-    // Presentation clock: local time when the confirmed reload was first observed.
     public double ReloadStartedAt { get; private set; }
     
     public void Initialize(WeaponDefinition definition)

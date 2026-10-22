@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4459c860e0de4ec4199b576a1dcc6ef7, type: 3}
-  m_Name: WEAP_AR_Debug
+  m_Name: WEAP_Rifle_Debug
   m_EditorClassIdentifier: Project.Definitions::Project.Combat.Data.WeaponDefinition
   _id: weap_ar_debug
   _name: '[DEBUG_AR]'
