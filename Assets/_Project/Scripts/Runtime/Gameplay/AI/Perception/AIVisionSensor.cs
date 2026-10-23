@@ -12,14 +12,13 @@ namespace Project.AI.Perception
 public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 {
     [Header("Settings")] 
-    [Expandable] 
-    [SerializeField] private VisionConfig _visionConfig;
+    [SerializeField] private AIVisionConfig _aiVisionConfig;
     [SerializeField] private float _visionTickInterval = 0.1f; // 10Hz
     
     [Header("References")]
     [SerializeField] private AITargetMemory _targetMemory;
 
-    public Vector3 SensoryOrigin => _visionConfig ? transform.position + (Vector3.up * _visionConfig.EyeHeight) : Vector3.zero;
+    public Vector3 SensoryOrigin => transform.position + (Vector3.up * _aiVisionConfig.EyeHeight);
 
     private float _tickTimer;
     private float _cosPrimaryFOV;
@@ -91,7 +90,7 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
         if (closestPlayer)
         {
             float distance = Mathf.Sqrt(closestDistanceSqr);
-            float maxRange = isPeripheralTarget ? _visionConfig.PeripheralDistance : _visionConfig.ViewDistance;
+            float maxRange = isPeripheralTarget ? _aiVisionConfig.PeripheralDistance : _aiVisionConfig.ViewDistance;
             _targetMemory.ReportVisualContact(closestPlayer.gameObject, closestPlayer.transform.position, distance, maxRange, isPeripheralTarget, _visionTickInterval);
         }
         else
@@ -113,8 +112,8 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
         Vector3 directionToTarget = targetEyePosition - eyePosition;
         float distanceToTarget = directionToTarget.magnitude;
 
-        bool inPrimaryCone = IsInCone(directionToTarget, distanceToTarget, _cosPrimaryFOV, _visionConfig.ViewDistance);
-        bool inPeripheralCone = IsInCone(directionToTarget, distanceToTarget, _cosPeripheralFOV, _visionConfig.PeripheralDistance);
+        bool inPrimaryCone = IsInCone(directionToTarget, distanceToTarget, _cosPrimaryFOV, _aiVisionConfig.ViewDistance);
+        bool inPeripheralCone = IsInCone(directionToTarget, distanceToTarget, _cosPeripheralFOV, _aiVisionConfig.PeripheralDistance);
 
         if (!inPrimaryCone && !inPeripheralCone)
         {
@@ -122,9 +121,9 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
         }
 
         if (Physics.Raycast(eyePosition, directionToTarget.normalized, out RaycastHit hit, distanceToTarget,
-                _visionConfig.ObstacleMask | _visionConfig.TargetMask))
+                _aiVisionConfig.ObstacleMask | _aiVisionConfig.TargetMask))
         {
-            if (((1 << hit.transform.gameObject.layer) & _visionConfig.TargetMask) != 0)
+            if (((1 << hit.transform.gameObject.layer) & _aiVisionConfig.TargetMask) != 0)
             {
                 _isPeripheral = !inPrimaryCone;
                 return true;
@@ -148,11 +147,8 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 
     private void CacheVisionParameters()
     {
-        if (!_visionConfig)
-            return;
-        
-        _cosPrimaryFOV = Mathf.Cos((_visionConfig.FieldOfView * 0.5f) * Mathf.Deg2Rad);
-        _cosPeripheralFOV = Mathf.Cos((_visionConfig.PeripheralFOV * 0.5f) * Mathf.Deg2Rad);
+        _cosPrimaryFOV = Mathf.Cos((_aiVisionConfig.FieldOfView * 0.5f) * Mathf.Deg2Rad);
+        _cosPeripheralFOV = Mathf.Cos((_aiVisionConfig.PeripheralFOV * 0.5f) * Mathf.Deg2Rad);
     }
 
     public void ReceiveStimulus(in StimulusPayload stimulus)
@@ -174,26 +170,26 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 
     private void OnDrawGizmosSelected()
     {
-        if (!_visionConfig)
-        {
-            var labelStyle = new GUIStyle
-            {
-                normal = { textColor = Color.red },
-                fontSize = 12,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter
-            };
-            
-            string labelText = "MISSING_VISION_CONFIGURATION";
-            Handles.Label(this.transform.position, labelText, labelStyle);
-            
-            return;
-        }
+        // if (!_aiVisionConfig.)
+        // {
+        //     var labelStyle = new GUIStyle
+        //     {
+        //         normal = { textColor = Color.red },
+        //         fontSize = 12,
+        //         fontStyle = FontStyle.Bold,
+        //         alignment = TextAnchor.MiddleCenter
+        //     };
+        //     
+        //     string labelText = "MISSING_VISION_CONFIGURATION";
+        //     Handles.Label(this.transform.position, labelText, labelStyle);
+        //     
+        //     return;
+        // }
         
         Vector3 eyePosition = SensoryOrigin;
-        DrawVisionFan(eyePosition, transform.forward, _visionConfig.FieldOfView, _visionConfig.ViewDistance,
+        DrawVisionFan(eyePosition, transform.forward, _aiVisionConfig.FieldOfView, _aiVisionConfig.ViewDistance,
             new Color(1f, 0.2f, 0.2f));
-        DrawVisionFan(eyePosition, transform.forward, _visionConfig.PeripheralFOV, _visionConfig.PeripheralDistance,
+        DrawVisionFan(eyePosition, transform.forward, _aiVisionConfig.PeripheralFOV, _aiVisionConfig.PeripheralDistance,
             new Color(1f, 0.8f, 0.2f));
     }
 
@@ -202,13 +198,13 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
         if (fov <= 0f || distance <= 0f) return;
         float halfFov = fov * 0.5f;
         Vector3 startDirection = Quaternion.Euler(0, -halfFov, 0) * forward;
-        // 1. Semi-transparent filled arc (10% alpha)
+
         Handles.color = new Color(color.r, color.g, color.b, 0.08f);
         Handles.DrawSolidArc(origin, Vector3.up, startDirection, fov, distance);
-        // 2. Solid outline arc
+
         Handles.color = color;
         Handles.DrawWireArc(origin, Vector3.up, startDirection, fov, distance);
-        // 3. Boundary lines (skip if 360 full circle)
+
         if (fov < 360f)
         {
             Handles.DrawLine(origin, origin + (startDirection * distance));

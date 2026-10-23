@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 
 namespace Project.AI.Combat
 {
-[CreateAssetMenu(fileName = "AIWeaponConfig", menuName = "AI/AIWeaponConfig", order = 2)]
-public class AIWeaponConfig : ScriptableObject
+[Serializable]
+public class AIWeaponConfig
 {
     [Header("Damage Tuning")]
     public float DamagePerShot = 12.0f;

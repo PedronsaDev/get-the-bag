@@ -18,7 +18,7 @@ public static class CoverScoringEngine
         Transform threatTransform, 
         EntityId agentId,
         AIMovementConfig moveConfig, 
-        CoverScoringConfig scoreConfig, 
+        AICoverScoringConfig scoreConfig, 
         out CoverPoint bestCover)
     {
         bestCover = null;
@@ -128,7 +128,7 @@ public static class CoverScoringEngine
         Vector3 threatPos, 
         float facingAlignment, 
         float idealDistance, 
-        CoverScoringConfig config)
+        AICoverScoringConfig config)
     {
         float distToCover = Vector3.Distance(agentPosition, candidate.Position);
         float sDist = 1.0f - Mathf.Clamp01(distToCover / config.MaxSearchRadius);

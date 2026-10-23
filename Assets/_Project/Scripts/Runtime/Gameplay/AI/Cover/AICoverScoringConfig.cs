@@ -1,10 +1,12 @@
+using System;
 using NaughtyAttributes;
 using UnityEngine;
 
 namespace Project.AI.Cover
 {
-[CreateAssetMenu(fileName = "AICoverScoringConfig", menuName = "AI/AICoverScoringConfig")]
-public class CoverScoringConfig : ScriptableObject
+
+[Serializable]
+public class AICoverScoringConfig
 {
     [Header("Search Constraints")]
     public float MaxSearchRadius = 15.0f;
@@ -23,7 +25,7 @@ public class CoverScoringConfig : ScriptableObject
     private bool ValidateWeightSum()
     {
         float total = ProximityWeight + FacingWeight + PeekWeight + IdealRangeWeight;
-        return Mathf.Abs(total - 1f) < 0.001f; // Avoid floating-point precision mismatch
+        return Mathf.Abs(total - 1f) < 0.001f;
     }
 
     [Button("Normalize Weights")]

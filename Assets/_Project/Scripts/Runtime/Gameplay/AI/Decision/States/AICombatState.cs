@@ -118,7 +118,7 @@ public class AICombatState : IAIState
                 blackboard.Target.transform,
                 _entityId,
                 blackboard.MovementConfig,
-                blackboard.CoverScoringConfig,
+                blackboard.AICoverScoringConfig,
                 out var cover))
         {
             _activeCover = cover;
@@ -141,7 +141,7 @@ public class AICombatState : IAIState
             return;
 
         if (CoverScoringEngine.IsThreatOccluded(_activeCover, blackboard.TargetPosition,
-                blackboard.CoverScoringConfig.ObstacleMask)) return;
+                blackboard.AICoverScoringConfig.ObstacleMask)) return;
         
         _activeCover.Release(_entityId);
         _activeCover = null;
@@ -181,7 +181,7 @@ public class AICombatState : IAIState
             if (_hasToken && _activeCover.Height == CoverHeight.High)
             {
                 _cachedPeekDestination = GetBestPeekPosition(_activeCover, blackboard.TargetPosition,
-                    blackboard.CoverScoringConfig.ObstacleMask);
+                    blackboard.AICoverScoringConfig.ObstacleMask);
 
                 if (_activePeekDirection == CoverPeekDirection.None)
                 {

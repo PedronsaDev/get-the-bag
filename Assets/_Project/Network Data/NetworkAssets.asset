@@ -19,10 +19,6 @@ MonoBehaviour:
   _enabledTypeNames:
   - UnityEngine.ScriptableObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   assets:
-  - {fileID: 11400000, guid: 0362d9aaf8592d8408c17994f20e117f, type: 2}
-  - {fileID: 11400000, guid: b5be322daa53e8742bbe86d09eb1ad28, type: 2}
-  - {fileID: 11400000, guid: bf0fa792ece192b46a1da915c09fa919, type: 2}
-  - {fileID: 11400000, guid: 39d19f3df09a7444993d69656c6d3901, type: 2}
   - {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}
   - {fileID: 11400000, guid: aaff3e7e43ac664408ff31d4aecfc301, type: 2}
   - {fileID: 11400000, guid: 0a66996a9a1c5664196192040c2ead8c, type: 2}
@@ -35,6 +31,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
   - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}
   - {fileID: 11400000, guid: 57fa962e76d33244db8f346912ed412a, type: 2}
+  - {fileID: 11400000, guid: e7834c1d2dd86454fa6272eff8bde726, type: 2}
   _availableTypeNames:
   - UnityEngine.ScriptableObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEditor.AddressableAssets.Settings.AddressableAssetGroup, Unity.Addressables.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -295,10 +292,6 @@ MonoBehaviour:
   - UnityEngine.Rendering.Universal.WhiteBalance, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Project.Loot.World.WorldDuffleBag, Project.Loot, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   _assetGuids:
-  - 0362d9aaf8592d8408c17994f20e117f
-  - b5be322daa53e8742bbe86d09eb1ad28
-  - bf0fa792ece192b46a1da915c09fa919
-  - 39d19f3df09a7444993d69656c6d3901
   - 87f25555bf5c175418f070b62850e1ec
   - aaff3e7e43ac664408ff31d4aecfc301
   - 0a66996a9a1c5664196192040c2ead8c
@@ -311,12 +304,9 @@ MonoBehaviour:
   - 9253f50e12cb103449ea94c6c9ad9010
   - 12940e83e87a3274ba994efb65b9b84a
   - 57fa962e76d33244db8f346912ed412a
-  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000i
+  - e7834c1d2dd86454fa6272eff8bde726
+  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c000000i
   _bakedAssets:
-  - {fileID: 11400000, guid: 0362d9aaf8592d8408c17994f20e117f, type: 2}
-  - {fileID: 11400000, guid: b5be322daa53e8742bbe86d09eb1ad28, type: 2}
-  - {fileID: 11400000, guid: bf0fa792ece192b46a1da915c09fa919, type: 2}
-  - {fileID: 11400000, guid: 39d19f3df09a7444993d69656c6d3901, type: 2}
   - {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}
   - {fileID: 11400000, guid: aaff3e7e43ac664408ff31d4aecfc301, type: 2}
   - {fileID: 11400000, guid: 0a66996a9a1c5664196192040c2ead8c, type: 2}
@@ -329,11 +319,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9253f50e12cb103449ea94c6c9ad9010, type: 2}
   - {fileID: 11400000, guid: 12940e83e87a3274ba994efb65b9b84a, type: 2}
   - {fileID: 11400000, guid: 57fa962e76d33244db8f346912ed412a, type: 2}
+  - {fileID: 11400000, guid: e7834c1d2dd86454fa6272eff8bde726, type: 2}
   _bakedPersistentIds:
-  - 0362d9aaf8592d8408c17994f20e117f
-  - b5be322daa53e8742bbe86d09eb1ad28
-  - bf0fa792ece192b46a1da915c09fa919
-  - 39d19f3df09a7444993d69656c6d3901
   - 87f25555bf5c175418f070b62850e1ec
   - aaff3e7e43ac664408ff31d4aecfc301
   - 0a66996a9a1c5664196192040c2ead8c
@@ -346,3 +333,4 @@ MonoBehaviour:
   - 9253f50e12cb103449ea94c6c9ad9010
   - 12940e83e87a3274ba994efb65b9b84a
   - 57fa962e76d33244db8f346912ed412a
+  - e7834c1d2dd86454fa6272eff8bde726

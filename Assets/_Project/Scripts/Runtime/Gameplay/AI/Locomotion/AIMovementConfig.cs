@@ -1,9 +1,9 @@
-using UnityEngine;
+using System;
 
 namespace Project.AI.Combat
 {
-[CreateAssetMenu(fileName = "AIMovementConfig", menuName = "AI/AIMovementConfig", order = 1)]
-public class AIMovementConfig : ScriptableObject
+[Serializable]
+public class AIMovementConfig
 {
     public float PatrolSpeed = 2.0f;
     public float InvestigateSpeed = 3.5f;

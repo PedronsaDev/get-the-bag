@@ -49,7 +49,7 @@ public class AIWeaponExecutor : NetworkBehaviour
 
     private void Update()
     {
-        if (!isServer || !_blackboard || !_weaponConfig || !_aimController)
+        if (!isServer || !_blackboard || !_aimController)
             return;
         
         UpdateBurstCadence(Time.deltaTime);
