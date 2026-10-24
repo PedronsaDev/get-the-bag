@@ -72,7 +72,7 @@ internal static class AIArchetypeValidation
 
         if (archetype.CanUseCover)
         {
-            var cover = archetype.AICoverConfig;
+            var cover = archetype.CoverConfig;
             if (cover == null)
                 return Fail("Cover configuration is required when CanUseCover is enabled.", out error);
 
@@ -89,6 +89,28 @@ internal static class AIArchetypeValidation
 
             if (!InRange(cover.MinFacingAlignment, -1f, 1f))
                 return Fail("Cover minimum facing alignment must be finite and between -1 and 1.", out error);
+
+            var coverExec = archetype.CoverExecutionConfig;
+
+            if (coverExec == null)
+                return Fail("Cover execution configuration is required when CanUseCover is enabled.", out error);
+
+            if (!Positive(coverExec.MaxLateralPeekDistance) || !Positive(coverExec.ArrivalTolerance) ||
+                !Positive(coverExec.MaxNavigationSnapDistance) || !Positive(coverExec.MaxVerticalDeviation))
+                return Fail("Cover execution distances and tolerances must be finite and positive.", out error);
+
+            if (!Positive(coverExec.ValidationInterval) || !Positive(coverExec.ApproachTimeout) ||
+                !Positive(coverExec.ReturnTimeout) || !Positive(coverExec.RetryDelay))
+                return Fail("Cover execution timing and intervals must be finite and positive.", out error);
+
+            if (coverExec.ArrivalTolerance >= coverExec.MaxLateralPeekDistance)
+                return Fail("Cover arrival tolerance must be less than the maximum lateral peek distance.", out error);
+
+            if (coverExec.MaxNavigationSnapDistance > coverExec.ArrivalTolerance)
+                return Fail("Cover navigation snap distance must not exceed arrival tolerance.", out error);
+
+            if (coverExec.BodyClearanceMask.value == 0 || !Positive(coverExec.ClearanceSkin))
+                return Fail("Cover body clearance requires a nonempty mask and a finite positive skin.", out error);
         }
 
         error = null;

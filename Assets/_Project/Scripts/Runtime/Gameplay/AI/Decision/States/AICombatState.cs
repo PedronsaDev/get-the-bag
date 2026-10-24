@@ -1,4 +1,5 @@
-﻿using Project.AI.Blackboard;
+using Project.AI.Blackboard;
+using Action = System.Action;
 using Project.AI.Combat;
 using Project.AI.Cover;
 using UnityEngine;
@@ -19,37 +20,77 @@ public class AICombatState : IAIState
     private CombatStance _stance;
     private CoverPoint _activeCover;
     private AIWeaponExecutor _cachedWeaponExecutor;
+    private NavMeshAgent _cachedAgent;
+    private readonly CoverPeekValidator _peekValidator = new();
     private bool _hasToken;
     private float _tokenCooldownTimer;
     private float _reflankTimer;
     private EntityId _entityId;
+    private AIBlackboard _blackboard;
+    private CombatTokenType _tokenType;
+    private readonly Action _burstCompletedHandler;
 
     private float _coverCheckTimer;
     private CoverPeekDirection _activePeekDirection;
+    private float _peekCheckTimer;
+    private float _peekAttemptTimer;
+    private float _returnTimer;
+    private bool _atPeekPosition;
+    private bool _returningToAnchor;
+
+    public bool IsUsingCover => _activeCover && _activeCover.isActiveAndEnabled &&
+        _stance is CombatStance.MovingToCover or CombatStance.InCover;
+
+    public AICombatState()
+    {
+        _burstCompletedHandler = HandleBurstCompleted;
+    }
 
     public void OnEnter(AIBlackboard blackboard)
     {
+        _blackboard = blackboard;
+        _tokenType = blackboard.ArchetypeConfig.PreferredTokenType;
         _entityId = blackboard.gameObject.GetEntityId();
 
         if (!_cachedWeaponExecutor)
             _cachedWeaponExecutor = blackboard.GetComponent<AIWeaponExecutor>();
+        if (!_cachedAgent)
+            _cachedAgent = blackboard.GetComponent<NavMeshAgent>();
         if (_cachedWeaponExecutor)
-            _cachedWeaponExecutor.OnBurstCompleted += HandleBurstCompleted;
+            _cachedWeaponExecutor.OnBurstCompleted += _burstCompletedHandler;
 
         _hasToken = false;
         _tokenCooldownTimer = 0f;
         _reflankTimer = 0f;
-        
-        DecideOpenFieldTactics(blackboard, blackboard.MovementConfig);
+        _coverCheckTimer = 0f;
+        _activePeekDirection = CoverPeekDirection.None;
+        _peekCheckTimer = 0f;
+        _peekAttemptTimer = 0f;
+        _returnTimer = 0f;
+        _atPeekPosition = false;
+        _returningToAnchor = false;
+
+        DecideOpenFieldTactics(blackboard, blackboard.ArchetypeConfig.MovementConfig);
     }
 
     private Vector3 _cachedPeekDestination;
 
     public void OnUpdate(AIBlackboard blackboard, float deltaTime)
     {
-        var config = blackboard.MovementConfig;
+        var config = blackboard.ArchetypeConfig.MovementConfig;
 
         UpdateTimers(deltaTime);
+
+        if (_hasToken && (!CombatTokenDirector.Instance ||
+            !CombatTokenDirector.Instance.TryRenewToken(_entityId, _tokenType)))
+        {
+            ReleaseTokenIfHeld();
+            blackboard.SetCombatIntent(false, blackboard.InCover, blackboard.CoverPosition);
+            if (_activeCover && _activeCover.Height == CoverHeight.High && _activePeekDirection != CoverPeekDirection.None)
+                BeginReturnToAnchor(blackboard, config);
+            else if (_stance == CombatStance.Firing)
+                _stance = CombatStance.FlakingInOpen;
+        }
 
         if (!ValidateLineOfSightAndTarget(blackboard, config))
             return;
@@ -75,21 +116,36 @@ public class AICombatState : IAIState
                 break;
         }
     }
-    
+
     private void UpdateTimers(float deltaTime)
     {
-        if (_tokenCooldownTimer > 0f) 
+        if (_tokenCooldownTimer > 0f)
             _tokenCooldownTimer -= deltaTime;
-        if (_reflankTimer > 0f) 
+        if (_reflankTimer > 0f)
             _reflankTimer -= deltaTime;
-        if (_coverCheckTimer > 0f) 
+        if (_coverCheckTimer > 0f)
             _coverCheckTimer -= deltaTime;
+        if (_peekCheckTimer > 0f)
+            _peekCheckTimer -= deltaTime;
+        if (_hasToken && (!_atPeekPosition || !_blackboard.HasLineOfSight))
+            _peekAttemptTimer -= deltaTime;
+        if (_returningToAnchor)
+            _returnTimer -= deltaTime;
     }
 
     private bool ValidateLineOfSightAndTarget(AIBlackboard blackboard, AIMovementConfig config)
     {
+        if (!blackboard.Target)
+        {
+            ReleaseTokenIfHeld();
+            ReleaseCoverIfReserved();
+            blackboard.SetCoverStance(false, CoverHeight.Low);
+            blackboard.SetCombatIntent(false);
+            _stance = CombatStance.FlakingInOpen;
+        }
+
         bool isUsingCover = _stance is CombatStance.InCover or CombatStance.MovingToCover;
-        if (!blackboard.HasLineOfSight && !isUsingCover)
+        if ((!blackboard.Target || !blackboard.HasLineOfSight) && !isUsingCover)
         {
             ReleaseTokenIfHeld();
             blackboard.SetCombatIntent(false);
@@ -102,23 +158,25 @@ public class AICombatState : IAIState
 
         return true;
     }
-    
+
     private void DecideOpenFieldTactics(AIBlackboard blackboard, AIMovementConfig config)
     {
         if (_tokenCooldownTimer <= 0f && CombatTokenDirector.Instance &&
-            CombatTokenDirector.Instance.TryAcquireToken(_entityId, CombatTokenType.RangedBurst))
+            blackboard.Target && CombatTokenDirector.Instance.TryAcquireToken(_entityId, _tokenType))
         {
             _hasToken = true;
             _stance = CombatStance.Firing;
             return;
         }
 
-        if (blackboard.Target && CoverScoringEngine.TryFindBestCover(
+        var archetypeConfig = blackboard.ArchetypeConfig;
+
+        if (archetypeConfig.CanUseCover && blackboard.Target && CoverScoringEngine.TryFindBestCover(
                 blackboard.AgentPosition,
-                blackboard.Target.transform,
+                blackboard.TargetTransform,
                 _entityId,
-                blackboard.MovementConfig,
-                blackboard.AICoverScoringConfig,
+                archetypeConfig.MovementConfig,
+                archetypeConfig.CoverConfig,
                 out var cover))
         {
             _activeCover = cover;
@@ -132,39 +190,56 @@ public class AICombatState : IAIState
 
     private void ValidateCoverIntegrity(AIBlackboard blackboard)
     {
-        if (!(_coverCheckTimer <= 0f)) 
+        if (!(_coverCheckTimer <= 0f))
             return;
-        
+
         _coverCheckTimer = 0.5f;
 
-        if (!_activeCover || _stance is not (CombatStance.InCover or CombatStance.MovingToCover)) 
+
+        if (_stance is not (CombatStance.InCover or CombatStance.MovingToCover))
             return;
+
+        var archetypeConfig = blackboard.ArchetypeConfig;
+
+        if (!archetypeConfig.CanUseCover || !_activeCover || !_activeCover.isActiveAndEnabled ||
+            !_activeCover.TryReserve(_entityId))
+        {
+            AbandonCover(blackboard);
+            return;
+        }
 
         if (CoverScoringEngine.IsThreatOccluded(_activeCover, blackboard.TargetPosition,
-                blackboard.AICoverScoringConfig.ObstacleMask)) return;
-        
-        _activeCover.Release(_entityId);
-        _activeCover = null;
+                archetypeConfig.CoverConfig.ObstacleMask)) return;
 
-        if (CombatTokenDirector.Instance && CombatTokenDirector.Instance.TryAcquireToken(_entityId, CombatTokenType.RangedBurst))
-        {
-            _hasToken = true;
-            _stance = CombatStance.Firing;
-        }
-        else
-        {
-            _hasToken = false;
-            _stance = CombatStance.FlakingInOpen;
-        }
+        AbandonCover(blackboard);
     }
-    
+
+    private void AbandonCover(AIBlackboard blackboard)
+    {
+        ReleaseTokenIfHeld();
+        ReleaseCoverIfReserved();
+        blackboard.ClearMoveDestination();
+        blackboard.SetCoverStance(false, CoverHeight.Low);
+        blackboard.SetCombatIntent(false);
+        _activePeekDirection = CoverPeekDirection.None;
+        _atPeekPosition = false;
+        _returningToAnchor = false;
+        _peekCheckTimer = 0f;
+        _reflankTimer = 0f;
+        _stance = CombatStance.FlakingInOpen;
+    }
+
     private void ExecuteMovingToCoverStance(AIBlackboard blackboard, AIMovementConfig config)
     {
-        if (_stance != CombatStance.MovingToCover || !_activeCover) 
+        if (_stance != CombatStance.MovingToCover || !_activeCover)
             return;
-        
-        float distToCoverSqr = (blackboard.AgentPosition - _activeCover.Position).sqrMagnitude;
-        if (blackboard.IsAtDestination || distToCoverSqr <= 0.36f)
+
+        if (blackboard.MoveStatus == Project.AI.Locomotion.MovementStatus.Failed)
+        {
+            AbandonCover(blackboard);
+            return;
+        }
+        if (blackboard.IsAtDestination)
         {
             blackboard.ClearMoveDestination();
             blackboard.SetCombatIntent(false, true, _activeCover.Position);
@@ -174,144 +249,157 @@ public class AICombatState : IAIState
 
     private void ExecuteCoverStance(AIBlackboard blackboard, AIMovementConfig config)
     {
-        if (!_activeCover) return;
-        if (!_hasToken && _tokenCooldownTimer <= 0f && CombatTokenDirector.Instance)
+        if (!_activeCover)
+            return;
+        if (_activeCover.Height == CoverHeight.High)
         {
-            _hasToken = CombatTokenDirector.Instance.TryAcquireToken(_entityId, CombatTokenType.RangedBurst);
-            if (_hasToken && _activeCover.Height == CoverHeight.High)
+            ExecuteHighCoverStance(blackboard, config);
+            return;
+        }
+        if (!_hasToken && _tokenCooldownTimer <= 0f && CombatTokenDirector.Instance)
+            _hasToken = CombatTokenDirector.Instance.TryAcquireToken(_entityId, _tokenType);
+        blackboard.ClearMoveDestination();
+        blackboard.SetCoverStance(_hasToken, CoverHeight.Low,
+            _hasToken ? CoverPeekDirection.Over : CoverPeekDirection.None);
+        blackboard.SetCombatIntent(_hasToken, true, _activeCover.Position);
+    }
+    private void ExecuteHighCoverStance(AIBlackboard blackboard, AIMovementConfig movement)
+    {
+        var settings = blackboard.ArchetypeConfig.CoverExecutionConfig;
+        if (_returningToAnchor)
+        {
+            blackboard.SetCombatIntent(false, true, _activeCover.Position);
+            if (blackboard.MoveStatus == Project.AI.Locomotion.MovementStatus.Failed || _returnTimer <= 0f)
             {
-                _cachedPeekDestination = GetBestPeekPosition(_activeCover, blackboard.TargetPosition,
-                    blackboard.AICoverScoringConfig.ObstacleMask);
-
-                if (_activePeekDirection == CoverPeekDirection.None)
-                {
-                    ReleaseTokenIfHeld();
-                    _tokenCooldownTimer = 1.0f;
-                }
+                AbandonCover(blackboard);
+                return;
             }
+            if (blackboard.IsAtDestination)
+            {
+                blackboard.ClearMoveDestination();
+                _returningToAnchor = false;
+            }
+            return;
         }
 
         if (_hasToken)
         {
-            if (_activeCover.Height == CoverHeight.Low)
+            if (blackboard.MoveStatus == Project.AI.Locomotion.MovementStatus.Failed || _peekAttemptTimer <= 0f)
             {
-                blackboard.ClearMoveDestination();
-                blackboard.SetCoverStance(isPeeking: true, CoverHeight.Low, CoverPeekDirection.Over);
-                blackboard.SetCombatIntent(shoot: true, inCover: true, coverPos: _activeCover.Position);
+                BeginReturnToAnchor(blackboard, movement);
+                return;
             }
-            else
+            if (_peekCheckTimer <= 0f)
             {
-                if (_activePeekDirection != CoverPeekDirection.None)
+                _peekCheckTimer = settings.ValidationInterval;
+                if (!_peekValidator.TryValidate(_activeCover, _activePeekDirection, blackboard, _cachedAgent,
+                        _cachedWeaponExecutor, out var refreshed, out _) ||
+                    (refreshed.Destination - _cachedPeekDestination).sqrMagnitude > settings.ArrivalTolerance * settings.ArrivalTolerance)
                 {
-                    float distToPeekSqr = (blackboard.AgentPosition - _cachedPeekDestination).sqrMagnitude;
-                    if (distToPeekSqr > 0.09f)
-                    {
-                        blackboard.SetMoveDestination(_cachedPeekDestination, config.InvestigateSpeed);
-                        blackboard.SetCombatIntent(shoot: false, inCover: true, coverPos: _activeCover.Position);
-                    }
-                    else
-                    {
-                        blackboard.ClearMoveDestination();
-                        blackboard.SetCoverStance(isPeeking: true, CoverHeight.High, _activePeekDirection);
-                        blackboard.SetCombatIntent(shoot: true, inCover: true, coverPos: _activeCover.Position);
-                    }
+                    BeginReturnToAnchor(blackboard, movement);
+                    return;
                 }
             }
+            if (!_atPeekPosition && blackboard.IsAtDestination)
+            {
+                blackboard.ClearMoveDestination();
+                _atPeekPosition = true;
+                _peekAttemptTimer = settings.ApproachTimeout;
+            }
+            if (_atPeekPosition &&
+                (blackboard.AgentPosition - _cachedPeekDestination).sqrMagnitude > settings.ArrivalTolerance * settings.ArrivalTolerance)
+            {
+                BeginReturnToAnchor(blackboard, movement);
+                return;
+            }
+            blackboard.SetCoverStance(_atPeekPosition, CoverHeight.High, _activePeekDirection);
+            blackboard.SetCombatIntent(_atPeekPosition, true, _activeCover.Position);
+            return;
         }
-        else
-        {
-            if (_activeCover.Height == CoverHeight.Low)
-            {
-                blackboard.ClearMoveDestination();
-                blackboard.SetCoverStance(isPeeking: false, CoverHeight.Low);
-                blackboard.SetCombatIntent(shoot: false, inCover: true, coverPos: _activeCover.Position);
-            }
-            else
-            {
-                float distToAnchorSqr = (blackboard.AgentPosition - _activeCover.Position).sqrMagnitude;
-                if (distToAnchorSqr > 0.09f)
-                {
-                    blackboard.SetMoveDestination(_activeCover.Position, config.InvestigateSpeed);
-                }
-                else
-                {
-                    blackboard.ClearMoveDestination();
-                }
 
-                blackboard.SetCoverStance(isPeeking: false, CoverHeight.High);
-                blackboard.SetCombatIntent(shoot: false, inCover: true, coverPos: _activeCover.Position);
-            }
+        blackboard.SetCoverStance(false, CoverHeight.High);
+        blackboard.SetCombatIntent(false, true, _activeCover.Position);
+        if ((blackboard.AgentPosition - _activeCover.Position).sqrMagnitude > settings.ArrivalTolerance * settings.ArrivalTolerance)
+        {
+            BeginReturnToAnchor(blackboard, movement);
+            return;
         }
+        if (_tokenCooldownTimer > 0f || _peekCheckTimer > 0f)
+            return;
+
+        _peekCheckTimer = settings.ValidationInterval;
+        bool rightValid = _peekValidator.TryValidate(_activeCover, CoverPeekDirection.Right, blackboard, _cachedAgent,
+            _cachedWeaponExecutor, out var right, out _);
+        bool leftValid = _peekValidator.TryValidate(_activeCover, CoverPeekDirection.Left, blackboard, _cachedAgent,
+            _cachedWeaponExecutor, out var left, out _);
+        if (!rightValid && !leftValid)
+        {
+            _tokenCooldownTimer = settings.RetryDelay;
+            return;
+        }
+        var selected = rightValid ? right : left;
+        if (rightValid && leftValid &&
+            (left.Destination - _activeCover.Position).sqrMagnitude < (right.Destination - _activeCover.Position).sqrMagnitude)
+            selected = left;
+        if (!CombatTokenDirector.Instance || !CombatTokenDirector.Instance.TryAcquireToken(_entityId, _tokenType))
+            return;
+
+        _hasToken = true;
+        _activePeekDirection = selected.Direction;
+        _cachedPeekDestination = selected.Destination;
+        _atPeekPosition = false;
+        _peekAttemptTimer = settings.ApproachTimeout;
+        blackboard.SetMoveDestination(_cachedPeekDestination, movement.InvestigateSpeed);
     }
 
-    private Vector3 GetBestPeekPosition(CoverPoint cover, Vector3 threatPos, LayerMask obstacleMask)
+    private void BeginReturnToAnchor(AIBlackboard blackboard, AIMovementConfig movement)
     {
-        Vector3 right = Vector3.Cross(Vector3.up, cover.Forward).normalized;
-        float stepDist = 0.65f;
-
-        if ((cover.PeekDirections & CoverPeekDirection.Right) != 0)
-        {
-            Vector3 rightPos = cover.Position + (right * stepDist);
-            if (NavMesh.SamplePosition(rightPos, out NavMeshHit hit, 0.4f, NavMesh.AllAreas))
-            {
-                if (HasClearLineOfFire(hit.position, threatPos, obstacleMask))
-                {
-                    _activePeekDirection = CoverPeekDirection.Right;
-                    return hit.position;
-                }
-            }
-        }
-
-        if ((cover.PeekDirections & CoverPeekDirection.Left) != 0)
-        {
-            Vector3 leftPos = cover.Position - (right * stepDist);
-            if (NavMesh.SamplePosition(leftPos, out NavMeshHit hit, 0.4f, NavMesh.AllAreas))
-            {
-                if (HasClearLineOfFire(hit.position, threatPos, obstacleMask))
-                {
-                    _activePeekDirection = CoverPeekDirection.Left;
-                    return hit.position;
-                }
-            }
-        }
-
+        ReleaseTokenIfHeld();
         _activePeekDirection = CoverPeekDirection.None;
-        return cover.Position;
+        _atPeekPosition = false;
+        blackboard.SetCoverStance(false, CoverHeight.High);
+        blackboard.SetCombatIntent(false, true, _activeCover.Position);
+        blackboard.ClearMoveDestination();
+        blackboard.SetMoveDestination(_activeCover.Position, movement.InvestigateSpeed);
+        _returningToAnchor = true;
+        _returnTimer = blackboard.ArchetypeConfig.CoverExecutionConfig.ReturnTimeout;
+        _tokenCooldownTimer = Mathf.Max(_tokenCooldownTimer, blackboard.ArchetypeConfig.CoverExecutionConfig.RetryDelay);
     }
 
-    private bool HasClearLineOfFire(Vector3 peekPos, Vector3 threatPos, LayerMask mask)
-    {
-        Vector3 muzzlePos = peekPos + Vector3.up * 1.4f;
-        Vector3 threatAimPos = threatPos + Vector3.up * 1.2f;
-        Vector3 dir = threatAimPos - muzzlePos;
-        float dist = dir.magnitude;
-        if (dist < 0.01f) return false;
-        return !Physics.Raycast(muzzlePos, dir.normalized, dist, mask, QueryTriggerInteraction.Ignore);
-    }
-    
     public void OnExit(AIBlackboard blackboard)
     {
         if (_cachedWeaponExecutor)
-            _cachedWeaponExecutor.OnBurstCompleted -= HandleBurstCompleted;
+            _cachedWeaponExecutor.OnBurstCompleted -= _burstCompletedHandler;
 
         ReleaseTokenIfHeld();
         ReleaseCoverIfReserved();
 
         blackboard.SetCoverStance(isPeeking: false, CoverHeight.Low, CoverPeekDirection.None);
         blackboard.SetCombatIntent(false);
+        blackboard.ClearMoveDestination();
+        _activePeekDirection = CoverPeekDirection.None;
+        _atPeekPosition = false;
+        _returningToAnchor = false;
+        _blackboard = null;
     }
 
     private void ReleaseCoverIfReserved()
     {
-        _activeCover?.Release(_entityId);
+        if (_activeCover)
+            _activeCover.Release(_entityId);
         _activeCover = null;
     }
 
     private void HandleBurstCompleted()
     {
         ReleaseTokenIfHeld();
-        _tokenCooldownTimer = Random.Range(1.0f, 1.6f);
+        var weaponConfig = _blackboard.ArchetypeConfig.WeaponConfig;
+        _tokenCooldownTimer = Random.Range(weaponConfig.MinBurstPause, weaponConfig.MaxBurstPause);
+        _blackboard.SetCombatIntent(false, _blackboard.InCover, _blackboard.CoverPosition);
         _activePeekDirection = CoverPeekDirection.None;
+
+        if (_activeCover && _activeCover.Height == CoverHeight.High && _stance == CombatStance.InCover)
+            BeginReturnToAnchor(_blackboard, _blackboard.ArchetypeConfig.MovementConfig);
 
         if (_stance == CombatStance.Firing)
         {
@@ -323,9 +411,9 @@ public class AICombatState : IAIState
     {
         if (_hasToken && CombatTokenDirector.Instance)
         {
-            CombatTokenDirector.Instance.ReleaseToken(_entityId, CombatTokenType.RangedBurst);
-            _hasToken = false;
+            CombatTokenDirector.Instance.ReleaseToken(_entityId, _tokenType);
         }
+        _hasToken = false;
     }
 
     private void ExecuteFiringStance(AIBlackboard blackboard, AIMovementConfig config)
@@ -344,9 +432,10 @@ public class AICombatState : IAIState
     {
         blackboard.SetCombatIntent(false);
 
+        var archetypeConfig = blackboard.ArchetypeConfig;
         if (_reflankTimer <= 0f)
         {
-            DecideOpenFieldTactics(blackboard, blackboard.MovementConfig);
+            DecideOpenFieldTactics(blackboard, archetypeConfig.MovementConfig);
             if (_stance != CombatStance.FlakingInOpen)
                 return;
 

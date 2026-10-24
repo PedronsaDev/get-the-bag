@@ -6,7 +6,7 @@ public class AIInvestigateState : IAIState
 {
     public void OnEnter(AIBlackboard blackboard)
     {
-        blackboard.SetMoveDestination(blackboard.TargetPosition, blackboard.MovementConfig.InvestigateSpeed);
+        blackboard.SetMoveDestination(blackboard.TargetPosition, blackboard.ArchetypeConfig.MovementConfig.InvestigateSpeed);
     }
 
     public void OnUpdate(AIBlackboard blackboard, float deltaTime)

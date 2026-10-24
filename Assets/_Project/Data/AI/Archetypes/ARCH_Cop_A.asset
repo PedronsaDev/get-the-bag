@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e7f0916c66ccac4f9db3b54f197f12f, type: 3}
+  m_Name: ARCH_Cop_A
+  m_EditorClassIdentifier: Project.AI::Project.AI.Configuration.AIArchetypeConfig
+  _archetypeName: Cop A
+  _movementConfig:
+    PatrolSpeed: 2
+    InvestigateSpeed: 3.5
+    CombatRunSpeed: 4.5
+    MinCombatDistance: 6
+    IdealCombatDistance: 12
+    MaxCombatDistance: 20
+  _visionConfig:
+    ViewDistance: 40
+    FieldOfView: 80
+    PeripheralDistance: 25
+    PeripheralFOV: 120
+    ObstacleMask:
+      serializedVersion: 2
+      m_Bits: 1
+    TargetMask:
+      serializedVersion: 2
+      m_Bits: 384
+    EyeHeight: 1.5
+  _weaponConfig:
+    DamagePerShot: 12
+    MaxRange: 50
+    RoundsPerMinute: 450
+    MinBurstCount: 3
+    MaxBurstCount: 5
+    MinBurstPause: 0.8
+    MaxBurstPause: 1.4
+    SpreadAngleDegrees: 3.5
+    GunshotAcousticIntensity: 35
+    HitMask:
+      serializedVersion: 2
+      m_Bits: 385
+  _canUseCover: 1
+  _coverConfig:
+    MaxSearchRadius: 50
+    ObstacleMask:
+      serializedVersion: 2
+      m_Bits: 1
+    ProximityWeight: 0.4
+    FacingWeight: 0.3
+    PeekWeight: 0.15
+    IdealRangeWeight: 0.15
+    MinFacingAlignment: 0.5
+  _coverExecutionConfig:
+    _maxLateralPeekDistance: 1.5
+    _arrivalTolerance: 0.15
+    _maxNavigationSnapDistance: 0.1
+    _maxVerticalDeviation: 0.1
+    _validationInterval: 0.2
+    _approachTimeout: 3
+    _returnTimeout: 3
+    _retryDelay: 1
+  _preferredTokenType: 0

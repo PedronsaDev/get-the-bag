@@ -243,6 +243,8 @@ GameObject:
   - component: {fileID: 1098492083617536597}
   - component: {fileID: 4412340493478600296}
   - component: {fileID: 247758372139287770}
+  - component: {fileID: 6814832445860020084}
+  - component: {fileID: 3724506722424325647}
   m_Layer: 6
   m_Name: AI_Test_Enemy
   m_TagString: Untagged
@@ -259,7 +261,7 @@ Transform:
   m_GameObject: {fileID: 998437978610959821}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1010.6291, y: 1, z: -8.39505}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -314,7 +316,6 @@ MonoBehaviour:
   _blackboard: {fileID: 3167904820004691428}
   _agent: {fileID: 5658662055451626712}
   _repathInterval: 0.2
-  _destinationThresholdSqr: 0.25
 --- !u!114 &13444002890556327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,7 +339,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _visionConfig: {fileID: 11400000, guid: 0362d9aaf8592d8408c17994f20e117f, type: 2}
+  _blackboard: {fileID: 3167904820004691428}
   _visionTickInterval: 0.1
   _targetMemory: {fileID: 3065329842896416517}
 --- !u!114 &3065329842896416517
@@ -380,8 +381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbef339113cd72e4a9bdf65bec4c113f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.AI::Project.AI.Blackboard.AIBlackboard
-  _movementConfig: {fileID: 11400000, guid: b5be322daa53e8742bbe86d09eb1ad28, type: 2}
-  _coverScoringConfig: {fileID: 11400000, guid: 39d19f3df09a7444993d69656c6d3901, type: 2}
+  _archetypeConfig: {fileID: 11400000, guid: e7834c1d2dd86454fa6272eff8bde726, type: 2}
   _target: {fileID: 0}
   _targetPosition: {x: 0, y: 0, z: 0}
   _hasLineOfSight: 0
@@ -391,9 +391,14 @@ MonoBehaviour:
   _hasMoveDestination: 0
   _isAtDestination: 0
   _desiredSpeed: 0
+  _moveRequestVersion: 0
+  _moveStatus: 0
   _wantsToShoot: 0
   _inCover: 0
   _coverPosition: {x: 0, y: 0, z: 0}
+  _isPeeking: 0
+  _coverHeight: 0
+  _activePeekDirection: 0
 --- !u!114 &7149252034832673038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -460,7 +465,6 @@ MonoBehaviour:
   _directChildren: []
   _blackboard: {fileID: 3167904820004691428}
   _aimController: {fileID: 4953292188470027647}
-  _weaponConfig: {fileID: 11400000, guid: bf0fa792ece192b46a1da915c09fa919, type: 2}
   _muzzlePoint: {fileID: 6195231419456661335}
 --- !u!114 &4412340493478600296
 MonoBehaviour:
@@ -492,7 +496,6 @@ MonoBehaviour:
   _syncParent: 1
   _syncVelocityRelativeToParent: 1
   _useParentFramePositionError: 0
-  _settingsOverride: {fileID: 0}
   _interpolationDelay: 0.05
   _autoInterpolationDelay: 1
   _predictionFactor: 0
@@ -512,6 +515,7 @@ MonoBehaviour:
   _positionChangeThreshold: 0.001
   _rotationChangeThreshold: 0.001
   _velocityStopThreshold: 0.001
+  _settingsOverride: {fileID: 0}
 --- !u!114 &247758372139287770
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -546,6 +550,70 @@ MonoBehaviour:
   _ownerAuth: 1
   _interpolationTiming: 0
   _adaptiveSynchronization: 2
+--- !u!114 &6814832445860020084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 998437978610959821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc9b4dc39af0422cbd19ed3ea84e93ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Decision.AIBrain
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _blackboard: {fileID: 3167904820004691428}
+--- !u!114 &3724506722424325647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 998437978610959821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18e5fd8dcbcb8f048b3cb8827326dd26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Combat::Project.Combat.Health.HealthComponent
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _maxHealth: 100
+  _invulnerable: 0
+  _maxShield: 0
+  _shieldRegenDelay: 4
+  _shieldRegenRate: 15
+  _currentHealth:
+    _value: 100
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 100
+  _currentShield:
+    _value: 0
+    _ownerAuth: 0
+    _ownerOnly: 0
+    _sendIntervalInSeconds: 0
+    _initialValue: 0
 --- !u!1 &1144091459733196144
 GameObject:
   m_ObjectHideFlags: 0
@@ -3324,9 +3392,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _healthType: 0
   _maxHealth: 100
-  _armorRating: 0
   _invulnerable: 0
   _maxShield: 0
   _shieldRegenDelay: 4

@@ -11,7 +11,6 @@ public class CoverPointEditor : UnityEditor.Editor
     private const float LowCoverHeight = 0.9f;
     private const float HighCoverHeight = 1.8f;
     private const float AgentRadius = 0.35f;
-    private const float PeekStepDistance = 0.75f;
     private const float ProtectionAngle = 130f;
 
     private void OnSceneGUI()
@@ -21,7 +20,6 @@ public class CoverPointEditor : UnityEditor.Editor
 
         Vector3 pos = point.Position;
         Vector3 fwd = point.Forward;
-        Vector3 right = Vector3.Cross(Vector3.up, fwd).normalized;
         float height = point.Height == CoverHeight.High ? HighCoverHeight : LowCoverHeight;
 
         Color baseColor = GetCoverStateColor(point);
@@ -30,7 +28,7 @@ public class CoverPointEditor : UnityEditor.Editor
 
         DrawProtectionArc(pos, fwd, baseColor);
 
-        DrawPeekMarkers(point, pos, fwd, right, height, baseColor);
+        DrawPeekMarkers(point, pos, fwd, height);
 
         DrawDirectionHandle(point, pos, fwd);
     }
@@ -70,26 +68,24 @@ public class CoverPointEditor : UnityEditor.Editor
         Handles.DrawWireArc(pos, Vector3.up, arcStart, ProtectionAngle, 1.2f);
     }
 
-    private void DrawPeekMarkers(CoverPoint point, Vector3 pos, Vector3 fwd, Vector3 right, float height, Color color)
+    private void DrawPeekMarkers(CoverPoint point, Vector3 pos, Vector3 fwd, float height)
     {
         var peeks = point.PeekDirections;
 
-        if ((peeks & CoverPeekDirection.Left) != 0)
+        if (point.TryGetPeekDestination(CoverPeekDirection.Left, out Vector3 leftPeekPos))
         {
-            Vector3 leftPeekPos = pos - (right * PeekStepDistance);
             DrawPeekNode(pos, leftPeekPos, fwd, "PEEK L");
         }
 
-        if ((peeks & CoverPeekDirection.Right) != 0)
+        if (point.TryGetPeekDestination(CoverPeekDirection.Right, out Vector3 rightPeekPos))
         {
-            Vector3 rightPeekPos = pos + (right * PeekStepDistance);
             DrawPeekNode(pos, rightPeekPos, fwd, "PEEK R");
         }
 
         if ((peeks & CoverPeekDirection.Over) != 0)
         {
             Vector3 overPos = pos + Vector3.up * (height + 0.35f);
-            DrawPeekNode(pos + Vector3.up * height, overPos, fwd, "PEEK OVER");
+            DrawPeekNode(pos + Vector3.up * height, overPos, fwd, "OVER (POSTURE)");
         }
     }
 
@@ -100,12 +96,7 @@ public class CoverPointEditor : UnityEditor.Editor
         Handles.DrawSolidDisc(peekPos, Vector3.up, 0.12f);
         Handles.DrawLine(peekPos, peekPos + fwd * 0.6f);
 
-        GUIStyle labelStyle = new GUIStyle(EditorStyles.boldLabel)
-        {
-            fontSize = 9,
-            normal = { textColor = Color.yellow }
-        };
-        Handles.Label(peekPos + Vector3.up * 0.15f, label, labelStyle);
+        Handles.Label(peekPos + Vector3.up * 0.15f, label, EditorStyles.boldLabel);
     }
 
     private void DrawDirectionHandle(CoverPoint point, Vector3 pos, Vector3 fwd)

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Project.AI.Combat;
 using Project.Core.Player;
-using Project.Logging;
 using UnityEngine;
 using UnityPhysics = UnityEngine.Physics; // Discipline Rule 2: Namespace Shadowing
 
@@ -13,22 +12,29 @@ public static class CoverScoringEngine
     // Buffer reutilizavel para nao ter alocacao de GC durante a buscar
     private static readonly List<CoverPoint> _candidateBuffer = new(32);
 
+    // Registration is a setup path; grow here so combat queries never resize this buffer.
+    internal static void ReserveCandidateCapacity(int count)
+    {
+        if (_candidateBuffer.Capacity < count)
+            _candidateBuffer.Capacity = Mathf.Max(count, _candidateBuffer.Capacity * 2);
+    }
+
     public static bool TryFindBestCover(
-        Vector3 agentPosition, 
-        Transform threatTransform, 
+        Vector3 agentPosition,
+        Transform threatTransform,
         EntityId agentId,
-        AIMovementConfig moveConfig, 
-        AICoverScoringConfig scoreConfig, 
+        AIMovementConfig moveConfig,
+        AICoverScoringConfig scoreConfig,
         out CoverPoint bestCover)
     {
         bestCover = null;
-        
+
         int count = CoverRegistry.GetCoverPointsInRangeNonAlloc(agentPosition, scoreConfig.MaxSearchRadius, _candidateBuffer);
 
         if (count == 0)
             return false;
 
-        float highestScore = float.NegativeInfinity; 
+        float highestScore = float.NegativeInfinity;
         CoverPoint selectedCandidate = null;
 
         for (int i = 0; i < count; i++)
@@ -36,16 +42,17 @@ public static class CoverScoringEngine
             var candidate = _candidateBuffer[i];
             if (!candidate)
                 continue;
-            
+
             var threatPosition = threatTransform.position;
 
             Vector3 toThreat = threatPosition - candidate.Position;
             toThreat.y = 0f;
             if (toThreat.sqrMagnitude < 0.01f)
                 continue;
-            
+
             Vector3 toThreatDir = toThreat.normalized;
-            float facingAlignment = Vector3.Dot(candidate.Forward, toThreatDir);
+            // The baker stores the outward wall normal. Protection is on the opposite side.
+            float facingAlignment = Vector3.Dot(-candidate.Forward, toThreatDir);
 
             if (facingAlignment < scoreConfig.MinFacingAlignment)
                 continue;
@@ -59,7 +66,7 @@ public static class CoverScoringEngine
                 facingAlignment,
                 moveConfig.IdealCombatDistance,
                 scoreConfig);
-            
+
             score *= CalculateCrossfireSafetyMultiplier(candidate, threatTransform, scoreConfig.ObstacleMask);
 
             if (score > highestScore)
@@ -72,11 +79,6 @@ public static class CoverScoringEngine
         if (selectedCandidate && selectedCandidate.TryReserve(agentId))
         {
             bestCover = selectedCandidate;
-            if (AppLog.IsChannelEnabled(LogChannel.AI))
-            {
-                AppLog.Log(LogChannel.AI, "Agent {0} selected CoverPoint {1} with score {2:F2}", agentId, bestCover.name, highestScore);
-            }
-
             return true;
         }
 
@@ -94,7 +96,7 @@ public static class CoverScoringEngine
             if (!player || player.BodyTransform == primaryTarget || player.IsDead || player.IsDowned)
                 continue;
             secondaryCount++;
-            if (IsThreatOccluded(candidate, player.BodyTransform.position, mask)) 
+            if (IsThreatOccluded(candidate, player.BodyTransform.position, mask))
                 occludedCount++;
         }
 
@@ -114,32 +116,32 @@ public static class CoverScoringEngine
         if (distance < 0.01f)
             return false;
 
-        if (UnityPhysics.Raycast(threatEyePos, rayDir.normalized, out RaycastHit hit, distance, mask))
+        if (UnityPhysics.Raycast(threatEyePos, rayDir.normalized, out RaycastHit hit, distance, mask, QueryTriggerInteraction.Ignore))
         {
             return hit.distance < distance - 0.2f;
         }
 
         return false;
     }
-    
+
     private static float CalculateUtilityScore(
-        CoverPoint candidate, 
-        Vector3 agentPosition, 
-        Vector3 threatPos, 
-        float facingAlignment, 
-        float idealDistance, 
+        CoverPoint candidate,
+        Vector3 agentPosition,
+        Vector3 threatPos,
+        float facingAlignment,
+        float idealDistance,
         AICoverScoringConfig config)
     {
         float distToCover = Vector3.Distance(agentPosition, candidate.Position);
         float sDist = 1.0f - Mathf.Clamp01(distToCover / config.MaxSearchRadius);
-        
+
         float sFacing = Mathf.Clamp01(facingAlignment);
-        
+
         float sPeek = candidate.PeekDirections != CoverPeekDirection.None ? 1.0f : 0.4f;
-        
+
         float distCoverToThreat = Vector3.Distance(candidate.Position, threatPos);
         float sRange = 1.0f - Mathf.Clamp01(Mathf.Abs(distCoverToThreat - idealDistance)/ idealDistance);
-        
+
         return (config.ProximityWeight * sDist) +
                (config.FacingWeight * sFacing) +
                (config.PeekWeight * sPeek) +

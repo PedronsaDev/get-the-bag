@@ -6,7 +6,7 @@ namespace Project.AI.Cover
 public class CoverRegistry : MonoBehaviour
 {
     public static CoverRegistry Instance { get; private set; }
-    
+
     private static readonly List<CoverPoint> _allPoints = new();
 
     private void Awake()
@@ -25,26 +25,29 @@ public class CoverRegistry : MonoBehaviour
         {
             Instance = null;
         }
-        
+
         _allPoints.Clear();
     }
 
     public static void Register(CoverPoint point)
     {
-        if (point && !_allPoints.Contains(point)) 
+        if (point && !_allPoints.Contains(point))
+        {
             _allPoints.Add(point);
+            CoverScoringEngine.ReserveCandidateCapacity(_allPoints.Count);
+        }
     }
 
     public static void Unregister(CoverPoint point)
     {
-        if (point) 
+        if (point)
             _allPoints.Remove(point);
     }
 
     public static int GetCoverPointsInRangeNonAlloc(Vector3 center, float radius, List<CoverPoint> resultsBuffer)
     {
         resultsBuffer.Clear();
-        
+
         float radiusSqr = radius * radius;
 
         for (int i = _allPoints.Count - 1; i >= 0; i--)

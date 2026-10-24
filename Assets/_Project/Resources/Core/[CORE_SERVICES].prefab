@@ -1,5 +1,63 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &229936881150632237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1241890608999547174}
+  - component: {fileID: 371702484593853140}
+  m_Layer: 0
+  m_Name: Combat Token Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1241890608999547174
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229936881150632237}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7396993626808674054}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &371702484593853140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229936881150632237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3f503c7b12d35c478e6706c998b1125, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Combat.CombatTokenDirector
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _baseRangedTokens: 3
+  _tokensPerAdditionalPlayer: 1
+  _tokenLeaseTimeout: 4.5
 --- !u!1 &1335331198559910220
 GameObject:
   m_ObjectHideFlags: 0
@@ -242,6 +300,7 @@ MonoBehaviour:
   _visibilityRules: {fileID: 11400000, guid: 8f014a5bd8dc68646a2a3c0b18c5bbd8, type: 2}
   _authenticator: {fileID: 0}
   _tickRate: 30
+  _maxTicksPerFrame: 5
   _mtuExceededBehaviour: 2
   _patchLingeringProcessBug: 0
 --- !u!114 &7794484756387482306
@@ -258,6 +317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Networking::ConnectionStarter
   _udpTransport: {fileID: 894655629530243170}
   _purrTransport: {fileID: 2520819078275537759}
+  _lobbyConnectionTimeoutSeconds: 30
 --- !u!114 &894655629530243170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,6 +471,7 @@ Transform:
   - {fileID: 4154709011817021016}
   - {fileID: 8787193131799703448}
   - {fileID: 6018746728624395028}
+  - {fileID: 1241890608999547174}
   - {fileID: 2041296756967419704}
   - {fileID: 9084203561306236245}
   - {fileID: 100182267414084875}

@@ -789,9 +789,9 @@ MonoBehaviour:
   _inputProvider: {fileID: 3432939826793728204}
   _playerFacade: {fileID: 3916750346549361147}
   _fpsCameraController: {fileID: 1197550716529269032}
-  _maxStableMoveSpeed: 5
-  _sprintSpeedMultiplier: 1.5
-  _crouchSpeedMultiplier: 0.5
+  _maxStableMoveSpeed: 4.5
+  _sprintSpeedMultiplier: 1.4
+  _crouchSpeedMultiplier: 0.6
   _stableMovementSharpness: 15
   _downhillSpeedMultiplier: 0.2
   _uphillSpeedPenalty: 0
@@ -816,7 +816,7 @@ MonoBehaviour:
     m_Bits: 1
   _slideEntryBoost: 2
   _slideFriction: 1
-  _minSpeedToSlide: 6
+  _minSpeedToSlide: 4.6
   _slideStopSpeed: 5
   _vaultLayerMask:
     serializedVersion: 2

@@ -27,7 +27,11 @@ public class AIArchetypeConfig : ScriptableObject
     [SerializeField] private bool _canUseCover = false;
     [BoxGroup("Cover Settings")]
     [SerializeField, ShowIf("_canUseCover")]
-    private AICoverScoringConfig _aiCoverConfig = new();
+    [FormerlySerializedAs("_aiCoverConfig")]
+    private AICoverScoringConfig _coverConfig = new();
+    [BoxGroup("Cover Settings")]
+    [SerializeField, ShowIf("_canUseCover")]
+    private AICoverExecutionConfig _coverExecutionConfig = new();
 
     [SerializeField] private CombatTokenType _preferredTokenType = CombatTokenType.RangedBurst;
 
@@ -36,7 +40,8 @@ public class AIArchetypeConfig : ScriptableObject
     public AIVisionConfig VisionConfig => _visionConfig;
     public AIWeaponConfig WeaponConfig => _weaponConfig;
     public bool CanUseCover => _canUseCover;
-    public AICoverScoringConfig AICoverConfig => _aiCoverConfig;
+    public AICoverScoringConfig CoverConfig => _coverConfig;
+    public AICoverExecutionConfig CoverExecutionConfig => _coverExecutionConfig;
     public CombatTokenType PreferredTokenType => _preferredTokenType;
 
     /// <summary>Checks authored data without modifying it or querying the scene. Call before simulation starts.</summary>

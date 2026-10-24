@@ -7,11 +7,11 @@ namespace Project.AI.Perception
 {
 public class AITargetMemory : NetworkBehaviour
 {
-    [Header("Detection Tuning")] 
+    [Header("Detection Tuning")]
     [SerializeField] private float _baseDetectionRate = 3.5f;
     [SerializeField] private float _decayRate = 0.25f;
     [SerializeField] private float _searchDuration = 5.0f;
-    
+
     [Header("References")]
     [SerializeField] private AIBlackboard _blackboard;
 
@@ -26,25 +26,35 @@ public class AITargetMemory : NetworkBehaviour
 
     private void Awake()
     {
-        if (!_blackboard) 
+        if (!_blackboard)
             _blackboard = GetComponent<AIBlackboard>();
     }
 
     protected override void OnSpawned()
     {
-        if (!isServer)
+        if (!isServer || !_blackboard || !_blackboard.TryInitializeArchetype())
         {
             enabled = false;
             return;
         }
-        
+
+        CurrentState = AlertState.Unaware;
+        _searchTimer = 0f;
+        enabled = true;
         ClearTarget();
+    }
+
+    protected override void OnDespawned()
+    {
+        _primaryTarget = default;
         CurrentState = AlertState.Unaware;
         _searchTimer = 0f;
     }
 
     private void Update()
     {
+        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady)
+            return;
         UpdateMemory(Time.deltaTime);
     }
 
@@ -85,6 +95,8 @@ public class AITargetMemory : NetworkBehaviour
     public void ReportVisualContact(GameObject target, Vector3 worldPosition, float distance, float maxDistance,
         bool isPeripheral, float deltaTime)
     {
+        if (!CanReceiveReports || !target)
+            return;
         _primaryTarget.Target = target;
         _primaryTarget.HasLineOfSight = true;
         _primaryTarget.LastKnownPosition = worldPosition;
@@ -100,12 +112,14 @@ public class AITargetMemory : NetworkBehaviour
         {
             ChangeState(AlertState.Alerted);
         }
-        
+
         SyncToBlackboard();
     }
 
     public void ReportLostSight()
     {
+        if (!CanReceiveReports)
+            return;
         if (!_primaryTarget.HasLineOfSight) return;
 
         _primaryTarget.HasLineOfSight = false;
@@ -115,12 +129,18 @@ public class AITargetMemory : NetworkBehaviour
             _searchTimer = _searchDuration;
             ChangeState(AlertState.Searching);
         }
-        
+
         SyncToBlackboard();
     }
 
     public void ReportNoise(Vector3 soundPosition, float intensity)
     {
+        if (!CanReceiveReports)
+            return;
+        // Unrelated noise must not replace a visible or remembered combat target's position.
+        if (_primaryTarget.HasLineOfSight ||
+            (_primaryTarget.Target && CurrentState is AlertState.Alerted or AlertState.Searching))
+            return;
         _primaryTarget.LastKnownPosition = soundPosition;
         _primaryTarget.LastSeenTimestamp = Time.time;
 
@@ -131,48 +151,54 @@ public class AITargetMemory : NetworkBehaviour
             ChangeState(AlertState.Alerted);
         else if (CurrentState == AlertState.Unaware)
             ChangeState(AlertState.Suspicious);
-        
+
         SyncToBlackboard();
     }
 
     public void ReportDamage(GameObject attacker, Vector3 attackerPosition)
     {
+        if (!CanReceiveReports)
+            return;
         _primaryTarget.Target = attacker;
         _primaryTarget.LastKnownPosition = attackerPosition;
         _primaryTarget.LastSeenTimestamp = Time.time;
         _primaryTarget.SuspicionLevel = 1.0f;
         ChangeState(AlertState.Alerted);
-        
+
         SyncToBlackboard();
     }
 
     public void ClearTarget()
     {
+        if (!CanReceiveReports)
+            return;
         _primaryTarget = default;
         SyncToBlackboard();
     }
 
     // States
+    private bool CanReceiveReports => isServer && isActiveAndEnabled && _blackboard && _blackboard.IsArchetypeReady;
+
     private void ChangeState(AlertState newState)
     {
         if (CurrentState == newState) return;
         CurrentState = newState;
         OnStateChanged?.Invoke(CurrentState);
-        
+
         _blackboard?.SetAlertState(newState);
     }
-    
+
     // Blackboard Helper
     private void SyncToBlackboard()
     {
-        if (!_blackboard) 
+        if (!_blackboard)
             return;
-        
+
         if (_primaryTarget.Target)
         {
             float distance = Vector3.Distance(transform.position, _primaryTarget.LastKnownPosition);
             _blackboard.SetTarget(_primaryTarget.Target, _primaryTarget.LastKnownPosition, _primaryTarget.HasLineOfSight, distance);
-        } 
+        }
         else if (_primaryTarget.LastKnownPosition != Vector3.zero && CurrentState != AlertState.Unaware)
         {
             float distance = Vector3.Distance(transform.position, _primaryTarget.LastKnownPosition);
