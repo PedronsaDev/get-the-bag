@@ -143,7 +143,6 @@ public class AINavMeshLocomotion : NetworkBehaviour
             return;
         }
 
-        // Unity can consume a complete path millimetres short of its endpoint, even with a zero stopping distance.
         float stoppingDistance = Mathf.Max(_agent.stoppingDistance, MinimumArrivalTolerance);
         float remainingDistance = _agent.hasPath ? _agent.remainingDistance :
             Vector3.Distance(transform.position, _lastSetDestination);
@@ -154,7 +153,6 @@ public class AINavMeshLocomotion : NetworkBehaviour
             return;
         }
 
-        // Positive infinity means Unity has not established the remaining distance yet.
         bool arrived = remainingDistance <= stoppingDistance && _agent.velocity.sqrMagnitude < 0.01f;
         _blackboard.ReportMoveResult(_submittedRequestVersion, arrived ? MovementStatus.Arrived : MovementStatus.Moving);
     }

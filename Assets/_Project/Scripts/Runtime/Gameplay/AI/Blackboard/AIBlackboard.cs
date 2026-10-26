@@ -174,7 +174,6 @@ public class AIBlackboard : MonoBehaviour
 
     public void SetAtDestination(bool isAtDestination)
     {
-        // Temporary adapter for the existing executor. It must next report the version it actually submitted.
         ReportMoveResult(_moveRequestVersion, isAtDestination ? MovementStatus.Arrived : MovementStatus.Moving);
     }
 

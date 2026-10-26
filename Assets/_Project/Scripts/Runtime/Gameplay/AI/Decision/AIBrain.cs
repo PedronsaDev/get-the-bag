@@ -94,7 +94,6 @@ public class AIBrain : NetworkBehaviour
                 TransitionTo(_combatState);
                 break;
             case AlertState.Searching:
-                // Reaching cover intentionally breaks sight; retain its tactical state until memory expires.
                 if (CurrentState == _combatState && _combatState.IsUsingCover && _blackboard.Target)
                     break;
                 TransitionTo(_investigationState);

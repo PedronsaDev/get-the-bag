@@ -6,7 +6,6 @@ using UnityEngine.AI;
 
 namespace Project.AI.Cover
 {
-/// <summary>Main-thread spatial queries. Each enemy owns one instance; buffers never grow during queries.</summary>
 public sealed class CoverPeekValidator
 {
     private readonly Collider[] _overlaps = new Collider[64];
@@ -44,7 +43,7 @@ public sealed class CoverPeekValidator
             !Positive(agent.radius) || !Positive(agent.height) || agent.height < 2f * agent.radius ||
             !float.IsFinite(agent.baseOffset))
             return Fail(CoverPeekFailure.InvalidAgent, out failure);
-        // The standing envelope supports upright, unit-scale actor roots; scaled cover transforms are supported.
+
         Vector3 scale = blackboard.transform.lossyScale;
         if (!Finite(scale) || (scale - Vector3.one).sqrMagnitude > 0.000001f ||
             Vector3.Dot(blackboard.transform.up, Vector3.up) < 0.999f)

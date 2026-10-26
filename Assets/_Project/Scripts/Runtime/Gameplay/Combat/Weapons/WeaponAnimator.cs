@@ -13,6 +13,7 @@ public sealed class WeaponAnimator : MonoBehaviour
     [Header("References")] 
     [SerializeField] private Animator _animator;
     [SerializeField] private WeaponInstance _weapon;
+    [SerializeField] private ParticleSystem _muzzleFlashVFX;
 
     [SerializeField, Min(0)] private int _layer;
 
@@ -66,7 +67,8 @@ public sealed class WeaponAnimator : MonoBehaviour
 
             return;
         }
-
+        
+        _muzzleFlashVFX.Play();
         _reloadOwnsPlayback = false;
         _animator.Play(_fireStateHash, _layer, 0f);
     }

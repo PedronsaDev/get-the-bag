@@ -1,3 +1,4 @@
+using Plugins.Outline;
 using Project.Core.Events;
 using Project.Core.Interaction;
 using Project.Logging;
@@ -9,10 +10,10 @@ namespace Project.Core.Match
 [RequireComponent(typeof(NetworkIdentity))]
 public class TrainRouteConsole : NetworkBehaviour, IInteractable
 {
-    [Header("References")] [SerializeField]
-    private RouteSelectionEventChannel _routeSelectionEventChannel;
-
+    [Header("References")] 
+    [SerializeField] private RouteSelectionEventChannel _routeSelectionEventChannel;
     [SerializeField] private TrainTransitController _transitController;
+    [SerializeField] private MeshOutline _outline;
 
     public string InteractionPrompt => "[F] Access Route Console";
     public InteractionMode Mode => InteractionMode.Instant;
@@ -43,13 +44,11 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
             _transitController = FindAnyObjectByType<TrainTransitController>();
         }
 
-        // Only interactable if the train is currently docked at the hub
         if (_transitController && _transitController.CurrentState.value != TransitState.DockedAtHub)
         {
             return false;
         }
 
-        // Only the server/host can operate the console in networked play
         bool isOffline = !NetworkManager.main || NetworkManager.main.isOffline;
         bool isHost = isServer || (NetworkManager.main && NetworkManager.main.isServer);
         if (!isOffline && !isHost)
@@ -92,15 +91,14 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
 
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
+        _outline.enabled = true;
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
+        _outline.enabled = false;
     }
 
-    /// <summary>
-    /// Request to launch a route from the client/UI.
-    /// </summary>
     public void LaunchRoute(string routeSceneName)
     {
         bool isOffline = !NetworkManager.main || NetworkManager.main.isOffline;
