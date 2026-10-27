@@ -51,6 +51,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Loot
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c900fc9a74bff5048bf215bb549e07e7
+    m_Address: Weapons/Pistol_A_World
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e3a7db3a0247b26489d283f3a7d4a933
     m_Address: Weapon_Prefabs/WEAP_PF_Rifle_Debug
     m_ReadOnly: 0

@@ -1817,8 +1817,8 @@ MonoBehaviour:
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
     _initialValue: 0
-  _departureDuration: 4
-  _arrivalDuration: 4
+  _departureDuration: 1
+  _arrivalDuration: 1
   _inTransitVFX: {fileID: 0}
 --- !u!4 &1950692844
 Transform:

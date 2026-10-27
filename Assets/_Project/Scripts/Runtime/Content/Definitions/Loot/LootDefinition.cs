@@ -7,7 +7,6 @@ namespace Project.Loot.Data
 [CreateAssetMenu(fileName = "LOOT_Name", menuName = "Loot/Loot Definition")]
 public class LootDefinition : ScriptableObject, IRegistryItem
 {
-    private readonly string _guid = System.Guid.NewGuid().ToString();
     
     [Header("Identity")]
     [SerializeField] private string _id;
@@ -24,7 +23,7 @@ public class LootDefinition : ScriptableObject, IRegistryItem
     [Header("Addressables Visual References")] 
     [SerializeField] private AssetReferenceT<GameObject> _prefabReference;
 
-    public string Guid => _guid;
+    public string Guid => _id;
     public string Id => _id;
     
     public string Name => string.IsNullOrEmpty(_name) ? name : _name;

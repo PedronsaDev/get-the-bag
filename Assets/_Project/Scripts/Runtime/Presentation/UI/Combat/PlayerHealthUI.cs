@@ -8,6 +8,8 @@ public class PlayerHealthUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text _healthText;
     [SerializeField] private TMP_Text _shieldText;
+    [SerializeField] private UnityEngine.UI.Image _healthFill;
+    [SerializeField] private GameObject _contentRoot;
     private HealthComponent _health;
     private bool _subscribed;
 
@@ -37,6 +39,7 @@ public class PlayerHealthUI : MonoBehaviour
     private void Subscribe()
     {
         if (!_health) { Clear(); return; }
+        if (_contentRoot) _contentRoot.SetActive(true);
         if (!_subscribed)
         {
             _health.OnHealthChanged += RenderHealth;
@@ -60,6 +63,7 @@ public class PlayerHealthUI : MonoBehaviour
     private void RenderHealth(float current, float max)
     {
         if (_healthText) _healthText.SetText("{0:0} / {1:0}", current, max);
+        if (_healthFill) _healthFill.fillAmount = max > 0f ? Mathf.Clamp01(current / max) : 0f;
     }
 
     private void RenderShield(float current, float max)
@@ -73,6 +77,8 @@ public class PlayerHealthUI : MonoBehaviour
     {
         if (_healthText) _healthText.text = string.Empty;
         if (_shieldText) _shieldText.text = string.Empty;
+        if (_healthFill) _healthFill.fillAmount = 0f;
+        if (_contentRoot) _contentRoot.SetActive(false);
     }
 }
 }

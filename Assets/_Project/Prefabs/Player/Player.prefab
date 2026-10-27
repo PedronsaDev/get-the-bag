@@ -275,7 +275,7 @@ MonoBehaviour:
   _directChildren: []
   _maxHealth: 100
   _invulnerable: 0
-  _maxShield: 100
+  _maxShield: 0
   _shieldRegenDelay: 4
   _shieldRegenRate: 15
   _currentHealth:

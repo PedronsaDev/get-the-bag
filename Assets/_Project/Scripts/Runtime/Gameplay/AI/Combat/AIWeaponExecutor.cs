@@ -4,6 +4,7 @@ using Project.AI.Locomotion;
 using Project.AI.Perception;
 using Project.Combat;
 using Project.Combat.Core;
+using Project.Combat.Health;
 using PurrNet;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -21,15 +22,18 @@ public class AIWeaponExecutor : NetworkBehaviour
     private AIWeaponConfig _weaponConfig => _blackboard.ArchetypeConfig.WeaponConfig;
 
     private float _shotTimer;
+    private HealthComponent _health;
     private int _shotsFiredInCurrentBurst;
     private int _targetBurstCount;
     private readonly Collider[] _muzzleOverlaps = new Collider[32];
     private readonly RaycastHit[] _firingObstructions = new RaycastHit[32];
 
     public event Action OnBurstCompleted;
+    public event Action<Vector3, Vector3> OnShotFired;
 
     private void Awake()
     {
+        _health = GetComponent<HealthComponent>() ?? GetComponentInChildren<HealthComponent>(true);
         if (!_blackboard)
             _blackboard = GetComponent<AIBlackboard>();
 
@@ -62,7 +66,7 @@ public class AIWeaponExecutor : NetworkBehaviour
 
     private void Update()
     {
-        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady || !_aimController)
+        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady || !_aimController || (_health && _health.IsDead))
             return;
 
         UpdateBurstCadence(Time.deltaTime);
@@ -180,7 +184,7 @@ public class AIWeaponExecutor : NetworkBehaviour
     [ObserversRpc(runLocally: true)]
     private void RpcPlayFireFeedback(Vector3 muzzlePos, Vector3 endPoint)
     {
-        // Trigger client-side tracer and muzzle flash
+        OnShotFired?.Invoke(muzzlePos, endPoint);
     }
 
     private Vector3 CalculateSpreadDirection(Vector3 baseDirection, float spreadAngleDegrees)

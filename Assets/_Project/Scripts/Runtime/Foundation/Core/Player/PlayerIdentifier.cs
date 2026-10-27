@@ -10,6 +10,13 @@ public class PlayerIdentifier : NetworkBehaviour
     [SerializeField] private Transform _playerBody;
     
     public Transform BodyTransform => _playerBody ? _playerBody : transform;
+    private readonly SyncVar<bool> _gameplayEnabled = new(true);
+    public bool GameplayEnabled => _gameplayEnabled.value;
+
+    public void SetGameplayEnabledServer(bool enabled)
+    {
+        if (isServer) _gameplayEnabled.value = enabled;
+    }
     
     public IPlayerStatusProvider StatusProvider { get; set; }
     

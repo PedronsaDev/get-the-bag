@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Project.Combat.Data;
 using Project.Combat.Weapons;
 using Project.Content;
+using Project.Core.Player;
 using Project.Logging;
 using Project.Player.FPSCamera;
 using Project.Player.Input;
@@ -46,6 +47,7 @@ public class PlayerWeaponController : NetworkBehaviour
     private double _nextInputSend;
     private uint _shotSequence;
     private bool _running;
+    private PlayerIdentifier _identifier;
 
     private const double AIM_SEND_INTERVAL = 0.05;
     private const double TRIGGER_TIMEOUT = 0.5;
@@ -56,6 +58,7 @@ public class PlayerWeaponController : NetworkBehaviour
 
     private void Awake()
     {
+        _identifier = GetComponent<PlayerIdentifier>();
         if (!_inputProvider) _inputProvider = GetComponent<LocalPlayerInputProvider>();
         if (!_locomotionController) _locomotionController = GetComponentInChildren<LocomotionController>();
         if (!_presenter) _presenter = GetComponentInChildren<PlayerWeaponPresenter>(true);
@@ -153,7 +156,8 @@ public class PlayerWeaponController : NetworkBehaviour
         if (_presenter) _presenter.SetAimHeld(false);
     }
 
-    private bool CanAct => !_downedState || (!_downedState.IsDowned && !_downedState.IsDead);
+    private bool CanAct => (!_identifier || _identifier.GameplayEnabled) &&
+        (!_downedState || (!_downedState.IsDowned && !_downedState.IsDead));
 
     private RuntimeWeapon ActiveWeapon => ConfirmedState.ActiveSlot switch
     {

@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using Project.Core.Events;
 using Project.Core.Player;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -24,6 +27,11 @@ public class RaidManager : NetworkBehaviour
 
     [Header("References")]
     [SerializeField] private RaidEventChannel _raidEvents;
+    [SerializeField, Min(30f)] private float _raidDurationSeconds = 480f;
+    private readonly HashSet<PlayerID> _extractedPlayers = new();
+    public IReadOnlyCollection<PlayerID> ExtractedPlayers => _extractedPlayers;
+    public event Action<RaidState> OnResolvedServer;
+    public bool IsActive => CurrentState.value is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout;
     
     [Header("Networked State")]
     public SyncVar<RaidState> CurrentState = new();
@@ -33,7 +41,7 @@ public class RaidManager : NetworkBehaviour
     public SyncVar<int> DeadPlayerCount = new();
 
     private bool IsServerAuthority =>
-        isServer || (NetworkManager.main && NetworkManager.main.isServer) || (!NetworkManager.main || NetworkManager.main.isOffline);
+        isServer;
 
     private void Awake()
     {
@@ -130,7 +138,7 @@ public class RaidManager : NetworkBehaviour
         DownedPlayerCount.value = downed;
         DeadPlayerCount.value = dead;
 
-        if (activePlayers.Count > 0 && standing == 0 && CurrentState.value is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout)
+        if (standing == 0 && IsActive)
         {
             TriggerTeamWipe();
         }
@@ -138,13 +146,13 @@ public class RaidManager : NetworkBehaviour
 
     private void TriggerTeamWipe()
     {
-        Debug.Log("[RaidManager] All players eliminated or downed! Raid failed.");
+        AppLog.Log(LogChannel.Match, "All players eliminated or downed. Raid failed.", this);
         ChangeState(RaidState.Failed);
     }
 
     private void TriggerTimesUp()
     {
-        Debug.Log("[RaidManager] Raid timer expired!");
+        AppLog.Log(LogChannel.Match, "Raid timer expired.", this);
         ChangeState(RaidState.Failed);
     }
 
@@ -152,6 +160,7 @@ public class RaidManager : NetworkBehaviour
     {
         if (!IsServerAuthority)
             return;
+        if (CurrentState.value is RaidState.Completed or RaidState.Failed) return;
 
         if (CurrentState.value != newState)
         {
@@ -165,7 +174,7 @@ public class RaidManager : NetworkBehaviour
         switch (newState)
         {
             case RaidState.WaitingAtPlatform:
-                TimeRemaining.value = 1200f;
+                TimeRemaining.value = _raidDurationSeconds;
                 break;
             case RaidState.InRaid:
                 break;
@@ -174,10 +183,29 @@ public class RaidManager : NetworkBehaviour
             case RaidState.ExtractionHoldout:
                 break;
             case RaidState.Completed:
+                OnResolvedServer?.Invoke(newState);
                 break;
             case RaidState.Failed:
+                OnResolvedServer?.Invoke(newState);
                 break;
         }
+    }
+
+    public void BeginRaidServer()
+    {
+        if (!isServer || CurrentState.value != RaidState.WaitingAtPlatform) return;
+        _extractedPlayers.Clear();
+        TimeRemaining.value = _raidDurationSeconds;
+        ChangeState(RaidState.InRaid);
+    }
+
+    public bool ResolveExtractionServer(IReadOnlyList<PlayerID> extracted)
+    {
+        if (!isServer || !IsActive || TimeRemaining.value <= 0f) return false;
+        _extractedPlayers.Clear();
+        for (int i = 0; i < extracted.Count; i++) _extractedPlayers.Add(extracted[i]);
+        ChangeState(_extractedPlayers.Count > 0 ? RaidState.Completed : RaidState.Failed);
+        return true;
     }
 
     private void HandleNetworkStateChanged(RaidState newState)

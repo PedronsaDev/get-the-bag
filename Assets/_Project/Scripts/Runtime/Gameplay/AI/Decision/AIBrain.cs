@@ -2,6 +2,7 @@
 using Project.AI.Blackboard;
 using Project.AI.Decision.States;
 using Project.AI.Perception;
+using Project.Combat.Health;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
@@ -19,9 +20,11 @@ public class AIBrain : NetworkBehaviour
 
     public IAIState CurrentState { get; private set; }
     private bool _running;
+    private HealthComponent _health;
 
     private void Awake()
     {
+        _health = GetComponent<HealthComponent>() ?? GetComponentInChildren<HealthComponent>(true);
         if (!_blackboard)
             _blackboard = GetComponent<AIBlackboard>();
     }
@@ -75,6 +78,12 @@ public class AIBrain : NetworkBehaviour
     {
         if (!isServer || !_running || !_blackboard || !_blackboard.IsArchetypeReady)
             return;
+        if (_health && _health.IsDead)
+        {
+            StopBrain(); // OnExit releases combat tokens and reserved cover before despawning.
+            Despawn();
+            return;
+        }
         CurrentState?.OnUpdate(_blackboard, Time.deltaTime);
     }
 

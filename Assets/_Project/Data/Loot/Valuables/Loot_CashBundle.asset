@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e070140f55bacf44b8437a76869fddf, type: 3}
   m_Name: LOOT_CashBundle
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
-  _id: Loot_CashBundle
+  _id: loot_cashbundle
   _name: Cash
   _description: Just a stack of cash.
   _icon: {fileID: 6032170974666196668, guid: 6504898ad77030c41bf2d694c6f54bd8, type: 3}

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Project.Content;
 using Project.Core.Input;
+using Project.Core.Player;
 using Project.Loot;
 using Project.Loot.Data;
 using Project.Loot.World;
@@ -44,6 +45,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
 
     private readonly List<DuffleBagItemEntry> _stowedItems = new();
     private float _throwChargeTimer;
+    private PlayerIdentifier _identifier;
 
     public bool HasBag => _hasBag.value;
     public float CurrentWeight => _currentWeight.value;
@@ -59,6 +61,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
 
     private void Awake()
     {
+        _identifier = GetComponent<PlayerIdentifier>();
         if (!_dropSpawnPoint)
         {
             var cameraController = GetComponentInChildren<FPSCameraController>() ??
@@ -94,7 +97,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
 
     private void Update()
     {
-        if (!isOwner)
+        if (!isOwner || !_inputProvider || (_identifier && !_identifier.GameplayEnabled))
             return;
 
         ProcessThrowInput(_inputProvider.GetCurrentInput(), Time.deltaTime);
@@ -172,7 +175,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
     public bool TryStowItem(LootDefinition item)
     {
         if (!isServer) return false;
-        if (!_hasBag.value || !item) return false;
+        if (!_hasBag.value || !item || (_identifier && !_identifier.GameplayEnabled)) return false;
 
         if (_currentWeight.value + item.WeightKg > _maxCapacityKg)
             return false;
@@ -193,14 +196,14 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
         _currentWeight.value += item.WeightKg;
         _currentValue.value += item.BaseValue;
         
-        RpcNotifyItemStowed(item.Guid);
+        RpcNotifyItemStowed(item.Id);
         return true;
     }
     
     [ObserversRpc(runLocally: true)]
-    private void RpcNotifyItemStowed(string itemGuid)
+    private void RpcNotifyItemStowed(string itemId)
     {
-        if (GameContent.LootRegistry.TryGetByGuid(itemGuid, out var def)) 
+        if (GameContent.IsLoaded && GameContent.LootRegistry.TryGetById(itemId, out var def))
             OnItemStowed?.Invoke(def);
     }
     
@@ -242,7 +245,7 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
         float throwSpeed,
         Vector3 playerVelocity)
     {
-        if (!isServer || !_hasBag.value) return;
+        if (!isServer || !_hasBag.value || (_identifier && !_identifier.GameplayEnabled)) return;
         if (!_duffleBagPrefab) return;
         var snapshot = new DuffleBagSnapshot(_stowedItems, _currentWeight.value, _currentValue.value);
         Vector3 spawnOrigin = _dropSpawnPoint ? _dropSpawnPoint.position : transform.position + Vector3.up * 1.2f;
@@ -292,6 +295,19 @@ public class PlayerDuffleBagController : NetworkBehaviour, IDuffleBagCarrier
     {
         if (!isServer) return;
         EquipBag(DuffleBagSnapshot.Empty);
+    }
+
+    /// <summary>Copies and consumes the server inventory before its pawn is unloaded.</summary>
+    public DuffleBagSnapshot ConsumeBagServer()
+    {
+        if (!isServer) return default;
+        var snapshot = new DuffleBagSnapshot(_stowedItems, CurrentWeight, CurrentValue);
+        _stowedItems.Clear();
+        _hasBag.value = false;
+        _currentWeight.value = 0;
+        _currentValue.value = 0;
+        _throwChargeTimer = 0;
+        return snapshot;
     }
 }
 }

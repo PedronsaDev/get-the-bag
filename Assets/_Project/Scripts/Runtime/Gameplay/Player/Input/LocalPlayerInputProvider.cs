@@ -1,4 +1,5 @@
 using Project.Core.Input;
+using Project.Core.Player;
 using Project.Core.UI;
 using PurrNet;
 using UnityEngine;
@@ -63,9 +64,11 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     private InputAction _favoriteItemAction;
     private InputAction _trashItemAction;
     private InputAction _dropAllTrashAction;
+    private PlayerIdentifier _identifier;
     
     protected override void OnSpawned()
     {
+        _identifier = GetComponent<PlayerIdentifier>();
         this.enabled = isOwner;
         if (!isOwner)
             return;
@@ -166,7 +169,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
 
     private void UpdateUIInputs()
     {
-        if (PedronsaDev.Console.Console.IsOpen)
+        if (PedronsaDev.Console.Console.IsOpen || (_identifier && !_identifier.GameplayEnabled))
             return;
         
         bool cancelPressed = _cancelAction != null && _cancelAction.WasPressedThisFrame();

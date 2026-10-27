@@ -78,6 +78,12 @@ public class TrainTransitController : NetworkBehaviour
         }
     }
 
+    public void ResetAtHubServer()
+    {
+        if (!isServer || _isTransitInProgress) return;
+        ChangeState(TransitState.DockedAtHub);
+    }
+
     public void TriggerTransit(string sceneName)
     {
         if (_isTransitInProgress)
@@ -119,7 +125,7 @@ public class TrainTransitController : NetworkBehaviour
             await UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(_targetSceneName);
         }
 
-        await UniTask.Delay(5000);
+        await UniTask.Delay(1000);
 
         ChangeState(TransitState.Arriving);
         await UniTask.Delay(TimeSpan.FromSeconds(_arrivalDuration));

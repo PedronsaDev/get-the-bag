@@ -1,6 +1,8 @@
 using System;
 using Project.Core.Interaction;
 using Project.Core.Match.Zones;
+using Project.Core.Player;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
@@ -35,12 +37,12 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
 
     public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
-        return !ExtractionActivated.value;
+        return !ExtractionActivated.value && RaidManager.Instance && RaidManager.Instance.IsActive;
     }
 
     public string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false)
     {
-        return "Extraction is already active.";
+        return ExtractionActivated.value ? "Extraction is already active." : "Raid is not active.";
     }
 
     public void OnInteract(IPlayerInteractor interactor, bool isHold)
@@ -50,7 +52,8 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
 
         if (IsServerAuthority)
         {
-            TriggerActivationServer();
+            var player = interactor?.InteractorGameObject.GetComponent<PlayerIdentifier>();
+            if (CanActivateServer(player)) TriggerActivationServer();
         }
         else
         {
@@ -61,15 +64,18 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
     [ServerRpc(requireOwnership: false)]
     private void RpcRequestActivateExtraction(RPCInfo info = default)
     {
-        TriggerActivationServer();
+        if (PlayerIdentifier.TryGetPlayer(info.sender, out var player) && CanActivateServer(player))
+            TriggerActivationServer();
     }
+
+    private bool CanActivateServer(PlayerIdentifier player) => isServer && player && player.GameplayEnabled &&
+        player.IsStanding && (player.BodyTransform.position - transform.position).sqrMagnitude <= 25f &&
+        RaidManager.Instance && RaidManager.Instance.IsActive;
 
     private void TriggerActivationServer()
     {
         if (ExtractionActivated.value)
             return;
-
-        ExtractionActivated.value = true;
 
         if (!_extractionZone)
         {
@@ -79,10 +85,11 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
         if (_extractionZone)
         {
             _extractionZone.ActivateExtraction();
+            ExtractionActivated.value = _extractionZone.IsActivated.value;
         }
         else
         {
-            Debug.LogError($"[{nameof(ExtractionActivatorInteractable)}] ExtractionZone not found in scene!", this);
+            AppLog.LogError(LogChannel.Match, "Extraction zone is missing.", this);
         }
     }
 

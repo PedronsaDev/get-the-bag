@@ -28,8 +28,7 @@ public class ExtractionZone : NetworkBehaviour
     private CountdownTimer _exfilTimer;
     
     private bool IsServerAuthority =>
-        isServer || (NetworkManager.main && NetworkManager.main.isServer) ||
-        (!NetworkManager.main || NetworkManager.main.isOffline);
+        isServer;
 
     private void Awake()
     {
@@ -57,7 +56,7 @@ public class ExtractionZone : NetworkBehaviour
         if (!IsServerAuthority)
             return;
 
-        if (!IsActivated.value)
+        if (!IsActivated.value || !RaidManager.Instance || !RaidManager.Instance.IsActive)
             return;
 
         if (_exfilTimer is { IsRunning: true })
@@ -75,7 +74,8 @@ public class ExtractionZone : NetworkBehaviour
     
     public void ActivateExtraction()
     {
-        if (IsActivated.value)
+        if (!isServer || IsActivated.value || !RaidManager.Instance || !RaidManager.Instance.IsActive ||
+            RaidManager.Instance.TimeRemaining.value <= 0f)
             return;
 
         _detector.Activate();
@@ -105,7 +105,7 @@ public class ExtractionZone : NetworkBehaviour
 
     private void HandleExfilTimerStop()
     {
-        if (!IsServerAuthority || _exfilTimer == null)
+        if (!IsServerAuthority || _exfilTimer == null || !RaidManager.Instance || !RaidManager.Instance.IsActive)
             return;
 
         if (!_exfilTimer.IsFinished)
@@ -142,37 +142,13 @@ public class ExtractionZone : NetworkBehaviour
             }
         }
 
-        foreach (var id in extractedPlayers)
-        {
-            ApplyExtractionToPlayerServer(id);
-        }
-        
+        if (!RaidManager.Instance.ResolveExtractionServer(extractedPlayers)) return;
         RpcBroadcastExtractionResults(extractedPlayers.ToArray(), leftBehindPlayers.ToArray());
-
-        if (RaidManager.Instance)
-        {
-            if (extractedPlayers.Count > 0)
-            {
-                RaidManager.Instance.ChangeState(RaidState.Completed);
-            }
-            else
-            {
-                RaidManager.Instance.ChangeState(RaidState.Failed);
-            }
-        }
 
         AppLog.Log(LogChannel.Match, $"[ExfilZone] Exfil countdown complete. {extractedPlayers.Count} extracted, {leftBehindPlayers.Count} left behind.");
     }
 
-    private void ApplyExtractionToPlayerServer(PlayerID playerID)
-    {
-        if (PlayerIdentifier.TryGetPlayer(playerID, out var player))
-        {
-            // apply ivunerability and extract
-        }
-    }
-    
-    [ObserversRpc]
+    [ObserversRpc(runLocally: true)]
     private void RpcBroadcastExtractionResults(PlayerID[] extracted, PlayerID[] leftBehind)
     {
         PlayerID? localID = NetworkManager.main ? NetworkManager.main.localPlayer : null;
@@ -202,13 +178,11 @@ public class ExtractionZone : NetworkBehaviour
 
     private void HandleLocalPlayerLeftBehind()
     {
-        // Clear player inventory, call raid summary and call playerInventorBridge
         AppLog.Log(LogChannel.Match, "[Extraction] <color=red>You were left behind and failed to extract.</color>");
     }
 
     private void HandleLocalPlayerExtracted()
     {
-        // call raid summary and call playerInventorBridge
         AppLog.Log(LogChannel.Match, "[Extraction] <color=green>You successfully extracted.</color>");
     }
 }

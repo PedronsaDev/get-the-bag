@@ -3,6 +3,17 @@
   "rootNamespace": "Project.Game",
   "references": [
     "Project.Content",
+    "Project.Core",
+    "Project.Definitions",
+    "Project.Networking",
+    "Project.Match",
+    "Project.Player",
+    "Project.Combat",
+    "Project.AI",
+    "Project.Loot",
+    "PurrNet.Runtime",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI",
     "Project.Logging",
     "UniTask"
   ],

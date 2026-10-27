@@ -39,9 +39,9 @@ public class LootInteractable : NetworkBehaviour, IInteractable
             _outline = GetComponent<MeshOutline>();
     }
 
-    [ObserversRpc(runLocally: true)]
     public void Initialize(LootDefinition definition)
     {
+        if (!isServer) return;
         _definition.value = definition;
         _isClaimed = false;
     }
@@ -79,7 +79,6 @@ public class LootInteractable : NetworkBehaviour, IInteractable
 
         if (NetworkManager.main && NetworkManager.main.isClient && !isServer)
         {
-            _isClaimed = true;
             RpcRequestStow();
         }
         else
@@ -111,7 +110,9 @@ public class LootInteractable : NetworkBehaviour, IInteractable
             }
         }
 
-        if (senderPlayer && senderPlayer.TryGetComponent(out IDuffleBagCarrier carrier))
+        if (senderPlayer && senderPlayer.GameplayEnabled && !senderPlayer.IsDead && !senderPlayer.IsDowned &&
+            (senderPlayer.BodyTransform.position - transform.position).sqrMagnitude <= 25f &&
+            senderPlayer.TryGetComponent(out IDuffleBagCarrier carrier))
         {
             if (carrier.TryStowItem(_definition))
             {
