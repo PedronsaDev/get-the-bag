@@ -63,9 +63,9 @@ public sealed class WeaponLookSway : MonoBehaviour
         aimWeight = Mathf.Clamp01(aimWeight);
         float responseScale = Mathf.Lerp(1f, _aimResponseMultiplier, aimWeight);
 
-        Spring(ref _position, ref _positionVelocity, positionTarget, _positionFrequency * responseScale,
+        WeaponSpring.Step(ref _position, ref _positionVelocity, positionTarget, _positionFrequency * responseScale,
             _positionDampingRatio, deltaTime);
-        Spring(ref _rotation, ref _rotationVelocity, rotationTarget, _rotationFrequency * responseScale,
+        WeaponSpring.Step(ref _rotation, ref _rotationVelocity, rotationTarget, _rotationFrequency * responseScale,
             _rotationDampingRatio, deltaTime);
 
         _reloadWeight = Mathf.Lerp(_reloadWeight, reloading ? 0f : 1f, 1f - Mathf.Exp(-_weightResponse * deltaTime));
@@ -75,20 +75,6 @@ public sealed class WeaponLookSway : MonoBehaviour
             _restPosition + (_position * overallWeight),
             _restRotation * Quaternion.Euler(_rotation * overallWeight)
         );
-    }
-
-    private static void Spring(ref Vector3 current, ref Vector3 velocity, Vector3 target, float frequency,
-        float dampingRatio, float dt)
-    {
-        float f = Mathf.Max(0.01f, frequency);
-        float zeta = Mathf.Max(0.01f, dampingRatio);
-
-        float omega = 2f * Mathf.PI * f;
-
-        Vector3 acceleration = (target - current) * (omega * omega) - (velocity * (2f * zeta * omega));
-
-        velocity += acceleration * dt;
-        current += velocity * dt;
     }
 
     public void ResetPose()

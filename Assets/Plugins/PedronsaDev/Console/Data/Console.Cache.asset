@@ -1275,6 +1275,1268 @@ MonoBehaviour:
       MethodName: PrintVersion
       Parameters: []
       Flags: 24
-  AvailableCommands: []
+  AvailableCommands:
+  - Name: '?'
+    Description: '(Alias for help) Displays console help or details for a specific command. Usage: help [command_name]'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintHelp
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: autocomplete_bg
+    Description: (Alias for set_autocomplete_bg_color) Sets the background color for autocomplete suggestions (e.g. '#1A202C', 'black', 'blue')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetAutocompleteBackgroundColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: autocomplete_color
+    Description: (Alias for set_autocomplete_bg_color) Sets the background color for autocomplete suggestions (e.g. '#1A202C', 'black', 'blue')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetAutocompleteBackgroundColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: capture_screenshot
+    Description: Captures a screenshot and saves it to the supplied file path as a PNG.
+    TargetType: 0
+    Group: Screen
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: CaptureScreenshot
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: clear
+    Description: Clears the console
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - cls
+    SerializableMethod:
+      Type:
+        Data: 0060506564726f6e73614465762e436f6e736f6c652e436f6e736f6c652c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Clear
+      Parameters: []
+      Flags: 24
+  - Name: cls
+    Description: (Alias for clear) Clears the console
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0060506564726f6e73614465762e436f6e736f6c652e436f6e736f6c652c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Clear
+      Parameters: []
+      Flags: 24
+  - Name: copy
+    Description: Copies all current logs to the system clipboard
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases:
+    - copy_logs
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: CopyLogsToClipboard
+      Parameters: []
+      Flags: 24
+  - Name: copy_logs
+    Description: (Alias for copy) Copies all current logs to the system clipboard
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: CopyLogsToClipboard
+      Parameters: []
+      Flags: 24
+  - Name: delete_playerprefs
+    Description: Deletes all the players prefs
+    TargetType: 0
+    Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DeleteAllPlayerPrefs
+      Parameters: []
+      Flags: 24
+  - Name: delete_playerprefs_key
+    Description: Deletes a players prefs key
+    TargetType: 0
+    Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DeletePlayerPrefsKey
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: desc
+    Description: '(Alias for help) Displays console help or details for a specific command. Usage: help [command_name]'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintHelp
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: describe
+    Description: '(Alias for help) Displays console help or details for a specific command. Usage: help [command_name]'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintHelp
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: dp_load_game
+    Description: Loads the game state.
+    TargetType: 0
+    Group: DataPersistence
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007750726f6a6563742e50657273697374656e63652e4461746150657273697374656e6365436f6d6d616e64732c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: LoadGame
+      Parameters: []
+      Flags: 24
+  - Name: dp_save_game
+    Description: Saves the current game state.
+    TargetType: 0
+    Group: DataPersistence
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007750726f6a6563742e50657273697374656e63652e4461746150657273697374656e6365436f6d6d616e64732c2050726f6a6563742e50657273697374656e63652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SaveGame
+      Parameters: []
+      Flags: 24
+  - Name: even_color
+    Description: (Alias for set_log_even_color) Sets the alternating even row background color (e.g. '#1A202C', '#2A2A2A80')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogEvenColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: f
+    Description: '(Alias for filter) Filter visible logs: all, log, warning, error, custom'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogFilter
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: filter
+    Description: 'Filter visible logs: all, log, warning, error, custom'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases:
+    - f
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogFilter
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: find
+    Description: (Alias for search) Searches log history for a keyword
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SearchLogs
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: font
+    Description: Switches the active console font by name (e.g. 'font jetbrains', 'font inconsolata')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - set_font
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetFont
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: font_list
+    Description: (Alias for fonts) Lists all registered console fonts and indicates the active font
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ListFonts
+      Parameters: []
+      Flags: 20
+  - Name: fonts
+    Description: Lists all registered console fonts and indicates the active font
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - font_list
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ListFonts
+      Parameters: []
+      Flags: 20
+  - Name: fontsize
+    Description: '(Alias for set_font_size) Sets the font size for console log messages (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: get_active_scene
+    Description: Gets the name and index of the current active scene
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetActiveScene
+      Parameters: []
+      Flags: 24
+  - Name: get_all_commands
+    Description: Gets all commands
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetAllCommands
+      Parameters: []
+      Flags: 36
+  - Name: get_all_loaded_scenes
+    Description: Gets the name and index of every scene currently loaded
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetAllLoadedScenes
+      Parameters: []
+      Flags: 24
+  - Name: get_all_scene
+    Description: Gets the name and index of every scene included in the build
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetAllScenes
+      Parameters: []
+      Flags: 24
+  - Name: get_command_groups
+    Description: Gets and lists all available command groups
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetCommandGroups
+      Parameters: []
+      Flags: 36
+  - Name: get_commands
+    Description: Gets and lists all available commands
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetCommands
+      Parameters: []
+      Flags: 36
+  - Name: get_commands_from_group
+    Description: Gets and lists all available commands from a group
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetCommandsFromGroup
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 36
+  - Name: get_max_fps
+    Description: Gets the frame rate at which Unity tries to render on the application
+    TargetType: 0
+    Group: Graphics
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f506564726f6e73614465762e436f6e736f6c652e45787472612e4772617068696373436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetMaxFPS
+      Parameters: []
+      Flags: 24
+  - Name: get_playerprefs_key
+    Description: Gets the value of a players prefs key
+    TargetType: 0
+    Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetPlayerPrefsKey
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: get_screen_resolution
+    Description: Gets the current screen resolution
+    TargetType: 0
+    Group: Screen
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetScreenResolution
+      Parameters: []
+      Flags: 24
+  - Name: get_time_scale
+    Description: Gets the scale at which time passes
+    TargetType: 0
+    Group: Time
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e54696d65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: GetTimeScale
+      Parameters: []
+      Flags: 24
+  - Name: hc_drag_release
+    Description: 'Forces release of any active dragging on this player. Usage: drag_release [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DragRelease
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: help
+    Description: 'Displays console help or details for a specific command. Usage: help [command_name]'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases:
+    - desc
+    - describe
+    - man
+    - '?'
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintHelp
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_bleedout_set
+    Description: 'Sets the remaining bleedout timer on a downed player. Usage: hp_bleedout_set <seconds> [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetBleedout
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_damage
+    Description: 'Deals damage to the player (absorbed by shields first). Usage: hp_damage <amount> [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Damage
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_down
+    Description: 'Forces the target player into the downed state. Usage: hp_down [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Down
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_god
+    Description: 'Toggles invulnerability on the player. Usage: hp_god [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleGodMode
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_heal
+    Description: 'Heals the player by specified amount. Usage: hp_heal <amount> [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Heal
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_heal_full
+    Description: 'Fully heals, restores shields, and revives the player if downed or dead. Usage: hp_heal_full [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: HealFull
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_kill
+    Description: 'Instantly executes true death on the player. Usage: hp_kill [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Kill
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_revive
+    Description: 'Revives a downed or dead player. Usage: hp_revive [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Revive
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: hp_status
+    Description: 'Displays comprehensive health, shield, downed state, and bleedout timers for a player (default: local player). Usage: hp_status [playerId]'
+    TargetType: 0
+    Group: Combat&Health
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d50726f6a6563742e506c617965722e436f6d6d616e64732e4865616c7468436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: HealthStatus
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: input_fontsize
+    Description: '(Alias for set_input_font_size) Sets the font size for the search/input bar (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetInputFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: load_scene
+    Description: Loads a scene by name
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: LoadScene
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: load_scene_index
+    Description: Loads a scene by index
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: LoadSceneIndex
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: loc_gizmos
+    Description: 'Toggles or sets player movement debug gizmos globally. Usage: loc_gizmos [true/false]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleGizmos
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: loc_noclip
+    Description: 'Toggles noclip mode. Usage: noclip [0/1] [playerId]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleNoclip
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: loc_status
+    Description: 'Displays comprehensive real-time locomotion metrics (speed, phase, velocity, ground normal, slope, slide, jump buffer). Usage: loc_status [playerId]'
+    TargetType: 0
+    Group: Movement
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f50726f6a6563742e506c617965722e436f6d6d616e64732e4d6f76656d656e74436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: MovementStatus
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: log_all
+    Description: 'Enables or disables all logging channels at once. Usage: log_all [true/false]'
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetAllChannels
+      Parameters:
+      - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: log_channels
+    Description: Lists all logging channels and their current active status.
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ListChannels
+      Parameters: []
+      Flags: 24
+  - Name: log_disable
+    Description: 'Disables a specific logging channel. Usage: log_disable [channel]'
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: DisableChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_enable
+    Description: 'Enables a specific logging channel. Usage: log_enable [channel]'
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: EnableChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_even
+    Description: (Alias for set_log_even_color) Sets the alternating even row background color (e.g. '#1A202C', '#2A2A2A80')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogEvenColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: log_level
+    Description: 'Sets minimum severity threshold (Verbose, Info, Warning, Error). Usage: log_level [level]'
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogLevel
+      Parameters:
+      - Data: 006050726f6a6563742e4c6f6767696e672e4c6f674c6576656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: log_odd
+    Description: (Alias for set_log_odd_color) Sets the alternating odd row background color (e.g. '#00000000', '#151820')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogOddColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: log_reset
+    Description: Resets all logging channels and thresholds to defaults.
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ResetToDefaults
+      Parameters: []
+      Flags: 24
+  - Name: log_toggle
+    Description: 'Toggles a specific logging channel on or off. Usage: log_toggle [channel]'
+    TargetType: 0
+    Group: Logging
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007050726f6a6563742e4c6f6767696e672e436f6d6d616e64732e4c6f6767696e67436f6d6d616e64732c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleChannel
+      Parameters:
+      - Data: 006250726f6a6563742e4c6f6767696e672e4c6f674368616e6e656c2c2050726f6a6563742e4c6f6767696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 24
+  - Name: man
+    Description: '(Alias for help) Displays console help or details for a specific command. Usage: help [command_name]'
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintHelp
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: net_host_kick
+    Description: 'Kicks a player from the session (Host only). Usage: net_host_kick [playerId]'
+    TargetType: 0
+    Group: Network
+    HostOnly: 1
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: KickPlayer
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: net_host_scene
+    Description: Loads a new scene across all connected players (Host only).
+    TargetType: 0
+    Group: Network
+    HostOnly: 1
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ChangeScene
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: net_players
+    Description: Lists all connected player IDs in the current session.
+    TargetType: 0
+    Group: Network
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ListPlayers
+      Parameters: []
+      Flags: 24
+  - Name: net_status
+    Description: Displays current network session status, latency, and role.
+    TargetType: 0
+    Group: Network
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007650726f6a6563742e4e6574776f726b696e672e436f6d6d616e64732e4e6574776f726b436f6d6d616e64732c2050726f6a6563742e4e6574776f726b696e672c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintNetworkStatus
+      Parameters: []
+      Flags: 24
+  - Name: odd_color
+    Description: (Alias for set_log_odd_color) Sets the alternating odd row background color (e.g. '#00000000', '#151820')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogOddColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: opacity
+    Description: (Alias for set_console_opacity) Sets console opacity from 0.1 to 1.0
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetConsoleOpacity
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: pause_game_on_open_console
+    Description: Choose if opening the console the game will pause the game
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0071506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e436f6e736f6c6553797374656d2c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetPauseGameOnConsole
+      Parameters:
+      - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: pp_add_experience
+    Description: 'Adds the specified amount of experience to the player. Usage: pp_add_experience <amount>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: AddExperience
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: pp_add_scrip
+    Description: 'Adds the specified amount of scrip to the player. Usage: pp_add_scrip <amount>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: AddScrip
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: pp_change_name
+    Description: 'Changes the player''s name to the specified value. Usage: pp_change_name <newName>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ChangePlayerName
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: pp_set_level
+    Description: 'Sets the player''s level to the specified value. Usage: pp_set_level <level>'
+    TargetType: 0
+    Group: PlayerProfile
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 007350726f6a6563742e506c617965722e50726f66696c652e506c6179657250726f66696c65436f6d6d616e64732c2050726f6a6563742e506c617965722c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLevel
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: quit
+    Description: Quits the application
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: Quit
+      Parameters: []
+      Flags: 24
+  - Name: reload_active_scene
+    Description: Reloads the current active scene
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ReloadActiveScene
+      Parameters: []
+      Flags: 24
+  - Name: search
+    Description: Searches log history for a keyword
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases:
+    - find
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SearchLogs
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_active_scene
+    Description: Sets the active scene by name
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetActiveScene
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_autocomplete_bg_color
+    Description: Sets the background color for autocomplete suggestions (e.g. '#1A202C', 'black', 'blue')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - autocomplete_bg
+    - autocomplete_color
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetAutocompleteBackgroundColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: set_console_opacity
+    Description: Sets console opacity from 0.1 to 1.0
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - opacity
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetConsoleOpacity
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: set_font
+    Description: (Alias for font) Switches the active console font by name (e.g. 'font jetbrains', 'font inconsolata')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetFont
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: set_font_size
+    Description: 'Sets the font size for console log messages (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - fontsize
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: set_fullscreen
+    Description: Sets the fullscreen state of the application
+    TargetType: 0
+    Group: Screen
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetFullScreen
+      Parameters:
+      - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_input_font_size
+    Description: 'Sets the font size for the search/input bar (default: 24)'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - input_fontsize
+    SerializableMethod:
+      Type:
+        Data: 0070506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e5549466f6e745365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetInputFontSize
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: set_log_even_color
+    Description: Sets the alternating even row background color (e.g. '#1A202C', '#2A2A2A80')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - even_color
+    - log_even
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogEvenColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: set_log_odd_color
+    Description: Sets the alternating odd row background color (e.g. '#00000000', '#151820')
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - odd_color
+    - log_odd
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetLogOddColor
+      Parameters:
+      - Data: 0060556e697479456e67696e652e436f6c6f722c20556e697479456e67696e652e436f72654d6f64756c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      Flags: 20
+  - Name: set_max_fps
+    Description: Sets the frame rate at which Unity tries to render on the application. Set to -1 for unlimited
+    TargetType: 0
+    Group: Graphics
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f506564726f6e73614465762e436f6e736f6c652e45787472612e4772617068696373436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetMaxFPS
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_playerprefs_key_float
+    Description: Sets the value of a players prefs float key
+    TargetType: 0
+    Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetPlayerPrefsKeyFloat
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_playerprefs_key_int
+    Description: Sets the value of a players prefs int key
+    TargetType: 0
+    Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetPlayerPrefsKeyInt
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_playerprefs_key_string
+    Description: Sets the value of a players prefs string key
+    TargetType: 0
+    Group: PlayerPrefs
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0072506564726f6e73614465762e436f6e736f6c652e45787472612e506c617965725072656673436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetPlayerPrefsKeyString
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_screen_main_native_resolution
+    Description: Sets the current screen resolution to main screen native resolution
+    TargetType: 0
+    Group: Screen
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetScreenMainNativeResolution
+      Parameters: []
+      Flags: 24
+  - Name: set_screen_resolution
+    Description: Sets the current screen resolution in the range of supported resolutions
+    TargetType: 0
+    Group: Screen
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetScreenResolution
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_theme
+    Description: 'Changes console theme preset: default, matrix, cyberpunk, dracula, amber'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases:
+    - theme
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetTheme
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: set_time_scale
+    Description: Sets the scale at which time passes
+    TargetType: 0
+    Group: Time
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e54696d65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetTimeScale
+      Parameters:
+      - Data: 005a53797374656d2e53696e676c652c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: set_vsync
+    Description: Enables or disables vsync for the application
+    TargetType: 0
+    Group: Graphics
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006f506564726f6e73614465762e436f6e736f6c652e45787472612e4772617068696373436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetVSync
+      Parameters:
+      - Data: 005b53797374656d2e426f6f6c65616e2c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: theme
+    Description: '(Alias for set_theme) Changes console theme preset: default, matrix, cyberpunk, dracula, amber'
+    TargetType: 0
+    Group: Default
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 0076506564726f6e73614465762e436f6e736f6c652e436f6d706f6e656e74732e55494261636b67726f756e645365747465722c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: SetTheme
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 20
+  - Name: toggle_fullscreen
+    Description: Toggles the fullscreen state of the application
+    TargetType: 0
+    Group: Screen
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006d506564726f6e73614465762e436f6e736f6c652e45787472612e53637265656e436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: ToggleFullScreen
+      Parameters: []
+      Flags: 24
+  - Name: unload_scene
+    Description: Unloads a scene by name
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: UnloadScene
+      Parameters:
+      - Data: 005a53797374656d2e537472696e672c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: unload_scene_index
+    Description: Unloads a scene by index
+    TargetType: 0
+    Group: Scene
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006c506564726f6e73614465762e436f6e736f6c652e45787472612e5363656e65436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: UnloadSceneIndex
+      Parameters:
+      - Data: 005953797374656d2e496e7433322c206d73636f726c69622c2056657273696f6e3d342e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d62373761356335363139333465303839y
+      Flags: 24
+  - Name: version
+    Description: Displays the Smart Console version
+    TargetType: 0
+    Group: Core
+    HostOnly: 0
+    Aliases: []
+    SerializableMethod:
+      Type:
+        Data: 006b506564726f6e73614465762e436f6e736f6c652e45787472612e436f7265436f6d6d616e64732c20536d617274436f6e736f6c652c2056657273696f6e3d302e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d6e756c6cy
+      MethodName: PrintVersion
+      Parameters: []
+      Flags: 24
   ShowLogs: 0
   m_Preferences: {fileID: 11400000, guid: 26a98a6b67e6ac64b850eaa2fe621fb7, type: 2}
