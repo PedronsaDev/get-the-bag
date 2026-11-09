@@ -139,55 +139,10 @@ public static class MovementCommands
 
     private static bool TryResolveTarget(int playerId, out PlayerFacade player, out LocomotionController loco)
     {
-        player = null;
-        loco = null;
-
-        if (playerId < 0)
-        {
-            player = LocalPlayerContext.Player;
-            if (!player)
-            {
-                player = UnityEngine.Object.FindAnyObjectByType<PlayerFacade>();
-            }
-
-            if (!player)
-            {
-                PedronsaDev.Console.Console.LogError("[Movement] No local player found in scene.");
-                return false;
-            }
-
-            loco = player.LocomotionController ?? player.GetComponent<LocomotionController>() ??
-                player.GetComponentInChildren<LocomotionController>(true) ??
-                player.GetComponentInParent<LocomotionController>(true);
-            return true;
-        }
-
-        var activePlayers = PlayerIdentifier.ActivePlayers;
-        if (activePlayers != null)
-        {
-            for (int i = 0; i < activePlayers.Count; i++)
-            {
-                var identifier = activePlayers[i];
-                if (identifier && identifier.PlayerID.HasValue && identifier.PlayerID.Value.id.value == (ulong)playerId)
-                {
-                    player = identifier.GetComponent<PlayerFacade>() ??
-                             identifier.GetComponentInParent<PlayerFacade>() ??
-                             identifier.GetComponentInChildren<PlayerFacade>(true);
-                    if (!player)
-                        player = identifier.transform.root.GetComponentInChildren<PlayerFacade>(true);
-
-                    if (player)
-                    {
-                        loco = player.LocomotionController ?? player.GetComponent<LocomotionController>() ??
-                            player.GetComponentInChildren<LocomotionController>(true) ??
-                            player.GetComponentInParent<LocomotionController>(true);
-                        return true;
-                    }
-                }
-            }
-        }
-
-        PedronsaDev.Console.Console.LogError($"[Movement] Could not find player with ID {playerId}.");
+        player = PlayerFacade.Find(playerId);
+        loco = player ? player.LocomotionController : null;
+        if (player) return true;
+        PedronsaDev.Console.Console.LogError($"[Movement] Could not find player {playerId} (negative ID selects the local player).");
         return false;
     }
 }

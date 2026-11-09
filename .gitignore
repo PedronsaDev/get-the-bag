@@ -141,3 +141,5 @@ InitTestScene*.unity*
 
 # Blender review exports are regenerated from versioned source art.
 /SourceArt/**/Exported/
+
+/Tools/

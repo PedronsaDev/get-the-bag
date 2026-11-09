@@ -96,11 +96,6 @@ public class DataPersistenceManager : MonoBehaviour
         InitializeSelectedProfileId();
     }
 
-    private void Start()
-    {
-        //LoadGame();
-    }
-
     /// <summary>
     /// Registra um componente para receber chamadas LoadData e fornecer dados durante as chamadas SaveData.
     /// Se os dados do jogo já estiverem carregados na memória, LoadData é chamado instantaneamente.
@@ -195,7 +190,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void SaveGame()
     {
-        SaveGameAsync().Forget(Debug.LogException);
+        SaveGameAsync().Forget(exception => AppLog.LogException(LogChannel.Persistence, exception, this));
     }
 
     public async UniTask SaveGameAsync(CancellationToken cancellationToken = default)
@@ -222,11 +217,11 @@ public class DataPersistenceManager : MonoBehaviour
 
             _gameData.LastUpdated = DateTime.UtcNow.ToBinary();
             await _dataHandler.SaveAsync(_gameData, _selectedProfileId, cancellationToken);
+            AppLog.Log(LogChannel.Persistence, $"Saved profile '{_selectedProfileId}' successfully.", this);
         }
         finally
         {
             _saveSemaphore.Release();
-            AppLog.Log(LogChannel.Persistence, $"Saved profile '{_selectedProfileId}' successfully.");
         }
     }
 

@@ -1,7 +1,7 @@
 {
     "name": "Plugins.Outline",
     "rootNamespace": "Plugins.Outline",
-    "references": [],
+    "references": ["Project.Logging"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

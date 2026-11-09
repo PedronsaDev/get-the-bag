@@ -1,61 +1,21 @@
-//
-//  MeshOutline.cs
-//  Advanced Outline & Surface Fill Toolkit for Unity 6.6 / URP
-//  Zero-GC, Scale-Invariant, Multi-Mesh & Compound Hierarchy Support
-//  Author: PedronsaDev
-//
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Project.Logging;
 
 namespace Plugins.Outline
 {
     [DisallowMultipleComponent]
     [ExecuteAlways]
-    public class MeshOutline : MonoBehaviour
+    public partial class MeshOutline : MonoBehaviour
     {
-        public enum Mode
-        {
-            OutlineAll,
-            OutlineVisible,
-            OutlineHidden,
-            OutlineAndSilhouette,
-            SilhouetteOnly
-        }
-
-        public enum WidthMode
-        {
-            ScreenSpacePixels = 0,
-            WorldSpaceMeters = 1
-        }
-
-        public enum PatternType
-        {
-            Solid = 0,
-            Stripes = 1,
-            Grid = 2,
-            Texture = 3,
-            FresnelRim = 4
-        }
-
-        public enum CoordSpace
-        {
-            ObjectUV = 0,
-            ScreenSpace = 1,
-            WorldSpace = 2
-        }
-
-        public enum FillOcclusion
-        {
-            Always,
-            WhenOccludedOnly,
-            WhenVisibleOnly
-        }
-
-        private static readonly Dictionary<Mesh, Vector3[]> s_SmoothNormalsCache = new Dictionary<Mesh, Vector3[]>();
-        private static readonly HashSet<Mesh> s_RegisteredMeshes = new HashSet<Mesh>();
+        public enum Mode { OutlineAll, OutlineVisible, OutlineHidden, OutlineAndSilhouette, SilhouetteOnly }
+        // Value 1 retains the existing serialized centimeter behavior.
+        public enum WidthMode { ScreenSpacePixels = 0, WorldSpaceCentimeters = 1, WorldSpaceMeters = 2 }
+        public enum PatternType { Solid, Stripes, Grid, Texture, FresnelRim }
+        public enum CoordSpace { ObjectUV, ScreenSpace, WorldSpace }
+        public enum FillOcclusion { Always, WhenOccludedOnly, WhenVisibleOnly }
 
         #region Serialized Properties - Outline
 
@@ -66,13 +26,13 @@ namespace Plugins.Outline
         private Color outlineColor = Color.white;
 
         [SerializeField, Range(0f, 50f)]
-        private float outlineWidth = 15f;
+        private float outlineWidth = 5f;
 
         [SerializeField]
         private WidthMode widthMode = WidthMode.ScreenSpacePixels;
 
-        [SerializeField, Range(1, 255)]
-        private int stencilReference = 32;
+        [SerializeField, HideInInspector]
+        private int stencilReference = 1;
 
         #endregion
 
@@ -172,163 +132,168 @@ namespace Plugins.Outline
         public Mode OutlineMode
         {
             get => outlineMode;
-            set { outlineMode = value; _needsUpdate = true; }
+            set { if (outlineMode == value) return; outlineMode = value; _needsPassRefresh = _needsUpdate = true; }
         }
 
         public Color OutlineColor
         {
             get => outlineColor;
-            set { outlineColor = value; _needsUpdate = true; }
+            set { if (outlineColor == value) return; outlineColor = value; _needsUpdate = true; }
         }
 
         public float OutlineWidth
         {
             get => outlineWidth;
-            set { outlineWidth = value; _needsUpdate = true; }
+            set { if (outlineWidth == value) return; outlineWidth = Mathf.Max(0f, value); _needsUpdate = true; }
         }
 
         public WidthMode OutlineWidthMode
         {
             get => widthMode;
-            set { widthMode = value; _needsUpdate = true; }
+            set { if (widthMode == value) return; widthMode = value; _needsUpdate = true; }
         }
 
         public int StencilReference
         {
             get => stencilReference;
-            set { stencilReference = Mathf.Clamp(value, 1, 255); _needsUpdate = true; }
+            set { stencilReference = 1; _needsUpdate = true; }
         }
 
         public bool EnableSurfaceFill
         {
             get => enableSurfaceFill;
-            set { enableSurfaceFill = value; _needsRendererRefresh = true; }
+            set { if (enableSurfaceFill == value) return; enableSurfaceFill = value; _needsPassRefresh = _needsUpdate = true; }
         }
 
         public Color FillColor
         {
             get => fillColor;
-            set { fillColor = value; _needsUpdate = true; }
+            set { if (fillColor == value) return; fillColor = value; _needsUpdate = true; }
         }
 
         public Color FillSecondaryColor
         {
             get => fillSecondaryColor;
-            set { fillSecondaryColor = value; _needsUpdate = true; }
+            set { if (fillSecondaryColor == value) return; fillSecondaryColor = value; _needsUpdate = true; }
         }
 
         public PatternType FillPattern
         {
             get => fillPattern;
-            set { fillPattern = value; _needsUpdate = true; }
+            set { if (fillPattern == value) return; fillPattern = value; _needsUpdate = true; }
         }
 
         public Texture2D FillTexture
         {
             get => fillTexture;
-            set { fillTexture = value; _needsUpdate = true; }
+            set { if (fillTexture == value) return; fillTexture = value; _needsUpdate = true; }
         }
 
         public Vector2 FillTiling
         {
             get => fillTiling;
-            set { fillTiling = value; _needsUpdate = true; }
+            set { if (fillTiling == value) return; fillTiling = value; _needsUpdate = true; }
         }
 
         public float FillAngle
         {
             get => fillAngle;
-            set { fillAngle = value; _needsUpdate = true; }
+            set { if (fillAngle == value) return; fillAngle = value; _needsUpdate = true; }
         }
 
         public float FillScrollSpeed
         {
             get => fillScrollSpeed;
-            set { fillScrollSpeed = value; _needsUpdate = true; }
+            set { if (fillScrollSpeed == value) return; fillScrollSpeed = value; _needsUpdate = true; }
         }
 
         public float FresnelPower
         {
             get => fresnelPower;
-            set { fresnelPower = value; _needsUpdate = true; }
+            set { if (fresnelPower == value) return; fresnelPower = value; _needsUpdate = true; }
         }
 
         public CoordSpace FillSpace
         {
             get => fillSpace;
-            set { fillSpace = value; _needsUpdate = true; }
+            set { if (fillSpace == value) return; fillSpace = value; _needsUpdate = true; }
         }
 
         public FillOcclusion FillOcclusionMode
         {
             get => fillOcclusion;
-            set { fillOcclusion = value; _needsUpdate = true; }
+            set { if (fillOcclusion == value) return; fillOcclusion = value; _needsUpdate = true; }
         }
 
         public bool PulseEnabled
         {
             get => pulseEnabled;
-            set { pulseEnabled = value; _needsUpdate = true; }
+            set { if (pulseEnabled == value) return; pulseEnabled = value; _needsUpdate = true; }
         }
 
         public float PulseSpeed
         {
             get => pulseSpeed;
-            set { pulseSpeed = value; _needsUpdate = true; }
+            set { if (pulseSpeed == value) return; pulseSpeed = value; _needsUpdate = true; }
         }
 
         public float PulseAmplitude
         {
             get => pulseAmplitude;
-            set { pulseAmplitude = value; _needsUpdate = true; }
+            set { if (pulseAmplitude == value) return; pulseAmplitude = Mathf.Clamp01(value); _needsUpdate = true; }
         }
 
         public bool DistanceFadeEnabled
         {
             get => distanceFadeEnabled;
-            set { distanceFadeEnabled = value; _needsUpdate = true; }
+            set { if (distanceFadeEnabled == value) return; distanceFadeEnabled = value; _needsUpdate = true; }
         }
 
         public float FadeMinDistance
         {
             get => fadeMinDistance;
-            set { fadeMinDistance = value; _needsUpdate = true; }
+            set
+            {
+                fadeMinDistance = Mathf.Max(0f, value);
+                fadeMaxDistance = Mathf.Max(fadeMinDistance + 0.1f, fadeMaxDistance);
+                _needsUpdate = true;
+            }
         }
 
         public float FadeMaxDistance
         {
             get => fadeMaxDistance;
-            set { fadeMaxDistance = value; _needsUpdate = true; }
+            set { fadeMaxDistance = Mathf.Max(fadeMinDistance + 0.1f, value); _needsUpdate = true; }
         }
 
         public bool JitterEnabled
         {
             get => jitterEnabled;
-            set { jitterEnabled = value; _needsUpdate = true; }
+            set { if (jitterEnabled == value) return; jitterEnabled = value; _needsUpdate = true; }
         }
 
         public float JitterSpeed
         {
             get => jitterSpeed;
-            set { jitterSpeed = value; _needsUpdate = true; }
+            set { if (jitterSpeed == value) return; jitterSpeed = value; _needsUpdate = true; }
         }
 
         public float JitterFrequency
         {
             get => jitterFrequency;
-            set { jitterFrequency = value; _needsUpdate = true; }
+            set { if (jitterFrequency == value) return; jitterFrequency = value; _needsUpdate = true; }
         }
 
         public float JitterScale
         {
             get => jitterScale;
-            set { jitterScale = value; _needsUpdate = true; }
+            set { if (jitterScale == value) return; jitterScale = Mathf.Clamp01(value); _needsUpdate = true; }
         }
 
         public float JitterFramerate
         {
             get => jitterFramerate;
-            set { jitterFramerate = value; _needsUpdate = true; }
+            set { if (jitterFramerate == value) return; jitterFramerate = value; _needsUpdate = true; }
         }
 
         public LayerMask IncludeLayers
@@ -342,677 +307,286 @@ namespace Plugins.Outline
 
         #endregion
 
-        private class RendererData
-        {
-            public Renderer renderer;
-            public Material[] originalMaterials;
-            public Material[] outlinedMaterials;
-            public bool isSkinned;
-        }
+        [SerializeField] private MeshOutlineStyle style;
+        [SerializeField] private List<OutlinePreparedMesh> preparedMeshes = new List<OutlinePreparedMesh>();
+        [SerializeField, Min(0f)] private float screenSpaceBoundsPadding = 0.25f;
+        [SerializeField] private bool showInSceneView = true;
+        [SerializeField] private bool showInReflections;
+        [SerializeField] private bool unscaledEffects;
+        [SerializeField] private bool twoSidedSurface;
+        [SerializeField, Range(0.01f, 0.49f)] private float patternLineWidth = 0.12f;
+        [SerializeField] private float animationPhase;
 
-        private readonly List<RendererData> _cachedRenderers = new List<RendererData>();
-        private Material _maskMaterial;
-        private Material _fillMaterial;
-        private Material _silhouetteMaterial;
-
-        private bool _isOutlined;
-        private bool _needsUpdate;
-        private bool _needsRendererRefresh;
-
-        // Dynamic Runtime Ping & Flash state
-        private bool _isPinging;
-        private float _pingDuration;
-        private float _pingElapsed;
-        private Color _pingBaseColor;
-        private Color _pingTargetColor;
-        private float _pingBaseWidth;
-
-        private bool _isFlashing;
-        private float _flashDuration;
-        private float _flashElapsed;
-        private Color _flashBaseColor;
-        private Color _flashOverrideColor;
-
-        #region Unity Lifecycle
-
-        private void Awake()
-        {
-            EnsureMaterials();
-            RefreshRenderers();
-            LoadSmoothNormals();
-            _needsUpdate = true;
-        }
+        private readonly List<Renderer> _renderers = new List<Renderer>();
+        private readonly List<OutlineRendererBinding> _bindings = new List<OutlineRendererBinding>();
+        private Material _maskMaterial, _fillMaterial, _silhouetteMaterial;
+        private Material[] _effectMaterials;
+        private bool _needsUpdate = true, _needsRendererRefresh = true, _needsPassRefresh = true, _validatePending, _needsPassApply;
+        private bool _persistentVisible, _temporaryActivation;
+        private bool _isPinging, _isFlashing;
+        private float _pingDuration, _pingElapsed, _flashDuration, _flashElapsed;
+        private Color _pingTargetColor, _flashOverrideColor;
+        private int _filterHash;
+        public string LastPreparationError { get; private set; }
+        public int BoundRendererCount => _bindings.Count;
+        public IReadOnlyList<OutlinePreparedMesh> PreparedMeshes => preparedMeshes;
+        private bool HasSurface => enableSurfaceFill || outlineMode == Mode.OutlineAndSilhouette || outlineMode == Mode.SilhouetteOnly;
 
         private void OnEnable()
         {
+            if (!Application.IsPlaying(gameObject)) return;
+            _persistentVisible = !_temporaryActivation;
+            _temporaryActivation = false;
             EnsureMaterials();
-            if (_cachedRenderers.Count == 0)
-            {
-                RefreshRenderers();
-            }
-            ApplyOutlines();
-            _needsUpdate = true;
+            UpdateMaterialProperties();
+            if (_needsRendererRefresh || _bindings.Count == 0) RefreshRenderers();
+            else ApplyBindings();
+            RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
         }
 
         private void OnDisable()
         {
-            RemoveOutlines();
-            _isPinging = false;
-            _isFlashing = false;
+            RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
+            foreach (var binding in _bindings) binding.Remove();
+            _isPinging = _isFlashing = _temporaryActivation = false;
         }
 
         private void OnDestroy()
         {
-            RemoveOutlines();
-            CleanupMaterials();
+            DisposeBindings();
+            OutlineMeshPreparation.Destroy(_maskMaterial);
+            OutlineMeshPreparation.Destroy(_fillMaterial);
+            OutlineMeshPreparation.Destroy(_silhouetteMaterial);
         }
 
-        private void OnTransformChildrenChanged()
+        private void OnTransformChildrenChanged() => _needsRendererRefresh = true;
+
+        private void OnValidate()
         {
-            _needsRendererRefresh = true;
+            stencilReference = 1;
+            outlineWidth = Mathf.Max(0f, outlineWidth);
+            fadeMinDistance = Mathf.Max(0f, fadeMinDistance);
+            fadeMaxDistance = Mathf.Max(fadeMinDistance + 0.1f, fadeMaxDistance);
+            fresnelPower = Mathf.Max(0.1f, fresnelPower);
+            pulseAmplitude = Mathf.Clamp01(pulseAmplitude);
+            jitterScale = Mathf.Clamp01(jitterScale);
+            patternLineWidth = Mathf.Clamp(patternLineWidth, 0.01f, 0.49f);
+            screenSpaceBoundsPadding = Mathf.Max(0f, screenSpaceBoundsPadding);
+            _needsUpdate = _needsPassRefresh = _validatePending = true;
         }
 
         private void Update()
         {
-            if (_needsRendererRefresh)
+            if (!Application.IsPlaying(gameObject)) return;
+            if (_validatePending)
             {
-                _needsRendererRefresh = false;
-                RefreshRenderers();
-                if (isActiveAndEnabled)
-                {
-                    ApplyOutlines();
-                }
-                _needsUpdate = true;
+                _validatePending = false;
+                if (_filterHash != FilterHash()) _needsRendererRefresh = true;
             }
-
-            // Update Ping & Flash decay
-            if (Application.isPlaying)
+            if (_needsRendererRefresh) RefreshRenderers();
+            if (_needsPassRefresh)
             {
-                UpdatePingAndFlash(Time.deltaTime);
+                EnsureMaterials();
             }
-
-            if (_needsUpdate)
+            if (_needsPassApply) ApplyBindings();
+            foreach (var binding in _bindings)
+                if (binding.HasExternalChanges()) ApplyBinding(binding);
+            if (_needsUpdate) UpdateMaterialProperties();
+            if (_isPinging || _isFlashing)
             {
-                _needsUpdate = false;
-                UpdateMaterialProperties();
+                AdvanceEffects(unscaledEffects ? Time.unscaledDeltaTime : Time.deltaTime);
+                ApplyAppearance();
+                if (!_isPinging && !_isFlashing && !_persistentVisible) enabled = false;
             }
         }
 
-        private void OnValidate()
+        public void SetHighlighted(bool visible)
         {
-            stencilReference = Mathf.Clamp(stencilReference, 1, 255);
-            fadeMinDistance = Mathf.Max(0f, fadeMinDistance);
-            fadeMaxDistance = Mathf.Max(fadeMinDistance + 0.1f, fadeMaxDistance);
-            _needsUpdate = true;
-            _needsRendererRefresh = true;
+            _persistentVisible = visible;
+            if (visible) enabled = true;
+            else if (!_isPinging && !_isFlashing) enabled = false;
         }
 
-        #endregion
-
-        #region Dynamic Ping & Hit Flash
-
-        /// <summary>
-        /// Triggers an expanding radar ping pulse that smoothly decays back to base values.
-        /// </summary>
         public void Ping(float duration = 1.5f, Color? pingColor = null)
         {
-            if (!isActiveAndEnabled) enabled = true;
-
+            EnableForEffect();
             _isPinging = true;
-            _pingDuration = Mathf.Max(0.05f, duration);
             _pingElapsed = 0f;
-            _pingBaseColor = outlineColor;
-            _pingBaseWidth = outlineWidth;
-            _pingTargetColor = pingColor ?? new Color(outlineColor.r * 2.5f, outlineColor.g * 2.5f, outlineColor.b * 2.5f, 1f);
+            _pingDuration = Mathf.Max(0.05f, duration);
+            _pingTargetColor = pingColor ?? new Color(outlineColor.r * 2.5f, outlineColor.g * 2.5f, outlineColor.b * 2.5f, outlineColor.a);
+            ApplyAppearance();
         }
 
-        /// <summary>
-        /// Triggers an instant hit flash reaction (e.g. bullet impact flare) that decays rapidly.
-        /// </summary>
         public void Flash(Color flashColor, float duration = 0.15f)
         {
-            if (!isActiveAndEnabled) enabled = true;
-
+            EnableForEffect();
             _isFlashing = true;
-            _flashDuration = Mathf.Max(0.02f, duration);
             _flashElapsed = 0f;
-            _flashBaseColor = outlineColor;
+            _flashDuration = Mathf.Max(0.02f, duration);
             _flashOverrideColor = flashColor;
+            ApplyAppearance();
         }
 
-        private void UpdatePingAndFlash(float dt)
+        private void EnableForEffect()
+        {
+            if (enabled) return;
+            _temporaryActivation = true;
+            enabled = true;
+        }
+
+        public void StopEffects()
+        {
+            _isPinging = _isFlashing = false;
+            ApplyAppearance();
+            if (!_persistentVisible) enabled = false;
+        }
+
+        private void AdvanceEffects(float dt)
+        {
+            if (_isPinging) { _pingElapsed += dt; _isPinging = _pingElapsed < _pingDuration; }
+            if (_isFlashing) { _flashElapsed += dt; _isFlashing = _flashElapsed < _flashDuration; }
+        }
+
+        private void ApplyAppearance()
         {
             if (!_fillMaterial) return;
-
-            if (_isFlashing)
-            {
-                _flashElapsed += dt;
-                float t = Mathf.Clamp01(_flashElapsed / _flashDuration);
-                Color currentColor = Color.Lerp(_flashOverrideColor, _flashBaseColor, t);
-                _fillMaterial.SetColor("_OutlineColor", currentColor);
-
-                if (t >= 1f)
-                {
-                    _isFlashing = false;
-                    _fillMaterial.SetColor("_OutlineColor", outlineColor);
-                }
-            }
-            else if (_isPinging)
-            {
-                _pingElapsed += dt;
-                float t = Mathf.Clamp01(_pingElapsed / _pingDuration);
-                float curve = 1f - Mathf.SmoothStep(0f, 1f, t);
-
-                Color currentColor = Color.Lerp(_pingBaseColor, _pingTargetColor, curve);
-                float currentWidth = Mathf.Lerp(_pingBaseWidth, _pingBaseWidth * 1.8f, curve);
-
-                _fillMaterial.SetColor("_OutlineColor", currentColor);
-                _fillMaterial.SetFloat("_OutlineWidth", currentWidth);
-
-                if (t >= 1f)
-                {
-                    _isPinging = false;
-                    _fillMaterial.SetColor("_OutlineColor", outlineColor);
-                    _fillMaterial.SetFloat("_OutlineWidth", outlineWidth);
-                }
-            }
+            float ping = _isPinging ? 1f - Mathf.SmoothStep(0f, 1f, _pingElapsed / _pingDuration) : 0f;
+            var color = Color.Lerp(outlineColor, _pingTargetColor, ping);
+            if (_isFlashing) color = Color.Lerp(_flashOverrideColor, color, _flashElapsed / _flashDuration);
+            _fillMaterial.SetColor(ShaderIds.OutlineColor, color);
+            _fillMaterial.SetFloat(ShaderIds.OutlineWidth, outlineMode == Mode.SilhouetteOnly ? 0f : Mathf.Max(0f, outlineWidth) * (1f + ping * 0.8f));
         }
 
-        #endregion
+        public void RequestRendererRefresh() => _needsRendererRefresh = true;
 
-        #region Material & Renderer Management
-
-        private void EnsureMaterials()
+        public void SetRendererIgnored(Renderer renderer, bool ignored)
         {
-            if (!_maskMaterial)
-            {
-                Shader maskShader = Shader.Find("Custom/Outline/Mask") ?? Resources.Load<Shader>("Shaders/OutlineMask");
-                if (maskShader)
-                {
-                    _maskMaterial = new Material(maskShader) { name = "OutlineMask (Instance)", hideFlags = HideFlags.DontSave };
-                }
-                else
-                {
-                    var baseMat = Resources.Load<Material>("Materials/OutlineMask");
-                    if (baseMat) _maskMaterial = Instantiate(baseMat);
-                }
-            }
-
-            if (!_fillMaterial)
-            {
-                Shader fillShader = Shader.Find("Custom/Outline/Fill") ?? Resources.Load<Shader>("Shaders/OutlineFill");
-                if (fillShader)
-                {
-                    _fillMaterial = new Material(fillShader) { name = "OutlineFill (Instance)", hideFlags = HideFlags.DontSave };
-                }
-                else
-                {
-                    var baseMat = Resources.Load<Material>("Materials/OutlineFill");
-                    if (baseMat) _fillMaterial = Instantiate(baseMat);
-                }
-            }
-
-            if (!_silhouetteMaterial)
-            {
-                Shader silShader = Shader.Find("Custom/Outline/Silhouette") ?? Resources.Load<Shader>("Shaders/OutlineSilhouette");
-                if (silShader)
-                {
-                    _silhouetteMaterial = new Material(silShader) { name = "OutlineSilhouette (Instance)", hideFlags = HideFlags.DontSave };
-                }
-            }
+            if (ignored && !ignoredRenderers.Contains(renderer)) ignoredRenderers.Add(renderer);
+            else if (!ignored) ignoredRenderers.Remove(renderer);
+            RequestRendererRefresh();
         }
 
-        private void CleanupMaterials()
+        public void SetKeywordExcluded(string keyword, bool excluded)
         {
-            if (_maskMaterial)
-            {
-                if (Application.isPlaying) Destroy(_maskMaterial);
-                else DestroyImmediate(_maskMaterial);
-                _maskMaterial = null;
-            }
-
-            if (_fillMaterial)
-            {
-                if (Application.isPlaying) Destroy(_fillMaterial);
-                else DestroyImmediate(_fillMaterial);
-                _fillMaterial = null;
-            }
-
-            if (_silhouetteMaterial)
-            {
-                if (Application.isPlaying) Destroy(_silhouetteMaterial);
-                else DestroyImmediate(_silhouetteMaterial);
-                _silhouetteMaterial = null;
-            }
+            if (string.IsNullOrEmpty(keyword)) return;
+            if (excluded && !excludedKeywords.Contains(keyword)) excludedKeywords.Add(keyword);
+            else if (!excluded) excludedKeywords.Remove(keyword);
+            RequestRendererRefresh();
         }
 
-        /// <summary>
-        /// Scans all child renderers with layer and keyword filtering, caching pre-allocated material arrays
-        /// for zero-garbage swapping on hover enter/exit.
-        /// </summary>
+        public bool IncludesRenderer(Renderer renderer)
+        {
+            if (!renderer || !(renderer is MeshRenderer || renderer is SkinnedMeshRenderer)) return false;
+            if (renderer.GetComponentInParent<MeshOutline>(true) != this) return false;
+            if (((1 << renderer.gameObject.layer) & includeLayers.value) == 0 || ignoredRenderers.Contains(renderer)) return false;
+            foreach (var keyword in excludedKeywords)
+                if (!string.IsNullOrEmpty(keyword) && renderer.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return false;
+            return true;
+        }
+
+        public Mesh PreparationSource(Mesh source)
+        {
+            foreach (var prepared in preparedMeshes)
+                if (prepared && prepared.Source == source && prepared.ReadableCopy) return prepared.ReadableCopy;
+            return source;
+        }
+
+        public Mesh SourceMesh(Renderer renderer)
+        {
+            foreach (var binding in _bindings)
+                if (binding.Renderer == renderer) return binding.Source;
+            return renderer is SkinnedMeshRenderer skin ? skin.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
+        }
+
+        public void SetPreparedMeshes(IEnumerable<OutlinePreparedMesh> meshes)
+        {
+            preparedMeshes.Clear();
+            preparedMeshes.AddRange(meshes);
+            RequestRendererRefresh();
+        }
+
         public void RefreshRenderers()
         {
-            EnsureMaterials();
-
-            if (_isOutlined)
-            {
-                RemoveOutlines();
-            }
-
-            _cachedRenderers.Clear();
-
-            var childRenderers = GetComponentsInChildren<Renderer>(true);
-            bool shouldIncludeSilhouette = enableSurfaceFill || outlineMode == Mode.OutlineAndSilhouette || outlineMode == Mode.SilhouetteOnly;
-
-            for (int i = 0; i < childRenderers.Length; i++)
-            {
-                var r = childRenderers[i];
-                if (!r || !(r is MeshRenderer || r is SkinnedMeshRenderer)) continue;
-
-                // 1. Layer filter check
-                if (((1 << r.gameObject.layer) & includeLayers.value) == 0) continue;
-
-                // 2. Explicit ignore list
-                if (ignoredRenderers != null && ignoredRenderers.Contains(r)) continue;
-
-                // 3. Excluded keywords check (e.g. "Cloth", "Shadow", "Decal")
-                if (excludedKeywords != null && excludedKeywords.Count > 0)
-                {
-                    string rName = r.gameObject.name;
-                    bool skip = false;
-                    for (int k = 0; k < excludedKeywords.Count; k++)
-                    {
-                        var kw = excludedKeywords[k];
-                        if (!string.IsNullOrEmpty(kw) && rName.IndexOf(kw, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            skip = true;
-                            break;
-                        }
-                    }
-                    if (skip) continue;
-                }
-
-                var origMaterials = r.sharedMaterials;
-                if (origMaterials == null || origMaterials.Length == 0) continue;
-
-                var cleanedList = new List<Material>();
-                for (int m = 0; m < origMaterials.Length; m++)
-                {
-                    var mat = origMaterials[m];
-                    if (mat && mat != _maskMaterial && mat != _fillMaterial && mat != _silhouetteMaterial)
-                    {
-                        cleanedList.Add(mat);
-                    }
-                }
-
-                if (cleanedList.Count == 0) continue;
-
-                var origArray = cleanedList.ToArray();
-                var outlinedList = new List<Material>(origArray);
-
-                if (_maskMaterial) outlinedList.Add(_maskMaterial);
-                if (_fillMaterial && outlineMode != Mode.SilhouetteOnly) outlinedList.Add(_fillMaterial);
-                if (_silhouetteMaterial && shouldIncludeSilhouette) outlinedList.Add(_silhouetteMaterial);
-
-                _cachedRenderers.Add(new RendererData
-                {
-                    renderer = r,
-                    originalMaterials = origArray,
-                    outlinedMaterials = outlinedList.ToArray(),
-                    isSkinned = (r is SkinnedMeshRenderer)
-                });
-            }
-
-            LoadSmoothNormals();
-
-            if (isActiveAndEnabled)
-            {
-                ApplyOutlines();
-            }
+            _needsRendererRefresh = false;
+            _filterHash = FilterHash();
+            if (!Application.IsPlaying(gameObject)) return; // Authoring never swaps scene/prefab meshes.
+            DisposeBindings();
+            GetComponentsInChildren(true, _renderers);
+            foreach (var renderer in _renderers)
+                if (IncludesRenderer(renderer)) _bindings.Add(new OutlineRendererBinding(renderer));
+            if (isActiveAndEnabled) { EnsureMaterials(); ApplyBindings(); }
         }
 
-        private void ApplyOutlines()
+        private void ApplyBindings()
         {
-            if (_isOutlined) return;
-
-            for (int i = 0; i < _cachedRenderers.Count; i++)
-            {
-                var data = _cachedRenderers[i];
-                if (data.renderer)
-                {
-                    data.renderer.sharedMaterials = data.outlinedMaterials;
-                }
-            }
-
-            _isOutlined = true;
+            LastPreparationError = null;
+            foreach (var binding in _bindings) ApplyBinding(binding);
+            _needsPassApply = false;
         }
 
-        private void RemoveOutlines()
+        private void ApplyBinding(OutlineRendererBinding binding)
         {
-            if (!_isOutlined) return;
-
-            for (int i = 0; i < _cachedRenderers.Count; i++)
+            var renderer = binding.Renderer;
+            if (!renderer) return;
+            binding.Remove();
+            var mesh = renderer is SkinnedMeshRenderer skin ? skin.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
+            if (!mesh) return;
+            try
             {
-                var data = _cachedRenderers[i];
-                if (data.renderer && data.originalMaterials != null)
-                {
-                    data.renderer.sharedMaterials = data.originalMaterials;
-                }
+                if (renderer.isPartOfStaticBatch) throw new InvalidOperationException("Disable static batching for outlined renderers.");
+                binding.Apply(_effectMaterials, PreparationSource(mesh));
+                binding.SetXRay(outlineMode != Mode.OutlineVisible || (HasSurface && fillOcclusion != FillOcclusion.WhenVisibleOnly));
             }
-
-            _isOutlined = false;
-        }
-
-        #endregion
-
-        #region Material Properties Synchronization
-
-        public void UpdateMaterialProperties()
-        {
-            EnsureMaterials();
-
-            // 1. Mask
-            if (_maskMaterial)
+            catch (InvalidOperationException error)
             {
-                _maskMaterial.SetFloat("_StencilRef", stencilReference);
-                switch (outlineMode)
-                {
-                    case Mode.OutlineAll:
-                    case Mode.OutlineVisible:
-                    case Mode.OutlineHidden:
-                        _maskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                        break;
-                    case Mode.OutlineAndSilhouette:
-                    case Mode.SilhouetteOnly:
-                        _maskMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
-                        break;
-                }
-            }
-
-            // 2. Fill (Exterior Outline)
-            if (_fillMaterial)
-            {
-                if (!_isFlashing && !_isPinging)
-                {
-                    _fillMaterial.SetColor("_OutlineColor", outlineColor);
-                    _fillMaterial.SetFloat("_OutlineWidth", (outlineMode == Mode.SilhouetteOnly) ? 0f : outlineWidth);
-                }
-
-                _fillMaterial.SetFloat("_WidthMode", (float)widthMode);
-                _fillMaterial.SetFloat("_StencilRef", stencilReference);
-
-                // Pulse
-                _fillMaterial.SetFloat("_PulseEnabled", pulseEnabled ? 1f : 0f);
-                _fillMaterial.SetFloat("_PulseSpeed", pulseSpeed);
-                _fillMaterial.SetFloat("_PulseAmplitude", pulseAmplitude);
-
-                // Distance Fade
-                _fillMaterial.SetFloat("_DistanceFadeEnabled", distanceFadeEnabled ? 1f : 0f);
-                _fillMaterial.SetFloat("_FadeMinDistance", fadeMinDistance);
-                _fillMaterial.SetFloat("_FadeMaxDistance", fadeMaxDistance);
-
-                // Jitter Wobble
-                _fillMaterial.SetFloat("_JitterEnabled", jitterEnabled ? 1f : 0f);
-                _fillMaterial.SetFloat("_JitterSpeed", jitterSpeed);
-                _fillMaterial.SetFloat("_JitterFrequency", jitterFrequency);
-                _fillMaterial.SetFloat("_JitterScale", jitterScale);
-                _fillMaterial.SetFloat("_JitterFramerate", jitterFramerate);
-
-                switch (outlineMode)
-                {
-                    case Mode.OutlineAll:
-                        _fillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                        break;
-                    case Mode.OutlineVisible:
-                        _fillMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
-                        break;
-                    case Mode.OutlineHidden:
-                        _fillMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
-                        break;
-                    case Mode.OutlineAndSilhouette:
-                        _fillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                        break;
-                    case Mode.SilhouetteOnly:
-                        _fillMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
-                        break;
-                }
-            }
-
-            // 3. Surface Fill / Silhouette
-            if (_silhouetteMaterial)
-            {
-                _silhouetteMaterial.SetColor("_FillColor", fillColor);
-                _silhouetteMaterial.SetColor("_FillSecondaryColor", fillSecondaryColor);
-                _silhouetteMaterial.SetFloat("_PatternType", (float)fillPattern);
-                if (fillTexture) _silhouetteMaterial.SetTexture("_PatternTex", fillTexture);
-                _silhouetteMaterial.SetVector("_PatternTiling", fillTiling);
-                _silhouetteMaterial.SetFloat("_PatternAngle", fillAngle);
-                _silhouetteMaterial.SetFloat("_ScrollSpeed", fillScrollSpeed);
-                _silhouetteMaterial.SetFloat("_FresnelPower", fresnelPower);
-                _silhouetteMaterial.SetFloat("_CoordSpace", (float)fillSpace);
-                _silhouetteMaterial.SetFloat("_StencilRef", stencilReference);
-
-                // Distance Fade
-                _silhouetteMaterial.SetFloat("_DistanceFadeEnabled", distanceFadeEnabled ? 1f : 0f);
-                _silhouetteMaterial.SetFloat("_FadeMinDistance", fadeMinDistance);
-                _silhouetteMaterial.SetFloat("_FadeMaxDistance", fadeMaxDistance);
-
-                switch (fillOcclusion)
-                {
-                    case FillOcclusion.Always:
-                        _silhouetteMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                        break;
-                    case FillOcclusion.WhenOccludedOnly:
-                        _silhouetteMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
-                        break;
-                    case FillOcclusion.WhenVisibleOnly:
-                        _silhouetteMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
-                        break;
-                }
+                LastPreparationError = renderer.name + ": " + error.Message;
+                AppLog.LogWarning(LogChannel.General, LastPreparationError, this);
             }
         }
 
-        #endregion
-
-        #region Smooth Normals Generation
-
-        private void LoadSmoothNormals()
+        private void DisposeBindings()
         {
-            foreach (var meshFilter in GetComponentsInChildren<MeshFilter>(true))
+            foreach (var binding in _bindings) binding.Dispose();
+            _bindings.Clear();
+        }
+
+        private int FilterHash()
+        {
+            int hash = includeLayers.value;
+            foreach (var keyword in excludedKeywords) hash = unchecked(hash * 31 + (keyword?.GetHashCode() ?? 0));
+            foreach (var renderer in ignoredRenderers) hash = unchecked(hash * 31 + (renderer ? renderer.GetHashCode() : 0));
+            return hash;
+        }
+
+        private static bool SameMaterials(Material[] a, Material[] b)
+        {
+            if (ReferenceEquals(a, b)) return true;
+            if (a == null || b == null || a.Length != b.Length) return false;
+            for (int i = 0; i < a.Length; i++) if (a[i] != b[i]) return false;
+            return true;
+        }
+
+        private void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
+        {
+            bool draw = camera.cameraType == CameraType.Game || (showInSceneView && camera.cameraType == CameraType.SceneView) || (showInReflections && camera.cameraType == CameraType.Reflection);
+            if (_effectMaterials == null) return;
+            foreach (var material in _effectMaterials) material.SetFloat(ShaderIds.CameraEnabled, draw ? 1f : 0f);
+            if (!draw) return;
+            float width = Mathf.Max(0f, outlineWidth) * (1f + Mathf.Clamp01(pulseAmplitude)) * (1f + Mathf.Clamp01(jitterScale)) * (_isPinging ? 1.8f : 1f);
+            foreach (var binding in _bindings)
             {
-                if (!meshFilter) continue;
-                var mesh = meshFilter.sharedMesh;
-                if (!mesh || !s_RegisteredMeshes.Add(mesh)) continue;
-
-                if (!s_SmoothNormalsCache.TryGetValue(mesh, out var smoothNormals))
+                if (!binding.Renderer) continue;
+                binding.SetXRay(outlineMode != Mode.OutlineVisible || (HasSurface && fillOcclusion != FillOcclusion.WhenVisibleOnly));
+                float padding = widthMode == WidthMode.ScreenSpacePixels ? screenSpaceBoundsPadding : width * (widthMode == WidthMode.WorldSpaceCentimeters ? 0.01f : 1f);
+                if (widthMode == WidthMode.ScreenSpacePixels)
                 {
-                    smoothNormals = ComputeSmoothNormals(mesh);
-                    s_SmoothNormalsCache[mesh] = smoothNormals;
+                    var bounds = binding.BaseWorldBounds;
+                    float depth = Mathf.Abs(Vector3.Dot(bounds.center - camera.transform.position, camera.transform.forward)) + bounds.extents.magnitude;
+                    float unitsPerPixel = 2f * (camera.orthographic ? 1f : depth) / Mathf.Max(0.001f, Mathf.Abs(camera.projectionMatrix.m11) * camera.scaledPixelHeight);
+                    padding = Mathf.Max(padding, unitsPerPixel * width);
                 }
-
-                mesh.SetUVs(3, smoothNormals);
-            }
-
-            foreach (var smr in GetComponentsInChildren<SkinnedMeshRenderer>(true))
-            {
-                if (!smr) continue;
-                var mesh = smr.sharedMesh;
-                if (!mesh || !s_RegisteredMeshes.Add(mesh)) continue;
-
-                if (!s_SmoothNormalsCache.TryGetValue(mesh, out var smoothNormals))
-                {
-                    smoothNormals = ComputeSmoothNormals(mesh);
-                    s_SmoothNormalsCache[mesh] = smoothNormals;
-                }
-
-                mesh.SetUVs(3, smoothNormals);
+                binding.ExpandBounds(padding);
             }
         }
-
-        private static Vector3[] ComputeSmoothNormals(Mesh mesh)
-        {
-            var vertices = mesh.vertices;
-            var normals = mesh.normals;
-            int vertexCount = vertices.Length;
-            var smoothNormals = new Vector3[vertexCount];
-
-            if (normals == null || normals.Length != vertexCount)
-            {
-                mesh.RecalculateNormals();
-                normals = mesh.normals;
-            }
-
-            const float tolerance = 1000f;
-            var positionGroups = new Dictionary<Vector3Int, List<int>>(vertexCount);
-
-            for (int i = 0; i < vertexCount; i++)
-            {
-                var v = vertices[i];
-                var key = new Vector3Int(
-                    Mathf.RoundToInt(v.x * tolerance),
-                    Mathf.RoundToInt(v.y * tolerance),
-                    Mathf.RoundToInt(v.z * tolerance)
-                );
-
-                if (!positionGroups.TryGetValue(key, out var list))
-                {
-                    list = new List<int>(4);
-                    positionGroups[key] = list;
-                }
-                list.Add(i);
-            }
-
-            foreach (var pair in positionGroups)
-            {
-                var list = pair.Value;
-                if (list.Count == 1)
-                {
-                    smoothNormals[list[0]] = normals[list[0]];
-                    continue;
-                }
-
-                Vector3 avg = Vector3.zero;
-                for (int j = 0; j < list.Count; j++)
-                {
-                    avg += normals[list[j]];
-                }
-                avg.Normalize();
-
-                for (int j = 0; j < list.Count; j++)
-                {
-                    smoothNormals[list[j]] = avg;
-                }
-            }
-
-            return smoothNormals;
-        }
-
-        #endregion
-
-        #region Preset Shortcuts
-
-        public void ApplyPresetLootPickup()
-        {
-            outlineMode = Mode.OutlineVisible;
-            outlineColor = new Color(0.2f, 0.85f, 1f, 1f);
-            outlineWidth = 5f;
-            widthMode = WidthMode.ScreenSpacePixels;
-            enableSurfaceFill = false;
-            pulseEnabled = false;
-            jitterEnabled = false;
-            RefreshRenderers();
-            UpdateMaterialProperties();
-        }
-
-        public void ApplyPresetTacticalXRay()
-        {
-            outlineMode = Mode.OutlineAndSilhouette;
-            outlineColor = new Color(1f, 0.4f, 0.1f, 1f);
-            outlineWidth = 6f;
-            widthMode = WidthMode.ScreenSpacePixels;
-            enableSurfaceFill = true;
-            fillColor = new Color(1f, 0.35f, 0.05f, 0.35f);
-            fillSecondaryColor = new Color(0f, 0f, 0f, 0f);
-            fillPattern = PatternType.Stripes;
-            fillTiling = new Vector2(16f, 16f);
-            fillAngle = 45f;
-            fillScrollSpeed = 2f;
-            fillSpace = CoordSpace.ObjectUV;
-            fillOcclusion = FillOcclusion.WhenOccludedOnly;
-            RefreshRenderers();
-            UpdateMaterialProperties();
-        }
-
-        public void ApplyPresetHologram()
-        {
-            outlineMode = Mode.OutlineAll;
-            outlineColor = new Color(0f, 1f, 0.8f, 1f);
-            outlineWidth = 4f;
-            widthMode = WidthMode.ScreenSpacePixels;
-            enableSurfaceFill = true;
-            fillColor = new Color(0f, 0.9f, 0.9f, 0.3f);
-            fillSecondaryColor = new Color(0f, 0.1f, 0.2f, 0.1f);
-            fillPattern = PatternType.Grid;
-            fillTiling = new Vector2(25f, 25f);
-            fillAngle = 0f;
-            fillScrollSpeed = 1.5f;
-            fillSpace = CoordSpace.ScreenSpace;
-            fillOcclusion = FillOcclusion.Always;
-            RefreshRenderers();
-            UpdateMaterialProperties();
-        }
-
-        public void ApplyPresetSolidSilhouette()
-        {
-            outlineMode = Mode.SilhouetteOnly;
-            outlineWidth = 0f;
-            enableSurfaceFill = true;
-            fillColor = new Color(1f, 0.9f, 0.2f, 0.6f);
-            fillPattern = PatternType.Solid;
-            fillOcclusion = FillOcclusion.Always;
-            RefreshRenderers();
-            UpdateMaterialProperties();
-        }
-
-        public void ApplyPresetSpiderVerse()
-        {
-            outlineMode = Mode.OutlineVisible;
-            outlineColor = new Color(0.95f, 0.1f, 0.25f, 1f);
-            outlineWidth = 7f;
-            jitterEnabled = true;
-            jitterSpeed = 8f;
-            jitterFrequency = 5f;
-            jitterScale = 0.45f;
-            jitterFramerate = 12f;
-            enableSurfaceFill = false;
-            RefreshRenderers();
-            UpdateMaterialProperties();
-        }
-
-        public void ApplyPresetHoloShield()
-        {
-            outlineMode = Mode.OutlineAndSilhouette;
-            outlineColor = new Color(0.1f, 0.7f, 1f, 1f);
-            outlineWidth = 4f;
-            enableSurfaceFill = true;
-            fillColor = new Color(0.2f, 0.85f, 1f, 0.8f);
-            fillSecondaryColor = new Color(0f, 0f, 0f, 0f);
-            fillPattern = PatternType.FresnelRim;
-            fresnelPower = 2.2f;
-            fillOcclusion = FillOcclusion.Always;
-            RefreshRenderers();
-            UpdateMaterialProperties();
-        }
-
-        #endregion
-
-#if UNITY_EDITOR
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStaticCaches()
-        {
-            s_RegisteredMeshes.Clear();
-            s_SmoothNormalsCache.Clear();
-        }
-#endif
     }
 }

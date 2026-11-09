@@ -236,7 +236,7 @@ GameObject:
   - component: {fileID: 3578157847499447045}
   - component: {fileID: 8401159940546470499}
   m_Layer: 15
-  m_Name: Loot_PF_RarePainting
+  m_Name: LOOT_PF_RarePainting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -282,7 +282,6 @@ MonoBehaviour:
   _invertedPathToNearestParent: 
   _directChildren: []
   _outline: {fileID: 8401159940546470499}
-  _definition: {fileID: 11400000, guid: 2045d54e0ed4c9e4ea1ec08b7b4290ca, type: 2}
 --- !u!114 &8401159940546470499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,7 +298,7 @@ MonoBehaviour:
   outlineColor: {r: 4, g: 4, b: 4, a: 1}
   outlineWidth: 4
   widthMode: 1
-  stencilReference: 32
+  stencilReference: 1
   enableSurfaceFill: 0
   fillColor: {r: 1, g: 0.35, b: 0.05, a: 0.35}
   fillSecondaryColor: {r: 0, g: 0, b: 0, a: 0}
@@ -327,6 +326,16 @@ MonoBehaviour:
     m_Bits: 4294967295
   excludedKeywords: []
   ignoredRenderers: []
+  style: {fileID: 11400000, guid: 6f77201ecf81b6a4391d345d14f7dfd5, type: 2}
+  preparedMeshes:
+  - {fileID: 11400000, guid: 1cdd3a589360c9a43aed0f972aeaf5d0, type: 2}
+  screenSpaceBoundsPadding: 0.25
+  showInSceneView: 1
+  showInReflections: 0
+  unscaledEffects: 0
+  twoSidedSurface: 0
+  patternLineWidth: 0.12
+  animationPhase: 0
 --- !u!1 &8275410744030842183
 GameObject:
   m_ObjectHideFlags: 0

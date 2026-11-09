@@ -21,12 +21,12 @@
         },
         {
           "name": "com.kyrylokuzyk.primetween",
-          "expression": "[1.5.0-pro]",
+          "expression": "[1.5.2-pro]",
           "define": "PRIME_TWEEN_PRO"
         },
         {
           "name": "com.kyrylokuzyk.primetween",
-          "expression": "[1.5.0-text]",
+          "expression": "[1.5.2-text]",
           "define": "PRIME_TWEEN_TEXT"
         }
     ],

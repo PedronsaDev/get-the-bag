@@ -124,13 +124,13 @@ public class LootInteractable : NetworkBehaviour, IInteractable
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
         if (_outline)
-            _outline.enabled = true;
+            _outline.SetHighlighted(true);
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
         if (_outline)
-            _outline.enabled = false;
+            _outline.SetHighlighted(false);
     }
 
     private void SafeDespawn()

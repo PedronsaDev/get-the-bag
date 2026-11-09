@@ -82,7 +82,7 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
         }
         else
         {
-            Debug.LogError($"[{nameof(ExtractionActivatorInteractable)}] ExtractionZone not found in scene!", this);
+            Project.Logging.AppLog.LogError(Project.Logging.LogChannel.Match, $"[{nameof(ExtractionActivatorInteractable)}] ExtractionZone not found in scene!", this);
         }
     }
 

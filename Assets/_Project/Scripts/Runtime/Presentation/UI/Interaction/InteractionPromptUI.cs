@@ -31,6 +31,8 @@ public class InteractionPromptUI : MonoBehaviour
 
     private PlayerInteractor _interactor;
     private Coroutine _shakeRoutine;
+    private Transform _shakeTarget;
+    private Vector3 _shakeOrigin;
 
     private void OnEnable()
     {
@@ -172,67 +174,34 @@ public class InteractionPromptUI : MonoBehaviour
             }
         }
 
-        // Tap / Instant Prompt
-        if (_promptTextContainer)
-        {
-            _promptTextContainer.SetActive(hasInstantPrompt);
-            if (hasInstantPrompt && _promptText)
-            {
-                bool canTap = target.CanInteract(_interactor, isHold: false);
-                string disabledReason = target.GetDisabledReason(_interactor, isHold: false);
+        UpdateActionPrompt(_promptTextContainer, _promptText, hasInstantPrompt, target, false);
+        UpdateActionPrompt(_holdPromptTextContainer, _holdPromptText, hasHoldPrompt, target, true);
+    }
 
-                if (canTap)
-                {
-                    _promptText.text = target.InteractionPrompt;
-                    _promptText.color = _enabledPromptColor;
-                }
-                else
-                {
-                    string reasonTag = !string.IsNullOrEmpty(disabledReason)
-                        ? $" <color=#{ColorUtility.ToHtmlStringRGB(_disabledReasonColor)}>({disabledReason})</color>"
-                        : string.Empty;
-                    _promptText.text = $"{target.InteractionPrompt}{reasonTag}";
-                    _promptText.color = _disabledPromptColor;
-                }
-            }
-        }
+    private void UpdateActionPrompt(GameObject container, TMP_Text text, bool visible, IInteractable target, bool isHold)
+    {
+        if (!container) return;
+        container.SetActive(visible);
+        if (!visible || !text) return;
 
-        // Hold Prompt
-        if (_holdPromptTextContainer)
-        {
-            _holdPromptTextContainer.SetActive(hasHoldPrompt);
-            if (hasHoldPrompt && _holdPromptText)
-            {
-                bool canHold = target.CanInteract(_interactor, isHold: true);
-                string disabledReason = target.GetDisabledReason(_interactor, isHold: true);
-
-                if (canHold)
-                {
-                    _holdPromptText.text = target.HoldPrompt;
-                    _holdPromptText.color = _enabledPromptColor;
-                }
-                else
-                {
-                    string reasonTag = !string.IsNullOrEmpty(disabledReason)
-                        ? $" <color=#{ColorUtility.ToHtmlStringRGB(_disabledReasonColor)}>({disabledReason})</color>"
-                        : string.Empty;
-                    _holdPromptText.text = $"{target.HoldPrompt}{reasonTag}";
-                    _holdPromptText.color = _disabledPromptColor;
-                }
-            }
-        }
+        var prompt = isHold ? target.HoldPrompt : target.InteractionPrompt;
+        var allowed = target.CanInteract(_interactor, isHold);
+        var reason = target.GetDisabledReason(_interactor, isHold);
+        if (!allowed && !string.IsNullOrEmpty(reason))
+            prompt += $" <color=#{ColorUtility.ToHtmlStringRGB(_disabledReasonColor)}>({reason})</color>";
+        text.text = prompt;
+        text.color = allowed ? _enabledPromptColor : _disabledPromptColor;
     }
 
     private void HandleInteractionDenied(IInteractable target, string reason, bool isHold)
     {
         if (!gameObject.activeInHierarchy) return;
 
-        if (_shakeRoutine != null)
-            StopCoroutine(_shakeRoutine);
-
-        Transform shakeTarget = (isHold && _holdPromptTextContainer)
-            ? _holdPromptTextContainer.transform
-            : (_promptTextContainer ? _promptTextContainer.transform : (_rootContainer ? _rootContainer.transform : null));
+        StopShake();
+        Transform shakeTarget = null;
+        if (isHold && _holdPromptTextContainer) shakeTarget = _holdPromptTextContainer.transform;
+        else if (_promptTextContainer) shakeTarget = _promptTextContainer.transform;
+        else if (_rootContainer) shakeTarget = _rootContainer.transform;
 
         if (shakeTarget)
             _shakeRoutine = StartCoroutine(DoShake(shakeTarget));
@@ -241,11 +210,13 @@ public class InteractionPromptUI : MonoBehaviour
     private IEnumerator DoShake(Transform tr)
     {
         Vector3 origPos = tr.localPosition;
+        _shakeTarget = tr;
+        _shakeOrigin = origPos;
         float elapsed = 0f;
         float duration = 0.18f;
         float magnitude = 6f;
 
-        while (elapsed < duration)
+        while (tr && elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float xOffset = Mathf.Sin(elapsed * 50f) * magnitude * (1f - (elapsed / duration));
@@ -253,8 +224,17 @@ public class InteractionPromptUI : MonoBehaviour
             yield return null;
         }
 
-        tr.localPosition = origPos;
+        if (tr) tr.localPosition = origPos;
         _shakeRoutine = null;
+        _shakeTarget = null;
+    }
+
+    private void StopShake()
+    {
+        if (_shakeRoutine != null) StopCoroutine(_shakeRoutine);
+        if (_shakeTarget) _shakeTarget.localPosition = _shakeOrigin;
+        _shakeRoutine = null;
+        _shakeTarget = null;
     }
 
     private void HidePrompt()
@@ -266,11 +246,7 @@ public class InteractionPromptUI : MonoBehaviour
         if (_targetNameText) _targetNameText.gameObject.SetActive(false);
         if (_subtextText) _subtextText.gameObject.SetActive(false);
 
-        if (_shakeRoutine != null)
-        {
-            StopCoroutine(_shakeRoutine);
-            _shakeRoutine = null;
-        }
+        StopShake();
 
         SetRootVisibility(false);
     }

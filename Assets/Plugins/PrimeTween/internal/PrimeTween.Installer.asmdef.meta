@@ -9,6 +9,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 252960
   packageName: "PrimeTween \xB7 High-Performance Animations and Sequences"
-  packageVersion: 1.5.0
+  packageVersion: 1.5.2
   assetPath: Assets/Plugins/PrimeTween/internal/PrimeTween.Installer.asmdef
-  uploadId: 1020594
+  uploadId: 1033924

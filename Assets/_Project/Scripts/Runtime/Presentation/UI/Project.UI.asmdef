@@ -11,7 +11,8 @@
     "KinematicCharacterController",
     "UniTask",
     "Project.Definitions",
-    "Project.Match"
+    "Project.Match",
+    "Project.Logging"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

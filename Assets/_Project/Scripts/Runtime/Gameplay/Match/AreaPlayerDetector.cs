@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 using Project.Core.Player;
+using Project.Logging;
 
 namespace Project.Core.Match
 {
@@ -176,8 +177,8 @@ public class AreaPlayerDetector : NetworkBehaviour
         {
             if (_enableDebugLogs)
             {
-                Debug.Log(
-                    $"[AreaPlayerDetector] Player '{playerId}' ENTERED zone '{name}'. Active players inside: {_playerColliders.Count}");
+                AppLog.Log(LogChannel.Match,
+                    $"[AreaPlayerDetector] Player '{playerId}' ENTERED zone '{name}'. Active players inside: {_playerColliders.Count}", this);
             }
 
             OnPlayerEnteredArea?.Invoke(playerId);
@@ -187,7 +188,8 @@ public class AreaPlayerDetector : NetworkBehaviour
 
     private void RegisterColliderExit(Collider other)
     {
-        if (!other)
+        // Destroyed Unity colliders still have dictionary keys that must be removed.
+        if (ReferenceEquals(other, null))
             return;
 
         if (!_colliderToPlayer.Remove(other, out PlayerID playerId))
@@ -203,8 +205,8 @@ public class AreaPlayerDetector : NetworkBehaviour
 
                 if (_enableDebugLogs)
                 {
-                    Debug.Log(
-                        $"[AreaPlayerDetector] Player '{playerId}' EXITED zone '{name}'. Remaining players inside: {_playerColliders.Count}");
+                    AppLog.Log(LogChannel.Match,
+                        $"[AreaPlayerDetector] Player '{playerId}' EXITED zone '{name}'. Remaining players inside: {_playerColliders.Count}", this);
                 }
 
                 OnPlayerExitedArea?.Invoke(playerId);
@@ -270,8 +272,8 @@ public class AreaPlayerDetector : NetworkBehaviour
             AreAllPlayersInside.value = true;
             if (_enableDebugLogs)
             {
-                Debug.Log(
-                    $"[AreaPlayerDetector] All required players are INSIDE zone '{name}' ({insideCount}/{totalConnected})!");
+                AppLog.Log(LogChannel.Match,
+                    $"[AreaPlayerDetector] All required players are INSIDE zone '{name}' ({insideCount}/{totalConnected})!", this);
             }
 
             OnAllPlayersEntered?.Invoke();
@@ -281,8 +283,8 @@ public class AreaPlayerDetector : NetworkBehaviour
             AreAllPlayersInside.value = false;
             if (_enableDebugLogs)
             {
-                Debug.Log(
-                    $"[AreaPlayerDetector] Players are no longer all inside zone '{name}' ({insideCount}/{totalConnected}).");
+                AppLog.Log(LogChannel.Match,
+                    $"[AreaPlayerDetector] Players are no longer all inside zone '{name}' ({insideCount}/{totalConnected}).", this);
             }
         }
 

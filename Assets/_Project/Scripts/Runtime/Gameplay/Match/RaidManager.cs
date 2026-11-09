@@ -138,13 +138,13 @@ public class RaidManager : NetworkBehaviour
 
     private void TriggerTeamWipe()
     {
-        Debug.Log("[RaidManager] All players eliminated or downed! Raid failed.");
+        Project.Logging.AppLog.Log(Project.Logging.LogChannel.Match, "[RaidManager] All players eliminated or downed! Raid failed.", this);
         ChangeState(RaidState.Failed);
     }
 
     private void TriggerTimesUp()
     {
-        Debug.Log("[RaidManager] Raid timer expired!");
+        Project.Logging.AppLog.Log(Project.Logging.LogChannel.Match, "[RaidManager] Raid timer expired!", this);
         ChangeState(RaidState.Failed);
     }
 

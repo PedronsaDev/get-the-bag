@@ -31,27 +31,19 @@ namespace Project.Networking.Scenes
             Instance = null;
         }
 
-        private void Awake()
-        {
-            if (!Instance)
-            {
-                Instance = this;
-                //DontDestroyOnLoad(gameObject);
-            }
-            else if (Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-        }
+        private void Awake() => RegisterInstance();
 
         protected override void OnSpawned()
         {
             base.OnSpawned();
+            RegisterInstance();
+        }
+
+        private void RegisterInstance()
+        {
             if (!Instance)
             {
                 Instance = this;
-                //DontDestroyOnLoad(gameObject);
             }
             else if (Instance != this)
             {

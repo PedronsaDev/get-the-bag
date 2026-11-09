@@ -25,6 +25,7 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
 
     private void Awake()
     {
+        if (!_outline) _outline = GetComponent<MeshOutline>();
         if (!_routeSelectionEventChannel)
         {
             _routeSelectionEventChannel =
@@ -91,12 +92,12 @@ public class TrainRouteConsole : NetworkBehaviour, IInteractable
 
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
-        _outline.enabled = true;
+        if (_outline) _outline.SetHighlighted(true);
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
-        _outline.enabled = false;
+        if (_outline) _outline.SetHighlighted(false);
     }
 
     public void LaunchRoute(string routeSceneName)

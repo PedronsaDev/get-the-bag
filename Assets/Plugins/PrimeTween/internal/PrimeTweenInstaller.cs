@@ -236,7 +236,7 @@ DefaultImporter:
             };
         }
 
-        internal const string version = "1.5.0";
+        internal const string version = "1.5.2";
     }
 
     internal static class FixedUpdateParameterMigration {
@@ -424,6 +424,9 @@ DefaultImporter:
         }
     }
 
+    #if UNITY_6000_5_OR_NEWER
+    [Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+    #endif
     internal static class InsertCallbackBug {
         internal const string moreInfoUrl = "https://github.com/KyryloKuzyk/PrimeTween/discussions/112";
         internal const string showInsertCallbackBugUi = "PrimeTween.showInsertCallbackBugUi";

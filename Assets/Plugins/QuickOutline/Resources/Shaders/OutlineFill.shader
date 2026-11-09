@@ -1,12 +1,13 @@
 Shader "Custom/Outline/Fill" {
   Properties {
     [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 8
-    _StencilRef("Stencil Reference", Int) = 32
+    _StencilRef("Stencil Reference", Int) = 1
+    [HideInInspector] _CameraEnabled("Camera Enabled", Float) = 1
 
     [Header(Outline Appearance)]
     [ColorUsage(true, true)] _OutlineColor("Outline Color (HDR)", Color) = (1, 1, 1, 1)
     _OutlineWidth("Outline Width", Range(0, 50)) = 5
-    [Enum(ScreenSpacePixels,0,WorldSpaceMeters,1)] _WidthMode("Width Mode", Float) = 0
+    [Enum(ScreenSpacePixels,0,WorldSpaceCentimeters,1,WorldSpaceMeters,2)] _WidthMode("Width Mode", Float) = 0
 
     [Header(Animation and Pulse)]
     [Toggle] _PulseEnabled("Pulse Enabled", Float) = 0
@@ -43,6 +44,8 @@ Shader "Custom/Outline/Fill" {
 
       Stencil {
         Ref [_StencilRef]
+        ReadMask 1
+        WriteMask 1
         Comp NotEqual
       }
 
@@ -51,8 +54,10 @@ Shader "Custom/Outline/Fill" {
       #pragma vertex vert
       #pragma fragment frag
       #pragma multi_compile_instancing
+      #pragma multi_compile _ LOD_FADE_CROSSFADE
 
       #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+      #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
 
       struct Attributes {
         float4 positionOS   : POSITION;
@@ -73,7 +78,9 @@ Shader "Custom/Outline/Fill" {
         float _OutlineWidth;
         float _ZTest;
         float _StencilRef;
+        float _CameraEnabled;
         float _WidthMode;
+        float _AnimationPhase;
 
         float _PulseEnabled;
         float _PulseSpeed;
@@ -117,26 +124,20 @@ Shader "Custom/Outline/Fill" {
         float3 normalOS = any(input.smoothNormal) ? input.smoothNormal : input.normalOS;
         float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
 
-        // Extract pure scale-free world rotation from UNITY_MATRIX_M
-        float3 axisX = normalize(UNITY_MATRIX_M[0].xyz);
-        float3 axisY = normalize(UNITY_MATRIX_M[1].xyz);
-        float3 axisZ = normalize(UNITY_MATRIX_M[2].xyz);
-        float3x3 rotMatrixWS = float3x3(axisX, axisY, axisZ);
-
-        float3 normalWS = normalize(mul(rotMatrixWS, normalOS));
+        float3 normalWS = TransformObjectToWorldNormal(normalOS);
 
         // 1. Dynamic Pulse
         float pulseFactor = 1.0;
         if (_PulseEnabled > 0.5) {
-          pulseFactor = 1.0 + sin(_Time.y * _PulseSpeed) * _PulseAmplitude;
+          pulseFactor = 1.0 + sin((_Time.y + _AnimationPhase) * _PulseSpeed) * _PulseAmplitude;
         }
 
         // 2. Stylized Jitter / Spider-Verse Wobble
         float jitterFactor = 1.0;
         if (_JitterEnabled > 0.5) {
-          float jitterTime = _Time.y;
+          float jitterTime = _Time.y + _AnimationPhase;
           if (_JitterFramerate > 0.5) {
-            jitterTime = floor(_Time.y * _JitterFramerate) / _JitterFramerate;
+            jitterTime = floor(jitterTime * _JitterFramerate) / _JitterFramerate;
           }
           float n = Noise3D(positionWS * _JitterFrequency + float3(0.0, jitterTime * _JitterSpeed, 0.0));
           jitterFactor = 1.0 + (n - 0.5) * 2.0 * _JitterScale;
@@ -156,24 +157,18 @@ Shader "Custom/Outline/Fill" {
         float4 positionCS;
         if (_WidthMode > 0.5) {
           // World space meters mode
-          float3 extrudedWS = positionWS + normalWS * (currentWidth * 0.01);
+          float3 extrudedWS = positionWS + normalWS * (currentWidth * (_WidthMode > 1.5 ? 1.0 : 0.01));
           positionCS = TransformWorldToHClip(extrudedWS);
         } else {
           // Screen space pixels mode (scale-invariant)
           positionCS = TransformWorldToHClip(positionWS);
           float3 normalVS = mul((float3x3)UNITY_MATRIX_V, normalWS);
 
-          // Project view normal to clip space
-          float2 normalCS = mul((float2x2)UNITY_MATRIX_P, normalVS.xy);
-          float len = length(normalCS);
-          float2 screenDir = (len > 0.0001) ? (normalCS / len) : float2(0.0, 0.0);
-
-          // Aspect ratio correction (square pixel extrusion)
-          float aspect = _ScreenParams.y / _ScreenParams.x;
-          screenDir.x *= aspect;
-
-          // Extrude in clip space pre-multiplied by w to cancel perspective division
-          positionCS.xy += screenDir * (positionCS.w * currentWidth * 0.001);
+          float2 projectedNormal = mul((float2x2)UNITY_MATRIX_P, normalVS.xy);
+          float2 pixelDirection = projectedNormal * _ScaledScreenParams.xy;
+          float magnitude = length(pixelDirection);
+          pixelDirection = magnitude > 0.0001 ? pixelDirection / magnitude : float2(0.0, 0.0);
+          positionCS.xy += pixelDirection * (2.0 * currentWidth / _ScaledScreenParams.xy) * positionCS.w;
         }
 
         output.positionCS = positionCS;
@@ -185,6 +180,11 @@ Shader "Custom/Outline/Fill" {
 
       half4 frag(Varyings input) : SV_Target {
         UNITY_SETUP_INSTANCE_ID(input);
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+        clip(_CameraEnabled - 0.5);
+        #if defined(LOD_FADE_CROSSFADE)
+          LODFadeCrossFade(input.positionCS);
+        #endif
         return input.color;
       }
       ENDHLSL

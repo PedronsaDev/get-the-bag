@@ -1,37 +1,18 @@
-Quick Outline
-=============
+MeshOutline (project fork of Quick Outline)
+==========================================
+Original Quick Outline developed by Chris Nolet (c) 2018.
+Project extensions by PedronsaDev.
 
-Developed by Chris Nolet (c) 2018
+See Docs/MeshOutline.md for the rendering contract, authoring workflow,
+runtime API, migration details and verification limits.
 
+The inspector provides validation, readable-mesh baking, complete presets,
+reusable styles and Play Mode effect controls. Rendering runs in Play Mode.
+Use MeshOutline.SetHighlighted for hover, and Ping/Flash for temporary effects.
 
-Instructions
-------------
+Imported mesh data is preserved. Bake outline data instead of enabling CPU
+read/write on every source model. Outlined objects must not use static batching.
+Stencil bit 0 is reserved for this system; overlapping masks merge.
 
-To add an outline to an object, drag-and-drop the Outline.cs
-script onto the object. The outline materials will be loaded
-at runtime.
-
-You can also add outlines programmatically with:
-
-    var outline = gameObject.AddComponent<Outline>();
-
-    outline.OutlineMode = Outline.Mode.OutlineAll;
-    outline.OutlineColor = Color.yellow;
-    outline.OutlineWidth = 5f;
-
-The outline script does a small amount of work in Awake().
-For best results, use outline.enabled to toggle the outline.
-Avoid removing and re-adding the component if possible.
-
-For large meshes, you may also like to enable 'Precompute
-Outline' in the editor. This will reduce the amount of work
-performed in Awake().
-
-
-Troubleshooting
----------------
-
-If the outline appears off-center, please try the following:
-
-1. Set 'Read/Write Enabled' on each model's import settings.
-2. Disable 'Optimize Mesh Data' in the player settings.
+Width mode value 1 preserves legacy centimeters. Pixel mode uses render-target
+pixels; true world meters use mode value 2.

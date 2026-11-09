@@ -1,5 +1,6 @@
 using Project.Core.Input;
 using Project.Core.UI;
+using Project.Logging;
 using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -87,7 +88,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         _playerMap?.Enable();
         _uiMap?.Enable();
 
-        UIBlockerSystem.OnBlockerStateChanged += HandleBlockerStateChanged;
     }
 
     protected override void OnDespawned()
@@ -95,7 +95,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         if (!isOwner)
             return;
         
-        UIBlockerSystem.OnBlockerStateChanged -= HandleBlockerStateChanged;
         if (UIBlockerSystem.CursorLockPolicy == ApplyCursorLockState)
         {
             UIBlockerSystem.CursorLockPolicy = null;
@@ -109,7 +108,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
     {
         if (!_inputActions)
         {
-            Debug.LogWarning($"[{nameof(LocalPlayerInputProvider)}] No InputActionAsset assigned on {gameObject.name}.",
+            AppLog.LogWarning(LogChannel.Player, $"[{nameof(LocalPlayerInputProvider)}] No InputActionAsset assigned on {gameObject.name}.",
                 this);
             return;
         }
@@ -118,7 +117,7 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         _uiMap = _inputActions.FindActionMap(_uiActionMapName);
         if (_playerMap == null)
         {
-            Debug.LogError(
+            AppLog.LogError(LogChannel.Player,
                 $"[{nameof(LocalPlayerInputProvider)}] Action map '{_playerActionMapName}' not found in InputActionAsset!",
                 this);
             return;
@@ -269,11 +268,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-    }
-
-    private void HandleBlockerStateChanged(bool isBlocked)
-    {
-        
     }
 
     private int GetWeaponSlotPressed()

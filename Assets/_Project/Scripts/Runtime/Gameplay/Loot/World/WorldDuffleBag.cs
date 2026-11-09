@@ -59,7 +59,7 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
         _netValue.value = snapshot.TotalValue;
         _netItemCount.value = snapshot.Items?.Count ?? 0;
         _isClaimed = false;
-        _outline.OutlineColor = _outlineColor;
+        if (_outline) _outline.OutlineColor = _outlineColor;
     }
     
     public void Throw(Vector3 velocity)

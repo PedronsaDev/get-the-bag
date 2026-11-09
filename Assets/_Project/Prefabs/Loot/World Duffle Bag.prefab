@@ -157,7 +157,7 @@ MonoBehaviour:
   outlineColor: {r: 1.9433962, g: 0.87326825, b: 0, a: 1}
   outlineWidth: 4
   widthMode: 1
-  stencilReference: 32
+  stencilReference: 1
   enableSurfaceFill: 0
   fillColor: {r: 0.9716981, g: 0.49508283, b: 0.14208792, a: 0.5529412}
   fillSecondaryColor: {r: 0, g: 0, b: 0, a: 0}
@@ -185,6 +185,16 @@ MonoBehaviour:
     m_Bits: 4294967295
   excludedKeywords: []
   ignoredRenderers: []
+  style: {fileID: 11400000, guid: 2c963b3c5077d8f488e780b391fad85b, type: 2}
+  preparedMeshes:
+  - {fileID: 11400000, guid: 1cdd3a589360c9a43aed0f972aeaf5d0, type: 2}
+  screenSpaceBoundsPadding: 0.25
+  showInSceneView: 1
+  showInReflections: 0
+  unscaledEffects: 0
+  twoSidedSurface: 0
+  patternLineWidth: 0.12
+  animationPhase: 0
 --- !u!114 &7528057547923597392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,8 +313,6 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: f961abd46da3c714f900853348237ffd, type: 2}
-  - {fileID: 0}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
