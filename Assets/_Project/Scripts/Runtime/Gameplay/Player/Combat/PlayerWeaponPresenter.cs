@@ -2,91 +2,93 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Project.Combat.Weapons;
 using Project.Combat.Data;
-using Project.Player.Locomotion;
-using Project.Player.FPSCamera;
+using Project.Combat.Weapons;
 using Project.Content;
 using Project.Logging;
+using Project.Player.Animation;
+using Project.Player.FPSCamera;
+using Project.Player.Locomotion;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.Rendering;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Project.Player.Combat
 {
 public class PlayerWeaponPresenter : MonoBehaviour
 {
-    [Header("First Person References")]
-    [SerializeField] private Transform _firstPersonSocket;
-    [SerializeField] private GameObject _firstPersonArms;
-    
-    [Header("Third Person References")]
-    [SerializeField] private List<SkinnedMeshRenderer> _thirdPersonMeshes = new();
-    [SerializeField] private Transform _thirdPersonSocket;
+    [Header("Presentation References")]
+    [SerializeField] private CharacterRigBinding _characterRigBinding;
+    [SerializeField] private CharacterVisualVisibility _visibility;
 
     private bool _isLocalOwner;
-    private WeaponInstance _activeVisual;
+    private bool _viewConfigured;
+    private WeaponVisualBinding _firstPersonBinding;
+    private WeaponVisualBinding _worldBinding;
+    public WeaponInstance FirstPersonVisual => _firstPersonBinding?.Instance;
+    public WeaponInstance WorldVisual => _worldBinding?.Instance;
 
-    private bool _ownsPrefabHandle;
-    private AsyncOperationHandle<GameObject> _activeWeaponHandle;
-    
     private CancellationTokenSource _equipCancellation;
     private uint _requestVersion;
     private bool _isReloading;
-    private double _reloadStartedAt;
     private WeaponEquipmentState _latestState;
+    private PlayerWeaponController _weaponController;
     private LocomotionController _locomotion;
     private FPSCameraController _cameraController;
-    private WeaponAimPose _aimPose;
-    private WeaponLookSway _lookSway;
-    private WeaponMovementSway _movementSway;
-    private WeaponRecoil _recoil;
+    private FirstPersonWeaponMotion _firstPersonMotion;
     private Vector2 _lookDelta;
     private Vector2 _moveInput;
     private bool _aimHeld;
     private string _requestedId;
     private WeaponSlot _requestedSlot;
-    public event Action Fired;
-    public event Action<bool> ReloadingChanged;
+    private uint _requestedRevision;
+    private string _presentedId;
+    private WeaponSlot _presentedSlot;
+    private uint _presentedRevision;
+
+    private void Awake()
+    {
+        if (!_characterRigBinding) _characterRigBinding = GetComponent<CharacterRigBinding>();
+        if (!_visibility) _visibility = GetComponent<CharacterVisualVisibility>();
+        _weaponController = GetComponentInParent<PlayerWeaponController>();
+    }
 
     public void ConfigureView(bool isLocalOwner)
     {
-        if (_isLocalOwner != isLocalOwner) ClearVisuals();
+        if (_viewConfigured && _isLocalOwner != isLocalOwner) ClearVisuals();
         _isLocalOwner = isLocalOwner;
-        _cameraController = GetComponentInParent<PlayerWeaponController>()?.GetComponentInChildren<FPSCameraController>(true);
-        _locomotion = GetComponentInParent<LocomotionController>();
-        if (!_locomotion) _locomotion = transform.root.GetComponentInChildren<LocomotionController>();
-        
-        if (_firstPersonArms)
-        {
-            _firstPersonArms.SetActive(isLocalOwner);
-        } 
-        
-        var thirdPersonShadowMode = isLocalOwner ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
-        
-        foreach (var mesh in _thirdPersonMeshes)
-        {
-            if (!mesh)
-            {
-                AppLog.LogWarning(LogChannel.Combat, "One of the third person mesh references is missing. Ensure all SkinnedMeshRenderer references are assigned in the PlayerWeaponPresenter.", this);
-                continue;
-            }
-                
-            mesh.shadowCastingMode = thirdPersonShadowMode;
-        }
+        if (!_characterRigBinding) _characterRigBinding = GetComponent<CharacterRigBinding>();
+        if (!_visibility) _visibility = GetComponent<CharacterVisualVisibility>();
+        if (!_visibility) throw new InvalidOperationException("Player presentation requires CharacterVisualVisibility.");
+        _visibility.Configure(isLocalOwner, _characterRigBinding);
+        if (!_weaponController) _weaponController = GetComponentInParent<PlayerWeaponController>();
+        _cameraController = _weaponController ? _weaponController.GetComponentInChildren<FPSCameraController>(true) : null;
+        _locomotion = GetComponentInChildren<LocomotionController>(true);
+        if (!_locomotion) _locomotion = GetComponentInParent<LocomotionController>();
+        _viewConfigured = true;
+    }
+
+    private bool RequestedMatches(WeaponEquipmentState state) =>
+        _requestedId == state.ActiveWeapon.WeaponId && _requestedSlot == state.ActiveSlot &&
+        _requestedRevision == state.EquipRevision;
+
+    private void UpdatePresentationState(WeaponEquipmentState state)
+    {
+        if (_latestState.ActiveWeapon.WeaponId != state.ActiveWeapon.WeaponId ||
+            _latestState.ActiveSlot != state.ActiveSlot || _latestState.EquipRevision != state.EquipRevision)
+            SetReloading(false);
+
+        _latestState = state;
+
+        SynchronizeAmmo(state.ActiveWeapon.WeaponId, state.ActiveSlot, state.EquipRevision);
+        SetReloading(state.Action == WeaponActionState.Reloading);
     }
 
     public void ApplyState(WeaponEquipmentState state)
     {
-        if (_requestedId != state.ActiveWeapon.WeaponId || _requestedSlot != state.ActiveSlot)
-            SetReloading(false);
-        _latestState = state;
-        SetReloading(state.Action == WeaponActionState.Reloading);
-        var id = state.ActiveWeapon.WeaponId;
-        if (_requestedId == id && _requestedSlot == state.ActiveSlot) return;
-        _requestedId = id;
-        _requestedSlot = state.ActiveSlot;
+        if (RequestedMatches(state))
+        {
+            UpdatePresentationState(state);
+            return;
+        }
         PresentAsync(state, CancellationToken.None).Forget(exception =>
         {
             if (exception is not OperationCanceledException)
@@ -97,113 +99,128 @@ public class PlayerWeaponPresenter : MonoBehaviour
     public async UniTask PresentAsync(WeaponEquipmentState state, CancellationToken lifetimeToken)
     {
         lifetimeToken.ThrowIfCancellationRequested();
-        if (!this)
-            return;
-
+        if (!this) return;
         CancelPendingRequest();
         var version = _requestVersion;
+        UpdatePresentationState(state);
+        _requestedId = state.ActiveWeapon.WeaponId;
+        _requestedSlot = state.ActiveSlot;
+        _requestedRevision = state.EquipRevision;
         try
         {
-            await LoadVisualAsync(state.ActiveWeapon.WeaponId, version, lifetimeToken);
+            await LoadVisualsAsync(state, version, lifetimeToken);
         }
         catch
         {
-            if (version == _requestVersion) _requestedId = null;
+            if (version == _requestVersion)
+            {
+                _requestedId = null;
+                ReleaseActiveVisuals();
+            }
             throw;
         }
     }
 
-    private async UniTask LoadVisualAsync(string id, uint version, CancellationToken lifetimeToken)
+    private async UniTask LoadVisualsAsync(WeaponEquipmentState state, uint version, CancellationToken lifetimeToken)
     {
-
+        var id = state.ActiveWeapon.WeaponId;
         if (string.IsNullOrWhiteSpace(id))
         {
-            ReleaseActiveVisual();
+            ReleaseActiveVisuals();
             return;
         }
-
+        if (!_viewConfigured || !_characterRigBinding || !_characterRigBinding.IsBindingUsable)
+            throw new InvalidOperationException("Configure a usable character rig before presenting weapons.");
         if (!GameContent.IsLoaded || !GameContent.WeaponRegistry)
             throw new InvalidOperationException("Weapon content is not ready.");
-
         if (!GameContent.WeaponRegistry.TryGetById(id, out var definition))
             throw new KeyNotFoundException($"Weapon ID '{id}' not found in WeaponRegistry.");
 
-        var socket = _isLocalOwner ? _firstPersonSocket : _thirdPersonSocket;
-        if (!socket)
+        var worldSocket = _characterRigBinding.WorldWeaponSocket;
+        var firstPersonSocket = _characterRigBinding.FirstPersonSocket;
+        var sameEquipment = _presentedId == id && _presentedSlot == state.ActiveSlot &&
+                            _presentedRevision == state.EquipRevision;
+        var worldReady = _worldBinding != null && _worldBinding.IsLoaded && WorldVisual.transform.parent == worldSocket;
+        var firstPersonReady = !_isLocalOwner || (_firstPersonBinding != null && _firstPersonBinding.IsLoaded &&
+                                                 FirstPersonVisual.transform.parent == firstPersonSocket);
+        if (sameEquipment && worldReady && firstPersonReady) return;
+
+        ReleaseActiveVisuals();
+        if (!worldSocket || (_isLocalOwner && !firstPersonSocket))
             throw new InvalidOperationException($"Weapon '{id}' has no configured presentation socket.");
+        var worldReference = definition.WorldPrefabReference;
+        if (worldReference == null || !worldReference.RuntimeKeyIsValid())
+            throw new InvalidOperationException($"Weapon '{id}' has no valid world prefab reference.");
+        var firstPersonReference = definition.FirstPersonPrefabReference != null &&
+                                   definition.FirstPersonPrefabReference.RuntimeKeyIsValid()
+            ? definition.FirstPersonPrefabReference : worldReference;
 
-        if (_activeVisual && _activeVisual.Definition == definition &&
-            _activeVisual.transform.parent == socket && _ownsPrefabHandle && _activeWeaponHandle.IsValid())
-            return;
-
-        var reference = _isLocalOwner && definition.FirstPersonPrefabReference != null &&
-                        definition.FirstPersonPrefabReference.RuntimeKeyIsValid()
-            ? definition.FirstPersonPrefabReference : definition.PrefabReference;
-        if (reference == null || !reference.RuntimeKeyIsValid())
-            throw new InvalidOperationException($"Weapon '{id}' has no valid prefab reference.");
-
-        var cancellation = CancellationTokenSource.CreateLinkedTokenSource(
-            lifetimeToken, this.GetCancellationTokenOnDestroy());
+        var cancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetimeToken, this.GetCancellationTokenOnDestroy());
         var token = cancellation.Token;
         _equipCancellation = cancellation;
-        AsyncOperationHandle<GameObject> handle = default;
-        GameObject instance = null;
-
+        var pendingWorld = new WeaponVisualBinding();
+        var pendingFirstPerson = _isLocalOwner ? new WeaponVisualBinding() : null;
         try
         {
-            token.ThrowIfCancellationRequested();
-            handle = Addressables.LoadAssetAsync<GameObject>(reference.RuntimeKey);
-            var prefab = await handle.ToUniTask(cancellationToken: token, autoReleaseWhenCanceled: false);
+            await pendingWorld.LoadAsync(worldReference, definition, worldSocket, token, activateOnLoad: false);
+            EnsureRequestCurrent(version, token);
+            if (pendingFirstPerson != null)
+                await pendingFirstPerson.LoadAsync(firstPersonReference, definition, firstPersonSocket, token, activateOnLoad: false);
+            EnsureRequestCurrent(version, token);
 
-            token.ThrowIfCancellationRequested();
-            if (version != _requestVersion || !this || !socket || !GameContent.IsLoaded)
-                throw new OperationCanceledException("Weapon presentation was superseded or stopped.", token);
-            if (!prefab || !prefab.TryGetComponent<WeaponInstance>(out _))
-                throw new InvalidOperationException($"Weapon '{id}' prefab requires WeaponInstance on its root.");
-
-            instance = Instantiate(prefab, socket, false);
-            var visual = instance.GetComponent<WeaponInstance>();
-            visual.Initialize(definition);
-
-            token.ThrowIfCancellationRequested();
-            if (version != _requestVersion || !this || !socket)
-                throw new OperationCanceledException("Weapon presentation was superseded.", token);
-
-            ReleaseActiveVisual();
-            _activeVisual = visual;
-            _aimPose = visual.GetComponent<WeaponAimPose>();
-            _lookSway = visual.GetComponent<WeaponLookSway>();
-            _movementSway = visual.GetComponent<WeaponMovementSway>();
-            _recoil = visual.GetComponent<WeaponRecoil>();
-            _activeWeaponHandle = handle;
-            _ownsPrefabHandle = true;
-            SynchronizeReload();
-            instance = null;
-            handle = default;
+            AdoptVisuals(state, pendingWorld, pendingFirstPerson);
+            pendingWorld = null;
+            pendingFirstPerson = null;
         }
         finally
         {
-            if (instance)
+            try { pendingFirstPerson?.Dispose(); }
+            finally
             {
-                instance.SetActive(false);
-                Destroy(instance);
+                pendingWorld?.Dispose();
+                if (ReferenceEquals(_equipCancellation, cancellation)) _equipCancellation = null;
+                cancellation.Dispose();
             }
-            if (handle.IsValid())
-                Addressables.Release(handle);
-            if (ReferenceEquals(_equipCancellation, cancellation))
-                _equipCancellation = null;
-            cancellation.Dispose();
         }
     }
-    
+
+    private void AdoptVisuals(WeaponEquipmentState state, WeaponVisualBinding world, WeaponVisualBinding firstPerson)
+    {
+        _visibility.ApplyWeaponViews(world.Instance, firstPerson?.Instance);
+        var motion = firstPerson == null ? null : new FirstPersonWeaponMotion(firstPerson.Instance);
+
+        _worldBinding = world;
+        _firstPersonBinding = firstPerson;
+        _firstPersonMotion = motion;
+        _presentedId = state.ActiveWeapon.WeaponId;
+        _presentedSlot = state.ActiveSlot;
+        _presentedRevision = state.EquipRevision;
+
+        _characterRigBinding.SetSupportHandGrip(world.Instance.LeftHandGrip);
+
+        SynchronizeAmmo(state.ActiveWeapon.WeaponId, state.ActiveSlot, state.EquipRevision);
+        SynchronizeReload();
+        WorldVisual.gameObject.SetActive(true);
+        if (FirstPersonVisual) FirstPersonVisual.gameObject.SetActive(true);
+    }
+
+    private void EnsureRequestCurrent(uint version, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (!this || !isActiveAndEnabled || version != _requestVersion || !GameContent.IsLoaded)
+            throw new OperationCanceledException("Weapon presentation was superseded or stopped.", token);
+    }
+
     public void ClearVisuals()
     {
         _aimHeld = false;
         _requestedId = null;
         _requestedSlot = WeaponSlot.None;
+        _requestedRevision = 0;
         SetReloading(false);
+        _latestState = default;
         CancelPendingRequest();
-        ReleaseActiveVisual();
+        ReleaseActiveVisuals();
     }
 
     private void CancelPendingRequest()
@@ -214,79 +231,97 @@ public class PlayerWeaponPresenter : MonoBehaviour
         cancellation?.Cancel();
     }
 
-    private void ReleaseActiveVisual()
+    private void ReleaseActiveVisuals()
     {
-        if (_recoil) _recoil.ResetPose();
-        _recoil = null;
-        if (_movementSway) _movementSway.ResetPose();
-        _movementSway = null;
-        _moveInput = Vector2.zero;
-        if (_lookSway) _lookSway.ResetPose();
-        _lookSway = null;
-        _lookDelta = Vector2.zero;
-        if (_aimPose) _aimPose.ResetPose();
-        _aimPose = null;
-        if (_isLocalOwner && _cameraController) _cameraController.SetAimPresentation(0f, 75f);
-        var visual = _activeVisual;
-        var handle = _activeWeaponHandle;
-        var ownsHandle = _ownsPrefabHandle;
-        _activeVisual = null;
-        _activeWeaponHandle = default;
-        _ownsPrefabHandle = false;
+        _firstPersonMotion?.ResetPose();
+        _firstPersonMotion = null;
+        _lookDelta = _moveInput = Vector2.zero;
+        if (_isLocalOwner && _cameraController)
+            _cameraController.SetAimPresentation(0f, 75f);
 
-        if (visual)
-        {
-            visual.gameObject.SetActive(false);
-            Destroy(visual.gameObject);
-        }
-        if (ownsHandle && handle.IsValid())
-            Addressables.Release(handle);
+        var firstPerson = _firstPersonBinding;
+        var world = _worldBinding;
+
+        _firstPersonBinding = null;
+        _worldBinding = null;
+        _presentedId = null;
+        _presentedSlot = WeaponSlot.None;
+        _presentedRevision = 0;
+
+        if (_characterRigBinding)
+            _characterRigBinding.SetSupportHandGrip(null);
+
+        try { firstPerson?.Dispose(); }
+        finally { world?.Dispose(); }
     }
 
     public void PlayFire(string weaponId)
     {
-        if (!_activeVisual || _activeVisual.Definition.Id != weaponId) return;
-        _activeVisual.PlayFire();
-        Fired?.Invoke();
+        if (_presentedId != weaponId || _presentedId != _latestState.ActiveWeapon.WeaponId) return;
+        if (WorldVisual) WorldVisual.PlayFire();
+        if (FirstPersonVisual) FirstPersonVisual.PlayFire();
     }
 
     public void SetReloading(bool reloading)
     {
-        if (_isReloading == reloading) return;
         _isReloading = reloading;
-        if (reloading) _reloadStartedAt = Time.timeAsDouble;
         SynchronizeReload();
-        ReloadingChanged?.Invoke(reloading);
+    }
+
+    private void SynchronizeAmmo(string weaponId, WeaponSlot slot, uint equipRevision)
+    {
+        if (_presentedId != _latestState.ActiveWeapon.WeaponId ||
+            _presentedSlot != _latestState.ActiveSlot ||
+            _presentedRevision != _latestState.EquipRevision)
+            return;
+
+        var mag = _latestState.ActiveWeapon.MagazineAmmo;
+
+        if (WorldVisual)
+            WorldVisual.SetLoadedAmmo(mag);
+
+        if (FirstPersonVisual)
+            FirstPersonVisual.SetLoadedAmmo(mag);
     }
 
     private void SynchronizeReload()
     {
-        if (!_activeVisual) return;
-        if (!_isReloading)
+        var reloading = _isReloading;
+        var duration = _latestState.ActionDuration;
+        var localStartedAt = 0d;
+        if (reloading)
         {
-            _activeVisual.SetReloading(false);
-            return;
+            if (!_weaponController || _presentedId != _latestState.ActiveWeapon.WeaponId ||
+                _presentedSlot != _latestState.ActiveSlot || _presentedRevision != _latestState.EquipRevision)
+                return;
+            if (!float.IsFinite(duration) || duration <= 0f || !double.IsFinite(_latestState.ActionStartedAt))
+            {
+                AppLog.LogWarning(LogChannel.Combat, "Reload presentation requires valid confirmed action timing.", this);
+                return;
+            }
+
+            var elapsed = Math.Max(0d, _weaponController.NetworkTime - _latestState.ActionStartedAt);
+            reloading = elapsed < duration;
+            localStartedAt = Time.unscaledTimeAsDouble - elapsed;
         }
-        if (_activeVisual.Definition.Id != _latestState.ActiveWeapon.WeaponId)
-            return;
-        
-        var duration = WeaponStatResolver.Resolve(_activeVisual.Definition,
-            _latestState.ActiveWeapon.AttachmentIds).ReloadDuration;
-        _activeVisual.SetReloading(true, duration, _reloadStartedAt);
+
+        if (WorldVisual)
+            WorldVisual.SetReloading(reloading, duration, localStartedAt, _latestState.ActionSequence, _latestState.ReloadType);
+        if (FirstPersonVisual)
+            FirstPersonVisual.SetReloading(reloading, duration, localStartedAt, _latestState.ActionSequence, _latestState.ReloadType);
     }
 
     private void Update()
     {
         if (!_isLocalOwner) return;
-        if (!_aimPose || !_aimPose.isActiveAndEnabled)
+        if (_firstPersonMotion == null || !_firstPersonMotion.CanAim)
         {
             if (_cameraController) _cameraController.SetAimPresentation(0f, 75f);
             return;
         }
-        var currentWeapon = _activeVisual && _activeVisual.Definition &&
-                            _activeVisual.Definition.Id == _latestState.ActiveWeapon.WeaponId;
-        _aimPose.Tick(_aimHeld && !_isReloading && currentWeapon, Time.deltaTime);
-        if (_cameraController) _cameraController.SetAimPresentation(_aimPose.Progress, _aimPose.AimFov);
+        var currentWeapon = FirstPersonVisual && _presentedId == _latestState.ActiveWeapon.WeaponId;
+        _firstPersonMotion.TickAim(_aimHeld && !_isReloading && currentWeapon, Time.deltaTime);
+        if (_cameraController) _cameraController.SetAimPresentation(_firstPersonMotion.AimProgress, _firstPersonMotion.AimFov);
     }
 
     public void SetAimHeld(bool held) => _aimHeld = held;
@@ -295,40 +330,30 @@ public class PlayerWeaponPresenter : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_isLocalOwner && _recoil && _recoil.isActiveAndEnabled)
-            _recoil.Tick(_isReloading, Time.deltaTime);
-        if (_isLocalOwner && _lookSway && _lookSway.isActiveAndEnabled)
-            _lookSway.Tick(_lookDelta, _aimPose ? _aimPose.EvaluatedWeight : 0f, _isReloading, Time.deltaTime);
-        if (_isLocalOwner && _movementSway && _movementSway.isActiveAndEnabled)
+        if (_isLocalOwner && _firstPersonMotion != null)
         {
             var grounded = _locomotion && _locomotion.State.Phase == LocomotionPhase.Grounded &&
-                           !_locomotion.State.IsSliding && !_locomotion.State.IsDowned;
-            _movementSway.Tick(grounded ? _moveInput : Vector2.zero,
-                _aimPose ? _aimPose.EvaluatedWeight : 0f, _isReloading, Time.deltaTime);
+                           _locomotion.State is { IsSliding: false, IsDowned: false };
+            _firstPersonMotion.TickMotion(_lookDelta, grounded ? _moveInput : Vector2.zero, _isReloading, Time.deltaTime);
         }
-        _lookDelta = Vector2.zero;
-        _moveInput = Vector2.zero;
+        _lookDelta = _moveInput = Vector2.zero;
+    }
+
+    private void OnEnable()
+    {
+        if (_viewConfigured) ApplyState(_latestState);
     }
 
     private void OnDisable()
     {
+        CancelPendingRequest();
+        _requestedId = null;
         _aimHeld = false;
-        _lookDelta = Vector2.zero;
-        _moveInput = Vector2.zero;
-        if (_recoil) _recoil.ResetPose();
-        if (_movementSway) _movementSway.ResetPose();
-        if (_lookSway) _lookSway.ResetPose();
-        if (_aimPose) _aimPose.ResetPose();
+        _lookDelta = _moveInput = Vector2.zero;
+        _firstPersonMotion?.ResetPose();
         if (_isLocalOwner && _cameraController) _cameraController.SetAimPresentation(0f, 75f);
     }
 
-    public void PlayInspect()
-    {
-    }
-
-    private void OnDestroy()
-    {
-        ClearVisuals();
-    }
+    private void OnDestroy() => ClearVisuals();
 }
 }

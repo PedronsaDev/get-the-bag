@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Project.Combat.Data;
 using Project.Combat.Weapons;
@@ -10,25 +10,29 @@ public sealed class RuntimeWeapon
     private readonly WeaponDefinition _definition;
     private readonly WeaponResolvedStats _resolvedStats;
     private readonly string[] _attachmentIds;
-    
+
     private int _currentAmmo;
     private int _reserveAmmo;
     private double _nextShotTime;
-    
+
     public IWeaponFireStrategy FireStrategy { get; }
     public WeaponDefinition Definition => _definition;
     public WeaponResolvedStats ResolvedStats => _resolvedStats;
-    
+
     public int CurrentAmmo => _currentAmmo;
     public int CurrentMagazineSize => _resolvedStats.MagazineSize;
     public int ReserveAmmo => _reserveAmmo;
-    public bool CanReload => _currentAmmo < CurrentMagazineSize && _reserveAmmo > 0;
+    public bool CanReload => _currentAmmo < ReloadCapacity && _reserveAmmo > 0;
+
+    private int ReloadCapacity => _currentAmmo > 0 && CurrentMagazineSize < int.MaxValue
+        ? CurrentMagazineSize + 1
+        : CurrentMagazineSize;
 
     public bool TryFire(double now)
     {
         if (_currentAmmo <= 0 || now < _nextShotTime || !FireStrategy.TryScheduleShot(now))
             return false;
-        
+
         _currentAmmo--;
         _nextShotTime = now + _resolvedStats.FireRateSeconds;
         return true;
@@ -36,13 +40,14 @@ public sealed class RuntimeWeapon
 
     public bool CompleteReloadFromReserve()
     {
-        if (!CanReload) 
+        if (!CanReload)
             return false;
-        
-        var consumed = Math.Min(_reserveAmmo, CurrentMagazineSize - _currentAmmo);
+
+        var consumed = Math.Min(_reserveAmmo, ReloadCapacity - _currentAmmo);
+
         _currentAmmo += consumed;
         _reserveAmmo -= consumed;
-        
+
         return true;
     }
 
@@ -59,9 +64,9 @@ public sealed class RuntimeWeapon
 
     public RuntimeWeapon(WeaponDefinition definition, IReadOnlyList<string> attachmentIds = null)
     {
-        if (!definition) 
+        if (!definition)
             throw new ArgumentNullException(nameof(definition));
-        
+
         _definition = definition;
         _resolvedStats = WeaponStatResolver.Resolve(definition, attachmentIds, out _attachmentIds);
         _currentAmmo = _resolvedStats.MagazineSize;

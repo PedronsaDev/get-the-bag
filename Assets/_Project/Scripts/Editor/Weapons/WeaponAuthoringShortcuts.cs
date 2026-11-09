@@ -33,7 +33,6 @@ public static class WeaponAuthoringShortcuts
 
         var issueCount = 0;
 
-        // Validate Attachments
         var attachmentIds = new System.Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
         for (var i = 0; i < attachments.Count; i++)
         {
@@ -58,7 +57,6 @@ public static class WeaponAuthoringShortcuts
             }
         }
 
-        // Validate Weapons
         var weaponIds = new System.Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
         for (var i = 0; i < weapons.Count; i++)
         {
@@ -94,7 +92,7 @@ public static class WeaponAuthoringShortcuts
                 issueCount++;
             }
 
-            if (!w.PrefabReference.RuntimeKeyIsValid())
+            if (!w.WorldPrefabReference.RuntimeKeyIsValid())
             {
                 AppLog.LogWarning(LogChannel.Combat, $"Weapon '{w.name}' has an unassigned or invalid Addressables PrefabReference.", w);
                 issueCount++;

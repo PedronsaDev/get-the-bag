@@ -100,6 +100,7 @@ public static class WeaponStatResolver
             Round(ResolveValue(weapon.BaseDamage, selected, a => a.Damage, 0, int.MaxValue)),
             Round(ResolveValue(weapon.BaseMagazineSize, selected, a => a.MagazineSize, 1, int.MaxValue)),
             (float)ResolveValue(weapon.BaseReloadDuration, selected, a => a.ReloadDuration, 0.01, float.MaxValue),
+            (float)ResolveValue(weapon.BaseReloadEmptyDuration, selected, a => a.ReloadDuration, 0.01, float.MaxValue),
             Round(ResolveValue(weapon.BaseFireRate, selected, a => a.FireRate, 1, int.MaxValue)),
             (float)ResolveValue(weapon.BaseRange, selected, a => a.Range, 0.01, float.MaxValue));
     }
@@ -126,6 +127,7 @@ public static class WeaponStatResolver
         if (!weapon) throw new ArgumentNullException(nameof(weapon));
         if (string.IsNullOrWhiteSpace(weapon.Id) || weapon.BaseDamage < 0 || weapon.BaseMagazineSize < 1 ||
             weapon.BaseFireRate < 1 || !float.IsFinite(weapon.BaseReloadDuration) || weapon.BaseReloadDuration <= 0 ||
+            !float.IsFinite(weapon.BaseReloadEmptyDuration) || weapon.BaseReloadEmptyDuration <= 0 ||
             !float.IsFinite(weapon.BaseRange) || weapon.BaseRange <= 0)
             throw new ArgumentException($"Weapon '{weapon.Id}' has invalid base stats.", nameof(weapon));
     }

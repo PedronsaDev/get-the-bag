@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NaughtyAttributes;
 using Project.Core.Data;
+using Project.Definitions.Weapons;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
@@ -17,45 +18,40 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
 
     [Header("Weapon Data")]
     [SerializeField] private WeaponCategory _category = WeaponCategory.Pistol;
-    
+
     [SerializeField] private int _baseMagazineSize = 12;
     [Min(0)] [SerializeField] private int _startingReserveAmmo = 90;
-    [FormerlySerializedAs("_reloadDuration")]
     [SerializeField] private float _baseReloadDuration = 1.5f;
-    
+    [Tooltip("Empty reload duration in seconds. Zero uses the normal base duration before attachment modifiers.")]
+    [Min(0)] [SerializeField] private float _baseReloadEmptyDuration;
     [SerializeField] private int _baseDamage = 10;
-    
     [SerializeField] private WeaponFireMode _fireMode = WeaponFireMode.SemiAutomatic;
     [FormerlySerializedAs("_fireRate")]
     [Min(1)] [SerializeField] private int _baseFireRate = 600;
     [FormerlySerializedAs("_range")]
     [Min(0.01f)] [SerializeField] private float _baseRange = 100f;
-    
+
     [ShowIf("_fireMode", WeaponFireMode.Burst)]
     [Min(1)] [SerializeField] private int _burstSize = 3;
     [ShowIf("_fireMode", WeaponFireMode.Burst)]
     [Min(0)] [SerializeField] private float _burstCooldown = 0.25f;
-    
+
     [Header("Custom Fire Mode (Optional)")]
     [SerializeField] private WeaponFireModeDefinition _customFireMode;
-    
+
     [SerializeField] private LayerMask _hitMask = ~0;
 
     [Header("Attachment Compatibility Settings")]
-    [Tooltip("If true, all attachments whose CompatibleCategories include this weapon's category are automatically allowed.")]
     [SerializeField] private bool _autoMatchByCategory = true;
-    [Tooltip("Explicit attachments allowed outside category rules.")]
     [SerializeField] private WeaponAttachmentDefinition[] _additionalAttachments = Array.Empty<WeaponAttachmentDefinition>();
-    [Tooltip("Explicit attachments excluded even if matching category.")]
     [SerializeField] private WeaponAttachmentDefinition[] _excludedAttachments = Array.Empty<WeaponAttachmentDefinition>();
 
     [Header("Compatible Attachments (Cached / Serialized)")]
     [SerializeField] private WeaponAttachmentDefinition[] _compatibleAttachments = Array.Empty<WeaponAttachmentDefinition>();
 
-    [Header("Addressables Visual References")]
-    [Tooltip("Weapon-only prefab for other players. Also used for the owner when no first-person prefab is assigned.")]
-    [SerializeField] private AssetReferenceT<GameObject> _prefabReference;
-    [Tooltip("Owner-only combined arms + weapon prefab. Leave empty to use the regular weapon visual.")]
+    [Header("Visual References")]
+    [SerializeField] private WeaponPresentationDefinition _presentationDefinition;
+    [SerializeField] private AssetReferenceT<GameObject> _worldPrefabReference;
     [SerializeField] private AssetReferenceT<GameObject> _firstPersonPrefabReference;
 
     public static Func<string, WeaponAttachmentDefinition> AttachmentLookup { get; set; }
@@ -68,6 +64,7 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
     public int BaseDamage => _baseDamage;
     public int BaseMagazineSize => _baseMagazineSize;
     public float BaseReloadDuration => _baseReloadDuration;
+    public float BaseReloadEmptyDuration => _baseReloadEmptyDuration == 0 ? _baseReloadDuration : _baseReloadEmptyDuration;
     public int BaseFireRate => _baseFireRate;
     public int StartingReserveAmmo => Mathf.Max(0, _startingReserveAmmo);
     public float BaseRange => _baseRange;
@@ -82,7 +79,8 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
     public IReadOnlyList<WeaponAttachmentDefinition> ExcludedAttachments => _excludedAttachments ?? Array.Empty<WeaponAttachmentDefinition>();
     public IReadOnlyList<WeaponAttachmentDefinition> CompatibleAttachments => _compatibleAttachments ?? Array.Empty<WeaponAttachmentDefinition>();
 
-    public AssetReferenceT<GameObject> PrefabReference => _prefabReference;
+    public WeaponPresentationDefinition PresentationDefinition => _presentationDefinition;
+    public AssetReferenceT<GameObject> WorldPrefabReference => _worldPrefabReference;
     public AssetReferenceT<GameObject> FirstPersonPrefabReference => _firstPersonPrefabReference;
 
     public bool IsAttachmentCompatible(WeaponAttachmentDefinition attachment)
@@ -107,7 +105,6 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
             }
         }
 
-        // The serialized cache is for discovery, never a substitute for current rules.
         return false;
     }
 
@@ -171,6 +168,7 @@ public class WeaponDefinition : ScriptableObject, IRegistryItem
         _baseMagazineSize = Mathf.Max(1, _baseMagazineSize);
         _baseDamage = Mathf.Max(0, _baseDamage);
         _baseReloadDuration = Mathf.Max(0.01f, _baseReloadDuration);
+        _baseReloadEmptyDuration = Mathf.Max(0, _baseReloadEmptyDuration);
         _baseRange = Mathf.Max(0.01f, _baseRange);
     }
 #endif

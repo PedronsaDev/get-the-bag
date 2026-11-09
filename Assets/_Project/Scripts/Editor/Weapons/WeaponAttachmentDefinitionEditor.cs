@@ -55,12 +55,10 @@ public class WeaponAttachmentDefinitionEditor : UnityEditor.Editor
         root.style.paddingTop = 4;
         root.style.paddingBottom = 8;
 
-        // Simple native info header
         _headerHelpBox = new HelpBox($"Slot: {_targetAttachment.Slot}  |  Categories: {_targetAttachment.CompatibleCategories}", HelpBoxMessageType.None);
         _headerHelpBox.style.marginBottom = 8;
         root.Add(_headerHelpBox);
 
-        // Core Configuration Properties
         var prop = serializedObject.GetIterator();
         if (prop.NextVisible(true))
         {
@@ -85,7 +83,6 @@ public class WeaponAttachmentDefinitionEditor : UnityEditor.Editor
 
         AddSeparator(root);
 
-        // Preview On Weapon Foldout
         var previewFoldout = new Foldout { text = "Preview on Weapon", value = true };
         previewFoldout.style.marginBottom = 6;
 
@@ -228,24 +225,18 @@ public class WeaponAttachmentDefinitionEditor : UnityEditor.Editor
 
         var resolved = CalculatePreviewStats(_previewWeapon, _targetAttachment);
 
-        // Damage
         FormatDelta(_damageValueLabel, _damageDeltaLabel, _previewWeapon.BaseDamage, resolved.Damage, false, "");
 
-        // Magazine Size
         FormatDelta(_magValueLabel, _magDeltaLabel, _previewWeapon.BaseMagazineSize, resolved.MagazineSize, false, " rds");
 
-        // Reload Duration (lower is better!)
         FormatDeltaFloat(_reloadValueLabel, _reloadDeltaLabel, _previewWeapon.BaseReloadDuration, resolved.ReloadDuration, true, "s");
 
-        // Fire Rate
         FormatDelta(_fireRateValueLabel, _fireRateDeltaLabel, _previewWeapon.BaseFireRate, resolved.FireRate, false, " RPM");
 
-        // DPS
         var baseDps = _previewWeapon.BaseDamage * (_previewWeapon.BaseFireRate / 60f);
         var resolvedDps = resolved.Damage * (resolved.FireRate / 60f);
         FormatDeltaFloat(_dpsValueLabel, _dpsDeltaLabel, baseDps, resolvedDps, false, "");
 
-        // Range
         FormatDeltaFloat(_rangeValueLabel, _rangeDeltaLabel, _previewWeapon.BaseRange, resolved.Range, false, "m");
     }
 
@@ -254,6 +245,7 @@ public class WeaponAttachmentDefinitionEditor : UnityEditor.Editor
         var damage = Math.Clamp((weapon.BaseDamage + attachment.Damage.Add) * (1 + attachment.Damage.Percent), 0, int.MaxValue);
         var mag = Math.Clamp((weapon.BaseMagazineSize + attachment.MagazineSize.Add) * (1 + attachment.MagazineSize.Percent), 1, int.MaxValue);
         var reload = Math.Clamp((weapon.BaseReloadDuration + attachment.ReloadDuration.Add) * (1 + attachment.ReloadDuration.Percent), 0.01, float.MaxValue);
+        var reloadEmpty = Math.Clamp((weapon.BaseReloadEmptyDuration + attachment.ReloadDuration.Add) * (1 + attachment.ReloadDuration.Percent), 0.01, float.MaxValue);
         var fireRate = Math.Clamp((weapon.BaseFireRate + attachment.FireRate.Add) * (1 + attachment.FireRate.Percent), 1, int.MaxValue);
         var range = Math.Clamp((weapon.BaseRange + attachment.Range.Add) * (1 + attachment.Range.Percent), 0.01, float.MaxValue);
 
@@ -261,6 +253,7 @@ public class WeaponAttachmentDefinitionEditor : UnityEditor.Editor
             (int)Math.Round(damage, MidpointRounding.AwayFromZero),
             (int)Math.Round(mag, MidpointRounding.AwayFromZero),
             (float)reload,
+            (float)reloadEmpty,
             (int)Math.Round(fireRate, MidpointRounding.AwayFromZero),
             (float)range);
     }

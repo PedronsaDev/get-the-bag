@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Registry
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1f8c6a03b8aa654479fba5757f0dacd9
+    m_Address: Weapon_Prefabs/WEAP_PF_Pistol_A
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Weapons
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4f1c26e91dacfde4184a0f1b416a117d
     m_Address: Loot_Prefabs/CashBundle
     m_ReadOnly: 0

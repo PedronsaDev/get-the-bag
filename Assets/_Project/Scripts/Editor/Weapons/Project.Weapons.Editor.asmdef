@@ -4,10 +4,12 @@
   "references": [
     "Project.Definitions",
     "Project.Combat",
+    "Project.Player",
     "Project.Logging",
     "Project.Core",
     "Unity.Addressables",
     "Unity.Addressables.Editor",
+    "Unity.Animation.Rigging",
     "NaughtyAttributes.Core",
     "NaughtyAttributes.Editor"
   ],
