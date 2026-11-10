@@ -14,6 +14,20 @@
       "dependencies": {},
       "hash": "0c93083e7968e5d2a7746b38d6d5a477d2b5b3ac"
     },
+    "com.kitwright.unity.mcp": {
+      "version": "https://github.com/kitwright/unity-mcp.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.ugui": "1.0.0",
+        "com.unity.test-framework": "1.4.6",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0"
+      },
+      "hash": "63890d80c0a5fd2b563a78e19abf06ee37b49cea"
+    },
     "com.kyrylokuzyk.primetween": {
       "version": "file:../Packages/com.kyrylokuzyk.primetween.tgz",
       "depth": 0,
