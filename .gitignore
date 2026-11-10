@@ -136,10 +136,18 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# Local documentation
-/Docs/
+# Keep legacy/local notes ignored; version the canonical animation workflow.
+/Docs/*
+!/Docs/FirstPersonViewmodels.md
+!/Docs/Architecture.md
+!/Docs/Code-Audit.md
+!/Docs/PurrNet.md
+!/Docs/Animation/
+/Docs/Animation/*
+!/Docs/Animation/*.md
+!/Docs/Animation/Baseline/
+!/Docs/Animation/History/
 
-# Blender review exports are regenerated from versioned source art.
 /SourceArt/**/Exported/
 
 /Tools/
