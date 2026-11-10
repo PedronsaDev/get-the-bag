@@ -1128,8 +1128,10 @@ GameObject:
   - component: {fileID: 6145527569932315764}
   - component: {fileID: 6163823500954104847}
   - component: {fileID: 550156632301374662}
+  - component: {fileID: 7967715557388823119}
   - component: {fileID: 5245916448587553453}
   - component: {fileID: 6099430896989568635}
+  - component: {fileID: 5938556436392441228}
   m_Layer: 6
   m_Name: AI_Test_Enemy_B
   m_TagString: Untagged
@@ -1188,6 +1190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.AI::Project.AI.Blackboard.AIBlackboard
   _archetypeConfig: {fileID: 11400000, guid: eb93ae223b1d0344fbfe4e59c292f974, type: 2}
+  _patrolRoute: {fileID: 0}
   _target: {fileID: 0}
   _targetPosition: {x: 0, y: 0, z: 0}
   _hasLineOfSight: 0
@@ -1229,6 +1232,7 @@ MonoBehaviour:
   _invertedPathToNearestParent: 
   _directChildren: []
   _blackboard: {fileID: 8628554519190311169}
+  _corpseSeconds: 15
 --- !u!114 &2123583155396904727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1307,6 +1311,7 @@ MonoBehaviour:
   _baseDetectionRate: 3.5
   _decayRate: 0.25
   _searchDuration: 5
+  _bodySuspicion: 0.95
   _blackboard: {fileID: 8628554519190311169}
 --- !u!114 &6145527569932315764
 MonoBehaviour:
@@ -1375,6 +1380,22 @@ MonoBehaviour:
   _blackboard: {fileID: 8628554519190311169}
   _aimController: {fileID: 6163823500954104847}
   _muzzlePoint: {fileID: 3559181453951572445}
+--- !u!114 &7967715557388823119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3606772196738273186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2b0e083326c8d49be82a385723d0c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Presentation.AIDeathRagdoll
+  _health: {fileID: 4568959117068148467}
+  _ragdoll: {fileID: 6145527569932315764}
+  _agent: {fileID: 6565951066303156074}
+  _corpse: {fileID: 0}
 --- !u!114 &5245916448587553453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1459,6 +1480,18 @@ MonoBehaviour:
   _ownerAuth: 1
   _interpolationTiming: 0
   _adaptiveSynchronization: 2
+--- !u!114 &5938556436392441228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3606772196738273186}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4404e7dbd980d2945a40faac433e0e9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Perception.AICorpse
 --- !u!1 &3668760452463006824
 GameObject:
   m_ObjectHideFlags: 0
@@ -2089,7 +2122,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _maxHealth: 100
+  _maxHealth: 50
   _invulnerable: 0
   _maxShield: 0
   _shieldRegenDelay: 4
@@ -2099,13 +2132,11 @@ MonoBehaviour:
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 100
   _currentShield:
     _value: 0
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 0
 --- !u!1 &4589281327138809795
 GameObject:
   m_ObjectHideFlags: 0

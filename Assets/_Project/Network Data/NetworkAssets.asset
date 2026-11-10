@@ -36,6 +36,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c0556150758a6a14fbb58eb7fb20a8ab, type: 2}
   - {fileID: 11400000, guid: a71aeffd0db6dde448d2df0962e7e4d4, type: 2}
   - {fileID: 11400000, guid: b65297444aa552342ae92ff95c7a4657, type: 2}
+  - {fileID: 11400000, guid: 8af8d86ea3e727e4fa558fb837071453, type: 2}
+  - {fileID: 11400000, guid: b3c244882598ce74790123da439d7eaa, type: 2}
   _availableTypeNames:
   - UnityEngine.ScriptableObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEditor.AddressableAssets.Settings.AddressableAssetGroup, Unity.Addressables.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -313,7 +315,9 @@ MonoBehaviour:
   - c0556150758a6a14fbb58eb7fb20a8ab
   - a71aeffd0db6dde448d2df0962e7e4d4
   - b65297444aa552342ae92ff95c7a4657
-  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f00000010000000i
+  - 8af8d86ea3e727e4fa558fb837071453
+  - b3c244882598ce74790123da439d7eaa
+  _bakedIds: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000i
   _bakedAssets:
   - {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}
   - {fileID: 11400000, guid: aaff3e7e43ac664408ff31d4aecfc301, type: 2}
@@ -332,6 +336,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c0556150758a6a14fbb58eb7fb20a8ab, type: 2}
   - {fileID: 11400000, guid: a71aeffd0db6dde448d2df0962e7e4d4, type: 2}
   - {fileID: 11400000, guid: b65297444aa552342ae92ff95c7a4657, type: 2}
+  - {fileID: 11400000, guid: 8af8d86ea3e727e4fa558fb837071453, type: 2}
+  - {fileID: 11400000, guid: b3c244882598ce74790123da439d7eaa, type: 2}
   _bakedPersistentIds:
   - 87f25555bf5c175418f070b62850e1ec
   - aaff3e7e43ac664408ff31d4aecfc301
@@ -350,3 +356,5 @@ MonoBehaviour:
   - c0556150758a6a14fbb58eb7fb20a8ab
   - a71aeffd0db6dde448d2df0962e7e4d4
   - b65297444aa552342ae92ff95c7a4657
+  - 8af8d86ea3e727e4fa558fb837071453
+  - b3c244882598ce74790123da439d7eaa

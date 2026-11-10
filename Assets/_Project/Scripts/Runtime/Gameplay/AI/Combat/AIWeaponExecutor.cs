@@ -4,6 +4,7 @@ using Project.AI.Locomotion;
 using Project.AI.Perception;
 using Project.Combat;
 using Project.Combat.Core;
+using Project.Combat.Health;
 using PurrNet;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -21,6 +22,7 @@ public class AIWeaponExecutor : NetworkBehaviour
     private AIWeaponConfig _weaponConfig => _blackboard.ArchetypeConfig.WeaponConfig;
 
     private float _shotTimer;
+    private HealthComponent _health;
     private int _shotsFiredInCurrentBurst;
     private int _targetBurstCount;
     private readonly Collider[] _muzzleOverlaps = new Collider[32];
@@ -30,6 +32,7 @@ public class AIWeaponExecutor : NetworkBehaviour
 
     private void Awake()
     {
+        _health = GetComponent<HealthComponent>() ?? GetComponentInChildren<HealthComponent>(true);
         if (!_blackboard)
             _blackboard = GetComponent<AIBlackboard>();
 
@@ -62,7 +65,7 @@ public class AIWeaponExecutor : NetworkBehaviour
 
     private void Update()
     {
-        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady || !_aimController)
+        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady || !_aimController || (_health && _health.IsDead))
             return;
 
         UpdateBurstCadence(Time.deltaTime);

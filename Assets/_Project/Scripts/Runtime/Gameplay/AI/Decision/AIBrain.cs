@@ -1,7 +1,10 @@
 ﻿using System;
+using Project.AI.Alarm;
 using Project.AI.Blackboard;
+using Project.AI.Configuration;
 using Project.AI.Decision.States;
 using Project.AI.Perception;
+using Project.Combat.Health;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
@@ -14,14 +17,21 @@ public class AIBrain : NetworkBehaviour
     [SerializeField] private AIBlackboard _blackboard;
 
     private readonly AIIdleState _idleState = new();
+    private readonly AIPatrolState _patrolState = new();
+    private readonly AIFleeState _fleeState = new();
     private readonly AIInvestigateState _investigationState = new();
     private readonly AICombatState _combatState = new();
 
     public IAIState CurrentState { get; private set; }
+    [SerializeField, Min(0f)] private float _corpseSeconds = 15f;
+
     private bool _running;
+    private HealthComponent _health;
+    private float _despawnAt;
 
     private void Awake()
     {
+        _health = GetComponent<HealthComponent>() ?? GetComponentInChildren<HealthComponent>(true);
         if (!_blackboard)
             _blackboard = GetComponent<AIBlackboard>();
     }
@@ -29,6 +39,7 @@ public class AIBrain : NetworkBehaviour
     protected override void OnSpawned()
     {
         StopBrain();
+        _despawnAt = 0f;
         if (!isServer)
         {
             enabled = false;
@@ -73,8 +84,21 @@ public class AIBrain : NetworkBehaviour
 
     private void Update()
     {
+        if (isServer && _despawnAt > 0f && Time.time >= _despawnAt)
+        {
+            Despawn();
+            return;
+        }
         if (!isServer || !_running || !_blackboard || !_blackboard.IsArchetypeReady)
             return;
+        if (_health && _health.IsDead)
+        {
+            if (_blackboard.ArchetypeConfig.Role.Flees() && AlarmDirector.Instance)
+                AlarmDirector.Instance.ReportCivilianKilled(transform.position);
+            StopBrain();
+            _despawnAt = Time.time + _corpseSeconds;
+            return;
+        }
         CurrentState?.OnUpdate(_blackboard, Time.deltaTime);
     }
 
@@ -82,24 +106,35 @@ public class AIBrain : NetworkBehaviour
     {
         if (!_running || !isServer || !_blackboard.IsArchetypeReady)
             return;
-        switch (newState)
+        // A civilian who is running to a phone or making the call finishes first.
+        if (CurrentState == _fleeState && _fleeState.IsBusy)
+            return;
+
+        // Taking cover breaks line of sight on purpose, so a fight in cover survives Searching.
+        if (newState == AlertState.Searching && CurrentState == _combatState && _combatState.IsUsingCover &&
+            _blackboard.Target)
+            return;
+
+        var kind = AIStateSelection.Select(_blackboard.ArchetypeConfig.Role, newState, _blackboard.HasPatrolRoute);
+        TransitionTo(StateFor(kind));
+    }
+
+    private IAIState StateFor(AIStateKind kind)
+    {
+        switch (kind)
         {
-            case AlertState.Unaware:
-                TransitionTo(_idleState);
-                break;
-            case AlertState.Suspicious:
-                TransitionTo(_investigationState);
-                break;
-            case AlertState.Alerted:
-                TransitionTo(_combatState);
-                break;
-            case AlertState.Searching:
-                if (CurrentState == _combatState && _combatState.IsUsingCover && _blackboard.Target)
-                    break;
-                TransitionTo(_investigationState);
-                break;
+            case AIStateKind.Idle:
+                return _idleState;
+            case AIStateKind.Patrol:
+                return _patrolState;
+            case AIStateKind.Flee:
+                return _fleeState;
+            case AIStateKind.Investigate:
+                return _investigationState;
+            case AIStateKind.Combat:
+                return _combatState;
             default:
-                throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
+                throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
         }
     }
 

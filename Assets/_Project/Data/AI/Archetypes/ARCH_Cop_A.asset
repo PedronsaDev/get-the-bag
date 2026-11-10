@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: ARCH_Cop_A
   m_EditorClassIdentifier: Project.AI::Project.AI.Configuration.AIArchetypeConfig
   _archetypeName: Cop A
+  _role: 1
   _movementConfig:
-    PatrolSpeed: 2
-    InvestigateSpeed: 3.5
-    CombatRunSpeed: 4.5
+    PatrolSpeed: 1
+    InvestigateSpeed: 1.8
+    CombatRunSpeed: 1.6
     MinCombatDistance: 6
     IdealCombatDistance: 12
     MaxCombatDistance: 20
@@ -61,8 +62,20 @@ MonoBehaviour:
     _arrivalTolerance: 0.15
     _maxNavigationSnapDistance: 0.1
     _maxVerticalDeviation: 0.1
+    _bodyClearanceMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    _clearanceSkin: 0.02
     _validationInterval: 0.2
     _approachTimeout: 3
     _returnTimeout: 3
     _retryDelay: 1
+  _combatTuning:
+    _coverCheckInterval: 0.5
+    _reflankMinDelay: 1.5
+    _reflankMaxDelay: 2.5
+    _flankAngleDegrees: 60
+    _flankSampleRadius: 4
+    _retreatStepDistance: 4
+    _retreatSampleRadius: 2
   _preferredTokenType: 0

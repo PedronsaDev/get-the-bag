@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1241890608999547174}
   - component: {fileID: 371702484593853140}
+  - component: {fileID: 4473733016040226384}
+  - component: {fileID: 7184319732885117908}
   m_Layer: 0
   m_Name: Combat Token Director
   m_TagString: Untagged
@@ -58,6 +60,54 @@ MonoBehaviour:
   _baseRangedTokens: 3
   _tokensPerAdditionalPlayer: 1
   _tokenLeaseTimeout: 4.5
+--- !u!114 &4473733016040226384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229936881150632237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b1c61a9e4dab09468dac382310e945e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Alarm.AlarmDirector
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _bodyFoundRaisesAlarm: 1
+--- !u!114 &7184319732885117908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229936881150632237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35afb277948430b4b84929ef984a06ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Waves.AssaultDirector
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _config: {fileID: 11400000, guid: b3c244882598ce74790123da439d7eaa, type: 2}
 --- !u!1 &1335331198559910220
 GameObject:
   m_ObjectHideFlags: 0
@@ -559,6 +609,7 @@ MonoBehaviour:
     m_Bits: 1
   _wallAttenuation: 0.25
   _minimumAudibleThreshold: 1
+  _playerGunshotIntensity: 35
 --- !u!1 &7862692247733461025
 GameObject:
   m_ObjectHideFlags: 0

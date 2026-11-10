@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Project.Combat.Data;
 using Project.Combat.Weapons;
 using Project.Content;
 using Project.Logging;

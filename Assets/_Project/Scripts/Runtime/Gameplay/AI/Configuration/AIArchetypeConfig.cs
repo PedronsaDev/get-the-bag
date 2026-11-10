@@ -12,6 +12,7 @@ public class AIArchetypeConfig : ScriptableObject
 {
     [Header("Archetype Info & Settings")]
     [SerializeField] private string _archetypeName;
+    [SerializeField] private AIRole _role = AIRole.Guard;
 
     [BoxGroup("Movement Settings")]
     [SerializeField] private AIMovementConfig _movementConfig = new();
@@ -33,18 +34,22 @@ public class AIArchetypeConfig : ScriptableObject
     [SerializeField, ShowIf("_canUseCover")]
     private AICoverExecutionConfig _coverExecutionConfig = new();
 
+    [BoxGroup("Combat Tuning")]
+    [SerializeField] private AICombatTuningConfig _combatTuning = new();
+
     [SerializeField] private CombatTokenType _preferredTokenType = CombatTokenType.RangedBurst;
 
     public string ArchetypeName => _archetypeName;
+    public AIRole Role => _role;
     public AIMovementConfig MovementConfig => _movementConfig;
     public AIVisionConfig VisionConfig => _visionConfig;
     public AIWeaponConfig WeaponConfig => _weaponConfig;
+    public AICombatTuningConfig CombatTuning => _combatTuning;
     public bool CanUseCover => _canUseCover;
     public AICoverScoringConfig CoverConfig => _coverConfig;
     public AICoverExecutionConfig CoverExecutionConfig => _coverExecutionConfig;
     public CombatTokenType PreferredTokenType => _preferredTokenType;
 
-    /// <summary>Checks authored data without modifying it or querying the scene. Call before simulation starts.</summary>
     public bool TryValidate(out string error)
     {
         return AIArchetypeValidation.TryValidate(this, out error);

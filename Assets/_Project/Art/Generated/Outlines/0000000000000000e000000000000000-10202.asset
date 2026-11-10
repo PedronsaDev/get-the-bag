@@ -1,6 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!43 &-2854674481117299672
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1dff1273057ed4c9c4ce07dfac668b, type: 3}
+  m_Name: Cube Outline Data
+  m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.OutlinePreparedMesh
+  source: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  readableCopy: {fileID: 823499148853207518}
+  sourceDependencyHash: 00000000000000000000000000000000
+--- !u!43 &823499148853207518
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -179,18 +194,3 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d1dff1273057ed4c9c4ce07dfac668b, type: 3}
-  m_Name: Cube Outline Data
-  m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.OutlinePreparedMesh
-  source: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  readableCopy: {fileID: -2854674481117299672}
-  sourceDependencyHash: 00000000000000000000000000000000

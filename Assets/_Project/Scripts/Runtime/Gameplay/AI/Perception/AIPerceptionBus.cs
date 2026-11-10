@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Project.Combat.Weapons;
 using Project.Logging;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ public class AIPerceptionBus : MonoBehaviour
     [SerializeField] private float _wallAttenuation = 0.25f; // 75% volume reduction through walls
     [SerializeField] private float _minimumAudibleThreshold = 1.0f; // Below 1m radius, sound dies
     
+    [SerializeField] private float _playerGunshotIntensity = 35f;
+
     private readonly List<IAISensoryReceiver> _receivers = new(64);
 
     private readonly RaycastHit[] _rayBuffer = new RaycastHit[1];
@@ -31,10 +34,20 @@ public class AIPerceptionBus : MonoBehaviour
         Instance = this;
     }
 
+    private void OnEnable() => GunfireNoise.OnPlayerShot += HandlePlayerShot;
+
+    private void OnDisable() => GunfireNoise.OnPlayerShot -= HandlePlayerShot;
+
     private void OnDestroy()
     {
-        if (Instance == this) 
+        if (Instance == this)
             Instance = null;
+    }
+
+    private void HandlePlayerShot(Vector3 origin, GameObject shooter)
+    {
+        if (Instance == this)
+            EmitSound(origin, _playerGunshotIntensity, shooter);
     }
     
     public void RegisterReceiver(IAISensoryReceiver receiver)

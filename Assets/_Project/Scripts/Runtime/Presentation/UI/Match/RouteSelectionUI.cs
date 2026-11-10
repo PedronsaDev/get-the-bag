@@ -24,7 +24,7 @@ public class RouteSelectionUI : InputBlockerUI
     private float _fadeDuration = 0.3f;
 
     private Tween _fadeTween;
-    private TrainRouteConsole _console;
+    private LevelSelectorConsole _console;
     private RouteSelectionButtonUI _selectedRouteButton;
     private bool _hasRouteSelected => _selectedRouteButton;
 
@@ -106,7 +106,7 @@ public class RouteSelectionUI : InputBlockerUI
         base.OnDisable();
     }
 
-    private void HandleConsoleInteracted(TrainRouteConsole console)
+    private void HandleConsoleInteracted(LevelSelectorConsole console)
     {
         BindConsole(console);
         Open();
@@ -148,7 +148,7 @@ public class RouteSelectionUI : InputBlockerUI
         if (!_hasRouteSelected || !_console)
             return;
 
-        _console.LaunchRoute(_selectedRouteButton.SceneName);
+        _console.LaunchLevel(_selectedRouteButton.SceneName);
         Close();
     }
 
@@ -202,7 +202,7 @@ public class RouteSelectionUI : InputBlockerUI
         _canvasGroup.interactable = false;
     }
     
-    private void BindConsole(TrainRouteConsole console)
+    private void BindConsole(LevelSelectorConsole console)
     {
         _console = console;
     }

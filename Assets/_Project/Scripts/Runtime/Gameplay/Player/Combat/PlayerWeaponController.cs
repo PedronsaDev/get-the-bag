@@ -355,6 +355,7 @@ public class PlayerWeaponController : NetworkBehaviour
         shot.Slot = ConfirmedState.ActiveSlot;
         shot.Sequence = ++_shotSequence;
         Publish(ConfirmedState);
+        GunfireNoise.Raise(shot.Origin, gameObject);
         RpcShotAccepted(shot);
     }
 

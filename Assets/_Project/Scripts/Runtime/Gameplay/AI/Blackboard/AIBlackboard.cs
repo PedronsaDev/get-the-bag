@@ -3,6 +3,7 @@ using NaughtyAttributes;
 using Project.AI.Configuration;
 using Project.AI.Cover;
 using Project.AI.Locomotion;
+using Project.AI.Patrol;
 using Project.AI.Perception;
 using Project.Core.Player;
 using Project.Logging;
@@ -15,6 +16,9 @@ public class AIBlackboard : MonoBehaviour
 {
     [Header("Archetype")]
     [SerializeField] private AIArchetypeConfig _archetypeConfig;
+
+    [Header("Patrol")]
+    [SerializeField] private AIPatrolRoute _patrolRoute;
 
     private bool _archetypeInitializationAttempted;
     private bool _archetypeReady;
@@ -36,6 +40,7 @@ public class AIBlackboard : MonoBehaviour
     [SerializeField, ReadOnly] private MovementStatus _moveStatus = MovementStatus.None;
 
     [Header("Combat State")]
+    [SerializeField, ReadOnly] private bool _wantsToLieDown;
     [SerializeField, ReadOnly] private bool _wantsToShoot;
     [SerializeField, ReadOnly] private bool _inCover;
     [SerializeField, ReadOnly] private Vector3 _coverPosition;
@@ -45,6 +50,8 @@ public class AIBlackboard : MonoBehaviour
     [SerializeField, ReadOnly] private CoverHeight _coverHeight;
     [SerializeField, ReadOnly] private CoverPeekDirection _activePeekDirection;
 
+    public AIPatrolRoute PatrolRoute => _patrolRoute;
+    public bool HasPatrolRoute => _patrolRoute && _patrolRoute.PointCount > 0;
     public AIArchetypeConfig ArchetypeConfig => _archetypeConfig;
     public bool IsArchetypeReady => _archetypeReady && _archetypeConfig;
     public Vector3 AgentPosition => transform.position;
@@ -62,6 +69,7 @@ public class AIBlackboard : MonoBehaviour
     public int MoveRequestVersion => _moveRequestVersion;
     public MovementStatus MoveStatus => _moveStatus;
 
+    public bool WantsToLieDown => _wantsToLieDown;
     public bool WantsToShoot => _wantsToShoot;
     public bool InCover => _inCover;
     public Vector3 CoverPosition => _coverPosition;
@@ -72,6 +80,8 @@ public class AIBlackboard : MonoBehaviour
 
     public event Action<GameObject> OnTargetChanged;
     public event Action<AlertState> OnAlertStateChanged;
+
+    public void AssignPatrolRoute(AIPatrolRoute route) => _patrolRoute = route;
 
     public bool TryInitializeArchetype()
     {
@@ -100,6 +110,7 @@ public class AIBlackboard : MonoBehaviour
         ClearTarget();
         ClearMoveDestination();
         SetCombatIntent(false);
+        SetLieDown(false);
         SetCoverStance(false, CoverHeight.Low);
         SetAlertState(AlertState.Unaware);
     }
@@ -176,6 +187,8 @@ public class AIBlackboard : MonoBehaviour
     {
         ReportMoveResult(_moveRequestVersion, isAtDestination ? MovementStatus.Arrived : MovementStatus.Moving);
     }
+
+    public void SetLieDown(bool lieDown) => _wantsToLieDown = lieDown;
 
     public void SetCombatIntent(bool shoot, bool inCover = false, Vector3 coverPos = default)
     {

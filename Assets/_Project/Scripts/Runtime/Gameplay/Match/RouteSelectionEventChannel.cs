@@ -7,9 +7,9 @@ namespace Project.Core.Events
 [CreateAssetMenu(fileName = "RouteSelectionEventChannel", menuName = "Events/RouteSelectionEventChannel")]
 public class RouteSelectionEventChannel : ScriptableObject
 {
-    public event Action<TrainRouteConsole> OnConsoleInteracted;
+    public event Action<LevelSelectorConsole> OnConsoleInteracted;
 
-    public void RaiseOnConsoleInteracted(TrainRouteConsole console)
+    public void RaiseOnConsoleInteracted(LevelSelectorConsole console)
     {
         OnConsoleInteracted?.Invoke(console);
     }

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Computer Outline Data
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.OutlinePreparedMesh
   source: {fileID: 870556930181619739, guid: 53144979641f73346932fe5e4800b536, type: 3}
-  readableCopy: {fileID: 4101446630637516759}
+  readableCopy: {fileID: 4999391975145167430}
   sourceDependencyHash: 853be7bedd9a2eadcb0ee41b7691df85
---- !u!43 &4101446630637516759
+--- !u!43 &4999391975145167430
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

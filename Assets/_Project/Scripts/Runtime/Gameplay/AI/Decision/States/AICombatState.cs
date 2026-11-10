@@ -193,7 +193,7 @@ public class AICombatState : IAIState
         if (_coverCheckTimer > 0f)
             return;
 
-        _coverCheckTimer = 0.5f;
+        _coverCheckTimer = blackboard.ArchetypeConfig.CombatTuning.CoverCheckInterval;
 
 
         if (_stance is not (CombatStance.InCover or CombatStance.MovingToCover))
@@ -450,7 +450,8 @@ public class AICombatState : IAIState
             if (_stance != CombatStance.FlankingInOpen)
                 return;
 
-            _reflankTimer = Random.Range(1.5f, 2.5f);
+            var tuning = archetypeConfig.CombatTuning;
+            _reflankTimer = Random.Range(tuning.ReflankMinDelay, tuning.ReflankMaxDelay);
             Vector3 flankDestination = CalculateFlankPosition(blackboard, config);
             blackboard.SetMoveDestination(flankDestination, config.CombatRunSpeed);
         }
@@ -466,12 +467,13 @@ public class AICombatState : IAIState
         else
             toSelf.Normalize();
 
-        float flankAngle = (blackboard.gameObject.GetEntityId().GetHashCode() % 2 == 0 ? 1f : -1f) * 60f;
+        var tuning = blackboard.ArchetypeConfig.CombatTuning;
+        float flankAngle = (blackboard.gameObject.GetEntityId().GetHashCode() % 2 == 0 ? 1f : -1f) * tuning.FlankAngleDegrees;
         Vector3 flankDir = Quaternion.Euler(0f, flankAngle, 0f) * toSelf;
 
         Vector3 desiredPosition = blackboard.TargetPosition + flankDir * config.IdealCombatDistance;
 
-        if (NavMesh.SamplePosition(desiredPosition, out var hit, 4.0f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(desiredPosition, out var hit, tuning.FlankSampleRadius, NavMesh.AllAreas))
         {
             return hit.position;
         }
@@ -493,9 +495,10 @@ public class AICombatState : IAIState
             dirAwayFromTarget = -blackboard.transform.forward;
         }
 
-        Vector3 desiredRetreatPoint = blackboard.transform.position + dirAwayFromTarget * 4.0f;
+        var tuning = blackboard.ArchetypeConfig.CombatTuning;
+        Vector3 desiredRetreatPoint = blackboard.transform.position + dirAwayFromTarget * tuning.RetreatStepDistance;
 
-        if (NavMesh.SamplePosition(desiredRetreatPoint, out var hit, 2.0f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(desiredRetreatPoint, out var hit, tuning.RetreatSampleRadius, NavMesh.AllAreas))
             blackboard.SetMoveDestination(hit.position, config.CombatRunSpeed);
     }
 }

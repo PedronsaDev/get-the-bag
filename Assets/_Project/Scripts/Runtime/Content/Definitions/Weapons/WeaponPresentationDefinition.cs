@@ -16,7 +16,6 @@ public class WeaponPresentationDefinition : ScriptableObject
 
     [Header("Reloads")]
     [SerializeField] private WeaponReloadAnimation _reloadNormal = new();
-    [Tooltip("Missing Empty clips use the corresponding Normal clip. A missing body clip also uses the Normal hand curve.")]
     [SerializeField] private WeaponReloadAnimation _reloadEmpty = new();
 
     public string RequiredFirstPersonArmsFamily => _requiredFirstPersonArmsFamily;

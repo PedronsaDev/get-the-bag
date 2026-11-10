@@ -1,4 +1,6 @@
+using Project.AI.Alarm;
 using Project.AI.Blackboard;
+using Project.AI.Configuration;
 using Project.Core.Player;
 using PurrNet;
 #if UNITY_EDITOR
@@ -45,6 +47,20 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
         CacheVisionParameters();
         _tickTimer = Random.Range(0f, _visionTickInterval);
         enabled = true;
+        RegisterReceiver();
+    }
+
+    // OnDisable unregisters, so re-enabling a spawned sensor must register again.
+    private void OnEnable()
+    {
+        if (isSpawned && isServer && _blackboard && _blackboard.IsArchetypeReady)
+            RegisterReceiver();
+    }
+
+    private void RegisterReceiver()
+    {
+        if (_registeredBus)
+            return;
         _registeredBus = AIPerceptionBus.Instance;
         if (_registeredBus)
             _registeredBus.RegisterReceiver(this);
@@ -123,6 +139,41 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
         {
             _targetMemory.ReportLostSight();
         }
+
+        if (_blackboard.ArchetypeConfig.Role.Investigates())
+            ScanForBodies();
+    }
+
+    private void ScanForBodies()
+    {
+        var bodies = AICorpse.All;
+        for (int i = 0; i < bodies.Count; i++)
+        {
+            var body = bodies[i];
+            if (body.Discovered || !CanSeePoint(body.Position) || !body.TryDiscover())
+                continue;
+
+            _targetMemory.ReportBodyFound(body.Position);
+            var alarm = AlarmDirector.Instance;
+            if (alarm && alarm.BodyFoundRaisesAlarm)
+                alarm.Raise(AlarmReason.BodyFound, body.Position);
+        }
+    }
+
+    private bool CanSeePoint(Vector3 point)
+    {
+        Vector3 eyePosition = SensoryOrigin;
+        Vector3 direction = point - eyePosition;
+        float distance = direction.magnitude;
+        if (distance <= 0.001f)
+            return false;
+
+        var config = VisionConfig;
+        if (!IsInCone(direction, distance, _cosPrimaryFOV, config.ViewDistance) &&
+            !IsInCone(direction, distance, _cosPeripheralFOV, config.PeripheralDistance))
+            return false;
+
+        return !Physics.Linecast(eyePosition, point, config.ObstacleMask, QueryTriggerInteraction.Ignore);
     }
 
     public bool CanSeeTarget(Transform target)
@@ -204,6 +255,9 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
                 break;
             case StimulusType.Damage:
                 _targetMemory.ReportDamage(stimulus.Source, stimulus.Position);
+                break;
+            case StimulusType.Tactical:
+                _targetMemory.ReportAlarm(stimulus.Position);
                 break;
         }
     }
