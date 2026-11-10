@@ -148,7 +148,7 @@ public class RouteSelectionUI : InputBlockerUI
         if (!_hasRouteSelected || !_console)
             return;
 
-        _console.LaunchLevel(_selectedRouteButton.SceneName);
+        _console.SelectLevel(_selectedRouteButton.SceneName);
         Close();
     }
 

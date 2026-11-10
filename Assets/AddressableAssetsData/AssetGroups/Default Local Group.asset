@@ -57,6 +57,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Loot
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d78276bfb7622f84284bc5d52bfcb807
+    m_Address: Assets/_Project/Prefabs/Loot/Valuables/LOOT_PF_CashBriefcase.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e3a7db3a0247b26489d283f3a7d4a933
     m_Address: Weapon_Prefabs/WEAP_PF_Rifle_Debug
     m_ReadOnly: 0

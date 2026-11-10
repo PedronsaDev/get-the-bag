@@ -2576,11 +2576,11 @@ GameObject:
   - component: {fileID: 4708700164575381468}
   - component: {fileID: 7781472099944549246}
   - component: {fileID: 2468065217406356853}
-  - component: {fileID: 8956712604897475091}
-  - component: {fileID: 4757872723161358497}
+  - component: {fileID: 1887937445409707156}
   - component: {fileID: 739655601970507077}
   - component: {fileID: 1347245421291404505}
-  - component: {fileID: 1887937445409707156}
+  - component: {fileID: 8956712604897475091}
+  - component: {fileID: 4757872723161358497}
   m_Layer: 6
   m_Name: AI_Civilian_A
   m_TagString: Untagged
@@ -2776,6 +2776,63 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.Core::Project.Core.Physics.Ragdoll
   _animator: {fileID: 4401631280794488949}
+--- !u!114 &1887937445409707156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5524862212259045814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a9d44c9a6a97b14b989c5af996bd3bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Presentation.AICivilianProne
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _hasPrefabScope: 0
+  _prefabScope: 0
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _visual: {fileID: 1481271699457295148}
+  _blackboard: {fileID: 7674628835338418591}
+  _health: {fileID: 5656731019347309902}
+  _layDownSeconds: 0.7
+  _halfBodyLength: 0.9
+  _bodyThickness: 0.2
+--- !u!114 &739655601970507077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5524862212259045814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf2b0e083326c8d49be82a385723d0c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Presentation.AIDeathRagdoll
+  _health: {fileID: 5656731019347309902}
+  _ragdoll: {fileID: 2468065217406356853}
+  _agent: {fileID: 1148683769240971427}
+  _corpse: {fileID: 1347245421291404505}
+--- !u!114 &1347245421291404505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5524862212259045814}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4404e7dbd980d2945a40faac433e0e9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.AI::Project.AI.Perception.AICorpse
 --- !u!114 &8956712604897475091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2860,63 +2917,6 @@ MonoBehaviour:
   _ownerAuth: 1
   _interpolationTiming: 0
   _adaptiveSynchronization: 2
---- !u!114 &739655601970507077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5524862212259045814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf2b0e083326c8d49be82a385723d0c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.AI::Project.AI.Presentation.AIDeathRagdoll
-  _health: {fileID: 5656731019347309902}
-  _ragdoll: {fileID: 2468065217406356853}
-  _agent: {fileID: 1148683769240971427}
-  _corpse: {fileID: 1347245421291404505}
---- !u!114 &1347245421291404505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5524862212259045814}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4404e7dbd980d2945a40faac433e0e9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.AI::Project.AI.Perception.AICorpse
---- !u!114 &1887937445409707156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5524862212259045814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a9d44c9a6a97b14b989c5af996bd3bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.AI::Project.AI.Presentation.AICivilianProne
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _visual: {fileID: 1481271699457295148}
-  _blackboard: {fileID: 0}
-  _health: {fileID: 0}
-  _layDownSeconds: 0.7
-  _halfBodyLength: 0.9
-  _bodyThickness: 0.2
 --- !u!1 &5581055196959721111
 GameObject:
   m_ObjectHideFlags: 0

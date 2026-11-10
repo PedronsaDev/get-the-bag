@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Project.Loot.Data;
 
 namespace Project.Loot
@@ -8,7 +9,9 @@ public interface IDuffleBagCarrier
     float CurrentWeight { get; }
     float MaxCapacityKg { get; }
     int CurrentValue { get; }
+    IReadOnlyList<DuffleBagItemEntry> StowedItems { get; }
     void EquipBag(DuffleBagSnapshot snapshot);
     bool TryStowItem(LootDefinition item);
+    void ClearBagContents();
 }
 }

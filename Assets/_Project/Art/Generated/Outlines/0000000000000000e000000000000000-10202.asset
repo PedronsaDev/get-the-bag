@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Cube Outline Data
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.OutlinePreparedMesh
   source: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  readableCopy: {fileID: 823499148853207518}
+  readableCopy: {fileID: 7575514162874026660}
   sourceDependencyHash: 00000000000000000000000000000000
---- !u!43 &823499148853207518
+--- !u!43 &7575514162874026660
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -12,7 +12,9 @@
     "UniTask",
     "Project.Definitions",
     "Project.Match",
-    "Project.Logging"
+    "Project.Logging",
+    "Project.Content",
+    "TMPEffects"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

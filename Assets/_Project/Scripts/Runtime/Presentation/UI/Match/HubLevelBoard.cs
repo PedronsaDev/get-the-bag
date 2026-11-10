@@ -5,11 +5,6 @@ using UnityEngine;
 
 namespace Project.UI.Match
 {
-/// <summary>
-/// World-space screen in the hub. Every player sees the same launch status because it reads
-/// replicated state from <see cref="LevelLaunchController"/> and <see cref="HubReadyState"/>.
-/// The text is rebuilt only when a shown value changes.
-/// </summary>
 public class HubLevelBoard : MonoBehaviour
 {
     [SerializeField] private TMP_Text _text;
@@ -60,11 +55,14 @@ public class HubLevelBoard : MonoBehaviour
         _sb.Clear();
         switch (state)
         {
+            case LaunchState.Selected:
+                _sb.Append("NEXT JOB\n").Append(PrettyName(level)).Append("\nWaiting for players...");
+                break;
             case LaunchState.Countdown:
-                _sb.Append("DEPLOYING\n").Append(PrettyName(level)).Append("\nin ").Append(seconds).Append('s');
+                _sb.Append("NEXT JOB\n").Append(PrettyName(level)).Append("\nDeploying in ").Append(seconds).Append('s');
                 break;
             case LaunchState.Loading:
-                _sb.Append("DEPLOYING\n").Append(PrettyName(level)).Append("\nLoading...");
+                _sb.Append("NEXT JOB\n").Append(PrettyName(level)).Append("\nLoading...");
                 break;
             default:
                 _sb.Append("NO JOB SELECTED\nUse the level selector");
@@ -84,9 +82,8 @@ public class HubLevelBoard : MonoBehaviour
 
     private static string PrettyName(string sceneName)
     {
-        if (string.IsNullOrEmpty(sceneName)) return "?";
-        if (sceneName.StartsWith("Scene_")) sceneName = sceneName.Substring(6);
-        return sceneName.Replace('_', ' ').ToUpperInvariant();
+        string name = LevelLaunchController.DisplayName(sceneName);
+        return string.IsNullOrEmpty(name) ? "?" : name;
     }
 }
 }

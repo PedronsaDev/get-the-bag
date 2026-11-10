@@ -59,6 +59,10 @@ public struct LocomotionState
     public Vector3 VaultStartPosition;
     public Vector3 VaultTargetPosition;
     public float VaultTimer;
+    public float VaultDuration;
+    public float VaultEntrySpeed;
+    public Vector3 VaultInward;
+    public Vector3 VaultExpectedPosition;
     public bool IsNoclipEnabled;
 }
 
@@ -74,6 +78,7 @@ public struct VaultEvaluation
     [NonSerialized] public RaycastHit WallHit;
     [NonSerialized] public RaycastHit LedgeHit;
     public Vector3 TargetFootPos;
+    public Vector3 InwardDirection;
     public float LedgeHeight;
     public string FailureReason;
 }

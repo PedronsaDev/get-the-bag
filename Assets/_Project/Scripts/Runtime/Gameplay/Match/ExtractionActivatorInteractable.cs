@@ -33,13 +33,16 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
         }
     }
 
+    private static bool RaidAllowsExtraction => !RaidManager.Instance || RaidManager.Instance.IsRaidActive;
+
     public bool CanInteract(IPlayerInteractor interactor, bool isHold = false)
     {
-        return !ExtractionActivated.value;
+        return !ExtractionActivated.value && RaidAllowsExtraction;
     }
 
     public string GetDisabledReason(IPlayerInteractor interactor, bool isHold = false)
     {
+        if (!RaidAllowsExtraction) return "The raid is not active.";
         return "Extraction is already active.";
     }
 
@@ -66,7 +69,7 @@ public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
 
     private void TriggerActivationServer()
     {
-        if (ExtractionActivated.value)
+        if (ExtractionActivated.value || !RaidAllowsExtraction)
             return;
 
         ExtractionActivated.value = true;

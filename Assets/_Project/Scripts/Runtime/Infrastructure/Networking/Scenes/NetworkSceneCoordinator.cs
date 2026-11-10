@@ -11,12 +11,6 @@ using Project.Logging;
 
 namespace Project.Networking.Scenes
 {
-    /// <summary>
-    /// Host-driven synchronized scene changes.
-    /// Online: waits until every player who was connected when the load began has loaded the
-    /// requested scene (not just any scene), drops players who disconnect, and gives up after a timeout.
-    /// <see cref="TransitionToSceneAsync"/> returns true only when everyone made it.
-    /// </summary>
     [DisallowMultipleComponent]
     public class NetworkSceneCoordinator : NetworkBehaviour
     {
@@ -24,9 +18,8 @@ namespace Project.Networking.Scenes
 
         public static event Action<Scene> OnAllClientsLoadedScene;
 
-        /// <summary>Raised on every peer when a level load begins (host immediately, clients via RPC).</summary>
-        public static event Action OnLoadingScreenRequested;
-        /// <summary>Raised on every peer once its own scene load has finished (or failed).</summary>
+        public static event Action<string> OnLoadingScreenRequested;
+        public static event Action<float> OnLoadingProgress;
         public static event Action OnLoadingScreenReleased;
 
         public event Action<string> OnSceneTransitionStarted;
@@ -36,7 +29,6 @@ namespace Project.Networking.Scenes
         [Tooltip("Host gives up waiting for the other players to load the scene after this long.")]
         [SerializeField, Min(5f)] private float _loadTimeoutSeconds = 60f;
 
-        // The roster is frozen when the load starts, so a mid-load join cannot stall or satisfy it.
         private readonly HashSet<PlayerID> _expectedClients = new();
         private readonly HashSet<PlayerID> _readyClients = new();
         private UniTaskCompletionSource<bool> _pending;
@@ -88,10 +80,6 @@ namespace Project.Networking.Scenes
             TransitionToSceneAsync(sceneName).Forget();
         }
 
-        /// <summary>
-        /// Loads the scene for everyone. Returns true when all expected players loaded it,
-        /// false when the request was rejected, the load could not start, or the wait timed out.
-        /// </summary>
         public async UniTask<bool> TransitionToSceneAsync(string sceneName)
         {
             bool isOffline = !networkManager || networkManager.isOffline;
@@ -115,7 +103,7 @@ namespace Project.Networking.Scenes
             {
                 _isTransitioning = true;
                 OnSceneTransitionStarted?.Invoke(sceneName);
-                OnLoadingScreenRequested?.Invoke();
+                OnLoadingScreenRequested?.Invoke(sceneName);
                 StartCoroutine(LoadSceneAsyncRoutineOffline(sceneName, pending));
             }
             else if (!BeginOnlineTransition(sceneName, pending))
@@ -154,7 +142,7 @@ namespace Project.Networking.Scenes
             AppLog.Log(LogChannel.Network,
                 $"Host initiating PurrNet transition to '{sceneName}' for {_expectedClients.Count} player(s).", this);
             OnSceneTransitionStarted?.Invoke(sceneName);
-            OnLoadingScreenRequested?.Invoke();
+            OnLoadingScreenRequested?.Invoke(sceneName);
 
             RpcInstructTransitionStarted(sceneName);
             SubscribeServerEvents(nm);
@@ -207,7 +195,7 @@ namespace Project.Networking.Scenes
             AppLog.Log(LogChannel.Network, $"Received scene transition notice from Host: {sceneName}", this);
             _isTransitioning = true;
             OnSceneTransitionStarted?.Invoke(sceneName);
-            OnLoadingScreenRequested?.Invoke();
+            OnLoadingScreenRequested?.Invoke(sceneName);
             StartCoroutine(TrackClientLoadProgress(Path.GetFileNameWithoutExtension(sceneName)));
         }
 
@@ -215,11 +203,11 @@ namespace Project.Networking.Scenes
         {
             while (!asyncOp.isDone)
             {
-                OnLocalLoadProgress?.Invoke(asyncOp.progress);
+                ReportProgress(asyncOp.progress);
                 yield return null;
             }
 
-            OnLocalLoadProgress?.Invoke(1f);
+            ReportProgress(1f);
             OnLoadingScreenReleased?.Invoke();
             AppLog.Log(LogChannel.Network, "Local scene load completed via PurrNet.", this);
         }
@@ -233,7 +221,6 @@ namespace Project.Networking.Scenes
             {
                 if (Time.unscaledTime > deadline)
                 {
-                    // The host will abort too; do not leave this peer stuck behind the overlay.
                     AppLog.LogError(LogChannel.Network, $"Gave up waiting to load '{targetSceneName}'.", this);
                     _isTransitioning = false;
                     OnLoadingScreenReleased?.Invoke();
@@ -245,15 +232,21 @@ namespace Project.Networking.Scenes
                     var ops = nm.sceneModule.GetPendingOperations();
                     if (ops.Count > 0 && ops[0].operation != null)
                     {
-                        OnLocalLoadProgress?.Invoke(ops[0].operation.progress);
+                        ReportProgress(ops[0].operation.progress);
                     }
                 }
                 yield return null;
             }
 
-            OnLocalLoadProgress?.Invoke(1f);
+            ReportProgress(1f);
             OnLoadingScreenReleased?.Invoke();
             _isTransitioning = false;
+        }
+
+        private void ReportProgress(float progress)
+        {
+            OnLocalLoadProgress?.Invoke(progress);
+            OnLoadingProgress?.Invoke(progress);
         }
 
         private void SubscribeServerEvents(NetworkManager nm)
@@ -288,7 +281,7 @@ namespace Project.Networking.Scenes
         {
             if (!isServer || !asServer || !_isTransitioning) return;
 
-            // A callback for the old scene (or any other scene) must not count as "loaded the new one".
+            // Only a callback for the requested scene counts.
             var nm = networkManager ? networkManager : NetworkManager.main;
             if (!nm || !nm.sceneModule.TryGetSceneState(scene, out var state) || state.scene.name != _targetSceneName)
                 return;
@@ -350,11 +343,11 @@ namespace Project.Networking.Scenes
 
             while (!asyncOp.isDone)
             {
-                OnLocalLoadProgress?.Invoke(asyncOp.progress);
+                ReportProgress(asyncOp.progress);
                 yield return null;
             }
 
-            OnLocalLoadProgress?.Invoke(1f);
+            ReportProgress(1f);
             yield return null;
 
             _isTransitioning = false;

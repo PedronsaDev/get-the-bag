@@ -8,10 +8,6 @@ using UnityEngine;
 
 namespace Project.Hub.Editor
 {
-/// <summary>
-/// One-click greybox for the hub features: ready pad, level board, practice range, light switch, radio.
-/// Everything goes under one "HubFeatures" root so it is easy to move or delete. Run once per scene.
-/// </summary>
 public static class HubFeatureSetup
 {
     private const string RootName = "HubFeatures";
@@ -27,7 +23,7 @@ public static class HubFeatureSetup
 
         var anchor = Object.FindAnyObjectByType<LevelSelectorConsole>();
         Vector3 origin = anchor ? anchor.transform.position : Vector3.zero;
-        origin.y = 0f; // the scene's ground sits at y = 0
+        origin.y = 0f;
 
         var root = new GameObject(RootName);
         Undo.RegisterCreatedObjectUndo(root, "Add hub features");
@@ -68,7 +64,6 @@ public static class HubFeatureSetup
 
         var zone = new GameObject("DeployZone");
         Undo.RegisterCreatedObjectUndo(zone, "Add deploy zone");
-        // Rigidbody and the trigger box are required by the detector; it configures both in Awake.
         var box = zone.AddComponent<BoxCollider>();
         box.isTrigger = true;
         box.size = new Vector3(6f, 3f, 6f);
@@ -76,7 +71,6 @@ public static class HubFeatureSetup
         zone.AddComponent<AreaPlayerDetector>();
         zone.transform.position = pos + new Vector3(0f, 0f, -6f);
 
-        // A flat pad so players can see where to stand.
         var pad = Prim("FloorMarker", PrimitiveType.Cube, zone.transform, new Vector3(0f, 0.02f, 0f),
             new Vector3(6f, 0.04f, 6f), new Color(1f, 0.8f, 0.2f));
         Object.DestroyImmediate(pad.GetComponent<Collider>());
@@ -119,14 +113,13 @@ public static class HubFeatureSetup
         board.transform.SetParent(root, false);
         board.transform.localPosition = new Vector3(0f, 2.2f, 5f);
 
-        // Backing panel and text are siblings so the text is not affected by the panel's scale.
         var panel = Prim("Panel", PrimitiveType.Cube, board.transform, Vector3.zero, new Vector3(4f, 2.2f, 0.1f),
             new Color(0.05f, 0.05f, 0.08f));
         Object.DestroyImmediate(panel.GetComponent<Collider>());
 
         var textGo = new GameObject("BoardText");
         textGo.transform.SetParent(board.transform, false);
-        textGo.transform.localPosition = new Vector3(0f, 0f, -0.06f); // just in front of the panel face
+        textGo.transform.localPosition = new Vector3(0f, 0f, -0.06f);
         var tmp = textGo.AddComponent<TextMeshPro>();
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.fontSize = 3f;
@@ -184,7 +177,7 @@ public static class HubFeatureSetup
         var src = radio.AddComponent<AudioSource>();
         src.playOnAwake = false;
         src.loop = true;
-        src.spatialBlend = 1f; // 3D: players hear it get louder as they approach
+        src.spatialBlend = 1f;
         src.maxDistance = 15f;
 
         var toggle = radio.AddComponent<NetworkedToggle>();

@@ -1100,6 +1100,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &67697943
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 67697944}
+  - component: {fileID: 67697945}
+  m_Layer: 0
+  m_Name: Loot - Vault 16
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &67697944
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67697943}
+  serializedVersion: 2
+  m_LocalRotation: {x: 1.052065e-17, y: 0.31941226, z: 3.5461886e-18, w: 0.94761586}
+  m_LocalPosition: {x: 8.456251, y: 11.5, z: 30.020494}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &67697945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67697943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: d7e1e3f157bf84a448ce846b1ede454e, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &72245303
 Mesh:
   m_ObjectHideFlags: 0
@@ -1279,6 +1328,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &74433437
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 74433438}
+  - component: {fileID: 74433439}
+  m_Layer: 0
+  m_Name: Loot - Bank 04
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &74433438
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74433437}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.00000003876548, y: 0.6503769, z: 0.00000004527638, w: 0.7596117}
+  m_LocalPosition: {x: 9.201729, y: 11.500006, z: 5.9052215}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &74433439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74433437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &124425371
 Mesh:
   m_ObjectHideFlags: 0
@@ -1505,7 +1603,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 4be4fa1f09edc2c489f4af01c99be4ef, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 30066e12411f10f42a61f2281dcaf9a9, type: 2}
   m_BuildHeightMesh: 0
 --- !u!4 &131578735
 Transform:
@@ -1520,12 +1618,12 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1754386040}
-  - {fileID: 330550431}
   - {fileID: 2042939772}
   - {fileID: 904249869}
   - {fileID: 1020286375}
   - {fileID: 997332350}
+  - {fileID: 1879395711}
+  - {fileID: 1018314460}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &136242404
@@ -3064,6 +3162,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &258028791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 258028792}
+  - component: {fileID: 258028793}
+  m_Layer: 0
+  m_Name: Loot - Bank 09
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &258028792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 258028791}
+  serializedVersion: 2
+  m_LocalRotation: {x: -1.11009044e-17, y: 0.015447868, z: 1.7150578e-19, w: -0.9998807}
+  m_LocalPosition: {x: -1.823024, y: 10.5, z: 1.3681474}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &258028793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 258028791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &279866324
 GameObject:
   m_ObjectHideFlags: 0
@@ -3421,6 +3568,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &306946073
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 306946074}
+  - component: {fileID: 306946075}
+  m_Layer: 0
+  m_Name: Loot - Bank 07
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &306946074
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306946073}
+  serializedVersion: 2
+  m_LocalRotation: {x: 5.0171027e-18, y: 0.8920684, z: 9.9039485e-18, w: 0.45190042}
+  m_LocalPosition: {x: 27.156097, y: 10.5, z: 3.278359}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &306946075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306946073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &310470225
 Mesh:
   m_ObjectHideFlags: 0
@@ -3600,119 +3796,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1 &330550430
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 330550431}
-  - component: {fileID: 330550434}
-  - component: {fileID: 330550433}
-  - component: {fileID: 330550432}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!4 &330550431
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330550430}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0, z: 0}
-  m_LocalScale: {x: 100, y: 1, z: 100}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 131578735}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &330550432
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330550430}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &330550433
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330550430}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a95683895b2c7418e9282fb46f0700eb, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &330550434
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330550430}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!43 &335077270
 Mesh:
   m_ObjectHideFlags: 0
@@ -4963,85 +5046,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &419525372
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 419525374}
-  - component: {fileID: 419525373}
-  m_Layer: 0
-  m_Name: LevelReadyGate
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &419525373
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419525372}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e3377e674f06f641aa494b452a05178, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Match::Project.Core.Match.LevelReadyGate
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _hasPrefabScope: 0
-  _prefabScope: 0
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _timeoutSeconds: 30
-  _hubSceneName: Scene_Hub
-  _settleFrames: 2
-  Phase:
-    _value: 0
-    _ownerAuth: 0
-    _ownerOnly: 0
-    _sendIntervalInSeconds: 0
-  ExpectedCount:
-    _value: 0
-    _ownerAuth: 0
-    _ownerOnly: 0
-    _sendIntervalInSeconds: 0
-  ReadyPlayers:
-    _ownerAuth: 0
-    _ownerOnly: 0
-    _sendIntervalInSeconds: 0
-    _list: []
-    _initialList: []
-  FailureReason:
-    _value: 
-    _ownerAuth: 0
-    _ownerOnly: 0
-    _sendIntervalInSeconds: 0
---- !u!4 &419525374
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419525372}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &427189814
 Mesh:
   m_ObjectHideFlags: 0
@@ -5221,6 +5225,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &452219153
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 452219154}
+  - component: {fileID: 452219155}
+  m_Layer: 0
+  m_Name: Loot - Vault 15
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &452219154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452219153}
+  serializedVersion: 2
+  m_LocalRotation: {x: -1.0237488e-17, y: 0.3869256, z: 4.2957375e-18, w: -0.922111}
+  m_LocalPosition: {x: 13.106756, y: 11.5, z: 26.730434}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &452219155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452219153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: d7e1e3f157bf84a448ce846b1ede454e, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &455664808
 GameObject:
   m_ObjectHideFlags: 0
@@ -6292,6 +6345,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &509977448
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 509977449}
+  - component: {fileID: 509977450}
+  m_Layer: 0
+  m_Name: Loot - Vault 13
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &509977449
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509977448}
+  serializedVersion: 2
+  m_LocalRotation: {x: -1.06766625e-17, y: 0.2742157, z: 3.0444058e-18, w: -0.96166825}
+  m_LocalPosition: {x: 16.572231, y: 11.5, z: 30.161823}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &509977450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509977448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: d7e1e3f157bf84a448ce846b1ede454e, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &514843171
 GameObject:
   m_ObjectHideFlags: 0
@@ -8746,6 +8848,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &732692366
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 732692367}
+  - component: {fileID: 732692368}
+  m_Layer: 0
+  m_Name: Loot - Bank 17
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &732692367
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732692366}
+  serializedVersion: 2
+  m_LocalRotation: {x: -8.525075e-18, y: 0.6406052, z: 7.112147e-18, w: -0.7678704}
+  m_LocalPosition: {x: 12.935422, y: 11.5, z: 29.831099}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &732692368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732692366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &734149026
 Mesh:
   m_ObjectHideFlags: 0
@@ -9997,6 +10148,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &840147959
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 840147960}
+  - component: {fileID: 840147961}
+  m_Layer: 0
+  m_Name: Loot - Bank 20
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &840147960
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840147959}
+  serializedVersion: 2
+  m_LocalRotation: {x: -3.2262699e-19, y: 0.9995777, z: 1.1097542e-17, w: -0.029059654}
+  m_LocalPosition: {x: 17.46606, y: 11.5, z: 30.669792}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &840147961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840147959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &841222085
 Mesh:
   m_ObjectHideFlags: 0
@@ -12106,6 +12306,86 @@ Transform:
   - {fileID: 1110166310}
   m_Father: {fileID: 131578735}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1009561337
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1009561338}
+  - component: {fileID: 1009561339}
+  m_Layer: 0
+  m_Name: Loot - Bank 10
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1009561338
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009561337}
+  serializedVersion: 2
+  m_LocalRotation: {x: 9.527823e-18, y: 0.51333225, z: 5.699133e-18, w: 0.85819}
+  m_LocalPosition: {x: 16.609316, y: 11.5, z: 27.111732}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1009561339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009561337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
+--- !u!1 &1018314459
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1018314460}
+  m_Layer: 0
+  m_Name: '[Patrol Paths]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1018314460
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1018314459}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 131578735}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1020286374
 GameObject:
   m_ObjectHideFlags: 0
@@ -12362,6 +12642,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1054082761
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1054082762}
+  - component: {fileID: 1054082763}
+  m_Layer: 0
+  m_Name: Loot - Bank 19
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1054082762
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054082761}
+  serializedVersion: 2
+  m_LocalRotation: {x: 1.0919511e-17, y: 0.18067932, z: 2.0059434e-18, w: 0.9835421}
+  m_LocalPosition: {x: 8.841374, y: 11.5, z: 27.154535}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1054082763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054082761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &1068653499
 Mesh:
   m_ObjectHideFlags: 0
@@ -29890,6 +30219,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1165407880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1165407881}
+  - component: {fileID: 1165407882}
+  m_Layer: 0
+  m_Name: Loot - Bank 18
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1165407881
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165407880}
+  serializedVersion: 2
+  m_LocalRotation: {x: -6.1089125e-18, y: 0.83500534, z: 9.2704216e-18, w: -0.55024195}
+  m_LocalPosition: {x: 13.148365, y: 11.5, z: 27.498331}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1165407882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165407880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &1177260116
 GameObject:
   m_ObjectHideFlags: 0
@@ -32392,6 +32770,104 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1263112143
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1263112144}
+  - component: {fileID: 1263112145}
+  m_Layer: 0
+  m_Name: Loot - Bank 06
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1263112144
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263112143}
+  serializedVersion: 2
+  m_LocalRotation: {x: -3.8193274e-18, y: 0.93896437, z: 1.0424599e-17, w: -0.34401444}
+  m_LocalPosition: {x: 20.936441, y: 10.5, z: 1.5901102}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1263112145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263112143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
+--- !u!1 &1273753697
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1273753698}
+  - component: {fileID: 1273753699}
+  m_Layer: 0
+  m_Name: Loot - Bank 03
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1273753698
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273753697}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.000000020161751, y: 0.3382581, z: -0.000000056091146, w: -0.9410534}
+  m_LocalPosition: {x: 14.723123, y: 11.500006, z: 5.996916}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1273753699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273753697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &1280553139
 GameObject:
   m_ObjectHideFlags: 0
@@ -32749,6 +33225,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1281046820
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1281046821}
+  - component: {fileID: 1281046822}
+  m_Layer: 0
+  m_Name: Loot - Bank 02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1281046821
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281046820}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.000000058984444, y: 0.9895949, z: 0.000000008576036, w: 0.14388202}
+  m_LocalPosition: {x: 21.274187, y: 11.500007, z: 6.0173254}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1281046822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281046820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &1291832135
 GameObject:
   m_ObjectHideFlags: 0
@@ -33285,6 +33810,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1300880605
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1300880606}
+  - component: {fileID: 1300880607}
+  m_Layer: 0
+  m_Name: Loot - Bank 05
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1300880606
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1300880605}
+  serializedVersion: 2
+  m_LocalRotation: {x: -9.81724e-18, y: 0.46699813, z: 5.184721e-18, w: -0.88425833}
+  m_LocalPosition: {x: 25.871626, y: 10.5, z: -1.4879484}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1300880607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1300880605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &1310674814
 GameObject:
   m_ObjectHideFlags: 0
@@ -33642,6 +34216,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1337424710
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1337424711}
+  - component: {fileID: 1337424712}
+  m_Layer: 0
+  m_Name: Loot - Bank 01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1337424711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337424710}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.00000003567018, y: 0.59844637, z: 0.00000004775302, w: 0.80116284}
+  m_LocalPosition: {x: 28.236195, y: 11.500008, z: 5.937108}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1337424712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337424710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &1356568006
 Mesh:
   m_ObjectHideFlags: 0
@@ -35608,6 +36231,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1573258742
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1573258743}
+  - component: {fileID: 1573258744}
+  m_Layer: 0
+  m_Name: Loot - Bank 12
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1573258743
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1573258742}
+  serializedVersion: 2
+  m_LocalRotation: {x: -3.2296198e-18, y: 0.956754, z: 1.0622104e-17, w: -0.2908983}
+  m_LocalPosition: {x: 17.507448, y: 11.5, z: 27.091509}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1573258744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1573258742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &1583064261
 GameObject:
   m_ObjectHideFlags: 0
@@ -36322,6 +36994,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1659201880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1659201881}
+  - component: {fileID: 1659201882}
+  m_Layer: 0
+  m_Name: Loot - Bank 08
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1659201881
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659201880}
+  serializedVersion: 2
+  m_LocalRotation: {x: 5.335503e-18, y: 0.8769512, z: 9.736114e-18, w: 0.4805794}
+  m_LocalPosition: {x: 8.753907, y: 10.5, z: -2.0402372}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1659201882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659201880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!43 &1677313980
 Mesh:
   m_ObjectHideFlags: 0
@@ -37215,6 +37936,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1694673798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1694673799}
+  - component: {fileID: 1694673800}
+  m_Layer: 0
+  m_Name: Loot - Bank 11
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1694673799
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1694673798}
+  serializedVersion: 2
+  m_LocalRotation: {x: -4.011408e-18, y: 0.9324436, z: 1.0352204e-17, w: -0.3613155}
+  m_LocalPosition: {x: 17.190195, y: 11.5, z: 27.487116}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1694673800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1694673798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: f11a9c26f34332d4791b5e992724c106, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &1696752798
 GameObject:
   m_ObjectHideFlags: 0
@@ -38286,119 +39056,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1020286375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1754386039
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1754386040}
-  - component: {fileID: 1754386043}
-  - component: {fileID: 1754386042}
-  - component: {fileID: 1754386041}
-  m_Layer: 0
-  m_Name: Ground
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!4 &1754386040
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1754386039}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0, z: 0}
-  m_LocalScale: {x: 100, y: 1, z: 100}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 131578735}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &1754386041
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1754386039}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &1754386042
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1754386039}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a95683895b2c7418e9282fb46f0700eb, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1754386043
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1754386039}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1756107995
 GameObject:
   m_ObjectHideFlags: 0
@@ -38935,6 +39592,55 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1791387185
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1791387186}
+  - component: {fileID: 1791387187}
+  m_Layer: 0
+  m_Name: Loot - Vault 14
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1791387186
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791387185}
+  serializedVersion: 2
+  m_LocalRotation: {x: -9.9060685e-18, y: 0.45152336, z: 5.0129163e-18, w: -0.8922593}
+  m_LocalPosition: {x: 12.681771, y: 11.5, z: 30.632912}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1879395711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1791387187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791387185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ac42caf38fc5148a967d605da9082d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Loot::Project.Loot.Spawning.LootSpawnPoint
+  _pool: {fileID: 11400000, guid: d7e1e3f157bf84a448ce846b1ede454e, type: 2}
+  _extraEntries:
+    _entries: []
+  _spawnChance: 1
+  _ignoreQuantityModifier: 0
 --- !u!1 &1828655970
 GameObject:
   m_ObjectHideFlags: 0
@@ -39648,6 +40354,57 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1020286375}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1879395710
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1879395711}
+  m_Layer: 0
+  m_Name: '[Loot Spawns]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1879395711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879395710}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1337424711}
+  - {fileID: 1281046821}
+  - {fileID: 1273753698}
+  - {fileID: 74433438}
+  - {fileID: 1300880606}
+  - {fileID: 1263112144}
+  - {fileID: 306946074}
+  - {fileID: 1659201881}
+  - {fileID: 258028792}
+  - {fileID: 1009561338}
+  - {fileID: 1694673799}
+  - {fileID: 1573258743}
+  - {fileID: 509977449}
+  - {fileID: 1791387186}
+  - {fileID: 452219154}
+  - {fileID: 67697944}
+  - {fileID: 732692367}
+  - {fileID: 1165407881}
+  - {fileID: 1054082762}
+  - {fileID: 840147960}
+  m_Father: {fileID: 131578735}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1879687381
 GameObject:
@@ -42339,6 +43096,63 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1001 &5935106167155155754
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057985717552152747, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1905108982780951691, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
+      propertyPath: m_Name
+      value: Level Handler
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5e8819f363528e14aaed70185adcd3a4, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -42347,4 +43161,4 @@ SceneRoots:
   - {fileID: 131578735}
   - {fileID: 26334267}
   - {fileID: 218841917}
-  - {fileID: 419525374}
+  - {fileID: 5935106167155155754}

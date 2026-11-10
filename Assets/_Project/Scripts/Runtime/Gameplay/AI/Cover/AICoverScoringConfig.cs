@@ -18,6 +18,12 @@ public class AICoverScoringConfig
     [Range(0f, 1f)] public float PeekWeight = 0.15f;
     [Range(0f, 1f)] public float IdealRangeWeight = 0.15f;
     
+    [Header("Quality & Approach")]
+    [Range(0f, 0.5f), Tooltip("How much a point's baked quality can raise or lower its score.")]
+    public float QualityInfluence = 0.15f;
+    [Range(0f, 1f), Tooltip("Score lost when the whole run to the cover is in the threat's view.")]
+    public float ApproachExposurePenalty = 0.4f;
+
     [Header("Disqualification Thresholds")]
     public float MinFacingAlignment = 0.5f;
 

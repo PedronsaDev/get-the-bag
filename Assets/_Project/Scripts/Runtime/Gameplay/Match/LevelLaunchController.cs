@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using Project.Logging;
 using Project.Networking.Scenes;
@@ -11,15 +10,11 @@ namespace Project.Core.Match
 public enum LaunchState : byte
 {
     Idle,
+    Selected,
     Countdown,
     Loading
 }
 
-/// <summary>
-/// Hub-side authority for starting a level. Lives in the hub scene only (no DontDestroyOnLoad),
-/// so every return to the hub starts again from <see cref="LaunchState.Idle"/>.
-/// Flow: Idle -> Countdown (cancelable) -> Loading (NetworkSceneCoordinator) -> scene unloads.
-/// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
 [DisallowMultipleComponent]
 public class LevelLaunchController : NetworkBehaviour
@@ -27,13 +22,13 @@ public class LevelLaunchController : NetworkBehaviour
     public static LevelLaunchController Instance { get; private set; }
 
     [Header("Settings")]
-    [Tooltip("Seconds players can see 'Deploying' before the scene load starts. 0 = load immediately.")]
+    [Tooltip("Seconds of countdown once everyone is in position. 0 = load immediately.")]
     [SerializeField] private float _countdownSeconds = 5f;
 
-    [Tooltip("When on, the host cannot launch until every connected player is ready on the hub ready pad.")]
+    [Tooltip("When on, the countdown also waits until every connected player is ready on the hub ready pad.")]
     [SerializeField] private bool _requireAllReady;
 
-    [Tooltip("Every connected player must stand inside this zone to launch. Leaving it cancels the countdown. Leave empty for no location rule.")]
+    [Tooltip("Every connected player must stand inside this zone for the countdown to run. Leave empty for no location rule.")]
     [SerializeField] private AreaPlayerDetector _deployZone;
 
     [Header("Networked State")]
@@ -41,11 +36,11 @@ public class LevelLaunchController : NetworkBehaviour
     public SyncVar<float> CountdownRemaining = new();
     public SyncVar<string> PendingLevel = new(string.Empty);
 
-    // Mirrors used when the object is not network-spawned (offline hub).
     private LaunchState _localState = LaunchState.Idle;
     private float _localCountdown;
     private string _localPending = string.Empty;
-    private bool _cancelRequested;
+
+    private float _remaining;
 
     public event Action<LaunchState> OnLaunchStateChanged;
 
@@ -53,6 +48,9 @@ public class LevelLaunchController : NetworkBehaviour
     public float Countdown => isSpawned ? CountdownRemaining.value : _localCountdown;
     public string Pending => isSpawned ? PendingLevel.value : _localPending;
     public bool IsIdle => CurrentState == LaunchState.Idle;
+    public bool HasSelection => CurrentState != LaunchState.Idle;
+    public bool IsLoading => CurrentState == LaunchState.Loading;
+    public AreaPlayerDetector DeployZone => _deployZone;
 
     private bool IsServerAuthority =>
         isServer || (NetworkManager.main && NetworkManager.main.isServer) ||
@@ -82,53 +80,18 @@ public class LevelLaunchController : NetworkBehaviour
             Instance = null;
     }
 
-    /// <summary>Why a launch cannot start right now, or false with an empty reason when it can.</summary>
-    public bool IsLaunchBlocked(out string reason)
+    public static string DisplayName(string sceneName)
     {
-        reason = string.Empty;
-
-        if (!IsIdle)
-        {
-            reason = "Deployment in progress";
-            return true;
-        }
-
-        if (IsZoneBlocked(out reason))
-            return true;
-
-        var ready = HubReadyState.Instance;
-        if (_requireAllReady && ready && !ready.AllReady)
-        {
-            reason = $"Waiting for players ({ready.ReadyCount}/{ready.TotalCount} ready)";
-            return true;
-        }
-
-        return false;
+        if (string.IsNullOrEmpty(sceneName)) return string.Empty;
+        if (sceneName.StartsWith("Scene_")) sceneName = sceneName.Substring(6);
+        return sceneName.Replace('_', ' ').ToUpperInvariant();
     }
 
-    public AreaPlayerDetector DeployZone => _deployZone;
-
-    /// <summary>True when a deploy zone is set and not every player is standing in it.</summary>
-    private bool IsZoneBlocked(out string reason)
-    {
-        reason = string.Empty;
-        if (!_deployZone) return false;
-
-        if (!_deployZone.AreAllPlayersInside.value)
-        {
-            reason = $"Everyone must be in the deploy zone ({_deployZone.PlayersInsideCount.value}/{_deployZone.TotalRequiredCount.value})";
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Server/offline only. Returns false when the request was rejected.</summary>
-    public bool TryLaunch(string sceneName)
+    public bool TrySelectLevel(string sceneName)
     {
         if (!IsServerAuthority)
         {
-            AppLog.LogWarning(LogChannel.Match, "Only the host can launch a level.", this);
+            AppLog.LogWarning(LogChannel.Match, "Only the host can select a level.", this);
             return false;
         }
 
@@ -138,83 +101,115 @@ public class LevelLaunchController : NetworkBehaviour
             return false;
         }
 
-        if (IsLaunchBlocked(out var blockedReason))
+        if (IsLoading)
         {
-            AppLog.LogWarning(LogChannel.Match, $"Launch ignored: {blockedReason}.", this);
+            AppLog.LogWarning(LogChannel.Match, "Cannot change the level while it is loading.", this);
             return false;
         }
 
-        _cancelRequested = false;
         SetPending(sceneName);
-        RunLaunchAsync(sceneName, destroyCancellationToken).Forget();
+        SetCountdown(0f);
+        SetState(LaunchState.Selected);
+        AppLog.Log(LogChannel.Match, $"Level selected: '{sceneName}'.", this);
         return true;
     }
 
-    /// <summary>Server/offline only. Only valid while the countdown is running.</summary>
-    public void CancelLaunch()
+    public void ClearSelection()
     {
-        if (!IsServerAuthority || CurrentState != LaunchState.Countdown)
+        if (!IsServerAuthority || IsIdle || IsLoading)
             return;
 
-        _cancelRequested = true;
+        SetCountdown(0f);
+        SetPending(string.Empty);
+        SetState(LaunchState.Idle);
+        AppLog.Log(LogChannel.Match, "Level selection cleared by host.", this);
     }
 
-    private async UniTaskVoid RunLaunchAsync(string sceneName, CancellationToken token)
+    public bool ArePlayersInPosition(out string reason)
     {
-        try
-        {
-            if (_countdownSeconds > 0f)
-            {
-                SetState(LaunchState.Countdown);
+        reason = string.Empty;
 
-                float remaining = _countdownSeconds;
-                while (remaining > 0f)
+        if (_deployZone && !_deployZone.AreAllPlayersInside.value)
+        {
+            reason = $"Waiting for players in the deploy zone ({_deployZone.PlayersInsideCount.value}/{_deployZone.TotalRequiredCount.value})";
+            return false;
+        }
+
+        var ready = HubReadyState.Instance;
+        if (_requireAllReady && ready && !ready.AllReady)
+        {
+            reason = $"Waiting for players to ready up ({ready.ReadyCount}/{ready.TotalCount})";
+            return false;
+        }
+
+        return true;
+    }
+
+    private void Update()
+    {
+        if (!IsServerAuthority) return;
+
+        switch (CurrentState)
+        {
+            case LaunchState.Selected:
+                if (ArePlayersInPosition(out _))
+                    StartCountdown();
+                break;
+
+            case LaunchState.Countdown:
+                if (!ArePlayersInPosition(out var reason))
                 {
-                    if (_cancelRequested)
-                    {
-                        AppLog.Log(LogChannel.Match, "Launch cancelled during countdown.", this);
-                        return;
-                    }
-
-                    if (IsZoneBlocked(out var zoneReason))
-                    {
-                        AppLog.Log(LogChannel.Match, $"Launch cancelled: {zoneReason}.", this);
-                        return;
-                    }
-
-                    SetCountdown(remaining);
-                    await UniTask.Yield(PlayerLoopTiming.Update, token);
-                    remaining -= Time.deltaTime;
+                    AppLog.Log(LogChannel.Match, $"Countdown reset: {reason}.", this);
+                    SetCountdown(0f);
+                    SetState(LaunchState.Selected);
+                    break;
                 }
-            }
 
-            SetState(LaunchState.Loading);
-            SetCountdown(0f);
-
-            var coordinator = NetworkSceneCoordinator.Instance;
-            if (!coordinator)
-            {
-                AppLog.LogError(LogChannel.Match, "NetworkSceneCoordinator not found. Cannot load level.", this);
-                return;
-            }
-
-            AppLog.Log(LogChannel.Match, $"Loading level '{sceneName}'.", this);
-            await coordinator.TransitionToSceneAsync(sceneName);
+                _remaining -= Time.deltaTime;
+                PublishCountdown();
+                if (_remaining <= 0f)
+                    BeginLoadAsync(Pending).Forget();
+                break;
         }
-        catch (OperationCanceledException)
+    }
+
+    private void StartCountdown()
+    {
+        _remaining = Mathf.Max(0f, _countdownSeconds);
+        SetState(LaunchState.Countdown);
+        PublishCountdown();
+
+        if (_remaining <= 0f)
+            BeginLoadAsync(Pending).Forget();
+    }
+
+    private void PublishCountdown()
+    {
+        float shown = Mathf.Ceil(Mathf.Max(0f, _remaining));
+        if (!Mathf.Approximately(Countdown, shown))
+            SetCountdown(shown);
+    }
+
+    private async UniTaskVoid BeginLoadAsync(string sceneName)
+    {
+        SetState(LaunchState.Loading);
+        SetCountdown(0f);
+
+        var coordinator = NetworkSceneCoordinator.Instance;
+        if (!coordinator)
         {
-            // The hub scene was unloaded under us. Nothing to clean up.
+            AppLog.LogError(LogChannel.Match, "NetworkSceneCoordinator not found. Cannot load level.", this);
+            SetState(LaunchState.Selected);
+            return;
         }
-        finally
+
+        AppLog.Log(LogChannel.Match, $"Loading level '{sceneName}'.", this);
+        bool ok = await coordinator.TransitionToSceneAsync(sceneName);
+
+        if (this && !ok)
         {
-            // After a successful load this object is already destroyed, hence the check.
-            if (this)
-            {
-                _cancelRequested = false;
-                SetCountdown(0f);
-                SetPending(string.Empty);
-                SetState(LaunchState.Idle);
-            }
+            AppLog.LogWarning(LogChannel.Match, $"Loading '{sceneName}' failed. Selection kept.", this);
+            SetState(LaunchState.Selected);
         }
     }
 

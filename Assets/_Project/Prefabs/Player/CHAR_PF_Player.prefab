@@ -77,7 +77,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3c430f382484144e925c097c2d33cfe, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.MultiAimConstraint
   m_Weight: 1
   m_Data:
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a77632915ba39f42a0e8515cbd00a7b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Animation.PlayerAimTarget
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -142,7 +142,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _aimTargetTransform: {fileID: 6869150781157839163}
   _cameraTransform: {fileID: 960240798095504355}
@@ -204,7 +204,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1dbe6016ae8d3da46a16ade1680af30b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.PlayerFacade
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -215,7 +215,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _inputProvider: {fileID: 3432939826793728204}
   _locomotionController: {fileID: 7482482855676676148}
@@ -237,7 +237,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eeca8cc52ff5d8340837bb029fed1ee8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Input.LocalPlayerInputProvider
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -248,7 +248,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _lookSensitivity: 0.5
   _invertY: 0
@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 405b57a03d080614f866984e67512e40, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Interaction.PlayerInteractor
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -277,7 +277,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _detectionRange: 3
   _assistRadius: 0.2
@@ -298,7 +298,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac62f0d629b167442b05079ee802d7dc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Detection.PlayerTargetDetector
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -309,7 +309,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _cameraController: {fileID: 1197550716529269032}
   _detectionRange: 120
@@ -331,7 +331,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18e5fd8dcbcb8f048b3cb8827326dd26, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Combat::Project.Combat.HealthComponent
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -342,7 +342,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _maxHealth: 100
   _invulnerable: 0
@@ -354,13 +354,11 @@ MonoBehaviour:
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 100
   _currentShield:
     _value: 0
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 0
 --- !u!114 &5771435480062743233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,7 +369,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e58a358d32d4d9c4ea5c3c5ca9939d99, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Locomotion.PlayerDownedState
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -382,7 +380,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _healthComponent: {fileID: 5744433141554505838}
   _locomotionController: {fileID: 7482482855676676148}
@@ -395,7 +393,6 @@ MonoBehaviour:
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 45
   DraggedByPlayer:
     _ownerAuth: 0
     _ownerOnly: 0
@@ -410,7 +407,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ee540b5c2c5454428b1b721b1622669, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Data.RuntimePlayerProfile
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -421,7 +418,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _events: {fileID: 11400000, guid: 6c740ce651dc2404cbe0f5a1c401c293, type: 2}
   _name:
@@ -429,19 +426,16 @@ MonoBehaviour:
     _ownerAuth: 1
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: PLAYER_NAME
   _currentLevel:
     _value: 1
     _ownerAuth: 1
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 1
   _totalExperience:
     _value: 0
     _ownerAuth: 1
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 0
 --- !u!114 &1110250348622865925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,7 +446,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bfff9fc494e493b4183bc7b4355ff11f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Loot.PlayerDuffleBagController
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -463,7 +457,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _inputProvider: {fileID: 3432939826793728204}
   _locomotionController: {fileID: 7482482855676676148}
@@ -482,19 +476,16 @@ MonoBehaviour:
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 0
   _currentWeight:
     _value: 0
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 0
   _currentValue:
     _value: 0
     _ownerAuth: 0
     _ownerOnly: 0
     _sendIntervalInSeconds: 0
-    _initialValue: 0
 --- !u!114 &8344428670646863682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -505,7 +496,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94d6f96d9ca155f42a8e6494efec2ec9, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Core::Project.Core.Player.PlayerIdentifier
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -516,7 +507,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _playerBody: {fileID: 3863812860035546540}
 --- !u!114 &8440664274451112167
@@ -529,7 +520,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 75a4dd4b394830a4890f7d15dd3bfb77, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Combat.PlayerWeaponController
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -540,7 +531,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _downedState: {fileID: 5771435480062743233}
   _inputProvider: {fileID: 3432939826793728204}
@@ -562,7 +553,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4378b173c995fae47a2452cb32f45211, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Combat.PlayerWeaponPresenter
   _characterRigBinding: {fileID: 7238550490616828200}
   _visibility: {fileID: 1522447270465537852}
@@ -576,7 +567,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 933811ef470821c408e5fe54bfa76102, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Animation.CharacterRigBinding
   _visualDefinition: {fileID: 11400000, guid: c0556150758a6a14fbb58eb7fb20a8ab, type: 2}
   _bodyAnimator: {fileID: 8858057690329465640}
@@ -602,7 +593,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c202e6ee51b65df4895be74457d42147, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Animation.CharacterVisualVisibility
 --- !u!114 &8540924219541943797
 MonoBehaviour:
@@ -614,7 +605,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5e45fab518b219e45baf420a4dad5bee, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Animation.BodyAnimationDriver
   _bodyAnimator: {fileID: 8858057690329465640}
   _facingReference: {fileID: 3174483983228246354}
@@ -631,7 +622,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d543c6be2b2fd94092d81b3c5fd5fd8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Animation.CharacterPresentationCapture
   _locomotionController: {fileID: 7482482855676676148}
   _bodyAnimationDriver: {fileID: 8540924219541943797}
@@ -682,7 +673,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
     m_Left: 0
@@ -801,7 +792,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -812,7 +803,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _syncPosition: 2
   _syncRotation: 2
@@ -835,7 +826,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d1bc5515e3ab954e80599c538834774, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: KinematicCharacterController::KinematicCharacterController.KinematicCharacterMotor
   Capsule: {fileID: 5945806780201559008}
   CapsuleRadius: 0.5
@@ -877,7 +868,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3f0f2377d754c6478274c5a292a25b1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.LocomotionController
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -888,7 +879,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   State:
     JumpBufferTimer: 0
@@ -917,6 +908,10 @@ MonoBehaviour:
     VaultStartPosition: {x: 0, y: 0, z: 0}
     VaultTargetPosition: {x: 0, y: 0, z: 0}
     VaultTimer: 0
+    VaultDuration: 0
+    VaultEntrySpeed: 0
+    VaultInward: {x: 0, y: 0, z: 0}
+    VaultExpectedPosition: {x: 0, y: 0, z: 0}
     IsNoclipEnabled: 0
   _motor: {fileID: 6988986901440066400}
   _networkTransform: {fileID: 1117931757033441777}
@@ -951,17 +946,24 @@ MonoBehaviour:
   _slideEntryBoost: 2
   _slideFriction: 1
   _minSpeedToSlide: 4.6
-  _slideStopSpeed: 5
+  _slideStopSpeed: 2
+  _maxSlideSpeed: 9
+  _slideCooldown: 0.6
   _vaultLayerMask:
     serializedVersion: 2
     m_Bits: 1
   _vaultCheckDistance: 1.6
   _minVaultHeight: 1
-  _maxVaultHeight: 2.4
+  _maxVaultHeight: 2
   _vaultDuration: 0.7
+  _vaultMinDuration: 0.3
+  _vaultTriggerDistance: 0.5
+  _autoMantleInAir: 1
+  _vaultCooldown: 0.35
   _fallGravityMultiplier: 1
   _slideGravityMultiplier: 2.5
   _gravity: {x: 0, y: -29, z: 0}
+  _maxFallSpeed: 55
   _noclipSpeed: 12
   _noclipSprintMultiplier: 2.5
   _noclipSharpness: 20
@@ -1110,7 +1112,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef74256c7d7f25e418583a8235212f23, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.PlayerDownedInteractable
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -1121,7 +1123,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _interactionCollider: {fileID: 3620035766000716549}
   _playerDownedState: {fileID: 5771435480062743233}
@@ -1223,7 +1225,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 954badd44e9584e4e949777a674fca0d, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.CameraTiltController
   _strafeTilt: 1.5
   _slideTilt: 4.5
@@ -1305,7 +1307,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.Rig
   m_Weight: 0
   m_Effectors: []
@@ -1334,7 +1336,7 @@ Transform:
   m_GameObject: {fileID: 3642798593584272359}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.239, y: 1.231, z: 0.3}
+  m_LocalPosition: {x: -0.239, y: 1.196, z: 0.281}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1383,7 +1385,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aeda7bfbf984f2a4da5ab4b8967b115d, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.TwoBoneIKConstraint
   m_Weight: 0
   m_Data:
@@ -1440,13 +1442,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 478c9fa2b5c1d81459701638ba18c770, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.FPSCamera.FPSCameraImpact
   _impactPivot: {fileID: 8823753590213702285}
   _locomotionController: {fileID: 7482482855676676148}
   _landVelocity: -12
   _jumpVelocity: 10
   _vaultVelocity: -30
+  _minLandSpeed: 3
+  _fullLandSpeed: 16
   _impactSpring:
     Stiffness: 100
     Damping: 12
@@ -1524,7 +1528,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.Rig
   m_Weight: 1
   m_Effectors:
@@ -1588,7 +1592,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c77161b11e8ad346b35dfb5bfd56691, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.FPSCameraController
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -1599,7 +1603,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _baseFOV: 90
   _sprintFOV: 100
@@ -1609,6 +1613,7 @@ MonoBehaviour:
   _slidingHeight: 0.8
   _downedHeight: 0.5
   _heightSmoothness: 10
+  _vaultDip: 0.3
   _maxPitch: 85
   _minPitch: -85
   _pitchPivot: {fileID: 960240798095504355}
@@ -1737,7 +1742,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1829,7 +1834,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: -1
@@ -1883,7 +1888,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -1894,7 +1899,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _syncPosition: 2
   _syncRotation: 2
@@ -1951,7 +1956,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9c6590c68d3d1b4b843533ec6d9bc90, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.Player::Project.Player.Animation.UpperBodyPoseController
   _rigBinding: {fileID: 7238550490616828200}
   _networkAnimator: {fileID: 7598720964875010470}
@@ -2034,7 +2039,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
@@ -2057,7 +2062,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
@@ -2074,7 +2079,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 047c731b05f50324b91ae599761fd1de, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.UI::Project.UI.PLayer.PlayerOverheadUI
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -2085,7 +2090,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _playerProfile: {fileID: 3890863234750818640}
   _worldCanvas: {fileID: 2624115591730100396}
@@ -2100,7 +2105,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6fa8cd6c58b5e59498e708d57a0cfd2e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Project.UI::Project.UI.BillboardUI
 --- !u!1 &8509820970109794376
 GameObject:
@@ -2293,7 +2298,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 3baa765273657624085216f41bf475cf, type: 3}
       propertyPath: m_Controller
-      value:
+      value: 
       objectReference: {fileID: 9100000, guid: 6d263b9753b70fd41b67cfada42a7a23, type: 2}
     - target: {fileID: 5866666021909216657, guid: 3baa765273657624085216f41bf475cf, type: 3}
       propertyPath: m_ApplyRootMotion
@@ -2438,7 +2443,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7b598b9d8509d64abb9fdaf07fa3f6e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAnimator
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
@@ -2449,7 +2454,7 @@ MonoBehaviour:
   _componentIndex: -2147483648
   _shouldBePooled: 0
   _parent: {fileID: 0}
-  _invertedPathToNearestParent:
+  _invertedPathToNearestParent: 
   _directChildren: []
   _animator: {fileID: 8858057690329465640}
   _ownerAuth: 1
@@ -2466,7 +2471,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.RigBuilder
   m_RigLayers:
   - m_Rig: {fileID: 492803491692359980}
@@ -2484,7 +2489,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2d8418b0b9634b1892b0268dd9c2743, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.BoneRenderer
   boneShape: 1
   drawBones: 1

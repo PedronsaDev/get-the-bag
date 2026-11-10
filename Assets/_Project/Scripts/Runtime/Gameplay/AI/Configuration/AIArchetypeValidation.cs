@@ -106,6 +106,9 @@ internal static class AIArchetypeValidation
             if (Mathf.Abs(sum - 1f) > 0.001f)
                 return Fail("Cover weights must sum to one within a tolerance of 0.001.", out error);
 
+            if (!InRange(cover.QualityInfluence, 0f, 0.5f) || !InRange(cover.ApproachExposurePenalty, 0f, 1f))
+                return Fail("Cover quality influence must be between 0 and 0.5 and approach exposure penalty between 0 and 1.", out error);
+
             if (!InRange(cover.MinFacingAlignment, -1f, 1f))
                 return Fail("Cover minimum facing alignment must be finite and between -1 and 1.", out error);
 

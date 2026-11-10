@@ -7,11 +7,11 @@ namespace Project.Core.Events
 [CreateAssetMenu(fileName = "RaidEventChannel", menuName = "Events/RaidEventChannel")]
 public class RaidEventChannel : ScriptableObject
 {
-    // Raid Manager Events
     public event Action<RaidManager> OnRaidManagerUpdated;
     public event Action<RaidState> OnStateChanged;
     public event Action OnRaidFailed;
     public event Action OnRaidCompleted;
+    public event Action<RaidResults> OnResultsReady;
     
     public event Action OnInfilCompleted;
     
@@ -28,6 +28,11 @@ public class RaidEventChannel : ScriptableObject
     public void RaiseRaidCompleted()
     {
         OnRaidCompleted?.Invoke();
+    }
+
+    public void RaiseResultsReady(RaidResults results)
+    {
+        OnResultsReady?.Invoke(results);
     }
 
     public void RaiseRaidFailed()

@@ -6,6 +6,7 @@
     "Project.Match",
     "Project.Combat",
     "Project.UI",
+    "Project.Definitions",
     "PurrNet.Runtime",
     "Unity.TextMeshPro"
   ],

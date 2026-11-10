@@ -78,6 +78,9 @@ public class ExtractionZone : NetworkBehaviour
         if (IsActivated.value)
             return;
 
+        if (RaidManager.Instance && !RaidManager.Instance.IsRaidActive)
+            return;
+
         _detector.Activate();
         IsActivated.value = true;
 
@@ -113,6 +116,9 @@ public class ExtractionZone : NetworkBehaviour
 
         IsCountdownActive.value = false;
         CountdownRemaining.value = 0f;
+
+        if (RaidManager.Instance && !RaidManager.Instance.IsRaidActive)
+            return;
 
         var activePlayers = PlayerIdentifier.ActivePlayers;
         var extractedPlayers = new List<PlayerID>();
@@ -151,14 +157,8 @@ public class ExtractionZone : NetworkBehaviour
 
         if (RaidManager.Instance)
         {
-            if (extractedPlayers.Count > 0)
-            {
-                RaidManager.Instance.ChangeState(RaidState.Completed);
-            }
-            else
-            {
-                RaidManager.Instance.ChangeState(RaidState.Failed);
-            }
+            var outcome = extractedPlayers.Count > 0 ? RaidOutcome.Extracted : RaidOutcome.NobodyExtracted;
+            RaidManager.Instance.Resolve(outcome, extractedPlayers);
         }
 
         AppLog.Log(LogChannel.Match, $"[ExfilZone] Exfil countdown complete. {extractedPlayers.Count} extracted, {leftBehindPlayers.Count} left behind.");

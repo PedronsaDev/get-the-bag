@@ -10,6 +10,8 @@ using PurrNet;
 using UnityEngine;
 using UnityPhysics = UnityEngine.Physics;
 
+// Run after FPSCameraController (order 0) so move direction uses this frame's yaw.
+[DefaultExecutionOrder(10)]
 public class LocomotionController : NetworkBehaviour, ICharacterController
 {
     public LocomotionState State;
@@ -58,18 +60,29 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     [SerializeField] private float _slideFriction = 1f;
     [SerializeField] private float _minSpeedToSlide = 6.2f;
     [SerializeField] private float _slideStopSpeed = 5f;
+    [Tooltip("Hard cap on planar speed gained from slide entry boosts (stops slide-hop stacking).")]
+    [SerializeField] private float _maxSlideSpeed = 9f;
+    [SerializeField] private float _slideCooldown = 0.6f;
 
     [Header("Vaulting & Ledge Grab")]
     [SerializeField] private LayerMask _vaultLayerMask = ~0;
     [SerializeField] private float _vaultCheckDistance = 2f;
     [SerializeField] private float _minVaultHeight = 0.4f;
     [SerializeField] private float _maxVaultHeight = 2f;
+    [Tooltip("Duration for the tallest ledge (MaxVaultHeight). Shorter ledges scale down to Vault Min Duration.")]
     [SerializeField] private float _vaultDuration = 0.7f;
+    [SerializeField] private float _vaultMinDuration = 0.3f;
+    [Tooltip("How close (beyond the capsule radius) the wall must be to start a vault.")]
+    [SerializeField] private float _vaultTriggerDistance = 0.5f;
+    [Tooltip("Mantle automatically when a jump or fall brings a ledge into range.")]
+    [SerializeField] private bool _autoMantleInAir = true;
+    [SerializeField] private float _vaultCooldown = 0.35f;
 
     [Header("Dynamic Gravity")]
     [SerializeField] private float _fallGravityMultiplier = 0.9f;
     [SerializeField] private float _slideGravityMultiplier = 2.5f;
     [SerializeField] private Vector3 _gravity = new(0, -29f, 0);
+    [SerializeField] private float _maxFallSpeed = 55f;
 
     [Header("Noclip")]
     [SerializeField] private float _noclipSpeed = 12f;
@@ -116,6 +129,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     public float MinVaultHeight => _minVaultHeight;
     public float MaxVaultHeight => _maxVaultHeight;
     public float VaultCheckDistance => _vaultCheckDistance;
+    public float VaultTriggerDistance => _vaultTriggerDistance;
     public LayerMask VaultLayerMask => _vaultLayerMask;
 
     public void SetDowned(bool downed)
@@ -135,7 +149,8 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         {
             if (_motor && _motor.Capsule)
             {
-                _motor.SetCapsuleDimensions(_motor.Capsule.radius, _standingHeight, _standingHeight * 0.5f);
+                _motor.SetCapsuleDimensions(_motor.Capsule.radius, _crouchingHeight, _crouchingHeight * 0.5f);
+                State.TargetHeight = _crouchingHeight;
             }
         }
     }
@@ -169,6 +184,27 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     private bool _isSprintInputHeld;
     private bool _isCrouchInputHeld;
     private bool _isJumpInputHeld;
+    private float _nextSlideAllowedTime;
+    private float _speedModifier = 1f;
+    private float _lowestVerticalSpeed;
+
+    public float SpeedModifier
+    {
+        get => _speedModifier;
+        set => _speedModifier = Mathf.Max(0f, value);
+    }
+
+    public float LastLandingSpeed { get; private set; }
+
+    public event Action<float> OnLandedAtSpeed;
+
+    private void OnValidate()
+    {
+        if (_slideStopSpeed > _minSpeedToSlide)
+            Debug.LogWarning(
+                $"[{nameof(LocomotionController)}] _slideStopSpeed ({_slideStopSpeed}) is above _minSpeedToSlide ({_minSpeedToSlide}); the lower value is used as the exit speed.",
+                this);
+    }
 
     private void Awake()
     {
@@ -204,7 +240,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         if (!isOwner)
             return;
 
-        SetPlayerPosition(transform.parent.position);
+        SetPlayerPosition(transform.parent ? transform.parent.position : transform.position);
 
         State = new LocomotionState
         {
@@ -213,6 +249,10 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             LandingTime = -100f,
             CurrentJumpStatus = JumpStatus.None,
             Phase = LocomotionPhase.Airborne,
+            TargetHeight = _standingHeight,
+            // _isDowned may have been applied before spawn (late join / respawn); keep State in sync.
+            IsDowned = _isDowned,
+            IsDraggingTeammate = _isDraggingTeammate,
         };
 
         InitializePhaseHandlers();
@@ -316,11 +356,67 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     public VaultEvaluation EvaluateVault() => VaultDetector.Evaluate(this);
 
-    private bool CanVault(out Vector3 targetFootPos)
+    private bool CanVault(out VaultEvaluation eval)
     {
-        var eval = EvaluateVault();
-        targetFootPos = eval.TargetFootPos;
+        eval = EvaluateVault();
         return eval.CanVault;
+    }
+
+    private float _lastVaultEndTime = -100f;
+
+    private void StartVault(in VaultEvaluation eval)
+    {
+        float heightT = Mathf.InverseLerp(_minVaultHeight, _maxVaultHeight, eval.LedgeHeight);
+        State.VaultDuration = Mathf.Lerp(_vaultMinDuration, Mathf.Max(_vaultMinDuration, _vaultDuration), heightT);
+        State.VaultTargetPosition = eval.TargetFootPos;
+        State.VaultInward = eval.InwardDirection;
+        State.VaultEntrySpeed = Vector3.ProjectOnPlane(_motor.BaseVelocity, _motor.CharacterUp).magnitude;
+
+        SwitchPhase(LocomotionPhase.Vaulting);
+
+        // Reset immediately: a stale Executed status would block jump input until the next landing.
+        State.CurrentJumpStatus = JumpStatus.None;
+        State.HasJumped = true;
+        State.CoyoteJumpQueued = false;
+        State.JumpBufferTimer = 0f;
+        State.TimeSinceLastJump = 0f;
+    }
+
+    // Ends the vault and hands momentum back to normal movement.
+    private void EndVault(ref Vector3 currentVelocity, bool completed)
+    {
+        if (completed && _moveInputVector.sqrMagnitude > 0.01f)
+        {
+            // Keep the speed the player came in with, within what ground movement allows right now.
+            float maxSpeed = GetGroundMoveSpeed();
+            float speed = Mathf.Clamp(State.VaultEntrySpeed, maxSpeed * 0.6f, maxSpeed);
+            currentVelocity = _moveInputVector.normalized * (speed * Mathf.Min(1f, _moveInputVector.magnitude));
+        }
+        else
+        {
+            currentVelocity = Vector3.zero;
+        }
+
+        // A vault is not a jump: leave jump state clean so the player can jump on the ledge.
+        State.HasJumped = false;
+        _lowestVerticalSpeed = 0f;
+        _lastVaultEndTime = Time.time;
+        SwitchPhase(LocomotionPhase.Airborne);
+    }
+
+    // Jumping or falling into a ledge pulls the player up without a precise button press.
+    private void TryAutoMantle()
+    {
+        if (!_autoMantleInAir || State.Phase != LocomotionPhase.Airborne) return;
+        if (_isDowned || _isDraggingTeammate) return;
+        if (Time.time < _lastVaultEndTime + _vaultCooldown) return;
+
+        float verticalSpeed = Vector3.Dot(_motor.BaseVelocity, _motor.CharacterUp);
+        if (verticalSpeed < -6f) return;
+        if (!(verticalSpeed > 0f || _isJumpInputHeld)) return;
+
+        if (CanVault(out VaultEvaluation eval))
+            StartVault(eval);
     }
 
     public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -338,6 +434,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
     {
         UpdatePhaseFromGrounding();
+        TryAutoMantle();
         _currentPhaseHandler?.UpdateVelocity(ref currentVelocity, deltaTime);
 
         ApplyJumpIfRequested(ref currentVelocity);
@@ -369,9 +466,11 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
         bool wantsToCrouch = _isCrouchInputHeld;
 
-        if (!wantsToCrouch && State.TargetHeight < _standingHeight)
+        // Check every tick while the capsule is shorter than standing, not just on the release tick,
+        // so a ceiling that appears during the regrow still holds the player crouched.
+        if (!wantsToCrouch && _motor.Capsule.height < _standingHeight - 0.01f)
         {
-            float radius = _motor.Capsule.radius;
+            float radius = _motor.Capsule.radius * 0.95f;
             Vector3 castOrigin = _motor.TransientPosition + _motor.CharacterUp * (_motor.Capsule.height - radius);
             float castDistance = _standingHeight - _motor.Capsule.height;
 
@@ -397,11 +496,14 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     {
         if (State.Phase == LocomotionPhase.Noclip) return;
 
-        bool becameStable = _motor.GroundingStatus.IsStableOnGround && !_motor.LastGroundingStatus.IsStableOnGround;
-        bool becameGroundedOnSlide = _allowJumpingWhenSliding && _motor.GroundingStatus.FoundAnyGround &&
-                                     !_motor.LastGroundingStatus.FoundAnyGround && !_motor.MustUnground();
+        // Vaulting owns the player until it finishes; a re-ground mid-vault must not end it early.
+        if (State.Phase == LocomotionPhase.Vaulting) return;
 
-        if (becameStable || becameGroundedOnSlide)
+        // Only a stable landing counts as "landed". Touching a steep slope does not refill jumps or kick the camera;
+        // jumping off it is handled by IsGroundedForJump + _allowJumpingWhenSliding.
+        bool becameStable = _motor.GroundingStatus.IsStableOnGround && !_motor.LastGroundingStatus.IsStableOnGround;
+
+        if (becameStable)
             OnLanded();
         else if (!_motor.GroundingStatus.IsStableOnGround && _motor.LastGroundingStatus.IsStableOnGround)
             OnLeaveStableGround();
@@ -510,6 +612,9 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
     private void OnLanded()
     {
+        LastLandingSpeed = Mathf.Max(0f, -_lowestVerticalSpeed);
+        _lowestVerticalSpeed = 0f;
+
         State.HasJumped = false;
         State.HasDoubleJumped = false;
         State.HasWallJumped = false;
@@ -519,6 +624,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         State.TimeSinceLastJump = Mathf.Infinity;
         State.LandingTime = Time.time;
         SwitchPhase(LocomotionPhase.Grounded);
+        OnLandedAtSpeed?.Invoke(LastLandingSpeed);
     }
 
     private void TryQueueJumpFromBuffer()
@@ -544,7 +650,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
         bool canWallJump = _allowWallJump && State is { CanWallJump: true, HasWallJumped: false };
 
-        bool canVault = CanVault(out _);
+        bool canVault = CanVault(out _) && Time.time >= _lastVaultEndTime + _vaultCooldown;
 
         if (canJumpFromGround || canDoubleJump || canWallJump || canVault)
         {
@@ -560,15 +666,9 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         if (_isDowned || _isDraggingTeammate || State.Phase == LocomotionPhase.Noclip) return;
         if (State.CurrentJumpStatus != JumpStatus.Requested) return;
 
-        if (CanVault(out Vector3 vaultTargetPos))
+        if (Time.time >= _lastVaultEndTime + _vaultCooldown && CanVault(out VaultEvaluation vaultEval))
         {
-            State.VaultTargetPosition = vaultTargetPos;
-            SwitchPhase(LocomotionPhase.Vaulting);
-
-            State.CurrentJumpStatus = JumpStatus.Executed;
-            State.HasJumped = true;
-            State.CoyoteJumpQueued = false;
-            State.TimeSinceLastJump = 0f;
+            StartVault(vaultEval);
             return;
         }
 
@@ -634,7 +734,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         if (_isDraggingTeammate)
             speedMultiplier *= _draggingSpeedMultiplier;
 
-        float globalBuffMult = 1f;
+        float globalBuffMult = _speedModifier;
 
         return _maxStableMoveSpeed * speedMultiplier * globalBuffMult;
     }
@@ -670,8 +770,9 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
     {
         if (!_motor) return false;
         if (_motor.MustUnground()) return false;
-        if (State.Phase is LocomotionPhase.Airborne or LocomotionPhase.Noclip) return false;
+        if (State.Phase is LocomotionPhase.Noclip or LocomotionPhase.Vaulting) return false;
 
+        // Airborne phase now counts when the motor still reports ground contact (steep / sliding slopes).
         return _allowJumpingWhenSliding
             ? (_motor.GroundingStatus.IsStableOnGround || _motor.GroundingStatus.FoundAnyGround)
             : _motor.GroundingStatus.IsStableOnGround;
@@ -751,13 +852,21 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
                 _controller.State.IsSliding = false;
             }
             else if (_controller._isCrouchInputHeld && !_controller.State.WasCrouchingLastFrame &&
+                     !_controller.State.IsSliding &&
+                     Time.time >= _controller._nextSlideAllowedTime &&
                      currentSpeed > _controller._minSpeedToSlide)
             {
                 _controller.State.IsSliding = true;
-                currentVelocity += currentVelocity.normalized * _controller._slideEntryBoost;
-                currentSpeed = currentVelocity.magnitude;
+                _controller._nextSlideAllowedTime = Time.time + _controller._slideCooldown;
+
+                // Boost, but never push past the cap. Speed already above the cap is kept, not cut.
+                float boosted = Mathf.Min(currentSpeed + _controller._slideEntryBoost,
+                    Mathf.Max(currentSpeed, _controller._maxSlideSpeed));
+                currentVelocity = currentVelocity.normalized * boosted;
+                currentSpeed = boosted;
             }
-            else if (!_controller._isCrouchInputHeld || currentSpeed < _controller._slideStopSpeed)
+            else if (!_controller._isCrouchInputHeld ||
+                     currentSpeed < Mathf.Min(_controller._slideStopSpeed, _controller._minSpeedToSlide))
             {
                 _controller.State.IsSliding = false;
             }
@@ -907,6 +1016,7 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
         {
             _controller.State.VaultTimer = 0f;
             _controller.State.VaultStartPosition = _controller._motor.TransientPosition;
+            _controller.State.VaultExpectedPosition = _controller._motor.TransientPosition;
             _controller._motor.ForceUnground();
         }
 
@@ -916,33 +1026,41 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
 
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            _controller.State.VaultTimer += deltaTime;
-            float progress = Mathf.Clamp01(_controller.State.VaultTimer / _controller._vaultDuration);
+            var c = _controller;
+
+            // Blocked by something unexpected (moving prop, closing door): bail out instead of grinding.
+            if (c.State.VaultTimer > 0f &&
+                Vector3.Distance(c.State.VaultExpectedPosition, c._motor.TransientPosition) > 0.5f)
+            {
+                c.EndVault(ref currentVelocity, false);
+                return;
+            }
+
+            float duration = Mathf.Max(0.05f, c.State.VaultDuration);
+            c.State.VaultTimer += deltaTime;
+            float progress = Mathf.Clamp01(c.State.VaultTimer / duration);
 
             if (progress >= 1f)
             {
-                float exitSpeed = _controller.GetGroundMoveSpeed();
-                currentVelocity = _controller._moveInputVector * exitSpeed;
-                _controller.SwitchPhase(LocomotionPhase.Airborne);
+                c.EndVault(ref currentVelocity, true);
+                return;
             }
-            else
-            {
-                float verticalProgress = Mathf.Sqrt(progress);
-                float horizontalProgress = progress * progress;
 
-                Vector3 startPos = _controller.State.VaultStartPosition;
-                Vector3 targetPos = _controller.State.VaultTargetPosition;
+            // Rise first (ease-out, done by 55%), then slide onto the ledge (smoothstep from 40%).
+            // The overlap plus a small hump keeps the capsule clear of the ledge corner.
+            float rise = Mathf.Clamp01(progress / 0.55f);
+            rise = 1f - (1f - rise) * (1f - rise);
+            float forward = Mathf.Clamp01((progress - 0.40f) / 0.60f);
+            forward = forward * forward * (3f - 2f * forward);
 
-                Vector3 currentPos = startPos;
+            Vector3 startPos = c.State.VaultStartPosition;
+            Vector3 targetPos = c.State.VaultTargetPosition;
 
-                currentPos.y = Mathf.Lerp(startPos.y, targetPos.y, verticalProgress);
-                currentPos.x = Mathf.Lerp(startPos.x, targetPos.x, horizontalProgress);
-                currentPos.z = Mathf.Lerp(startPos.z, targetPos.z, horizontalProgress);
+            Vector3 desired = Vector3.Lerp(startPos, targetPos, forward);
+            desired.y = Mathf.Lerp(startPos.y, targetPos.y, rise) + Mathf.Sin(progress * Mathf.PI) * 0.12f;
 
-                currentPos.y += Mathf.Sin(progress * Mathf.PI) * 0.15f;
-
-                currentVelocity = (currentPos - _controller._motor.TransientPosition) / deltaTime;
-            }
+            c.State.VaultExpectedPosition = desired;
+            currentVelocity = (desired - c._motor.TransientPosition) / deltaTime;
         }
     }
 
@@ -1004,6 +1122,15 @@ public class LocomotionController : NetworkBehaviour, ICharacterController
             currentVelocity += _controller._gravity * (gravityMultiplier * deltaTime);
 
             currentVelocity *= (1f / (1f + (_controller._drag * deltaTime)));
+
+            // Terminal velocity: drag alone allows ~250 m/s falls.
+            Vector3 up = _controller._motor.CharacterUp;
+            float verticalSpeed = Vector3.Dot(currentVelocity, up);
+            if (verticalSpeed < -_controller._maxFallSpeed)
+                currentVelocity += up * (-_controller._maxFallSpeed - verticalSpeed);
+
+            // Remember the fastest fall this airtime; read when landing (the motor zeroes it on touchdown).
+            _controller._lowestVerticalSpeed = Mathf.Min(_controller._lowestVerticalSpeed, verticalSpeed);
         }
     }
 

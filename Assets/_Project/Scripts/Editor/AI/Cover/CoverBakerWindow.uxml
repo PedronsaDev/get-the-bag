@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+  <ui:Style src="CoverBakerWindow.uss" />
+  <ui:ScrollView name="root" class="cover-root">
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Target" class="section-title" />
+      <uie:ObjectField name="targetField" label="Root" />
+      <ui:Label text="Leave empty to use the selected object. Points are baked under a [CoverPoints] child." class="hint" />
+    </ui:VisualElement>
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Settings" class="section-title" />
+      <uie:LayerMaskField name="obstacleMaskField" label="Obstacle Layers" />
+      <uie:FloatField name="stepField" label="Sample Step (m)" />
+      <uie:FloatField name="spacingField" label="Min Spacing (m)" />
+      <uie:FloatField name="wallDistanceField" label="Wall Search (m)" />
+      <uie:FloatField name="lowHeightField" label="Low Cover Height" />
+      <uie:FloatField name="highHeightField" label="High Cover Height" />
+      <uie:FloatField name="maxPeekField" label="Max Peek (m)" />
+      <uie:FloatField name="agentRadiusField" label="Agent Radius" />
+      <ui:Button name="resetButton" text="Reset to Defaults" />
+    </ui:VisualElement>
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Bake" class="section-title" />
+      <ui:VisualElement class="button-row">
+        <ui:Button name="previewButton" text="Preview" />
+        <ui:Button name="bakeButton" text="Bake" class="primary-button" />
+        <ui:Button name="clearButton" text="Clear" />
+      </ui:VisualElement>
+      <ui:Toggle name="showPointsToggle" label="Show Cover Points" value="true" />
+      <ui:Label name="statusLabel" class="status" />
+    </ui:VisualElement>
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Validate" class="section-title" />
+      <ui:Button name="validateButton" text="Check Cover Points" />
+      <ui:Label name="validateSummary" class="status" />
+      <ui:VisualElement name="issueList" />
+    </ui:VisualElement>
+
+  </ui:ScrollView>
+</ui:UXML>

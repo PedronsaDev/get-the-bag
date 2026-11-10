@@ -5,7 +5,8 @@
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
     "Project.AI",
-    "Project.AI.Editor"
+    "Project.AI.Editor",
+    "Unity.AI.Navigation"
   ],
   "includePlatforms": [
     "Editor"

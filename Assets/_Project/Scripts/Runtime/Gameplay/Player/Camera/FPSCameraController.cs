@@ -20,6 +20,8 @@ public class FPSCameraController : NetworkBehaviour
     [SerializeField] private float _slidingHeight = 0.8f;
     [SerializeField] private float _downedHeight = 0.5f;
     [SerializeField] private float _heightSmoothness = 10f;
+    [Tooltip("How far the camera dips while pulling up over a ledge.")]
+    [SerializeField] private float _vaultDip = 0.3f;
 
     [Header("Look Settings")] 
     [SerializeField] private float _maxPitch = 85f;
@@ -123,7 +125,7 @@ public class FPSCameraController : NetworkBehaviour
     private void HandleDynamicFOV(float dt)
     {
         var loco = CurrentLocomotionState;
-        var wantsFastFOV = loco.IsSprinting || loco.IsSliding;
+        var wantsFastFOV = loco.IsSprinting || loco.IsSliding || loco.Phase == LocomotionPhase.Vaulting;
         var targetFOV = wantsFastFOV ? _sprintFOV : _baseFOV;
         targetFOV = Mathf.Lerp(targetFOV, _aimFov, Mathf.SmoothStep(0f, 1f, _aimProgress));
         if (!_cam) return;
@@ -154,6 +156,13 @@ public class FPSCameraController : NetworkBehaviour
             targetY = _crouchingHeight;
         else
             targetY = _standingHeight;
+
+        // Pull-up feel: camera drops toward the ledge mid-vault, then recovers as the body clears it.
+        if (loco.Phase == LocomotionPhase.Vaulting && loco.VaultDuration > 0.01f)
+        {
+            float vaultProgress = Mathf.Clamp01(loco.VaultTimer / loco.VaultDuration);
+            targetY -= _vaultDip * Mathf.Sin(vaultProgress * Mathf.PI);
+        }
 
         Vector3 pitchNodePos = _pitchPivot.localPosition;
         pitchNodePos.y = Mathf.Lerp(pitchNodePos.y, targetY, dt * _heightSmoothness);

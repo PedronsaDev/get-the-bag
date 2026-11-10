@@ -1,12 +1,16 @@
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Project.Core.Events;
 using Project.Core.Player;
+using Project.Logging;
+using Project.Loot;
+using Project.Loot.Data;
+using Project.Networking.Scenes;
 using PurrNet;
 using UnityEngine;
 
 namespace Project.Core.Match
 {
-
-
 public enum RaidState
 {
     WaitingAtPlatform,
@@ -17,23 +21,44 @@ public enum RaidState
     Failed
 }
 
-
 public class RaidManager : NetworkBehaviour
 {
     public static RaidManager Instance { get; private set; }
 
     [Header("References")]
     [SerializeField] private RaidEventChannel _raidEvents;
-    
+
+    [Header("Return")]
+    [SerializeField] private string _hubSceneName = "Scene_Hub";
+    [Tooltip("Seconds after the raid ends before everyone is sent back to the hub. 0 = only when the host calls ReturnToHub().")]
+    [SerializeField, Min(0f)] private float _autoReturnSeconds = 15f;
+
     [Header("Networked State")]
     public SyncVar<RaidState> CurrentState = new();
     public SyncVar<float> TimeRemaining = new(1200f);
     public SyncVar<int> StandingPlayerCount = new();
     public SyncVar<int> DownedPlayerCount = new();
     public SyncVar<int> DeadPlayerCount = new();
+    public SyncVar<RaidResults> Results = new();
+    public SyncVar<float> ReturnCountdown = new();
+
+    private static int _runCounter;
+
+    private LevelReadyGate _gate;
+    private bool _resolved;
+    private bool _returning;
+    private float _returnTimer;
+    private int _lastAnnouncedRun;
+
+    public bool IsRaidActive =>
+        CurrentState.value is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout;
+    public bool IsResolved => CurrentState.value is RaidState.Completed or RaidState.Failed;
 
     private bool IsServerAuthority =>
         isServer || (NetworkManager.main && NetworkManager.main.isServer) || (!NetworkManager.main || NetworkManager.main.isOffline);
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => _runCounter = 0;
 
     private void Awake()
     {
@@ -48,12 +73,15 @@ public class RaidManager : NetworkBehaviour
         }
 
         CurrentState.onChanged += HandleNetworkStateChanged;
+        Results.onChanged += HandleResultsChanged;
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
         CurrentState.onChanged -= HandleNetworkStateChanged;
+        Results.onChanged -= HandleResultsChanged;
+        if (_gate) _gate.OnPhaseChanged -= HandleGatePhaseChanged;
         if (Instance == this)
             Instance = null;
     }
@@ -77,34 +105,54 @@ public class RaidManager : NetworkBehaviour
 
         if (IsServerAuthority)
         {
-            ChangeState(RaidState.WaitingAtPlatform);
+            SetState(RaidState.WaitingAtPlatform);
+
+            _gate = LevelReadyGate.Instance;
+            if (_gate)
+            {
+                _gate.OnPhaseChanged += HandleGatePhaseChanged;
+                if (_gate.IsLive) HandleGatePhaseChanged(LevelPhase.Live);
+            }
         }
+    }
+
+    private void HandleGatePhaseChanged(LevelPhase phase)
+    {
+        if (phase == LevelPhase.Live && CurrentState.value == RaidState.WaitingAtPlatform)
+            SetState(RaidState.InRaid);
+    }
+
+    private void HandleInfilCompleted()
+    {
+        if (IsServerAuthority && CurrentState.value == RaidState.WaitingAtPlatform)
+            SetState(RaidState.InRaid);
     }
 
     private void Update()
     {
         if (!IsServerAuthority)
-        {
             return;
-        }
 
-        if (CurrentState.value is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout)
+        if (IsRaidActive)
         {
             TimeRemaining.value -= Time.deltaTime;
             EvaluatePlayerStatuses();
             if (TimeRemaining.value <= 0f)
             {
-                TriggerTimesUp();
+                AppLog.Log(LogChannel.Match, "[RaidManager] Raid timer expired.", this);
+                Resolve(RaidOutcome.TimedOut, null);
             }
         }
-    }
-    
-    private void HandleInfilCompleted()
-    {
-        if (!IsServerAuthority)
-            return;
+        else if (_resolved && !_returning && _autoReturnSeconds > 0f)
+        {
+            _returnTimer -= Time.deltaTime;
+            float shown = Mathf.Ceil(Mathf.Max(0f, _returnTimer));
+            if (!Mathf.Approximately(ReturnCountdown.value, shown))
+                ReturnCountdown.value = shown;
 
-        ChangeState(RaidState.InRaid);
+            if (_returnTimer <= 0f)
+                ReturnToHub();
+        }
     }
 
     private void EvaluatePlayerStatuses()
@@ -113,7 +161,7 @@ public class RaidManager : NetworkBehaviour
         int standing = 0;
         int downed = 0;
         int dead = 0;
-        
+
         for (int i = 0; i < activePlayers.Count; i++)
         {
             var p = activePlayers[i];
@@ -125,30 +173,134 @@ public class RaidManager : NetworkBehaviour
             else
                 standing++;
         }
-        
+
         StandingPlayerCount.value = standing;
         DownedPlayerCount.value = downed;
         DeadPlayerCount.value = dead;
 
-        if (activePlayers.Count > 0 && standing == 0 && CurrentState.value is RaidState.InRaid or RaidState.ExtractionAvailable or RaidState.ExtractionHoldout)
+        if (activePlayers.Count > 0 && standing == 0)
         {
-            TriggerTeamWipe();
+            AppLog.Log(LogChannel.Match, "[RaidManager] All players eliminated or downed. Raid failed.", this);
+            Resolve(RaidOutcome.Wiped, null);
         }
     }
 
-    private void TriggerTeamWipe()
+    public void Resolve(RaidOutcome outcome, IReadOnlyCollection<PlayerID> extracted)
     {
-        Project.Logging.AppLog.Log(Project.Logging.LogChannel.Match, "[RaidManager] All players eliminated or downed! Raid failed.", this);
-        ChangeState(RaidState.Failed);
+        if (!IsServerAuthority || _resolved || !IsRaidActive)
+            return;
+
+        _resolved = true;
+
+        var extractedSet = extracted != null ? new HashSet<PlayerID>(extracted) : new HashSet<PlayerID>();
+        var results = BankAndBuildResults(outcome, extractedSet);
+
+        Results.value = results;
+        if (!isSpawned) HandleResultsChanged(results);
+
+        SetState(outcome == RaidOutcome.Extracted ? RaidState.Completed : RaidState.Failed);
+
+        _returnTimer = _autoReturnSeconds;
+        ReturnCountdown.value = Mathf.Ceil(_autoReturnSeconds);
+
+        AppLog.Log(LogChannel.Match,
+            $"[RaidManager] Run {results.RunId} resolved: {outcome}, {extractedSet.Count} extracted.", this);
     }
 
-    private void TriggerTimesUp()
+    private RaidResults BankAndBuildResults(RaidOutcome outcome, HashSet<PlayerID> extracted)
     {
-        Project.Logging.AppLog.Log(Project.Logging.LogChannel.Match, "[RaidManager] Raid timer expired!", this);
-        ChangeState(RaidState.Failed);
+        var players = new List<RaidPlayerResult>();
+        var activePlayers = PlayerIdentifier.ActivePlayers;
+
+        for (int i = 0; i < activePlayers.Count; i++)
+        {
+            var pawn = activePlayers[i];
+            if (!pawn || !pawn.PlayerID.HasValue) continue;
+
+            PlayerID id = pawn.PlayerID.Value;
+            bool didExtract = outcome == RaidOutcome.Extracted && extracted.Contains(id) && !pawn.IsDead;
+
+            var carrier = pawn.transform.root.GetComponentInChildren<IDuffleBagCarrier>(true);
+            var items = new List<DuffleBagItemEntry>();
+            int value = 0;
+            if (carrier != null && carrier.HasBag)
+            {
+                items.AddRange(carrier.StowedItems);
+                value = carrier.CurrentValue;
+            }
+
+            int banked = didExtract && items.Count > 0
+                ? SessionLootLedger.Bank(id, items, value)
+                : SessionLootLedger.GetTotalValue(id);
+
+            carrier?.ClearBagContents();
+
+            var ids = new string[items.Count];
+            var quantities = new int[items.Count];
+            for (int j = 0; j < items.Count; j++)
+            {
+                ids[j] = items[j].ItemId;
+                quantities[j] = items[j].Quantity;
+            }
+
+            players.Add(new RaidPlayerResult
+            {
+                Player = id,
+                Extracted = didExtract,
+                RunValue = value,
+                BankedTotal = banked,
+                ItemIds = ids,
+                ItemQuantities = quantities
+            });
+        }
+
+        return new RaidResults
+        {
+            RunId = ++_runCounter,
+            Outcome = outcome,
+            Players = players.ToArray()
+        };
+    }
+
+    public void ReturnToHub()
+    {
+        if (!IsServerAuthority || !_resolved || _returning)
+            return;
+
+        ReturnToHubAsync().Forget();
+    }
+
+    private async UniTaskVoid ReturnToHubAsync()
+    {
+        var coordinator = NetworkSceneCoordinator.Instance;
+        if (!coordinator)
+        {
+            AppLog.LogError(LogChannel.Match, "[RaidManager] Cannot return to hub: NetworkSceneCoordinator missing.", this);
+            return;
+        }
+
+        _returning = true;
+        bool ok = await coordinator.TransitionToSceneAsync(_hubSceneName);
+        if (this && !ok)
+        {
+            AppLog.LogWarning(LogChannel.Match, "[RaidManager] Return to hub failed; host can try again.", this);
+            _returning = false;
+        }
     }
 
     public void ChangeState(RaidState newState)
+    {
+        if (newState is RaidState.Completed or RaidState.Failed)
+        {
+            AppLog.LogWarning(LogChannel.Match, $"[RaidManager] Use Resolve() to end a raid, not ChangeState({newState}).", this);
+            return;
+        }
+
+        if (_resolved) return;
+        SetState(newState);
+    }
+
+    private void SetState(RaidState newState)
     {
         if (!IsServerAuthority)
             return;
@@ -156,27 +308,8 @@ public class RaidManager : NetworkBehaviour
         if (CurrentState.value != newState)
         {
             CurrentState.value = newState;
-            ExecuteServerStateEffects(newState);
-        }
-    }
-
-    private void ExecuteServerStateEffects(RaidState newState)
-    {
-        switch (newState)
-        {
-            case RaidState.WaitingAtPlatform:
+            if (newState == RaidState.WaitingAtPlatform)
                 TimeRemaining.value = 1200f;
-                break;
-            case RaidState.InRaid:
-                break;
-            case RaidState.ExtractionAvailable:
-                break;
-            case RaidState.ExtractionHoldout:
-                break;
-            case RaidState.Completed:
-                break;
-            case RaidState.Failed:
-                break;
         }
     }
 
@@ -194,8 +327,16 @@ public class RaidManager : NetworkBehaviour
                 _raidEvents.RaiseRaidFailed();
                 break;
         }
-        
+
         _raidEvents.RaiseStateChanged(newState);
+    }
+
+    private void HandleResultsChanged(RaidResults results)
+    {
+        if (!results.IsValid || results.RunId == _lastAnnouncedRun) return;
+
+        _lastAnnouncedRun = results.RunId;
+        if (_raidEvents) _raidEvents.RaiseResultsReady(results);
     }
 }
 }

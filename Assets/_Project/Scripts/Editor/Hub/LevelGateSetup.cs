@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Project.Hub.Editor
 {
-/// <summary>Adds the LevelReadyGate to the open level scene (run it in Scene_Bank and any future raid scene).</summary>
 public static class LevelGateSetup
 {
     [MenuItem("Tools/Level/Add Ready Gate To Open Scene")]

@@ -5,10 +5,6 @@ using UnityEngine;
 
 namespace Project.Core.Match
 {
-/// <summary>
-/// Hub "ready pad". Each player toggles their own ready flag; the server owns the list.
-/// The level board and the launch controller read <see cref="ReadyCount"/> / <see cref="AllReady"/>.
-/// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
 [RequireComponent(typeof(Collider))]
 public class HubReadyState : NetworkBehaviour, IInteractable
@@ -37,7 +33,6 @@ public class HubReadyState : NetworkBehaviour, IInteractable
         }
     }
 
-    // IInteractable
     public string InteractionPrompt => IsLocalReady ? "[F] Cancel Ready" : "[F] Ready Up";
     public string HoldPrompt => string.Empty;
     public string TargetName => "Ready Pad";
@@ -71,7 +66,6 @@ public class HubReadyState : NetworkBehaviour, IInteractable
         int count = module.players.Count;
         if (PlayerCount.value != count) PlayerCount.value = count;
 
-        // Forget players who left so the count cannot be stuck waiting for a ghost.
         for (int i = ReadyPlayers.Count - 1; i >= 0; i--)
         {
             if (!IsConnected(module, ReadyPlayers[i]))

@@ -11,6 +11,7 @@ public class CoverPoint : MonoBehaviour
     [SerializeField] private CoverHeight _height = CoverHeight.Low;
     [SerializeField] private CoverPeekDirection _availablePeeks = CoverPeekDirection.None;
     [SerializeField] private float _reservationTimeout = 5.0f;
+    [SerializeField, Range(0f, 1f)] private float _quality = 0.5f;
 
     [Header("Lateral Peek Distances (Local Space)")]
     [SerializeField] private float _leftLocalOffset;
@@ -20,6 +21,8 @@ public class CoverPoint : MonoBehaviour
     [Header("Orientation")]
     [SerializeField] private Vector3 _forward = Vector3.forward;
 
+    private CoverPeekDirection _peekCache;
+    private bool _peekCacheValid;
     private bool _isReserved;
     private EntityId _reservedBy;
     private float _reserveExpirationTime;
@@ -27,18 +30,20 @@ public class CoverPoint : MonoBehaviour
     public Vector3 Position => transform.position;
     public Vector3 Forward => transform.TransformDirection(_forward).normalized;
     public CoverHeight Height => _height;
+    public float Quality => _quality;
     public CoverPeekDirection PeekDirections
     {
         get
         {
-            CoverPeekDirection directions = CoverPeekDirection.None;
-            if (TryGetPeekDestination(CoverPeekDirection.Left, out _))
-                directions |= CoverPeekDirection.Left;
-            if (TryGetPeekDestination(CoverPeekDirection.Right, out _))
-                directions |= CoverPeekDirection.Right;
-            if (_height == CoverHeight.Low && (_availablePeeks & CoverPeekDirection.Over) != 0)
-                directions |= CoverPeekDirection.Over;
-            return directions;
+            // Points do not move during play, so the result is computed once. Edit Mode always recomputes.
+            if (!Application.isPlaying)
+                return ComputePeekDirections();
+            if (!_peekCacheValid)
+            {
+                _peekCache = ComputePeekDirections();
+                _peekCacheValid = true;
+            }
+            return _peekCache;
         }
     }
     public bool IsReserved => _isReserved && Time.time < _reserveExpirationTime;
@@ -50,6 +55,7 @@ public class CoverPoint : MonoBehaviour
 
     private void OnEnable()
     {
+        _peekCacheValid = false;
         CoverRegistry.Register(this);
     }
 
@@ -114,6 +120,18 @@ public class CoverPoint : MonoBehaviour
 
         destination = worldDestination;
         return true;
+    }
+
+    private CoverPeekDirection ComputePeekDirections()
+    {
+        CoverPeekDirection directions = CoverPeekDirection.None;
+        if (TryGetPeekDestination(CoverPeekDirection.Left, out _))
+            directions |= CoverPeekDirection.Left;
+        if (TryGetPeekDestination(CoverPeekDirection.Right, out _))
+            directions |= CoverPeekDirection.Right;
+        if (_height == CoverHeight.Low && (_availablePeeks & CoverPeekDirection.Over) != 0)
+            directions |= CoverPeekDirection.Over;
+        return directions;
     }
 
     private static bool IsFinite(Vector3 value) =>

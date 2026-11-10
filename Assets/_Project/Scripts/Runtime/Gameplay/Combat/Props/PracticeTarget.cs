@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace Project.Combat.Props
 {
-/// <summary>
-/// Shooting-range target. Damage is applied on the server; at zero health the target
-/// falls over (replicated through a SyncVar), then stands back up after a delay.
-/// </summary>
 public class PracticeTarget : NetworkBehaviour, IDamageable
 {
     [Header("Durability")]
@@ -44,7 +40,6 @@ public class PracticeTarget : NetworkBehaviour, IDamageable
 
     private void Update()
     {
-        // Offline hubs are never network-spawned, so the server path is also the offline path.
         bool authority = !isSpawned || isServer;
         if (authority && Down && Time.time >= _upAt)
             StandUp();

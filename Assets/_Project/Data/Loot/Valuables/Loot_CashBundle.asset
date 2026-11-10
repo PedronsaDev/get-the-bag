@@ -16,8 +16,8 @@ MonoBehaviour:
   _name: Cash
   _description: Just a stack of cash.
   _icon: {fileID: 6032170974666196668, guid: 6504898ad77030c41bf2d694c6f54bd8, type: 3}
-  _baseValue: 100
-  _weightKg: 3
+  _baseValue: 300
+  _weightKg: 1
   _category: 0
   _rarity: 0
   _prefabReference:

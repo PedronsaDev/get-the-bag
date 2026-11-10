@@ -9,7 +9,10 @@
     "UniTask",
     "PrimeTween.Runtime",
     "ImprovedTimers",
-    "Plugins.Outline"
+    "Plugins.Outline",
+    "Project.Loot",
+    "Project.Definitions",
+    "Project.Content"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

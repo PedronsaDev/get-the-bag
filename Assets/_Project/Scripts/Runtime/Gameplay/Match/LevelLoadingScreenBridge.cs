@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Project.Core.Match
 {
-/// <summary>
-/// Forwards the scene coordinator's loading signals to <see cref="TransitionEventChannel"/>,
-/// which the existing TransitionUI overlay listens to. Runs on every peer, so clients get the
-/// overlay too. Needs no scene wiring.
-/// When the freshly loaded scene has a <see cref="LevelReadyGate"/> that is not live yet, the overlay
-/// stays up until the gate resolves (live or failed) instead of dropping as soon as the scene exists.
-/// </summary>
+public static class LevelLoadingStatus
+{
+    public static string TargetScene { get; internal set; } = string.Empty;
+    public static float SceneProgress { get; internal set; }
+    public static bool IsShowing { get; internal set; }
+}
+
 internal static class LevelLoadingScreenBridge
 {
     private static TransitionEventChannel _channel;
@@ -17,12 +17,17 @@ internal static class LevelLoadingScreenBridge
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void Install()
     {
-        // Unsubscribe first so a disabled domain reload cannot subscribe twice.
+        // Unsubscribe first: with domain reload disabled, statics survive between play sessions.
         NetworkSceneCoordinator.OnLoadingScreenRequested -= HandleRequested;
         NetworkSceneCoordinator.OnLoadingScreenReleased -= HandleReleased;
+        NetworkSceneCoordinator.OnLoadingProgress -= HandleProgress;
         NetworkSceneCoordinator.OnLoadingScreenRequested += HandleRequested;
         NetworkSceneCoordinator.OnLoadingScreenReleased += HandleReleased;
+        NetworkSceneCoordinator.OnLoadingProgress += HandleProgress;
         _channel = null;
+        LevelLoadingStatus.TargetScene = string.Empty;
+        LevelLoadingStatus.SceneProgress = 0f;
+        LevelLoadingStatus.IsShowing = false;
     }
 
     private static TransitionEventChannel Channel
@@ -35,17 +40,27 @@ internal static class LevelLoadingScreenBridge
         }
     }
 
-    private static void HandleRequested()
+    private static void HandleRequested(string sceneName)
     {
+        LevelLoadingStatus.TargetScene = sceneName ?? string.Empty;
+        LevelLoadingStatus.SceneProgress = 0f;
+
+        if (LevelLoadingStatus.IsShowing) return;
+
+        LevelLoadingStatus.IsShowing = true;
         if (Channel) Channel.RaiseOnTransitionStarted();
+    }
+
+    private static void HandleProgress(float progress)
+    {
+        LevelLoadingStatus.SceneProgress = Mathf.Clamp01(progress);
     }
 
     private static void HandleReleased()
     {
         var gate = LevelReadyGate.Instance;
-        if (gate && !gate.IsResolved)
+        if (gate && !gate.CanStartPlaying)
         {
-            // The scene is here but the players are not all in yet. The gate calls ReleaseNow() later.
             gate.HoldLoadingScreen();
             return;
         }
@@ -55,6 +70,9 @@ internal static class LevelLoadingScreenBridge
 
     internal static void ReleaseNow()
     {
+        if (!LevelLoadingStatus.IsShowing) return;
+
+        LevelLoadingStatus.IsShowing = false;
         if (Channel) Channel.RaiseOnTransitionCompleted();
     }
 }
