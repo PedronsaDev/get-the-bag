@@ -17,14 +17,12 @@ public class ProgressionSettings : ScriptableObject
         if (targetLevel <= 1) return 0;
         if (targetLevel >= MaxLevel) return MaxLevelXPRequirement;
 
-        // Correctly maps Level 1 -> 0.0 and MaxLevel -> 1.0
         float levelProgress = (float)(targetLevel - 1) / (MaxLevel - 1);
         float curveMultiplier = Mathf.Clamp01(XPCurve.Evaluate(levelProgress));
 
         return Mathf.RoundToInt(MaxLevelXPRequirement * curveMultiplier);
     }
 
-    /// XP -> Level
     public int GetLevelForXP(int totalXP)
     {
         if (totalXP <= 0) return 1;

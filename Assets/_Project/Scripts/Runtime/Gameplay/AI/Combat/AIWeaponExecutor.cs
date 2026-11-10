@@ -183,7 +183,6 @@ public class AIWeaponExecutor : NetworkBehaviour
     [ObserversRpc(runLocally: true)]
     private void RpcPlayFireFeedback(Vector3 muzzlePos, Vector3 endPoint)
     {
-        // Trigger client-side tracer and muzzle flash
     }
 
     private Vector3 CalculateSpreadDirection(Vector3 baseDirection, float spreadAngleDegrees)

@@ -23,6 +23,8 @@ public class LoadingScreenUI : MonoBehaviour
     [SerializeField] private RectTransform _progressFill;
 
     [Header("Settings")]
+    [Tooltip("The loading screen stays up at least this long, and levels do not start sooner. The bar fills over this time.")]
+    [SerializeField, Min(0f)] private float _minimumSeconds = LevelLoadingStatus.DefaultMinimumSeconds;
     [Tooltip("Share of the bar used by this peer's own scene load; the rest tracks other players.")]
     [SerializeField, Range(0.1f, 1f)] private float _sceneShare = 0.7f;
     [SerializeField, Min(0.1f)] private float _barSmoothing = 6f;
@@ -31,8 +33,11 @@ public class LoadingScreenUI : MonoBehaviour
     private float _shownProgress;
     private string _lastStatus;
 
+    private void Awake() => LevelLoadingStatus.MinimumSeconds = _minimumSeconds;
+
     private void OnEnable()
     {
+        LevelLoadingStatus.MinimumSeconds = _minimumSeconds;
         _shownScene = null;
         _shownProgress = 0f;
         _lastStatus = null;
@@ -80,7 +85,7 @@ public class LoadingScreenUI : MonoBehaviour
         {
             status = sceneDone < 1f ? $"Loading {Mathf.RoundToInt(sceneDone * 100f)}%" : "Almost there...";
             bool arrivedWithoutGate = sceneDone >= 1f && SceneManager.GetActiveScene().name == _shownScene;
-            return arrivedWithoutGate ? 1f : sceneDone * _sceneShare;
+            return CapByMinimumTime(arrivedWithoutGate ? 1f : sceneDone * _sceneShare);
         }
 
         if (gate.CurrentPhase == LevelPhase.Failed)
@@ -95,8 +100,11 @@ public class LoadingScreenUI : MonoBehaviour
         int expected = Mathf.Max(1, gate.Expected);
         int ready = Mathf.Clamp(gate.ReadyCount, 0, expected);
         status = ready < expected ? $"Waiting for players ({ready}/{expected})" : "Everyone is in";
-        return _sceneShare + (1f - _sceneShare) * ready / expected;
+        return CapByMinimumTime(_sceneShare + (1f - _sceneShare) * ready / expected);
     }
+
+    // Keeps the bar from racing to full on fast loads: it can't get ahead of the minimum loading time.
+    private static float CapByMinimumTime(float progress) => Mathf.Min(progress, LevelLoadingStatus.MinimumProgress);
 
     private void ApplyLevel(string scene)
     {

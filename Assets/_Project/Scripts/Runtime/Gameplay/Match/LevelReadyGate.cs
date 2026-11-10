@@ -43,6 +43,7 @@ public class LevelReadyGate : NetworkBehaviour
     private readonly HashSet<PlayerID> _expected = new();
     private readonly HashSet<PlayerID> _reported = new();
     private float _serverStartTime;
+    private float _serverStartUnscaled;
     private bool _clientReported;
     private int _clientSettle;
     private float _overlayDeadline;
@@ -88,6 +89,7 @@ public class LevelReadyGate : NetworkBehaviour
         if (!isServer) return;
 
         _serverStartTime = Time.time;
+        _serverStartUnscaled = Time.unscaledTime;
         _expected.Clear();
         _reported.Clear();
         if (networkManager.playerModule != null)
@@ -123,7 +125,7 @@ public class LevelReadyGate : NetworkBehaviour
                 ReadyPlayers.Add(p);
         }
 
-        if (_expected.Count > 0 && ReadyPlayers.Count >= _expected.Count)
+        if (_expected.Count > 0 && ReadyPlayers.Count >= _expected.Count && MinimumLoadingTimePassed())
         {
             AppLog.Log(LogChannel.Match, "Level gate: all players ready. Going live.", this);
             Phase.value = LevelPhase.Live;
@@ -132,6 +134,13 @@ public class LevelReadyGate : NetworkBehaviour
 
         if (Time.time - _serverStartTime > _timeoutSeconds)
             Fail();
+    }
+
+    // Measured from when the host's loading screen appeared, or from when this level started if there was none.
+    private bool MinimumLoadingTimePassed()
+    {
+        float since = LevelLoadingStatus.IsShowing ? LevelLoadingStatus.ShownSince : _serverStartUnscaled;
+        return Time.unscaledTime - since >= LevelLoadingStatus.MinimumSeconds;
     }
 
     private void HandlePlayerLeft(PlayerID player, bool asServer)

@@ -26,7 +26,6 @@ namespace Project.Core.Editor
             _root.style.paddingTop = 6;
             _root.style.paddingBottom = 6;
 
-            // 1. Header
             var headerContainer = new VisualElement();
             headerContainer.style.marginBottom = 10;
             headerContainer.style.paddingBottom = 6;
@@ -47,7 +46,6 @@ namespace Project.Core.Editor
 
             _root.Add(headerContainer);
 
-            // 2. Status Card
             _statusCard = new VisualElement();
             _statusCard.style.paddingLeft = 10;
             _statusCard.style.paddingRight = 10;
@@ -71,7 +69,6 @@ namespace Project.Core.Editor
             _statusCard.Add(_statusDescription);
             _root.Add(_statusCard);
 
-            // 3. Status Properties
             var enabledProp = serializedObject.FindProperty("_isEnabled");
             var enabledField = new PropertyField(enabledProp, "Enable Spawn Point");
             enabledField.RegisterValueChangeCallback(evt =>
@@ -86,7 +83,6 @@ namespace Project.Core.Editor
             var autoDisableField = new PropertyField(autoDisableProp, "Auto-Disable When Obstructed");
             _root.Add(autoDisableField);
 
-            // 4. Quick Actions
             var actionRow = new VisualElement();
             actionRow.style.flexDirection = FlexDirection.Row;
             actionRow.style.marginTop = 8;
@@ -104,7 +100,6 @@ namespace Project.Core.Editor
 
             _root.Add(actionRow);
 
-            // 5. Foldout for Dimensions and Collision Layers
             var foldout = new Foldout { text = "Dimensions & Collision Settings", value = false };
             foldout.style.marginBottom = 12;
 
@@ -119,7 +114,6 @@ namespace Project.Core.Editor
 
             _root.Add(foldout);
 
-            // 6. Scene Spawner Sync Section
             var sceneBox = new VisualElement();
             sceneBox.style.paddingLeft = 8;
             sceneBox.style.paddingRight = 8;

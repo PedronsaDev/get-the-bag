@@ -17,7 +17,6 @@ public readonly struct BoundaryEdge
         InteriorPoint = interiorPoint;
     }
 
-    /// <summary>Horizontal direction pointing out of the NavMesh, toward whatever blocks it.</summary>
     public Vector3 Outward
     {
         get

@@ -4,10 +4,6 @@ using UnityEngine.Events;
 
 namespace Project.Core.UI
 {
-    /// <summary>
-    /// Base component for UI screens, modals, or menus that block player input when open.
-    /// Handles registration with UIBlockerSystem automatically on Open/OnEnable and unregistration on Close/OnDisable/OnDestroy.
-    /// </summary>
     [DisallowMultipleComponent]
     public class InputBlockerUI : MonoBehaviour, IInputBlocker
     {
@@ -91,9 +87,6 @@ namespace Project.Core.UI
             }
         }
 
-        /// <summary>
-        /// Opens this UI and registers it with UIBlockerSystem.
-        /// </summary>
         public virtual void Open()
         {
             if (IsOpen) return;
@@ -102,9 +95,6 @@ namespace Project.Core.UI
             OnOpened?.Invoke();
         }
 
-        /// <summary>
-        /// Closes this UI and unregisters it from UIBlockerSystem.
-        /// </summary>
         public virtual void Close()
         {
             if (!IsOpen) return;

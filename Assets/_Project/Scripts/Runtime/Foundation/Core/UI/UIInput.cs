@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace Project.Core.UI
 {
-/// <summary>
-/// Global registry and event dispatcher for UI and meta inputs (Cancel, ToggleInventory, DropItem, FavoriteItem, TrashItem, DropAllTrash).
-/// Always remains active and responsive regardless of UIBlockerSystem state.
-/// </summary>
 public static class UIInput
 {
     public static event Action OnCancel;

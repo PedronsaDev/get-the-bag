@@ -30,7 +30,6 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
         }
         
         Instance = this;
-        //DontDestroyOnLoad(this.gameObject);
     }
 
     private void OnEnable()
@@ -116,7 +115,6 @@ public class PlayerProfileManager : MonoBehaviour, IDataPersistence
         _events.RaiseScripChanged(Scrip, delta);
     }
     
-    // Debug methods
     public void SetPlayerLevel(int level)
     {
         if (level < 1 || level > _settings.MaxLevel)

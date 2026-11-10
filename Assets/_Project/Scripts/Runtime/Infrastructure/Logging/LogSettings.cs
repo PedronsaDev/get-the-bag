@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace Project.Logging
 {
-    /// <summary>
-    /// Configuration asset for filtering and styling runtime logging channels.
-    /// Supports runtime mutation, hot reloading, and fast bitmask checks.
-    /// </summary>
     [CreateAssetMenu(fileName = "LogSettings", menuName = "Project/Logging/Log Settings")]
     public class LogSettings : ScriptableObject
     {

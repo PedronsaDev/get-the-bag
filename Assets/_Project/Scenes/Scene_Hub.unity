@@ -9157,6 +9157,14 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 6261999314331105793, guid: 641ccd5f3e1115949b0d32372ed9f622, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6261999314331105793, guid: 641ccd5f3e1115949b0d32372ed9f622, type: 3}
+      propertyPath: sharedProfile
+      value: 
+      objectReference: {fileID: 11400000, guid: c5b8d3e02f4a4b7c9d6e1f8a23b04d75, type: 2}
     - target: {fileID: 6872942083678716500, guid: 641ccd5f3e1115949b0d32372ed9f622, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.55011
@@ -10405,10 +10413,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1401066424}
+  - component: {fileID: 1401066425}
   - component: {fileID: 1401066423}
   - component: {fileID: 1401066422}
   - component: {fileID: 1401066421}
-  - component: {fileID: 1401066425}
   - component: {fileID: 1401066426}
   m_Layer: 15
   m_Name: Level Selector
@@ -10552,7 +10560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.MeshOutline
   outlineMode: 0
-  outlineColor: {r: 4, g: 4, b: 4, a: 1}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 4
   widthMode: 1
   stencilReference: 1
@@ -14325,9 +14333,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3805984197875414739, guid: 6cf9909c3b17dee47bdb7d963eb82e10, type: 3}
+      propertyPath: m_RenderPostProcessing
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8252767990228182368, guid: 6cf9909c3b17dee47bdb7d963eb82e10, type: 3}
       propertyPath: m_Name
       value: Camera Rig
+      objectReference: {fileID: 0}
+    - target: {fileID: 9024590416761108625, guid: 6cf9909c3b17dee47bdb7d963eb82e10, type: 3}
+      propertyPath: m_RenderPostProcessing
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

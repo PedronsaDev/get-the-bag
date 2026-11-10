@@ -10,10 +10,6 @@ using UnityEngine;
 
 namespace Project.Persistence
 {
-/// <summary>
-/// Gerencia o I/O de arquivos, caminhos de armazenamento em disco, criptografia XOR,
-/// criacao de backups e rollback de arquivos corrompidos.
-/// </summary>
 public class FileDataHandler
 {
     private readonly string _dataDirPath;

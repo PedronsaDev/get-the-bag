@@ -12,7 +12,6 @@ public class AIIdleState : IAIState
 
     public void OnUpdate(AIBlackboard blackboard, float deltaTime)
     {
-        // do nothing for now
     }
 
     public void OnExit(AIBlackboard blackboard)

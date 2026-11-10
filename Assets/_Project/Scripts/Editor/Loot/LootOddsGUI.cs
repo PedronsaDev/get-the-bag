@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Project.Loot.Editor
 {
-/// <summary>Draws "what can drop here and how likely" tables in loot inspectors.</summary>
 internal static class LootOddsGUI
 {
     private const string QualityKey = "Loot.PreviewQuality";
@@ -29,7 +28,6 @@ internal static class LootOddsGUI
         SessionState.SetFloat(QualityKey, quality);
     }
 
-    /// <summary>Draws the odds table. Returns the expected value of one pick.</summary>
     public static float DrawOdds(IReadOnlyList<LootTable> tables, LootRollModifiers mods)
     {
         LootTable.GetOdds(tables, mods, Odds);

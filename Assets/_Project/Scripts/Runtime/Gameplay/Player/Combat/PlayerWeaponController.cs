@@ -363,7 +363,11 @@ public class PlayerWeaponController : NetworkBehaviour
     private void RpcShotAccepted(WeaponShot shot)
     {
         if (!isClient) return;
-        if (_presenter) _presenter.PlayFire(shot.WeaponId);
+        if (_presenter)
+        {
+            _presenter.PlayFire(shot.WeaponId);
+            _presenter.PlayTracer(shot);
+        }
         OnShotAccepted?.Invoke(shot);
     }
 

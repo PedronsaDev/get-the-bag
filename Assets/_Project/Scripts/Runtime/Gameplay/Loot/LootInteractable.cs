@@ -1,3 +1,4 @@
+using System;
 using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;
@@ -12,6 +13,7 @@ public class LootInteractable : NetworkBehaviour, IInteractable
 {
     [Header("References")] 
     [SerializeField] private MeshOutline _outline;
+    [SerializeField] private Transform _meshRoot;
     
     private SyncVar<LootDefinition> _definition = new();
     
@@ -144,5 +146,13 @@ public class LootInteractable : NetworkBehaviour, IInteractable
             Destroy(gameObject);
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.darkRed;
+        Gizmos.DrawWireSphere(_meshRoot.position, 0.05f);
+    }
+#endif
 }
 }

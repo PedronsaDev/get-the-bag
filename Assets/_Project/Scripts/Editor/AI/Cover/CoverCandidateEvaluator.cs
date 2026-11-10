@@ -15,7 +15,6 @@ public struct CoverCandidate
     public float Quality;
 }
 
-/// <summary>Decides whether a spot on the NavMesh edge is real cover, and measures what it offers.</summary>
 public static class CoverCandidateEvaluator
 {
     private const float WallProbeHeight = 0.6f;

@@ -75,7 +75,6 @@ namespace Project.Tools.ColliderStudio.Editor
             Vector3 center = box.center;
             Vector3 size = box.size;
 
-            // 1. Draw Volume Gizmo in Local Space
             Handles.matrix = targetTransform.localToWorldMatrix;
             DrawBoxVolumeGizmo(center, size, color);
             Handles.matrix = Matrix4x4.identity;
@@ -87,7 +86,6 @@ namespace Project.Tools.ColliderStudio.Editor
 
             var mode = ColliderStudioSettings.InteractionMode;
 
-            // 2. Center Translation Handle (World Space)
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.CenterOnly)
             {
                 DrawCenterHandle(center, targetTransform, newCenter =>
@@ -97,13 +95,11 @@ namespace Project.Tools.ColliderStudio.Editor
                 });
             }
 
-            // 3. Corner Scaling Handles (8 Corners in World Space)
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.CornersOnly)
             {
                 DrawBoxCornerHandles(box, targetTransform, color, maxCapSize);
             }
 
-            // 4. Face Pull Handles (6 Faces in World Space)
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.FacesOnly)
             {
                 DrawBoxFaceHandles(box, targetTransform, color, maxCapSize);
@@ -296,7 +292,6 @@ namespace Project.Tools.ColliderStudio.Editor
             Color wireColor = color;
             wireColor.a = ColliderStudioSettings.WireframeAlpha;
 
-            // Geometry in Local Matrix
             Handles.matrix = targetTransform.localToWorldMatrix;
             Handles.color = wireColor;
             Handles.DrawWireDisc(center, Vector3.up, radius);
@@ -318,7 +313,6 @@ namespace Project.Tools.ColliderStudio.Editor
             float worldRadius = radius * Mathf.Max(0.001f, maxScale);
             float maxCapSize = Mathf.Max(0.001f, worldRadius * 0.18f);
 
-            // Center Move Handle
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.CenterOnly)
             {
                 DrawCenterHandle(center, targetTransform, newCenter =>
@@ -328,7 +322,6 @@ namespace Project.Tools.ColliderStudio.Editor
                 });
             }
 
-            // Radial Handles (6 directions)
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.FacesOnly || mode == HandleInteractionMode.CornersOnly)
             {
                 Handles.color = color;
@@ -388,21 +381,17 @@ namespace Project.Tools.ColliderStudio.Editor
             Color fillColor = color;
             fillColor.a = ColliderStudioSettings.FillAlpha;
 
-            // Geometry in Local Matrix
             Handles.matrix = targetTransform.localToWorldMatrix;
             Handles.color = wireColor;
 
-            // Cap discs
             Handles.DrawWireDisc(topCapCenter, axis, radius);
             Handles.DrawWireDisc(botCapCenter, axis, radius);
 
-            // Connect lines
             Handles.DrawLine(topCapCenter + sideA * radius, botCapCenter + sideA * radius);
             Handles.DrawLine(topCapCenter - sideA * radius, botCapCenter - sideA * radius);
             Handles.DrawLine(topCapCenter + sideB * radius, botCapCenter + sideB * radius);
             Handles.DrawLine(topCapCenter - sideB * radius, botCapCenter - sideB * radius);
 
-            // Hemisphere arcs
             Handles.DrawWireArc(topCapCenter, sideB, sideA, 180f, radius);
             Handles.DrawWireArc(topCapCenter, sideA, -sideB, 180f, radius);
             Handles.DrawWireArc(botCapCenter, sideB, -sideA, 180f, radius);
@@ -422,7 +411,6 @@ namespace Project.Tools.ColliderStudio.Editor
             float worldHeight = height * maxScale;
             float maxCapSize = Mathf.Max(0.001f, radius * maxScale * 0.2f);
 
-            // Center Handle
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.CenterOnly)
             {
                 DrawCenterHandle(center, targetTransform, newCenter =>
@@ -435,7 +423,6 @@ namespace Project.Tools.ColliderStudio.Editor
             Vector3 worldAxis = targetTransform.TransformDirection(axis).normalized;
             Vector3 worldSideA = targetTransform.TransformDirection(sideA).normalized;
 
-            // Height handles on top and bottom caps
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.FacesOnly)
             {
                 Handles.color = color;
@@ -447,7 +434,6 @@ namespace Project.Tools.ColliderStudio.Editor
                 float screenHandleSize = HandleUtility.GetHandleSize(worldTop) * 0.025f * ColliderStudioSettings.HandleScale;
                 float handleSize = Mathf.Min(screenHandleSize, maxCapSize);
 
-                // Top
                 EditorGUI.BeginChangeCheck();
                 Vector3 newTopWorld = Handles.Slider(worldTop, worldAxis, handleSize, Handles.DotHandleCap, 0f);
                 if (EditorGUI.EndChangeCheck())
@@ -458,7 +444,6 @@ namespace Project.Tools.ColliderStudio.Editor
                     capsule.height = SnapFloat(newHalf * 2f);
                 }
 
-                // Bottom
                 EditorGUI.BeginChangeCheck();
                 Vector3 newBotWorld = Handles.Slider(worldBot, -worldAxis, handleSize, Handles.DotHandleCap, 0f);
                 if (EditorGUI.EndChangeCheck())
@@ -470,7 +455,6 @@ namespace Project.Tools.ColliderStudio.Editor
                 }
             }
 
-            // Radius handle
             if (mode == HandleInteractionMode.All || mode == HandleInteractionMode.CornersOnly)
             {
                 Handles.color = color;
@@ -518,7 +502,6 @@ namespace Project.Tools.ColliderStudio.Editor
             Vector3 worldCenter = targetTransform.TransformPoint(localCenter);
             Quaternion worldRot = targetTransform.rotation;
 
-            // Prominent center anchor dot for visibility and free-dragging
             float dotSize = HandleUtility.GetHandleSize(worldCenter) * 0.06f * ColliderStudioSettings.HandleScale;
             Handles.color = Color.white;
             int centerDotId = GUIUtility.GetControlID(FocusType.Passive);
@@ -531,7 +514,6 @@ namespace Project.Tools.ColliderStudio.Editor
                 return;
             }
 
-            // Full-size 3-axis PositionHandle in world space (standard large Unity translation arrows and plane sliders)
             EditorGUI.BeginChangeCheck();
             Vector3 newWorldCenter = Handles.PositionHandle(worldCenter, worldRot);
             if (EditorGUI.EndChangeCheck())

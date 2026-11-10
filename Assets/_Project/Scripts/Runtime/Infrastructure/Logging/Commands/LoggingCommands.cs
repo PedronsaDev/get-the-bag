@@ -4,9 +4,6 @@ using PedronsaDev.Console;
 
 namespace Project.Logging.Commands
 {
-    /// <summary>
-    /// In-game Smart Console commands for live inspection and filtering of logging channels.
-    /// </summary>
     [CommandGroup("Logging")]
     public static class LoggingCommands
     {

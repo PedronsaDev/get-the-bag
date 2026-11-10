@@ -8,7 +8,6 @@ using Object = UnityEngine.Object;
 
 namespace Project.Hub.Editor
 {
-/// <summary>Builds the default "Reveal Steps" children for the RaidResultsUI in UIRoot.</summary>
 public static class RevealStepsBuilder
 {
     private const string PrefabPath = "Assets/_Project/Resources/UI/UIRoot.prefab";

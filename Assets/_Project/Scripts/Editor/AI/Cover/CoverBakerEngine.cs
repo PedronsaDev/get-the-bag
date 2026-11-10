@@ -12,7 +12,6 @@ public static class CoverBakerEngine
 
     public static void SetDrawPoints(bool draw) => DrawPoints = draw;
 
-    /// <summary>Finds the cover under <paramref name="root"/> without creating anything.</summary>
     public static void Collect(GameObject root, CoverBakeSettings settings, List<CoverCandidate> results)
     {
         results.Clear();
@@ -30,7 +29,6 @@ public static class CoverBakerEngine
         SelectSpaced(all, settings.MinSpacing, results);
     }
 
-    /// <summary>Replaces the baked points under <paramref name="root"/>. Returns how many were created.</summary>
     public static int Bake(GameObject root, CoverBakeSettings settings)
     {
         var candidates = new List<CoverCandidate>();

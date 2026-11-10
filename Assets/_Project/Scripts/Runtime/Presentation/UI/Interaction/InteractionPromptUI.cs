@@ -89,7 +89,6 @@ public class InteractionPromptUI : MonoBehaviour
         _interactor.OnHoldProgressChanged += HandleHoldProgressChanged;
         _interactor.OnInteractionDenied += HandleInteractionDenied;
 
-        // Immediately reflect current state
         HandleTargetChanged(_interactor.CurrentTarget);
     }
 
@@ -109,7 +108,6 @@ public class InteractionPromptUI : MonoBehaviour
         if (_progressBarFill)
             _progressBarFill.fillAmount = Mathf.Clamp01(progress);
 
-        // Dynamically show the progress bar while holding
         if (_progressBarContainer)
             _progressBarContainer.SetActive(progress > 0f);
     }
@@ -148,7 +146,6 @@ public class InteractionPromptUI : MonoBehaviour
         bool hasInstantPrompt = !isHold && !string.IsNullOrEmpty(target.InteractionPrompt);
         bool hasHoldPrompt = (isDual || isHold) && !string.IsNullOrEmpty(target.HoldPrompt);
 
-        // Target Name & Accent Color
         bool hasTargetName = !string.IsNullOrEmpty(target.TargetName);
         if (_targetNameText)
         {
@@ -163,7 +160,6 @@ public class InteractionPromptUI : MonoBehaviour
             }
         }
 
-        // Subtext
         bool hasSubtext = !string.IsNullOrEmpty(target.Subtext);
         if (_subtextText)
         {

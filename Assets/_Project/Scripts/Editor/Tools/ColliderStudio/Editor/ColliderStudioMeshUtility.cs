@@ -6,10 +6,6 @@ namespace Project.Tools.ColliderStudio.Editor
 {
     public static class ColliderStudioMeshUtility
     {
-        /// <summary>
-        /// Calculates the composite bounding box of all MeshFilters and SkinnedMeshRenderers
-        /// in the target GameObject or its children, transformed into root collider local space.
-        /// </summary>
         public static bool TryCalculateMeshBounds(GameObject root, out Bounds localBounds)
         {
             localBounds = default;
@@ -76,9 +72,6 @@ namespace Project.Tools.ColliderStudio.Editor
             return true;
         }
 
-        /// <summary>
-        /// Snaps collider center and size/radius to snugly fit the underlying mesh bounds.
-        /// </summary>
         public static bool AutoFitCollider(Collider col)
         {
             if (col == null) return false;
@@ -124,9 +117,6 @@ namespace Project.Tools.ColliderStudio.Editor
             return true;
         }
 
-        /// <summary>
-        /// Re-centers the collider on the mesh without altering its size.
-        /// </summary>
         public static bool CenterColliderOnMesh(Collider col)
         {
             if (col == null) return false;
@@ -151,9 +141,6 @@ namespace Project.Tools.ColliderStudio.Editor
             return true;
         }
 
-        /// <summary>
-        /// Resets collider center to (0,0,0) and size/extents to standard defaults.
-        /// </summary>
         public static void ResetCollider(Collider col)
         {
             if (col == null) return;

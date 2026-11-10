@@ -46,12 +46,10 @@ public class WeaponDefinitionEditor : UnityEditor.Editor
         root.style.paddingTop = 4;
         root.style.paddingBottom = 8;
 
-        // Simple native info header
         var headerBox = new HelpBox($"Category: {_targetWeapon.Category}  |  ID: {_targetWeapon.Id}", HelpBoxMessageType.None);
         headerBox.style.marginBottom = 8;
         root.Add(headerBox);
 
-        // Core Serialized Properties (Native Unity fields)
         var prop = serializedObject.GetIterator();
         if (prop.NextVisible(true))
         {
@@ -79,7 +77,6 @@ public class WeaponDefinitionEditor : UnityEditor.Editor
 
         AddSeparator(root);
 
-        // Attachment Compatibility Foldout
         var compatFoldout = new Foldout { text = "Attachment Compatibility Management", value = false };
         compatFoldout.style.marginBottom = 6;
 
@@ -96,7 +93,6 @@ public class WeaponDefinitionEditor : UnityEditor.Editor
 
         AddSeparator(root);
 
-        // Live Stat Simulator Foldout
         var simFoldout = new Foldout { text = "Live Stat Simulator (Loadout Preview)", value = true };
         simFoldout.style.marginBottom = 6;
 
@@ -107,12 +103,10 @@ public class WeaponDefinitionEditor : UnityEditor.Editor
         simBox.style.paddingBottom = 8;
         simBox.style.marginBottom = 6;
 
-        // Slot Selectors
         var slotSelectorsContainer = new VisualElement { style = { marginBottom = 8 } };
         BuildSlotSelectors(slotSelectorsContainer);
         simBox.Add(slotSelectorsContainer);
 
-        // Comparison Table
         _simTable = new VisualElement();
         BuildSimulationResultsTable(_simTable);
         simBox.Add(_simTable);
@@ -256,24 +250,19 @@ public class WeaponDefinitionEditor : UnityEditor.Editor
             return;
         }
 
-        // Damage
         FormatDelta(_damageValueLabel, _damageDeltaLabel, _targetWeapon.BaseDamage, resolved.Damage, false, "");
 
-        // Magazine Size
         FormatDelta(_magValueLabel, _magDeltaLabel, _targetWeapon.BaseMagazineSize, resolved.MagazineSize, false, " rds");
 
         // Reload Duration (lower is better!)
         FormatDeltaFloat(_reloadValueLabel, _reloadDeltaLabel, _targetWeapon.BaseReloadDuration, resolved.ReloadDuration, true, "s");
 
-        // Fire Rate
         FormatDelta(_fireRateValueLabel, _fireRateDeltaLabel, _targetWeapon.BaseFireRate, resolved.FireRate, false, " RPM");
 
-        // DPS
         var baseDps = _targetWeapon.BaseDamage * (_targetWeapon.BaseFireRate / 60f);
         var resolvedDps = resolved.Damage * (resolved.FireRate / 60f);
         FormatDeltaFloat(_dpsValueLabel, _dpsDeltaLabel, baseDps, resolvedDps, false, "");
 
-        // Range
         FormatDeltaFloat(_rangeValueLabel, _rangeDeltaLabel, _targetWeapon.BaseRange, resolved.Range, false, "m");
     }
 

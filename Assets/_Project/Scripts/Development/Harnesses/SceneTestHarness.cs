@@ -18,7 +18,6 @@ public class SceneTestHarness : MonoBehaviour
 
     private void Awake()
     {
-        // Register this spawn point as the active level test point
     }
 
 #if UNITY_EDITOR

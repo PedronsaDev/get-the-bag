@@ -139,7 +139,6 @@ public class AITargetMemory : NetworkBehaviour
         }
     }
 
-    // Reports
     public void ReportVisualContact(GameObject target, Vector3 worldPosition, float distance, float maxDistance,
         bool isPeripheral, float deltaTime)
     {
@@ -288,7 +287,6 @@ public class AITargetMemory : NetworkBehaviour
         SyncToBlackboard();
     }
 
-    // States
     private bool CanReceiveReports => isServer && isActiveAndEnabled && _blackboard && _blackboard.IsArchetypeReady;
 
     private void ChangeState(AlertState newState)
@@ -304,7 +302,6 @@ public class AITargetMemory : NetworkBehaviour
             AlarmDirector.Instance.Raise(AlarmReason.GuardAlerted, _primaryTarget.LastKnownPosition);
     }
 
-    // Blackboard Helper
     private void SyncToBlackboard()
     {
         if (!_blackboard)

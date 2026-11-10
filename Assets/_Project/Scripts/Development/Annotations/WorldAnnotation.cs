@@ -93,8 +93,6 @@ namespace Project.Core.Dev
             Color color = GetBadgeColor(_type);
 
             Gizmos.color = color;
-            // Gizmos.DrawWireSphere(transform.position, 0.2f);
-            // Gizmos.DrawLine(transform.position, transform.position + Vector3.down * 0.5f);
 
             GUIStyle labelStyle = new GUIStyle(EditorStyles.boldLabel)
             {

@@ -22,12 +22,21 @@ namespace Project.Networking.Scenes
         public static event Action<float> OnLoadingProgress;
         public static event Action OnLoadingScreenReleased;
 
+        /// <summary>
+        /// How long the loading screen needs to cover the view. Whoever shows the screen sets this while handling
+        /// <see cref="OnLoadingScreenRequested"/>; the host waits this long before it starts loading the scene.
+        /// </summary>
+        public static float LoadingScreenFadeInSeconds { get; set; }
+
         public event Action<string> OnSceneTransitionStarted;
         public event Action<float> OnLocalLoadProgress;
         public event Action OnAllClientsReady;
 
         [Tooltip("Host gives up waiting for the other players to load the scene after this long.")]
         [SerializeField, Min(5f)] private float _loadTimeoutSeconds = 60f;
+
+        [Tooltip("Extra wait on top of the loading screen's fade-in, so clients (who hear about the load slightly later) are covered too.")]
+        [SerializeField, Min(0f)] private float _loadingScreenBufferSeconds = 0.15f;
 
         private readonly HashSet<PlayerID> _expectedClients = new();
         private readonly HashSet<PlayerID> _readyClients = new();
@@ -41,6 +50,7 @@ namespace Project.Networking.Scenes
         private static void ResetStatics()
         {
             Instance = null;
+            LoadingScreenFadeInSeconds = 0f;
         }
 
         private void Awake() => RegisterInstance();
@@ -104,9 +114,15 @@ namespace Project.Networking.Scenes
                 _isTransitioning = true;
                 OnSceneTransitionStarted?.Invoke(sceneName);
                 OnLoadingScreenRequested?.Invoke(sceneName);
+                if (!await WaitForLoadingScreen())
+                {
+                    _isTransitioning = false;
+                    _pending = null;
+                    return false;
+                }
                 StartCoroutine(LoadSceneAsyncRoutineOffline(sceneName, pending));
             }
-            else if (!BeginOnlineTransition(sceneName, pending))
+            else if (!await BeginOnlineTransitionAsync(sceneName, pending))
             {
                 _pending = null;
                 return false;
@@ -125,7 +141,18 @@ namespace Project.Networking.Scenes
             return success;
         }
 
-        private bool BeginOnlineTransition(string sceneName, UniTaskCompletionSource<bool> pending)
+        // Lets the loading screen become fully opaque before the old scene is replaced.
+        private async UniTask<bool> WaitForLoadingScreen()
+        {
+            float wait = LoadingScreenFadeInSeconds + _loadingScreenBufferSeconds;
+            if (wait <= 0f) return true;
+
+            bool cancelled = await UniTask.Delay(TimeSpan.FromSeconds(wait), ignoreTimeScale: true,
+                cancellationToken: destroyCancellationToken).SuppressCancellationThrow();
+            return !cancelled;
+        }
+
+        private async UniTask<bool> BeginOnlineTransitionAsync(string sceneName, UniTaskCompletionSource<bool> pending)
         {
             var nm = networkManager ? networkManager : NetworkManager.main;
 
@@ -146,6 +173,15 @@ namespace Project.Networking.Scenes
 
             RpcInstructTransitionStarted(sceneName);
             SubscribeServerEvents(nm);
+
+            if (!await WaitForLoadingScreen() || !nm)
+            {
+                UnsubscribeServerEvents();
+                _isTransitioning = false;
+                OnLoadingScreenReleased?.Invoke();
+                pending.TrySetResult(false);
+                return false;
+            }
 
             var asyncOp = nm.sceneModule.LoadSceneAsync(sceneName, new PurrSceneSettings
             {

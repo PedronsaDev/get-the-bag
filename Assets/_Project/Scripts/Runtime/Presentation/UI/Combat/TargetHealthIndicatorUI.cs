@@ -133,7 +133,6 @@ namespace Project.UI.Combat
             }
             else
             {
-                // Target lost (exited range or crosshair moved away)
                 _hasTarget = false;
 
                 if (_lingerDuration <= 0f || (_currentTarget && _currentTarget.IsDead))
@@ -161,8 +160,6 @@ namespace Project.UI.Combat
             _currentTarget.OnShieldBroken += HandleShieldBroken;
             _currentTarget.OnDeath += HandleDeath;
             
-            //_shieldBar.SetValues(_currentTarget.CurrentShield, _currentTarget.MaxShield, true);
-            //_healthBar.SetValues(_currentTarget.CurrentHealth, _currentTarget.MaxHealth, true);
 
             if (_rootContainer) _rootContainer.SetActive(true);
         }
@@ -184,8 +181,6 @@ namespace Project.UI.Combat
 
         private void HandleShieldBroken()
         {
-            // if (_shieldBar) 
-            //     _shieldBar.gameObject.SetActive(false);
         }
 
         private void HandleDeath(DamageResult result)
@@ -198,19 +193,11 @@ namespace Project.UI.Combat
 
         private void UpdateHealthBar(float amount, float max)
         {
-            // if (_healthBar && max > 0f)
-            //     _healthBar.SetValues(Mathf.Clamp01(amount / max), max);
         }
 
         private void UpdateShieldBar(float amount, float max)
         {
-            // if (!_shieldBar) return;
-            //
-            // bool hasShield = max > 0f;
-            // _shieldBar.gameObject.SetActive(hasShield);
 
-            // if (hasShield)
-            //     _shieldBar.SetValues(Mathf.Clamp01(amount / max), max);
         }
 
         private void HideImmediate()

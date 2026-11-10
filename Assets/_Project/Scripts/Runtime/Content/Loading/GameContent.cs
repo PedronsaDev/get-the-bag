@@ -85,15 +85,12 @@ public static class GameContent
         
         try
         {
-            // Loot registry
             _lootRegistryHandle = Addressables.LoadAssetAsync<LootRegistry>("LootRegistry");
             var lootRegistry = await _lootRegistryHandle.ToUniTask();
             
-            // Weapon registry
             _weaponRegistryHandle = Addressables.LoadAssetAsync<WeaponRegistry>("WeaponRegistry");
             var weaponRegistry = await _weaponRegistryHandle.ToUniTask();
 
-            // Weapon Attachment registry
             _weaponAttachmentRegistryHandle = Addressables.LoadAssetAsync<WeaponAttachmentRegistry>("WeaponAttachmentRegistry");
             var attachmentRegistry = await _weaponAttachmentRegistryHandle.ToUniTask();
 

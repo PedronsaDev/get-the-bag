@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LootRegistry
   m_EditorClassIdentifier: Project.Loot::Project.Loot.Data.LootRegistry
   _items:
+  - {fileID: 11400000, guid: ea6c42352609d0a4ab62a55af4bca240, type: 2}
   - {fileID: 11400000, guid: 87f25555bf5c175418f070b62850e1ec, type: 2}
   - {fileID: 11400000, guid: 120b5dacb74231e469754c6194b1ff90, type: 2}
   - {fileID: 11400000, guid: 0a66996a9a1c5664196192040c2ead8c, type: 2}

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Project.Combat.Presentation;
 using Project.Combat.Weapons;
 using Project.Content;
 using Project.Logging;
@@ -259,6 +260,18 @@ public class PlayerWeaponPresenter : MonoBehaviour
         if (_presentedId != weaponId || _presentedId != _latestState.ActiveWeapon.WeaponId) return;
         if (WorldVisual) WorldVisual.PlayFire();
         if (FirstPersonVisual) FirstPersonVisual.PlayFire();
+        if (_isLocalOwner && _cameraController) _cameraController.OnWeaponFired();
+    }
+
+    // The streak starts at the visible muzzle (first person view for the owner, world model for everyone else)
+    // and ends where the server says the shot ended.
+    public void PlayTracer(WeaponShot shot)
+    {
+        if (_presentedId != shot.WeaponId || _presentedId != _latestState.ActiveWeapon.WeaponId) return;
+
+        var visual = _isLocalOwner && FirstPersonVisual ? FirstPersonVisual : WorldVisual;
+        var muzzle = visual && visual.FirePoint ? visual.FirePoint.position : shot.Origin;
+        BulletTracers.Spawn(muzzle, shot.EndPoint);
     }
 
     public void SetReloading(bool reloading)

@@ -133,7 +133,6 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
             }
         }
 
-        // On downed player owner: update drag target follow if being dragged
         if (isOwner && IsDown.value && DraggedByPlayer.value.HasValue)
         {
             UpdateOwnerDragFollow();
@@ -182,7 +181,6 @@ public class PlayerDownedState : NetworkBehaviour, IPlayerStatusProvider
         var activePlayers = PlayerIdentifier.ActivePlayers;
         if (activePlayers == null || activePlayers.Count <= 1)
         {
-            // Solo player allowed downed bleedout state
             return false;
         }
 

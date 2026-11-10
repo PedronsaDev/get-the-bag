@@ -10,11 +10,11 @@ public class FPSCameraTilt : MonoBehaviour
     [SerializeField] private float _strafeTilt = 1.5f;
     [SerializeField] private float _slideTilt = 4.5f;
     [SerializeField] private float _tiltSmoothness = 8f;
-    
+
     [Header("References")]
     [SerializeField] private Transform _tiltPivot;
     [SerializeField] private LocomotionController _locomotionController;
-    
+
     private float _currentTilt;
 
     private void Awake()
@@ -39,12 +39,14 @@ public class FPSCameraTilt : MonoBehaviour
         else if (_locomotionController.State.Phase == LocomotionPhase.Grounded)
             targetRoll = -_locomotionController.State.MoveInput.x * _strafeTilt;
 
-        _currentTilt = Mathf.Lerp(_currentTilt, targetRoll, dt * _tiltSmoothness);
+        // Exponential smoothing: same feel at any frame rate (a plain dt*k lerp speeds up and slows down with FPS).
+        _currentTilt = Mathf.Lerp(_currentTilt, targetRoll, 1f - Mathf.Exp(-_tiltSmoothness * dt));
     }
 
     private void ApplyTransforms()
     {
-        _tiltPivot.localRotation = Quaternion.Euler(0f, 0f, _currentTilt);
+        if (_tiltPivot)
+            _tiltPivot.localRotation = Quaternion.Euler(0f, 0f, _currentTilt);
     }
 }
 }

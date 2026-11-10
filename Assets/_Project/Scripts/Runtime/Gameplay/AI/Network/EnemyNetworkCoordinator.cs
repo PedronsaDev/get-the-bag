@@ -39,7 +39,6 @@ public class EnemyNetworkCoordinator : NetworkBehaviour
     
     private void HandleAlertStateChanged(AlertState state)
     {
-        // Do something
     }
 
 }

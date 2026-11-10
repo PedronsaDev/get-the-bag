@@ -123,7 +123,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
             return;
         }
 
-        // Gameplay actions
         _moveAction = _playerMap.FindAction("Move");
         _lookAction = _playerMap.FindAction("Look");
         _attackAction = _playerMap.FindAction("Attack");
@@ -144,7 +143,6 @@ public class LocalPlayerInputProvider : NetworkBehaviour, IPlayerInputProvider
         _playerInventoryAction = _playerMap.FindAction("Inventory");
         _dropBagAction = _playerMap.FindAction("DropBag");
 
-        // UI & Meta actions
         if (_uiMap != null)
         {
             _cancelAction = _uiMap.FindAction("Cancel");

@@ -1336,7 +1336,7 @@ Transform:
   m_GameObject: {fileID: 3642798593584272359}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.239, y: 1.196, z: 0.281}
+  m_LocalPosition: {x: -0.321, y: 0.446, z: 0.281}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1454,6 +1454,26 @@ MonoBehaviour:
   _impactSpring:
     Stiffness: 100
     Damping: 12
+  _fireSpring:
+    Stiffness: 260
+    Damping: 24
+  _firePitchVelocity: -24
+  _fireYawVelocity: 6
+  _fireRollVelocity: 9
+  _fireMaxPitch: 3
+  _damageSpring:
+    Stiffness: 180
+    Damping: 16
+  _damagePitchVelocity: -28
+  _damageRollVelocity: 40
+  _enableBob: 0
+  _bobPitch: 0.125
+  _bobRoll: 0.15
+  _bobFrequency: 1.8
+  _bobSprintMultiplier: 1.5
+  _bobCrouchMultiplier: 0.5
+  _bobAimMultiplier: 0.2
+  _bobBlendSpeed: 8
 --- !u!1 &5400436632211418639
 GameObject:
   m_ObjectHideFlags: 0
@@ -1616,6 +1636,19 @@ MonoBehaviour:
   _vaultDip: 0.3
   _maxPitch: 85
   _minPitch: -85
+  _effectsIntensity: 1
+  _climbPerShot: 0.35
+  _yawDriftPerShot: 0.12
+  _maxClimb: 6
+  _recoverDelay: 0.08
+  _recoverRate: 7
+  _climbApplyRate: 28
+  _aimKickMultiplier: 0.6
+  _fireFovKick: 0.8
+  _fovKickMax: 3
+  _fovKickRecovery: 14
+  _fullFlinchDamage: 40
+  _minFlinch: 0.25
   _pitchPivot: {fileID: 960240798095504355}
   _cameraTargetPoint: {fileID: 3832149006848185529}
   _inputProvider: {fileID: 3432939826793728204}

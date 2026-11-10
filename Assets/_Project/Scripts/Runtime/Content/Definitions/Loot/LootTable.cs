@@ -43,7 +43,6 @@ public struct LootRollModifiers
     public override string ToString() => $"quantity x{QuantityMultiplier:0.##}, quality {QualityBias:+0.##;-0.##;0}";
 }
 
-/// <summary>A weighted list of loot. Used by <see cref="LootPool"/> assets and inline on spawn points.</summary>
 [Serializable]
 public class LootTable
 {

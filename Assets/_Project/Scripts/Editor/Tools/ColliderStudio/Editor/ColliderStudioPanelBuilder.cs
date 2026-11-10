@@ -17,7 +17,6 @@ namespace Project.Tools.ColliderStudio.Editor
             root.style.paddingBottom = 8;
             root.style.minWidth = 280;
 
-            // 1. Header Section
             var header = new VisualElement();
             header.style.flexDirection = FlexDirection.Row;
             header.style.justifyContent = Justify.SpaceBetween;
@@ -46,7 +45,6 @@ namespace Project.Tools.ColliderStudio.Editor
             header.Add(toolToggle);
             root.Add(header);
 
-            // 2. Selection Info & Quick Add Box
             var selectionBox = new VisualElement();
             selectionBox.style.paddingLeft = 6;
             selectionBox.style.paddingRight = 6;
@@ -90,7 +88,6 @@ namespace Project.Tools.ColliderStudio.Editor
 
             root.Add(selectionBox);
 
-            // 3. Handle Interaction Mode (Segmented Toolbar)
             var modeLabel = CreateSectionHeader("INTERACTION MODE");
             root.Add(modeLabel);
 
@@ -142,7 +139,6 @@ namespace Project.Tools.ColliderStudio.Editor
             handleScaleSlider.style.marginBottom = 4;
             root.Add(handleScaleSlider);
 
-            // 4. Symmetry Options
             var cornerSymToggle = new Toggle("Corner Symmetric (or hold Alt)")
             {
                 value = ColliderStudioSettings.CornerSymmetric,
@@ -160,7 +156,6 @@ namespace Project.Tools.ColliderStudio.Editor
             faceSymToggle.style.marginBottom = 8;
             root.Add(faceSymToggle);
 
-            // 5. Grid Snapping
             root.Add(CreateSectionHeader("SNAPPING"));
 
             var snapRow = new VisualElement();
@@ -188,7 +183,6 @@ namespace Project.Tools.ColliderStudio.Editor
             snapRow.Add(snapField);
             root.Add(snapRow);
 
-            // Snap Preset Quick Buttons
             var snapPresetsRow = new VisualElement();
             snapPresetsRow.style.flexDirection = FlexDirection.Row;
             snapPresetsRow.style.marginBottom = 8;
@@ -211,7 +205,6 @@ namespace Project.Tools.ColliderStudio.Editor
             }
             root.Add(snapPresetsRow);
 
-            // 6. Visuals & Colors
             root.Add(CreateSectionHeader("VISUALIZATION & GIZMOS"));
 
             var colorModeField = new EnumField("Color Mode", ColliderStudioSettings.ColorMode);
@@ -230,7 +223,6 @@ namespace Project.Tools.ColliderStudio.Editor
             customColorField.RegisterValueChangedCallback(e => ColliderStudioSettings.CustomColor = e.newValue);
             root.Add(customColorField);
 
-            // Quick Color Palette
             var paletteRow = new VisualElement();
             paletteRow.style.flexDirection = FlexDirection.Row;
             paletteRow.style.marginBottom = 8;
@@ -284,7 +276,6 @@ namespace Project.Tools.ColliderStudio.Editor
             xrayToggle.style.marginBottom = 10;
             root.Add(xrayToggle);
 
-            // 7. Quick Mesh Actions
             root.Add(CreateSectionHeader("QUICK MESH ACTIONS"));
 
             var autoFitBtn = new Button(AutoFitSelected)
@@ -321,7 +312,6 @@ namespace Project.Tools.ColliderStudio.Editor
             actionRow.Add(resetBtn);
             root.Add(actionRow);
 
-            // Dynamic selection update
             void RefreshSelection()
             {
                 var activeGo = Selection.activeGameObject;

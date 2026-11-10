@@ -15,9 +15,10 @@ MonoBehaviour:
   _id: weap_pistol_a
   _name: Pistol A
   _category: 0
-  _baseMagazineSize: 12
-  _startingReserveAmmo: 90
+  _baseMagazineSize: 999
+  _startingReserveAmmo: 999999
   _baseReloadDuration: 1.6
+  _baseReloadEmptyDuration: 0
   _baseDamage: 10
   _fireMode: 0
   _baseFireRate: 600
@@ -37,13 +38,13 @@ MonoBehaviour:
   _presentationDefinition: {fileID: 11400000, guid: a71aeffd0db6dde448d2df0962e7e4d4, type: 2}
   _worldPrefabReference:
     m_AssetGUID: 1f8c6a03b8aa654479fba5757f0dacd9
-    m_SubObjectName:
-    m_SubObjectType:
-    m_SubObjectGUID:
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
     m_EditorAssetChanged: 1
   _firstPersonPrefabReference:
     m_AssetGUID: e77b0608ae43a23408d013ec5443596b
-    m_SubObjectName:
-    m_SubObjectType:
-    m_SubObjectGUID:
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
     m_EditorAssetChanged: 0

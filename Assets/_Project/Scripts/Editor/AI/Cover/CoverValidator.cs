@@ -26,7 +26,6 @@ public readonly struct CoverIssue
     }
 }
 
-/// <summary>Finds cover points that look fine in the Scene view but would fail or mislead the AI at runtime.</summary>
 public static class CoverValidator
 {
     private const float NavMeshTolerance = 0.3f;
