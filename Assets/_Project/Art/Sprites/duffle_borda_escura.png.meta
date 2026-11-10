@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: cb23f863cef464348b10d6e75443f6a3
+guid: 9702af3647f56f94893477679db67fe9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3695479239478816633
-    second: bolsa_fill_0
+      213: -3432190744687716499
+    second: duffle_borda_escura_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: bolsa_fill_0
+      name: duffle_borda_escura_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 2172
-        height: 724
+        width: 2058
+        height: 966
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 97f27ffe9caf84330800000000000000
-      internalID: 3695479239478816633
+      spriteID: d675185c3b86e50d0800000000000000
+      internalID: -3432190744687716499
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      bolsa_fill_0: 3695479239478816633
+      duffle_borda_escura_0: -3432190744687716499
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

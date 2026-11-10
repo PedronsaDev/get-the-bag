@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 07f499b85eadfa84b81afb728c3f0922
+guid: 79146189dc17345448a3f1543992910d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9054933159894500403
-    second: "\xCDcone de Saco de Equipamento Minimalista_0"
+      213: 1186214394087079988
+    second: duffle_preenchimento_branco (1) 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\xCDcone de Saco de Equipamento Minimalista_0"
+      name: duffle_preenchimento_branco (1) 1_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 2172
-        height: 724
+        width: 2058
+        height: 966
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 334ca6cdbb599ad70800000000000000
-      internalID: 9054933159894500403
+      spriteID: 4300403e4b7467010800000000000000
+      internalID: 1186214394087079988
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\xCDcone de Saco de Equipamento Minimalista_0": 9054933159894500403
+      duffle_preenchimento_branco (1) 1_0: 1186214394087079988
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
