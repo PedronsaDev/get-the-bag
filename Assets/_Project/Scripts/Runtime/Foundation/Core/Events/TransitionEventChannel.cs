@@ -5,6 +5,8 @@ namespace Project.Core
 [CreateAssetMenu(fileName = "TransitionEventChannel", menuName = "Events/TransitionEventChannel")]
 public class TransitionEventChannel : ScriptableObject
 {
+    public const string ResourcePath = "EventChannels/TransitionEventChannel";
+
     public event System.Action OnTransitionStarted;
     public event System.Action OnTransitionCompleted;
 

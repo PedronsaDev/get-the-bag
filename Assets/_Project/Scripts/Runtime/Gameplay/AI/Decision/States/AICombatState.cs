@@ -1,9 +1,10 @@
 using Project.AI.Blackboard;
-using Action = System.Action;
 using Project.AI.Combat;
 using Project.AI.Cover;
 using UnityEngine;
 using UnityEngine.AI;
+using Project.AI.Locomotion;
+using Action = System.Action;
 
 namespace Project.AI.Decision.States
 {

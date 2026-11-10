@@ -3,10 +3,11 @@ using Project.AI.Blackboard;
 using Project.AI.Configuration;
 using Project.Core.Player;
 using PurrNet;
+using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Project.AI.Perception

@@ -5,16 +5,16 @@ using Cysharp.Threading.Tasks;
 using Project.Content;
 using Project.Logging;
 using Project.Loot;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using Project.Loot.Spawning;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 /// <summary>
 /// Rolls every <see cref="LootSpawnPoint"/> in the level once, on the server, and spawns the results.
-/// One per level scene (the Level Handler is a good home).
+/// One per level scene (MATCH_PF_LevelHandler is a good home).
 /// </summary>
 public class LootSpawnDirector : MonoBehaviour
 {

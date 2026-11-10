@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Project.AI.Locomotion;
 
 namespace Project.AI.Patrol.Editor
 {

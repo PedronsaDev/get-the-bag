@@ -6,7 +6,7 @@ using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match.Zones
+namespace Project.Match.Zones
 {
 [RequireComponent(typeof(AreaPlayerDetector))]
 public class ExtractionZone : NetworkBehaviour

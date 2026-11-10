@@ -1,7 +1,7 @@
 using PurrNet;
 using PurrNet.Packing;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public enum RaidOutcome : byte
 {

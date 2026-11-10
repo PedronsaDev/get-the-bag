@@ -2,9 +2,9 @@ using System;
 using Cysharp.Threading.Tasks;
 using Project.Content;
 using Project.Logging;
-using Project.Network.Bootstrapping;
 using Project.Networking.Bootstrapping;
 using UnityEngine;
+using Project.Game;
 
 namespace Project.Bootstrap
 {

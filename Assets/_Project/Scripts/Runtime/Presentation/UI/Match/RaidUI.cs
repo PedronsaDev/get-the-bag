@@ -1,6 +1,5 @@
 using System;
-using Project.Core.Events;
-using Project.Core.Match;
+using Project.Match;
 using TMPro;
 using UnityEngine;
 
@@ -21,7 +20,7 @@ public class RaidUI : MonoBehaviour
     {
         if (!_raidEventChannel)
         {
-            _raidEventChannel = Resources.Load<RaidEventChannel>("Event Channels/RaidEventChannel");
+            _raidEventChannel = Resources.Load<RaidEventChannel>(RaidEventChannel.ResourcePath);
         }
     }
 

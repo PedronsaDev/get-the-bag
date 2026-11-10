@@ -4,6 +4,7 @@ using Project.AI.Cover;
 using Project.AI.Perception;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Project.AI.Locomotion;
 
 namespace Project.AI.Configuration
 {

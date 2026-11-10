@@ -1,5 +1,5 @@
 using System.Text;
-using Project.Core.Match;
+using Project.Match;
 using TMPro;
 using UnityEngine;
 

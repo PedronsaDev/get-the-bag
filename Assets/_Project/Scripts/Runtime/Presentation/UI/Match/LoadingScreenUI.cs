@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Project.Core.Match;
-using Project.Levels.Data;
+using Project.Match;
+using Project.Definitions.Levels;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;

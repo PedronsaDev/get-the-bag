@@ -3,6 +3,7 @@ using Project.AI.Combat;
 using Project.Core.Player;
 using UnityEngine;
 using UnityEngine.AI;
+using Project.AI.Locomotion;
 using UnityPhysics = UnityEngine.Physics;
 
 namespace Project.AI.Cover

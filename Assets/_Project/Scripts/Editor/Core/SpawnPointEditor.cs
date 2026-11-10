@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Project.Core.Match;
+using Project.Match;
 using Project.Logging;
 using UnityEditor;
 using UnityEditor.SceneManagement;

@@ -2,8 +2,9 @@ using System;
 using Cysharp.Threading.Tasks;
 using Project.Networking.Scenes;
 using UnityEngine;
+using Project.Core;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public static class LevelLoadingStatus
 {
@@ -59,7 +60,7 @@ internal static class LevelLoadingScreenBridge
         get
         {
             if (!_channel)
-                _channel = Resources.Load<TransitionEventChannel>("Event Channels/TransitionEventChannel");
+                _channel = Resources.Load<TransitionEventChannel>(TransitionEventChannel.ResourcePath);
             return _channel;
         }
     }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 
 namespace Project.Loot
 {

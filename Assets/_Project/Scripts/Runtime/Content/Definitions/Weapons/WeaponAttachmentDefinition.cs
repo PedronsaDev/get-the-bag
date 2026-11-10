@@ -1,8 +1,8 @@
 using System;
-using Project.Core.Data;
+using Project.Definitions;
 using UnityEngine;
 
-namespace Project.Combat.Data
+namespace Project.Definitions.Weapons
 {
 public enum WeaponAttachmentSlot
 {

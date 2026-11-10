@@ -1,11 +1,10 @@
 using Plugins.Outline;
-using Project.Core.Events;
 using Project.Core.Interaction;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 [RequireComponent(typeof(NetworkIdentity))]
 public class LevelSelectorConsole : NetworkBehaviour, IInteractable
@@ -45,7 +44,7 @@ public class LevelSelectorConsole : NetworkBehaviour, IInteractable
         if (!_routeSelectionEventChannel)
         {
             _routeSelectionEventChannel =
-                Resources.Load<RouteSelectionEventChannel>("Event Channels/RouteSelectionChannel");
+                Resources.Load<RouteSelectionEventChannel>(RouteSelectionEventChannel.ResourcePath);
         }
     }
 

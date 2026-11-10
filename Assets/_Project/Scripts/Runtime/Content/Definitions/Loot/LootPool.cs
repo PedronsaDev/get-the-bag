@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Loot.Data
+namespace Project.Definitions.Loot
 {
 /// <summary>A reusable weighted loot list, for example "Office Desk" or "Vault". Spawn points reference it.</summary>
 [CreateAssetMenu(fileName = "POOL_Name", menuName = "Loot/Loot Pool")]

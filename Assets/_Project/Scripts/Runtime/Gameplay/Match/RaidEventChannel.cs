@@ -1,12 +1,13 @@
 using System;
-using Project.Core.Match;
 using UnityEngine;
 
-namespace Project.Core.Events
+namespace Project.Match
 {
 [CreateAssetMenu(fileName = "RaidEventChannel", menuName = "Events/RaidEventChannel")]
 public class RaidEventChannel : ScriptableObject
 {
+    public const string ResourcePath = "EventChannels/RaidEventChannel";
+
     public event Action<RaidManager> OnRaidManagerUpdated;
     public event Action<RaidState> OnStateChanged;
     public event Action OnRaidFailed;

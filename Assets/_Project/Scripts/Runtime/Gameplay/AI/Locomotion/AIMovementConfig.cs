@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Project.AI.Combat
+namespace Project.AI.Locomotion
 {
 [Serializable]
 public class AIMovementConfig

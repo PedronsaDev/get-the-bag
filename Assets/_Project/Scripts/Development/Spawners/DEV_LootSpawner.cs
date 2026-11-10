@@ -5,10 +5,12 @@ using Project.Core.Interaction;
 using Project.Content;
 using Project.Logging;
 using Project.Loot;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using PurrNet;
 using UnityEngine;
 
+namespace Project.Development.Spawners
+{
 [Serializable]
 class SpawnDef
 {
@@ -95,4 +97,5 @@ public class DEV_LootSpawner : MonoBehaviour, IInteractable
     public void OnHoverExit(IPlayerInteractor interactor)
     {
     }
+}
 }

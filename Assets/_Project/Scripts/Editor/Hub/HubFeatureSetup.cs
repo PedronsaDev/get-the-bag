@@ -1,5 +1,5 @@
 using Project.Combat.Props;
-using Project.Core.Match;
+using Project.Match;
 using Project.UI.Match;
 using TMPro;
 using UnityEditor;

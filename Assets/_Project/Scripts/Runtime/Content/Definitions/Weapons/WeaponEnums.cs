@@ -1,4 +1,4 @@
-namespace Project.Combat.Data
+namespace Project.Definitions.Weapons
 {
 
 public enum WeaponCategory

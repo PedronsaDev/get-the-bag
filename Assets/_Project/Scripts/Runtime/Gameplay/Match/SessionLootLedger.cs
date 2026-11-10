@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public static class SessionLootLedger
 {

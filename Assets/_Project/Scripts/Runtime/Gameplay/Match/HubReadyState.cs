@@ -3,7 +3,7 @@ using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 [RequireComponent(typeof(NetworkIdentity))]
 [RequireComponent(typeof(Collider))]

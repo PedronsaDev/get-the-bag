@@ -3,8 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using PrimeTween;
 using Project.Content;
-using Project.Core.Events;
-using Project.Core.Match;
+using Project.Match;
 using Project.Logging;
 using Project.UI.Match.Reveal;
 using PurrNet;
@@ -35,7 +34,7 @@ public class RaidResultsUI : MonoBehaviour
     private void Awake()
     {
         if (!_raidEventChannel)
-            _raidEventChannel = Resources.Load<RaidEventChannel>("Event Channels/RaidEventChannel");
+            _raidEventChannel = Resources.Load<RaidEventChannel>(RaidEventChannel.ResourcePath);
 
         if (!_canvasGroup && !TryGetComponent(out _canvasGroup))
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();

@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Project.Core.Events;
 using Project.Core.Player;
 using Project.Logging;
 using Project.Loot;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using Project.Networking.Scenes;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public enum RaidState
 {
@@ -69,7 +68,7 @@ public class RaidManager : NetworkBehaviour
 
         if (!_raidEvents)
         {
-            _raidEvents = Resources.Load<RaidEventChannel>("Event Channels/RaidEventChannel");
+            _raidEvents = Resources.Load<RaidEventChannel>(RaidEventChannel.ResourcePath);
         }
 
         CurrentState.onChanged += HandleNetworkStateChanged;

@@ -5,7 +5,7 @@ using TMPro;
 using UnityEditor;
 #endif
 
-namespace Project.Core.Dev
+namespace Project.Development.Annotations
 {
     public enum AnnotationType : byte
     {

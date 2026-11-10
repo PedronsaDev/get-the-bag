@@ -5,7 +5,7 @@ using UnityEngine;
 using Project.Core.Player;
 using Project.Logging;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]

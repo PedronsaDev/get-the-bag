@@ -4,7 +4,7 @@
 
 Design and migration plan, 28 October 2026. **Proposed architecture, not a claim that the full system is implemented.** The preparatory cleanup and its verified limits are recorded in [Current state](CURRENT-STATE.md).
 
-This folder is the canonical plan for the combined first-person/world-character workflow. `FirstPersonViewmodels.md` remains a detailed export/setup companion; `WeaponAnimationPrototype.md` and `Weapon-Animation-ADS-and-Mods.md` retain prototype history and earlier design context. Where their proposed architecture differs, use this plan. The weapon-study reports remain evidence, not integration instructions.
+This folder is the canonical plan for the combined first-person/world-character workflow. `FirstPersonViewmodels.md` remains a detailed export/setup companion; `../../../History/WeaponAnimationPrototype.md` and `Weapon-Animation-ADS-and-Mods.md` retain prototype history and earlier design context. Where their proposed architecture differs, use this plan. The weapon-study reports remain evidence, not integration instructions.
 
 For current code ownership and team onboarding, start with [the project code guide](../../../Architecture.md).
 The [29 October cleanup audit](../../../Code-Audit.md) covers the broader gameplay dependencies and verification limits.

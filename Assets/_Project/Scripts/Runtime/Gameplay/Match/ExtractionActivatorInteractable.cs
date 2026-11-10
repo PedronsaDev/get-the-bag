@@ -1,10 +1,10 @@
 using System;
 using Project.Core.Interaction;
-using Project.Core.Match.Zones;
+using Project.Match.Zones;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public class ExtractionActivatorInteractable : NetworkBehaviour, IInteractable
 {

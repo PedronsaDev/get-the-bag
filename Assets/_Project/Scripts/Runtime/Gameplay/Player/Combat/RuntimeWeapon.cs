@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Project.Combat.Data;
+using Project.Definitions.Weapons;
 using Project.Combat.Weapons;
 
 namespace Project.Player.Combat

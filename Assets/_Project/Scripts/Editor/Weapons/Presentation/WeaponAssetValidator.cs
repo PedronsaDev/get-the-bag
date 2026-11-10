@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Project.Combat.Data;
-using Project.Combat.Weapons;
 using Project.Definitions.Weapons;
+using Project.Combat.Weapons;
 using Project.Player.Animation;
 using UnityEditor;
 using UnityEditor.AddressableAssets;

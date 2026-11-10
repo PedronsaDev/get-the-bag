@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Multiplayer.PlayMode;
 
-namespace Project.Network.Bootstrapping
+namespace Project.Networking.Bootstrapping
 {
 public class ConnectionStarter : MonoBehaviour
 {

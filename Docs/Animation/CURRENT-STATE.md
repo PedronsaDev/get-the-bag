@@ -53,8 +53,8 @@ The [project code guide](../Architecture.md) describes assembly ownership.
 | Asset | Path under Assets/_Project |
 | --- | --- |
 | Character | Prefabs/Player/CHAR_PF_Player.prefab |
-| Gameplay definition | Data/Weapons/Weapon Definitions/Pistols/WEAP_Pistol_A.asset |
-| Presentation | Data/Weapons/Visual Definitions/Weapon/WEAPPRES_Pistol_A.asset |
+| Gameplay definition | Data/Weapons/Definitions/Pistols/WEAP_Pistol_A.asset |
+| Presentation | Data/Weapons/Visuals/Weapon/WEAPPRES_Pistol_A.asset |
 | Owner view | Prefabs/Weapons/Pistols/WEAP_FP_Pistol_A.prefab |
 | World weapon | Prefabs/Weapons/Pistols/WEAP_PF_Pistol_A.prefab |
 | Weapon action clips | Animations/Weapons/Pistol_A/Idle, Fire and Reload/ |

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Project.Logging;
 
-namespace Project.Combat.Data
+namespace Project.Definitions.Weapons
 {
 public static class WeaponStatResolver
 {

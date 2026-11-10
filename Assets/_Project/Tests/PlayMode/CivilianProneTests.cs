@@ -14,7 +14,7 @@ public class CivilianProneTests
     [UnityTest]
     public IEnumerator LyingDown_TurnsTheBodyFlatAndCentresIt()
     {
-        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/Enemy/AI_Civilian_A.prefab");
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/AI/AI_PF_Civilian_A.prefab");
         // Plain instantiate: no NetworkManager is running, so bypass PurrNet's spawning proxy.
         var civilian = (GameObject)PurrNet.UnityProxy.InstantiateDirectly(prefab);
         yield return null;

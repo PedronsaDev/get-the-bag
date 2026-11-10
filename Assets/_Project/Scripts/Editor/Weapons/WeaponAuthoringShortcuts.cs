@@ -1,5 +1,5 @@
 using System.IO;
-using Project.Combat.Data;
+using Project.Definitions.Weapons;
 using Project.Logging;
 using UnityEditor;
 using UnityEngine;

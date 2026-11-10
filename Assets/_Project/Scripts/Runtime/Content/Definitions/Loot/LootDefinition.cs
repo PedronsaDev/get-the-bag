@@ -1,8 +1,8 @@
-using Project.Core.Data;
+using Project.Definitions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace Project.Loot.Data
+namespace Project.Definitions.Loot
 {
 [CreateAssetMenu(fileName = "LOOT_Name", menuName = "Loot/Loot Definition")]
 public class LootDefinition : ScriptableObject, IRegistryItem

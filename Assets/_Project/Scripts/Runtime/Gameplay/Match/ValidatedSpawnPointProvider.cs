@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public class ValidatedSpawnPointProvider : PurrNet.IProvideSpawnPoints
 {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Project.Combat.Data;
 using Project.Definitions.Weapons;
 
 namespace Project.Weapons.Editor

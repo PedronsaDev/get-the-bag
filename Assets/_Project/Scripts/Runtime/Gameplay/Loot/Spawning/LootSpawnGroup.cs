@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using UnityEngine;
 
 namespace Project.Loot.Spawning

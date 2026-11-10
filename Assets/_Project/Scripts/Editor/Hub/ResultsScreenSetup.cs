@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Project.Core.Events;
-using Project.Core.Match;
-using Project.Loot.Data;
+using Project.Match;
+using Project.Definitions.Loot;
 using Project.UI.Match;
 using PurrNet;
 using UnityEditor;
@@ -60,10 +59,10 @@ public static class ResultsScreenSetup
 
     private static void Preview(RaidOutcome outcome, bool extracted, int itemCount)
     {
-        var channel = Resources.Load<RaidEventChannel>("Event Channels/RaidEventChannel");
+        var channel = Resources.Load<RaidEventChannel>(RaidEventChannel.ResourcePath);
         if (!channel)
         {
-            Debug.LogError("[ResultsScreenSetup] RaidEventChannel not found in Resources/Event Channels.");
+            Debug.LogError("[ResultsScreenSetup] RaidEventChannel not found in Resources/EventChannels.");
             return;
         }
 

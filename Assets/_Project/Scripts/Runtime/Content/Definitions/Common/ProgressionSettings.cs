@@ -1,5 +1,7 @@
 using UnityEngine;
 
+namespace Project.Definitions
+{
 [CreateAssetMenu(fileName = "ProgressionSettings", menuName = "Settings/XP Settings", order = 1)]
 public class ProgressionSettings : ScriptableObject
 {
@@ -73,4 +75,5 @@ public class ProgressionSettings : ScriptableObject
             IsMax = false
         };
     }
+}
 }

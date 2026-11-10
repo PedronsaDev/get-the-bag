@@ -1,5 +1,5 @@
 using Project.Combat.Core;
-using Project.Combat.Data;
+using Project.Definitions.Weapons;
 using PurrNet;
 using UnityEngine;
 

@@ -8,7 +8,7 @@ using Project.Networking.Scenes;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public enum LevelPhase : byte
 {

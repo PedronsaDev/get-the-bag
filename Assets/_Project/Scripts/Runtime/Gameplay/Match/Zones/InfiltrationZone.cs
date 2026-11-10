@@ -1,11 +1,11 @@
 using System;
 using ImprovedTimers;
-using Project.Core.Events;
+using Project.Match;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match.Zones
+namespace Project.Match.Zones
 {
 [RequireComponent(typeof(AreaPlayerDetector))]
 public class InfiltrationZone : NetworkBehaviour
@@ -35,7 +35,7 @@ public class InfiltrationZone : NetworkBehaviour
     {
         if (!_raidEvents)
         {
-            _raidEvents = Resources.Load<RaidEventChannel>("Event Channels/RaidEventChannel");
+            _raidEvents = Resources.Load<RaidEventChannel>(RaidEventChannel.ResourcePath);
         }
 
         if (!_detector)

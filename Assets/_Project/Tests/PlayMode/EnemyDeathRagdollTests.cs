@@ -16,14 +16,14 @@ namespace Project.AI.Tests
 public class EnemyDeathRagdollTests
 {
     [UnityTest]
-    public IEnumerator Death_SwitchesEnemyAToRagdoll() => CheckRagdoll("AI_Test_Enemy_A");
+    public IEnumerator Death_SwitchesEnemyAToRagdoll() => CheckRagdoll("AI_PF_TestEnemy_A");
 
     [UnityTest]
-    public IEnumerator Death_SwitchesEnemyBToRagdoll() => CheckRagdoll("AI_Test_Enemy_B");
+    public IEnumerator Death_SwitchesEnemyBToRagdoll() => CheckRagdoll("AI_PF_TestEnemy_B");
 
     private static IEnumerator CheckRagdoll(string prefabName)
     {
-        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/_Project/Prefabs/Enemy/{prefabName}.prefab");
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/_Project/Prefabs/AI/{prefabName}.prefab");
         // Plain instantiate: no NetworkManager is running, so bypass PurrNet's spawning proxy.
         var enemy = (GameObject)PurrNet.UnityProxy.InstantiateDirectly(prefab);
         yield return null; // Ragdoll deactivates itself in Start

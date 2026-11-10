@@ -1,11 +1,9 @@
 using UnityEditor;
 
-namespace Project.Bootstrap.Editor
+namespace Project.Core.Editor
 {
 public static class BootstrapMenu
 {
-#if UNITY_EDITOR
-
     private const string MENU_PATH = "Tools/Core/Auto-Bootstrap On Play";
 
     [MenuItem(MENU_PATH)]
@@ -21,6 +19,5 @@ public static class BootstrapMenu
         Menu.SetChecked(MENU_PATH, EditorPrefs.GetBool("AutoBootstrap_Enabled", true));
         return true;
     }
-#endif
 }
 }

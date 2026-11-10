@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using PrimeTween;
-using Project.Core.Events;
-using Project.Core.Match;
+using Project.Match;
 using Project.Core.UI;
 using TMPro;
 using UnityEngine;
@@ -38,7 +37,7 @@ public class RouteSelectionUI : InputBlockerUI
         if (!_routeSelectionEventChannel)
         {
             _routeSelectionEventChannel =
-                Resources.Load<RouteSelectionEventChannel>("Event Channels/RouteSelectionChannel");
+                Resources.Load<RouteSelectionEventChannel>(RouteSelectionEventChannel.ResourcePath);
         }
 
         if (_routeButtons == null || _routeButtons.Count == 0)

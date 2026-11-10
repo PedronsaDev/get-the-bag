@@ -142,6 +142,7 @@ InitTestScene*.unity*
 !/Docs/Architecture.md
 !/Docs/Code-Audit.md
 !/Docs/PurrNet.md
+!/Docs/Conventions.md
 !/Docs/Animation/
 /Docs/Animation/*
 !/Docs/Animation/*.md

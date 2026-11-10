@@ -2,7 +2,7 @@ using System;
 using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using PurrNet;
 using UnityEngine;
 

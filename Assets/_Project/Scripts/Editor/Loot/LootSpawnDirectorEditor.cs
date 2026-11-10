@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using Project.Core.Match;
-using Project.Loot.Data;
+using Project.Match;
+using Project.Definitions.Loot;
 using Project.Loot.Spawning;
 using UnityEditor;
 using UnityEngine;

@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Project.Combat.Data;
+using Project.Definitions.Weapons;
 using Project.Combat.Weapons;
 using UnityEngine;
 using UnityEngine.AddressableAssets;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Project.Combat.Data;
 using Project.Definitions.Weapons;
 using Project.Logging;
 using Project.Player.Animation;

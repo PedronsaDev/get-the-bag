@@ -4,6 +4,7 @@ using Project.Core.Persistence;
 using Project.Logging;
 using Project.Persistence;
 using UnityEngine;
+using Project.Definitions;
 
 namespace Project.Player.Profile
 {

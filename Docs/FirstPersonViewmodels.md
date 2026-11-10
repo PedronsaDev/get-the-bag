@@ -9,7 +9,7 @@ Start with [the character animation plan](Animation/README.md), [the current aut
 | Blender source | `C:/Projects/blender/get-the-bag/FPS/Pistol_A.blend` |
 | Imported clips/controller | `Assets/_Project/Animations/Weapons/Pistol_A/` |
 | Owner prefab | `Assets/_Project/Prefabs/Weapons/Pistols/WEAP_FP_Pistol_A.prefab` |
-| Weapon definition | `Assets/_Project/Data/Weapons/Weapon Definitions/Pistols/WEAP_Pistol_A.asset` (`weap_pistol_a`) |
+| Weapon definition | `Assets/_Project/Data/Weapons/Definitions/Pistols/WEAP_Pistol_A.asset` (`weap_pistol_a`) |
 | Selection/loading | PlayerWeaponPresenter loads world views for all characters and an additional FP view for the owner |
 | Authored playback | WeaponAnimator listens to WeaponInstance fire/reload events |
 | Muzzle effects | WeaponMuzzleFlash listens to its view's shot event; CharacterVisualVisibility selects which effect is presented |

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityPhysics = UnityEngine.Physics;
 
-namespace Project.Core.Match
+namespace Project.Match
 {
 public enum SpawnPointStatus
 {

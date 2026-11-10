@@ -35,7 +35,7 @@ rig hierarchy and conversion transforms. Separate runtime objects still share on
    `.meta` files and import settings stay in place. **Export to Staging** writes review files under
    this Blender file's `Exported/WorkflowCheck` folder instead.
 5. Let Unity finish importing. Open `WEAPPRES_Pistol_A` under
-   `Assets/_Project/Data/Weapons/Visual Definitions/Weapon/`. Expand **Reload Normal** or
+   `Assets/_Project/Data/Weapons/Visuals/Weapon/`. Expand **Reload Normal** or
    **Reload Empty**: First Person Clip, Body Clip, Weapon Clip (world mechanism), Support Hand Weight.
    Existing assignments survive re-export. Do not replace the controller's original template slots.
 6. Tune **Support Hand Weight** for that variant. X is gameplay progress 0-1; Y is holding correction

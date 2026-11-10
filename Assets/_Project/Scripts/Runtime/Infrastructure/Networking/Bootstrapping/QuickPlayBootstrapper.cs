@@ -1,6 +1,5 @@
 using PurrNet;
 using Cysharp.Threading.Tasks;
-using Project.Network.Bootstrapping;
 using Project.Logging;
 using PurrNet.Transports;
 using Unity.Multiplayer.PlayMode;

@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using NaughtyAttributes;
-using Project.Core.Data;
-using Project.Definitions.Weapons;
+using Project.Definitions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
 
-namespace Project.Combat.Data
+namespace Project.Definitions.Weapons
 {
 [CreateAssetMenu(fileName = "WEAP_TYPE_NAME", menuName = "Weapons/Weapon Definition", order = 1)]
 public class WeaponDefinition : ScriptableObject, IRegistryItem

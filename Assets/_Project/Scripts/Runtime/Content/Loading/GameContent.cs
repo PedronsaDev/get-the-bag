@@ -1,8 +1,8 @@
 using System;
 using Cysharp.Threading.Tasks;
-using Project.Combat.Data;
+using Project.Definitions.Weapons;
 using Project.Logging;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;

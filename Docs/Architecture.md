@@ -2,8 +2,8 @@
 
 Start here when joining the project. Custom source is in `Assets/_Project/Scripts`.
 Folders describe responsibility; `.asmdef` files enforce which modules can use each other.
-Some older namespaces still use `Project.Core.Match` or `Project.Network.Bootstrapping`.
-Use the existing namespace when editing those files; folder cleanup does not require a namespace migration.
+Every namespace starts with its assembly's root namespace (`Project.Match`, `Project.Definitions.Weapons`).
+Naming, prefixes and folder rules for scripts and assets are in [Conventions.md](Conventions.md).
 
 For networking decisions, consult [the PurrNet knowledge base](PurrNet.md) and verify the installed
 version before adding transport code. Prefer PurrNet's existing components and modules.

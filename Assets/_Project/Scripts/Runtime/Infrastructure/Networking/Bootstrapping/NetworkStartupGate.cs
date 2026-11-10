@@ -2,7 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace Project.Network.Bootstrapping
+namespace Project.Networking.Bootstrapping
 {
 public static class NetworkStartupGate
 {

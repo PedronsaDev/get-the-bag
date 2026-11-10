@@ -1,5 +1,5 @@
 using System;
-using Project.Combat.Data;
+using Project.Definitions.Weapons;
 
 namespace Project.Combat.Weapons
 {

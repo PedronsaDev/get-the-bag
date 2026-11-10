@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Project.Content;
 using Project.Core.Input;
 using Project.Loot;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using Project.Loot.World;
 using Project.Player.FPSCamera;
 using Project.Player.Input;
