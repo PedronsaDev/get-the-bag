@@ -557,6 +557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Player::Project.Player.Combat.PlayerWeaponPresenter
   _characterRigBinding: {fileID: 7238550490616828200}
   _visibility: {fileID: 1522447270465537852}
+  _weaponEvents: {fileID: 11400000, guid: 6e5dfa831593d704bb1694cf2a66b7f6, type: 2}
 --- !u!114 &7238550490616828200
 MonoBehaviour:
   m_ObjectHideFlags: 0

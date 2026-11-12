@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Project.Combat.Presentation;
 using Project.Combat.Weapons;
 using Project.Content;
+using Project.Core;
 using Project.Logging;
 using Project.Player.Animation;
 using Project.Player.FPSCamera;
@@ -18,6 +19,9 @@ public class PlayerWeaponPresenter : MonoBehaviour
     [Header("Presentation References")]
     [SerializeField] private CharacterRigBinding _characterRigBinding;
     [SerializeField] private CharacterVisualVisibility _visibility;
+    
+    [Header("Events")]
+    [SerializeField] private PlayerWeaponEventChannel _weaponEvents;
 
     private bool _isLocalOwner;
     private bool _viewConfigured;
@@ -43,6 +47,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
     private string _presentedId;
     private WeaponSlot _presentedSlot;
     private uint _presentedRevision;
+    private bool _isAiming;
 
     private void Awake()
     {
@@ -214,6 +219,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
     public void ClearVisuals()
     {
         _aimHeld = false;
+        SetAiming(false);
         _requestedId = null;
         _requestedSlot = WeaponSlot.None;
         _requestedRevision = 0;
@@ -328,12 +334,26 @@ public class PlayerWeaponPresenter : MonoBehaviour
         if (!_isLocalOwner) return;
         if (_firstPersonMotion == null || !_firstPersonMotion.CanAim)
         {
+            SetAiming(false);
             if (_cameraController) _cameraController.SetAimPresentation(0f, 75f);
             return;
         }
         var currentWeapon = FirstPersonVisual && _presentedId == _latestState.ActiveWeapon.WeaponId;
-        _firstPersonMotion.TickAim(_aimHeld && !_isReloading && currentWeapon, Time.deltaTime);
+        var aiming = _aimHeld && !_isReloading && currentWeapon;
+        SetAiming(aiming);
+        _firstPersonMotion.TickAim(aiming, Time.deltaTime);
         if (_cameraController) _cameraController.SetAimPresentation(_firstPersonMotion.AimProgress, _firstPersonMotion.AimFov);
+    }
+
+    // Fires only when the aim state flips, so listeners get one call per transition.
+    private void SetAiming(bool aiming)
+    {
+        if (aiming == _isAiming) return;
+        _isAiming = aiming;
+        if (!_weaponEvents) return;
+
+        if (aiming) _weaponEvents.RaiseADSStarted();
+        else _weaponEvents.RaiseADSEnded();
     }
 
     public void SetAimHeld(bool held) => _aimHeld = held;
@@ -361,6 +381,7 @@ public class PlayerWeaponPresenter : MonoBehaviour
         CancelPendingRequest();
         _requestedId = null;
         _aimHeld = false;
+        SetAiming(false);
         _lookDelta = _moveInput = Vector2.zero;
         _firstPersonMotion?.ResetPose();
         if (_isLocalOwner && _cameraController) _cameraController.SetAimPresentation(0f, 75f);

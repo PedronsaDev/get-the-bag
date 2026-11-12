@@ -8187,6 +8187,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5917389042370915672}
+  - component: {fileID: 3443857828770570519}
+  - component: {fileID: 8690391747919897277}
   m_Layer: 5
   m_Name: Crosshair UI
   m_TagString: Untagged
@@ -8217,6 +8219,32 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &3443857828770570519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6791475201994874813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29eea6becb1df3a459020a8a8b89dd48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.UI::Project.UI.Combat.CrosshairUI
+  _weaponEventChannel: {fileID: 11400000, guid: 6e5dfa831593d704bb1694cf2a66b7f6, type: 2}
+  _canvasGroup: {fileID: 8690391747919897277}
+--- !u!225 &8690391747919897277
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6791475201994874813}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &6798137172257227978
 GameObject:
   m_ObjectHideFlags: 0
