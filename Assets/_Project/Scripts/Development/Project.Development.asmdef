@@ -10,7 +10,9 @@
     "PurrNet.Runtime",
     "UniTask",
     "Unity.TextMeshPro",
-    "Project.Combat"
+    "Project.Combat",
+    "Project.AI",
+    "Unity.InputSystem"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

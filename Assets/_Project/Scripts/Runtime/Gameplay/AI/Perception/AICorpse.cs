@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ public class AICorpse : MonoBehaviour
     private static readonly List<AICorpse> _all = new(16);
 
     public static IReadOnlyList<AICorpse> All => _all;
+
+    /// <summary>Raised on the server, with the body's position, the first time any AI finds a body.</summary>
+    public static event Action<Vector3> BodyDiscovered;
 
     public bool Discovered { get; private set; }
     public Vector3 Position => transform.position + Vector3.up;
@@ -25,6 +29,7 @@ public class AICorpse : MonoBehaviour
         if (Discovered)
             return false;
         Discovered = true;
+        BodyDiscovered?.Invoke(Position);
         return true;
     }
 }

@@ -6,6 +6,7 @@
     "UnityEditor.TestRunner",
     "Project.AI",
     "Project.Core",
+    "Project.Development",
     "Project.AI.Editor",
     "Unity.AI.Navigation"
   ],

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Project.AI.Alarm;
 using Project.AI.Blackboard;
@@ -28,6 +28,7 @@ public class AIBrain : NetworkBehaviour
 
     public static IReadOnlyList<AIBrain> All => _all;
 
+    public AIBlackboard Blackboard => _blackboard;
 
     public IAIState CurrentState { get; private set; }
     [SerializeField, Min(0f)] private float _corpseSeconds = 15f;
