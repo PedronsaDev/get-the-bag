@@ -21,6 +21,18 @@ public class RaidResultsUI : MonoBehaviour
     [SerializeField] private CanvasGroup _canvasGroup;
     [SerializeField] private RevealSequence _sequence;
 
+    [Header("Threat summary")]
+    [Tooltip("Text for {alarmReason}, indexed by the AI's AlarmReason value: GuardAlerted, BodyFound, CivilianCall, CivilianKilled.")]
+    [SerializeField] private string[] _alarmReasonTexts =
+    {
+        "A guard raised the alarm",
+        "A body was found",
+        "A civilian called the police",
+        "A civilian was killed"
+    };
+    [SerializeField] private string _unknownAlarmReasonText = "The alarm was raised";
+    [SerializeField] private string _noAlarmText = "No alarm raised";
+
     [Header("Panel fade (unscaled seconds)")]
     [SerializeField, Min(0f)] private float _fadeInSeconds = 0.35f;
     [SerializeField, Min(0f)] private float _fadeOutSeconds = 0.25f;
@@ -124,10 +136,26 @@ public class RaidResultsUI : MonoBehaviour
             return new RevealContext(RevealOutcome.NoData, null, GetReturnSeconds);
 
         var ctx = new RevealContext(ToRevealOutcome(results.Outcome, me.Extracted), BuildItems(me), GetReturnSeconds);
-        ctx.SetNumber("take", me.RunValue)
+        ctx.SetThreat(results.Stealth, results.CivilianKills)
+           .SetNumber("take", me.RunValue)
+           .SetNumber("payout", me.Payout)
+           .SetNumber("stealthBonus", me.StealthBonus)
+           .SetNumber("civilianPenalty", me.CivilianPenalty)
            .SetNumber("banked", me.BankedTotal)
-           .SetNumber("bankedBefore", me.Extracted ? me.BankedTotal - me.RunValue : me.BankedTotal);
+           .SetNumber("bankedBefore", me.BankedTotal - me.Payout)
+           .SetNumber("civilianKills", results.CivilianKills)
+           .SetNumber("assaults", results.AssaultsReached)
+           .SetText("alarmReason", AlarmReasonText(results));
         return ctx;
+    }
+
+    private string AlarmReasonText(RaidResults results)
+    {
+        if (results.Stealth) return _noAlarmText;
+
+        int index = results.AlarmReason;
+        bool known = _alarmReasonTexts != null && index < _alarmReasonTexts.Length && !string.IsNullOrEmpty(_alarmReasonTexts[index]);
+        return known ? _alarmReasonTexts[index] : _unknownAlarmReasonText;
     }
 
     private static RevealOutcome ToRevealOutcome(RaidOutcome outcome, bool extracted) => outcome switch

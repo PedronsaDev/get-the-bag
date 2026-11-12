@@ -13,12 +13,15 @@ public abstract class RevealStep : MonoBehaviour
     [Tooltip("Outcomes this step plays for.")]
     [SerializeField] private RevealOutcome _when = (RevealOutcome)~0;
 
+    [Tooltip("Extra filter: stealth only, loud only, or only when civilians were killed.")]
+    [SerializeField] private RevealCondition _condition = RevealCondition.Always;
+
     [Tooltip("Start at the same time as the step above instead of waiting for it.")]
     [SerializeField] private bool _withPrevious;
 
     public bool WithPrevious => _withPrevious;
 
-    public bool PlaysFor(RevealContext ctx) => (_when & ctx.Outcome) != 0;
+    public bool PlaysFor(RevealContext ctx) => (_when & ctx.Outcome) != 0 && ctx.Matches(_condition);
 
     /// <summary>Plays the step. The sequence waits for the returned task.</summary>
     public abstract UniTask Play(RevealContext ctx, CancellationToken ct);

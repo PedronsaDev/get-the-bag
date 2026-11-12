@@ -48,6 +48,10 @@ public class RevealContext
     public Func<float> ReturnSeconds { get; }
     public bool SkipRequested { get; private set; }
 
+    /// <summary>True when the raid ended without an alarm.</summary>
+    public bool Stealth { get; private set; } = true;
+    public int CivilianKills { get; private set; }
+
     public RevealContext(RevealOutcome outcome, IReadOnlyList<RevealItem> items, Func<float> returnSeconds)
     {
         Outcome = outcome;
@@ -56,6 +60,21 @@ public class RevealContext
     }
 
     public void RequestSkip() => SkipRequested = true;
+
+    public RevealContext SetThreat(bool stealth, int civilianKills)
+    {
+        Stealth = stealth;
+        CivilianKills = civilianKills;
+        return this;
+    }
+
+    public bool Matches(RevealCondition condition) => condition switch
+    {
+        RevealCondition.StealthOnly => Stealth,
+        RevealCondition.LoudOnly => !Stealth,
+        RevealCondition.CiviliansKilled => CivilianKills > 0,
+        _ => true
+    };
 
     public RevealContext SetNumber(string token, int value)
     {

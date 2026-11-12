@@ -32,6 +32,12 @@ public class RaidManager : NetworkBehaviour
     [Tooltip("Give every player without a bag an empty one when the raid goes live.")]
     [SerializeField] private bool _giveBagsOnStart = true;
 
+    [Header("Payout")]
+    [Tooltip("Extra percentage of the bag's value banked when the raid ends without an alarm.")]
+    [SerializeField, Min(0)] private int _stealthBonusPercent = 20;
+    [Tooltip("Money taken from each extracting player's payout per civilian killed.")]
+    [SerializeField, Min(0)] private int _civilianKillPenalty = 500;
+
     [Header("Return")]
     [SerializeField] private string _hubSceneName = "Scene_Hub";
     [Tooltip("Seconds after the raid ends before everyone is sent back to the hub. 0 = only when the host calls ReturnToHub().")]
@@ -197,7 +203,7 @@ public class RaidManager : NetworkBehaviour
         _resolved = true;
 
         var extractedSet = extracted != null ? new HashSet<PlayerID>(extracted) : new HashSet<PlayerID>();
-        var results = BankAndBuildResults(outcome, extractedSet);
+        var results = BankAndBuildResults(outcome, extractedSet, ReadThreatSummary());
 
         Results.value = results;
         if (!isSpawned) HandleResultsChanged(results);
@@ -208,10 +214,39 @@ public class RaidManager : NetworkBehaviour
         ReturnCountdown.value = Mathf.Ceil(_autoReturnSeconds);
 
         AppLog.Log(LogChannel.Match,
-            $"[RaidManager] Run {results.RunId} resolved: {outcome}, {extractedSet.Count} extracted.", this);
+            $"[RaidManager] Run {results.RunId} resolved: {outcome}, {extractedSet.Count} extracted, " +
+            $"{(results.Stealth ? "stealth" : "loud")}, {results.CivilianKills} civilian(s) killed, " +
+            $"assault {results.AssaultsReached}.", this);
     }
 
-    private RaidResults BankAndBuildResults(RaidOutcome outcome, HashSet<PlayerID> extracted)
+    private readonly struct ThreatSummary
+    {
+        public readonly bool Stealth;
+        public readonly byte AlarmReason;
+        public readonly int CivilianKills;
+        public readonly int AssaultsReached;
+
+        public ThreatSummary(bool stealth, byte alarmReason, int civilianKills, int assaultsReached)
+        {
+            Stealth = stealth;
+            AlarmReason = alarmReason;
+            CivilianKills = civilianKills;
+            AssaultsReached = assaultsReached;
+        }
+    }
+
+    // The AI's counters are final at resolve time; its phase may lag a frame, so it is not used here.
+    private static ThreatSummary ReadThreatSummary()
+    {
+        var threat = ThreatStatus.Current;
+        if (threat == null)
+            return new ThreatSummary(true, ThreatStatus.NoAlarmReason, 0, 0);
+
+        bool stealth = threat.AlarmReason == ThreatStatus.NoAlarmReason;
+        return new ThreatSummary(stealth, threat.AlarmReason, threat.CivilianKills, threat.AssaultNumber);
+    }
+
+    private RaidResults BankAndBuildResults(RaidOutcome outcome, HashSet<PlayerID> extracted, ThreatSummary threat)
     {
         var players = new List<RaidPlayerResult>();
         var activePlayers = PlayerIdentifier.ActivePlayers;
@@ -233,8 +268,12 @@ public class RaidManager : NetworkBehaviour
                 value = carrier.CurrentValue;
             }
 
-            int banked = didExtract && items.Count > 0
-                ? SessionLootLedger.Bank(id, items, value)
+            bool banksLoot = didExtract && items.Count > 0;
+            var payout = RaidPayout.Calculate(value, banksLoot, threat.Stealth, threat.CivilianKills,
+                _stealthBonusPercent, _civilianKillPenalty);
+
+            int banked = banksLoot
+                ? SessionLootLedger.Bank(id, items, payout.Payout)
                 : SessionLootLedger.GetTotalValue(id);
 
             carrier?.ClearBagContents();
@@ -252,6 +291,9 @@ public class RaidManager : NetworkBehaviour
                 Player = id,
                 Extracted = didExtract,
                 RunValue = value,
+                StealthBonus = payout.StealthBonus,
+                CivilianPenalty = payout.CivilianPenalty,
+                Payout = payout.Payout,
                 BankedTotal = banked,
                 ItemIds = ids,
                 ItemQuantities = quantities
@@ -262,7 +304,11 @@ public class RaidManager : NetworkBehaviour
         {
             RunId = ++_runCounter,
             Outcome = outcome,
-            Players = players.ToArray()
+            Players = players.ToArray(),
+            Stealth = threat.Stealth,
+            AlarmReason = threat.AlarmReason,
+            CivilianKills = threat.CivilianKills,
+            AssaultsReached = threat.AssaultsReached
         };
     }
 
