@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Project.AI.Waves
 {
@@ -9,6 +10,11 @@ public static class AIWavePlanner
         int extraPlayers = playerCount > 1 ? playerCount - 1 : 0;
         int earlierWaves = waveNumber > 1 ? waveNumber - 1 : 0;
         return config.BaseBudget + config.BudgetGrowthPerWave * earlierWaves + config.BudgetPerExtraPlayer * extraPlayers;
+    }
+
+    public static int FinalPushBudget(AIWaveConfig config, int assaultNumber, int playerCount)
+    {
+        return Mathf.RoundToInt(Budget(config, assaultNumber, playerCount) * config.FinalPushBudgetMultiplier);
     }
 
     public static int MaxAlive(AIWaveConfig config, int playerCount)

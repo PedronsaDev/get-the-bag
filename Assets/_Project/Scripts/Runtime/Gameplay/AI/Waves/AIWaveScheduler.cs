@@ -6,46 +6,86 @@ public class AIWaveScheduler
     {
         Inactive,
         Countdown,
-        Running
+        Assault,
+        Break,
+        FinalPush
     }
 
-    public Phase CurrentPhase { get; private set; } = Phase.Inactive;
-    public int WaveNumber { get; private set; }
-    public float SecondsToNextWave { get; private set; }
-
-    public void Start(float firstWaveDelay)
+    public enum Change : byte
     {
+        None,
+        AssaultStarted,
+        BreakStarted,
+        FinalPushStarted
+    }
+
+    private float _assaultSeconds;
+    private float _breakSeconds;
+
+    public Phase CurrentPhase { get; private set; } = Phase.Inactive;
+    public int AssaultNumber { get; private set; }
+
+    /// <summary>Seconds left in the current timed phase. Zero in the final push, which only ends with the raid.</summary>
+    public float SecondsInPhase { get; private set; }
+
+    public void Start(float countdownSeconds, float assaultSeconds, float breakSeconds)
+    {
+        _assaultSeconds = assaultSeconds;
+        _breakSeconds = breakSeconds;
         CurrentPhase = Phase.Countdown;
-        WaveNumber = 0;
-        SecondsToNextWave = firstWaveDelay;
+        AssaultNumber = 0;
+        SecondsInPhase = countdownSeconds;
     }
 
     public void Stop()
     {
         CurrentPhase = Phase.Inactive;
-        WaveNumber = 0;
-        SecondsToNextWave = 0f;
+        AssaultNumber = 0;
+        SecondsInPhase = 0f;
     }
 
-    public int Tick(float deltaTime, int aliveCount, int maxAlive, float waveInterval)
+    /// <summary>
+    /// One last, larger assault with no break after it. From a break or the countdown it takes the number of
+    /// the assault that was due next; from an assault it replaces the running one.
+    /// </summary>
+    public Change BeginFinalPush()
     {
-        if (CurrentPhase == Phase.Inactive)
-            return 0;
+        if (CurrentPhase is Phase.Inactive or Phase.FinalPush)
+            return Change.None;
 
-        SecondsToNextWave -= deltaTime;
-        if (SecondsToNextWave > 0f)
-            return 0;
+        if (CurrentPhase != Phase.Assault)
+            AssaultNumber++;
 
-        if (CurrentPhase == Phase.Running && aliveCount >= maxAlive)
-        {
-            SecondsToNextWave = 0f;
-            return 0;
-        }
+        CurrentPhase = Phase.FinalPush;
+        SecondsInPhase = 0f;
+        return Change.FinalPushStarted;
+    }
 
-        CurrentPhase = Phase.Running;
-        WaveNumber++;
-        SecondsToNextWave = waveInterval;
-        return WaveNumber;
+    public Change Tick(float deltaTime)
+    {
+        if (CurrentPhase is Phase.Inactive or Phase.FinalPush)
+            return Change.None;
+
+        SecondsInPhase -= deltaTime;
+        if (SecondsInPhase > 0f)
+            return Change.None;
+
+        return CurrentPhase == Phase.Assault ? StartBreak() : StartAssault();
+    }
+
+    private Change StartAssault()
+    {
+        AssaultNumber++;
+        CurrentPhase = Phase.Assault;
+        SecondsInPhase = _assaultSeconds;
+        return Change.AssaultStarted;
+    }
+
+    private Change StartBreak()
+    {
+        CurrentPhase = Phase.Break;
+        SecondsInPhase = _breakSeconds;
+        return Change.BreakStarted;
     }
 }
 }

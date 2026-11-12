@@ -13,7 +13,7 @@ public class AssaultDirector : NetworkBehaviour
 {
     [SerializeField] private AIWaveConfig _config;
 
-    private readonly SyncVar<int> _syncedWave = new(0);
+    private readonly SyncVar<int> _syncedAssault = new(0);
     private readonly AIWaveScheduler _scheduler = new();
     private readonly List<HealthComponent> _spawned = new(32);
     private readonly Queue<GameObject> _spawnQueue = new(16);
@@ -25,7 +25,7 @@ public class AssaultDirector : NetworkBehaviour
     private bool _configChecked;
     private bool _configValid;
 
-    public int WaveNumber => _syncedWave.value;
+    public int AssaultNumber => _syncedAssault.value;
     public AIWaveScheduler.Phase CurrentPhase => _scheduler.CurrentPhase;
 
     private void Update()
@@ -38,12 +38,8 @@ public class AssaultDirector : NetworkBehaviour
             return;
 
         int players = Mathf.Max(1, PlayerIdentifier.ActivePlayers.Count);
-        int wave = _scheduler.Tick(Time.deltaTime, CountAlive(), AIWavePlanner.MaxAlive(_config, players),
-            _config.WaveInterval);
-        if (wave > 0)
-            QueueWave(wave, players);
-
-        UpdateSpawning(Time.deltaTime);
+        HandleChange(_scheduler.Tick(Time.deltaTime), players);
+        UpdateSpawning(Time.deltaTime, AIWavePlanner.MaxAlive(_config, players));
     }
 
     private void UpdateScheduleFromAlarm()
@@ -53,35 +49,53 @@ public class AssaultDirector : NetworkBehaviour
 
         if (alarmed && _scheduler.CurrentPhase == AIWaveScheduler.Phase.Inactive)
         {
-            _scheduler.Start(_config.FirstWaveDelay);
+            _scheduler.Start(_config.FirstWaveDelay, _config.AssaultSeconds, _config.BreakSeconds);
             AppLog.Log(LogChannel.AI, "Assault starts in {0} seconds.", _config.FirstWaveDelay, this);
         }
         else if (!alarmed && _scheduler.CurrentPhase != AIWaveScheduler.Phase.Inactive)
         {
             _scheduler.Stop();
             _spawnQueue.Clear();
-            _syncedWave.value = 0;
+            _syncedAssault.value = 0;
         }
     }
 
-    private void QueueWave(int wave, int players)
+    private void HandleChange(AIWaveScheduler.Change change, int players)
     {
-        int budget = AIWavePlanner.Budget(_config, wave, players);
-        AIWavePlanner.Plan(_config.Entries, wave, budget, _random, _plan);
+        switch (change)
+        {
+            case AIWaveScheduler.Change.AssaultStarted:
+                QueueAssault(AIWavePlanner.Budget(_config, _scheduler.AssaultNumber, players));
+                break;
+            case AIWaveScheduler.Change.FinalPushStarted:
+                QueueAssault(AIWavePlanner.FinalPushBudget(_config, _scheduler.AssaultNumber, players));
+                break;
+            case AIWaveScheduler.Change.BreakStarted:
+                _spawnQueue.Clear();
+                AppLog.Log(LogChannel.AI, "Break for {0} seconds.", _config.BreakSeconds, this);
+                break;
+        }
+    }
+
+    private void QueueAssault(int budget)
+    {
+        int assault = _scheduler.AssaultNumber;
+        _spawnQueue.Clear();
+        AIWavePlanner.Plan(_config.Entries, assault, budget, _random, _plan);
         foreach (int index in _plan)
             _spawnQueue.Enqueue(_config.Entries[index].Prefab);
 
-        _syncedWave.value = wave;
-        AppLog.Log(LogChannel.AI, "Wave {0}: {1} enemies from a budget of {2}.", wave, _plan.Count, budget, this);
+        _syncedAssault.value = assault;
+        AppLog.Log(LogChannel.AI, "Assault {0}: {1} enemies from a budget of {2}.", assault, _plan.Count, budget, this);
     }
 
-    private void UpdateSpawning(float deltaTime)
+    private void UpdateSpawning(float deltaTime, int maxAlive)
     {
         if (_spawnQueue.Count == 0)
             return;
 
         _staggerTimer -= deltaTime;
-        if (_staggerTimer > 0f)
+        if (_staggerTimer > 0f || CountAlive() >= maxAlive)
             return;
 
         _staggerTimer = _config.SpawnStagger;

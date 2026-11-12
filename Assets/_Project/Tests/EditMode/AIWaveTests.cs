@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Project.AI.Waves;
+using UnityEditor;
 using UnityEngine;
 
 namespace Project.AI.Tests
@@ -143,52 +144,162 @@ public class AIWaveTests
     }
 
     [Test]
+    public void FinalPushBudget_IsTheNormalBudgetTimesTheMultiplier()
+    {
+        var config = NewConfig();
+
+        // Defaults: assault 2 with one player is 8 points, assault 3 is 10; the multiplier is 1.5.
+        Assert.AreEqual(12, AIWavePlanner.FinalPushBudget(config, 2, 1));
+        Assert.AreEqual(15, AIWavePlanner.FinalPushBudget(config, 3, 1));
+        Object.DestroyImmediate(config);
+    }
+
+    [Test]
+    public void Config_RejectsAFinalPushSmallerThanANormalAssault()
+    {
+        var config = NewConfig();
+        var serialized = new SerializedObject(config);
+        var entries = serialized.FindProperty("_entries");
+        entries.arraySize = 1;
+        var entry = entries.GetArrayElementAtIndex(0);
+        entry.FindPropertyRelative("Prefab").objectReferenceValue = _prefab;
+        entry.FindPropertyRelative("Cost").intValue = 1;
+        entry.FindPropertyRelative("Weight").intValue = 1;
+        entry.FindPropertyRelative("FirstWave").intValue = 1;
+        serialized.FindProperty("_finalPushBudgetMultiplier").floatValue = 0.5f;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+
+        Assert.IsFalse(config.TryValidate(out string error));
+        StringAssert.Contains("multiplier", error);
+        Object.DestroyImmediate(config);
+    }
+
+    private static AIWaveScheduler StartedScheduler()
+    {
+        var scheduler = new AIWaveScheduler();
+        scheduler.Start(45f, 90f, 30f);
+        return scheduler;
+    }
+
+    private static AIWaveScheduler SchedulerInAssault(int assaultNumber)
+    {
+        var scheduler = StartedScheduler();
+        scheduler.Tick(45f);
+        for (int number = 2; number <= assaultNumber; number++)
+        {
+            scheduler.Tick(90f);
+            scheduler.Tick(30f);
+        }
+        return scheduler;
+    }
+
+    [Test]
     public void Scheduler_StaysQuietUntilStarted()
     {
         var scheduler = new AIWaveScheduler();
 
-        Assert.AreEqual(0, scheduler.Tick(100f, 0, 12, 60f));
+        Assert.AreEqual(AIWaveScheduler.Change.None, scheduler.Tick(100f));
         Assert.AreEqual(AIWaveScheduler.Phase.Inactive, scheduler.CurrentPhase);
     }
 
     [Test]
-    public void Scheduler_FirstWaveComesAfterTheDelayThenEveryInterval()
+    public void Scheduler_RunsCountdownThenAssaultThenBreakThenAssault()
     {
-        var scheduler = new AIWaveScheduler();
-        scheduler.Start(45f);
+        var scheduler = StartedScheduler();
+        Assert.AreEqual(AIWaveScheduler.Phase.Countdown, scheduler.CurrentPhase);
 
-        Assert.AreEqual(0, scheduler.Tick(44f, 0, 12, 60f));
-        Assert.AreEqual(1, scheduler.Tick(1.5f, 0, 12, 60f));
-        Assert.AreEqual(0, scheduler.Tick(59f, 0, 12, 60f));
-        Assert.AreEqual(2, scheduler.Tick(2f, 0, 12, 60f));
-        Assert.AreEqual(2, scheduler.WaveNumber);
+        Assert.AreEqual(AIWaveScheduler.Change.None, scheduler.Tick(44f));
+        Assert.AreEqual(AIWaveScheduler.Change.AssaultStarted, scheduler.Tick(1.5f));
+        Assert.AreEqual(AIWaveScheduler.Phase.Assault, scheduler.CurrentPhase);
+        Assert.AreEqual(1, scheduler.AssaultNumber);
+
+        Assert.AreEqual(AIWaveScheduler.Change.None, scheduler.Tick(89f));
+        Assert.AreEqual(AIWaveScheduler.Change.BreakStarted, scheduler.Tick(2f));
+        Assert.AreEqual(AIWaveScheduler.Phase.Break, scheduler.CurrentPhase);
+        Assert.AreEqual(1, scheduler.AssaultNumber, "A break does not start a new assault.");
+
+        Assert.AreEqual(AIWaveScheduler.Change.None, scheduler.Tick(29f));
+        Assert.AreEqual(AIWaveScheduler.Change.AssaultStarted, scheduler.Tick(2f));
+        Assert.AreEqual(2, scheduler.AssaultNumber);
     }
 
     [Test]
-    public void Scheduler_HoldsALaterWaveWhileTooManyAreAlive()
+    public void Scheduler_ReportsTheSecondsLeftInEachTimedPhase()
     {
-        var scheduler = new AIWaveScheduler();
-        scheduler.Start(0f);
-        Assert.AreEqual(1, scheduler.Tick(0.1f, 0, 12, 60f));
+        var scheduler = StartedScheduler();
+        scheduler.Tick(5f);
+        Assert.AreEqual(40f, scheduler.SecondsInPhase, 0.001f);
 
-        Assert.AreEqual(0, scheduler.Tick(61f, 12, 12, 60f), "At the cap: wait.");
-        Assert.AreEqual(0, scheduler.Tick(5f, 12, 12, 60f), "Still waiting.");
-        Assert.AreEqual(2, scheduler.Tick(0.1f, 5, 12, 60f), "Room again: the wave goes immediately.");
+        scheduler.Tick(40.5f);
+        Assert.AreEqual(90f, scheduler.SecondsInPhase, 0.001f);
+
+        scheduler.Tick(91f);
+        Assert.AreEqual(30f, scheduler.SecondsInPhase, 0.001f);
+    }
+
+    [Test]
+    public void FinalPush_DuringAnAssault_KeepsItsNumberAndNeverBreaks()
+    {
+        var scheduler = SchedulerInAssault(2);
+
+        Assert.AreEqual(AIWaveScheduler.Change.FinalPushStarted, scheduler.BeginFinalPush());
+        Assert.AreEqual(AIWaveScheduler.Phase.FinalPush, scheduler.CurrentPhase);
+        Assert.AreEqual(2, scheduler.AssaultNumber);
+
+        for (int i = 0; i < 20; i++)
+        {
+            Assert.AreEqual(AIWaveScheduler.Change.None, scheduler.Tick(100f));
+            Assert.AreEqual(AIWaveScheduler.Phase.FinalPush, scheduler.CurrentPhase, "The final push has no break.");
+        }
+        Assert.AreEqual(0f, scheduler.SecondsInPhase);
+    }
+
+    [Test]
+    public void FinalPush_DuringABreak_TakesTheNextAssaultNumber()
+    {
+        var scheduler = SchedulerInAssault(1);
+        scheduler.Tick(91f);
+        Assert.AreEqual(AIWaveScheduler.Phase.Break, scheduler.CurrentPhase);
+
+        Assert.AreEqual(AIWaveScheduler.Change.FinalPushStarted, scheduler.BeginFinalPush());
+        Assert.AreEqual(2, scheduler.AssaultNumber);
+    }
+
+    [Test]
+    public void FinalPush_DuringTheCountdown_IsTheFirstAssault()
+    {
+        var scheduler = StartedScheduler();
+
+        Assert.AreEqual(AIWaveScheduler.Change.FinalPushStarted, scheduler.BeginFinalPush());
+        Assert.AreEqual(1, scheduler.AssaultNumber);
+    }
+
+    [Test]
+    public void FinalPush_IsIgnoredWhenInactiveOrAlreadyStarted()
+    {
+        var inactive = new AIWaveScheduler();
+        Assert.AreEqual(AIWaveScheduler.Change.None, inactive.BeginFinalPush());
+        Assert.AreEqual(AIWaveScheduler.Phase.Inactive, inactive.CurrentPhase);
+
+        var scheduler = SchedulerInAssault(1);
+        scheduler.BeginFinalPush();
+        int number = scheduler.AssaultNumber;
+        Assert.AreEqual(AIWaveScheduler.Change.None, scheduler.BeginFinalPush());
+        Assert.AreEqual(number, scheduler.AssaultNumber);
     }
 
     [Test]
     public void Scheduler_StopResetsEverything()
     {
-        var scheduler = new AIWaveScheduler();
-        scheduler.Start(0f);
-        scheduler.Tick(1f, 0, 12, 60f);
+        var scheduler = SchedulerInAssault(2);
 
         scheduler.Stop();
 
         Assert.AreEqual(AIWaveScheduler.Phase.Inactive, scheduler.CurrentPhase);
-        Assert.AreEqual(0, scheduler.WaveNumber);
-        scheduler.Start(10f);
-        Assert.AreEqual(1, scheduler.Tick(11f, 0, 12, 60f), "A new alarm starts again from wave 1.");
+        Assert.AreEqual(0, scheduler.AssaultNumber);
+        scheduler.Start(10f, 90f, 30f);
+        Assert.AreEqual(AIWaveScheduler.Change.AssaultStarted, scheduler.Tick(11f));
+        Assert.AreEqual(1, scheduler.AssaultNumber, "A new alarm starts again from assault 1.");
     }
 }
 }
