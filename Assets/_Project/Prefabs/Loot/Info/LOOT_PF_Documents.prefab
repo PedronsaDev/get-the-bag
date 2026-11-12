@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 3578157847499447045}
   - component: {fileID: 8401159940546470499}
   m_Layer: 15
-  m_Name: Loot_PF_Documents
+  m_Name: LOOT_PF_Documents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -184,7 +184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.MeshOutline
   outlineMode: 1
-  outlineColor: {r: 4, g: 4, b: 4, a: 1}
+  outlineColor: {r: 2, g: 2, b: 2, a: 1}
   outlineWidth: 4
   widthMode: 1
   stencilReference: 1
