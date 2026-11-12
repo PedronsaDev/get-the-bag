@@ -168,7 +168,7 @@ public class ExtractionZone : NetworkBehaviour
     {
         if (PlayerIdentifier.TryGetPlayer(playerID, out var player))
         {
-            // apply ivunerability and extract
+            // TODO: make the player invulnerable while extracting.
         }
     }
     
@@ -202,13 +202,11 @@ public class ExtractionZone : NetworkBehaviour
 
     private void HandleLocalPlayerLeftBehind()
     {
-        // Clear player inventory, call raid summary and call playerInventorBridge
         AppLog.Log(LogChannel.Match, "[Extraction] <color=red>You were left behind and failed to extract.</color>");
     }
 
     private void HandleLocalPlayerExtracted()
     {
-        // call raid summary and call playerInventorBridge
         AppLog.Log(LogChannel.Match, "[Extraction] <color=green>You successfully extracted.</color>");
     }
 }

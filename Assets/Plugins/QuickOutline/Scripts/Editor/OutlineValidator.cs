@@ -34,6 +34,8 @@ namespace Plugins.Outline.Editor
                     issues.Add(new OutlineValidationIssue(renderer.name + ": bake outline data before using this unreadable mesh in a player build.", true));
                 if (!mesh.HasVertexAttribute(VertexAttribute.Normal))
                     issues.Add(new OutlineValidationIssue(renderer.name + ": missing normals; recalculate normals on the model before outlining.", true));
+                if (mesh.HasVertexAttribute(VertexAttribute.TexCoord3))
+                    issues.Add(new OutlineValidationIssue(renderer.name + ": UV channel 3 (UV4) holds data that the outline replaces at runtime; base shaders reading TEXCOORD3 will see outline data."));
                 if (mesh.subMeshCount == 0) issues.Add(new OutlineValidationIssue(renderer.name + ": empty mesh.", true));
                 for (int i = 0; i < mesh.subMeshCount; i++)
                     if (mesh.GetTopology(i) != MeshTopology.Triangles)

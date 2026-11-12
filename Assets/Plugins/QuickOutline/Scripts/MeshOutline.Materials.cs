@@ -67,6 +67,7 @@ namespace Plugins.Outline
             EnsureMaterials();
             _needsUpdate = false;
             ApplyAppearance();
+            ApplyXRayToBindings(); // Mode and occlusion edits can change without a material swap.
 
             if (_silhouetteMaterial)
             {

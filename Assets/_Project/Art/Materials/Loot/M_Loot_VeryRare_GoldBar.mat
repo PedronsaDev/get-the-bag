@@ -129,7 +129,7 @@ Material:
     - _CastShadows: 1
     - _Cull: 2
     - _DstBlend: 0
-    - _Emission: 1
+    - _Emission: 0
     - _Emission_Map_Multiplier: 1
     - _Emission_Tiling: 1
     - _Metallic: 0.946

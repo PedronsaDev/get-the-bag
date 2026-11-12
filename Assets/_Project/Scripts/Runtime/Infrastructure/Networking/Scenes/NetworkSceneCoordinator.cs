@@ -228,6 +228,12 @@ namespace Project.Networking.Scenes
         [ObserversRpc(runLocally: false)]
         private void RpcInstructTransitionStarted(string sceneName)
         {
+            // The host is also an observer. It already tracks its own load, and running the client tracker here
+            // would clear _isTransitioning before the host's own "finished loading" message reaches the server,
+            // so the server would ignore it and time out waiting for the host.
+            if (isServer)
+                return;
+
             AppLog.Log(LogChannel.Network, $"Received scene transition notice from Host: {sceneName}", this);
             _isTransitioning = true;
             OnSceneTransitionStarted?.Invoke(sceneName);

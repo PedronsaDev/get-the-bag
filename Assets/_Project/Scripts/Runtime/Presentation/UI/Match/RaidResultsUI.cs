@@ -1,28 +1,41 @@
-using System.Collections.Generic;
-using System.Threading;
-using Cysharp.Threading.Tasks;
-using PrimeTween;
+using System.Text;
 using Project.Content;
-using Project.Match;
 using Project.Logging;
-using Project.UI.Match.Reveal;
+using Project.Match;
 using PurrNet;
+using TMPro;
 using UnityEngine;
 
 namespace Project.UI.Match
 {
 /// <summary>
-/// Shows the post-raid results. Turns <see cref="RaidResults"/> into a <see cref="RevealContext"/>
-/// and hands it to the <see cref="RevealSequence"/>. The look and timing live in the sequence's step children.
+/// Post-raid results panel. Fills every text at once when <see cref="RaidEventChannel.OnResultsReady"/> fires,
+/// updates the return countdown, and hides when the loading screen appears.
 /// </summary>
 public class RaidResultsUI : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private RaidEventChannel _raidEventChannel;
     [SerializeField] private CanvasGroup _canvasGroup;
-    [SerializeField] private RevealSequence _sequence;
 
-    [Header("Threat summary")]
-    [Tooltip("Text for {alarmReason}, indexed by the AI's AlarmReason value: GuardAlerted, BodyFound, CivilianCall, CivilianKilled.")]
+    [Header("Texts")]
+    [SerializeField] private TMP_Text _outcomeText;
+    [SerializeField] private TMP_Text _itemsText;
+    [SerializeField] private TMP_Text _runValueText;
+    [SerializeField] private TMP_Text _summaryText;
+    [SerializeField] private TMP_Text _bonusText;
+    [SerializeField] private TMP_Text _bankedText;
+    [SerializeField] private TMP_Text _returnText;
+
+    [Header("Outcome headers")]
+    [SerializeField] private string _extractedHeader = "JOB COMPLETE";
+    [SerializeField] private string _leftBehindHeader = "LEFT BEHIND";
+    [SerializeField] private string _nobodyExtractedHeader = "NOBODY GOT OUT";
+    [SerializeField] private string _wipedHeader = "CREW DOWN";
+    [SerializeField] private string _timedOutHeader = "OUT OF TIME";
+    [SerializeField] private string _noDataHeader = "RAID OVER";
+
+    [Header("Alarm reasons, indexed by the AI's AlarmReason: GuardAlerted, BodyFound, CivilianCall, CivilianKilled")]
     [SerializeField] private string[] _alarmReasonTexts =
     {
         "A guard raised the alarm",
@@ -33,15 +46,9 @@ public class RaidResultsUI : MonoBehaviour
     [SerializeField] private string _unknownAlarmReasonText = "The alarm was raised";
     [SerializeField] private string _noAlarmText = "No alarm raised";
 
-    [Header("Panel fade (unscaled seconds)")]
-    [SerializeField, Min(0f)] private float _fadeInSeconds = 0.35f;
-    [SerializeField, Min(0f)] private float _fadeOutSeconds = 0.25f;
-
-    private CancellationTokenSource _cts;
-    private RevealContext _context;
-    private Tween _fadeTween;
     private bool _visible;
     private int _shownRunId;
+    private int _shownReturnSeconds = -1;
 
     private void Awake()
     {
@@ -51,11 +58,7 @@ public class RaidResultsUI : MonoBehaviour
         if (!_canvasGroup && !TryGetComponent(out _canvasGroup))
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();
 
-        if (!_sequence)
-            _sequence = GetComponentInChildren<RevealSequence>(true);
-
-        SetVisible(false, 0f);
-        if (_sequence) _sequence.ResetVisuals();
+        SetVisible(false);
     }
 
     private void OnEnable()
@@ -72,25 +75,22 @@ public class RaidResultsUI : MonoBehaviour
     {
         if (_raidEventChannel)
             _raidEventChannel.OnResultsReady -= HandleResultsReady;
-
-        CancelSequence();
     }
 
     private void Update()
     {
-        if (_visible && LevelLoadingStatus.IsShowing)
-            Hide();
-    }
-
-    public void Skip() => _context?.RequestSkip();
-
-    public void Hide()
-    {
         if (!_visible) return;
 
-        CancelSequence();
-        SetVisible(false, _fadeOutSeconds);
+        if (LevelLoadingStatus.IsShowing)
+        {
+            Hide();
+            return;
+        }
+
+        UpdateReturnText();
     }
+
+    public void Hide() => SetVisible(false);
 
     private void HandleResultsReady(RaidResults results)
     {
@@ -103,76 +103,47 @@ public class RaidResultsUI : MonoBehaviour
         if (results.RunId == _shownRunId) return;
         _shownRunId = results.RunId;
 
-        if (!_sequence)
-        {
-            AppLog.LogError(LogChannel.Match, "[RaidResultsUI] No RevealSequence assigned.", this);
-            return;
-        }
-
-        CancelSequence();
-        _cts = new CancellationTokenSource();
-        _context = BuildContext(results);
-        PlayAsync(_context, _cts.Token).Forget();
+        Show(results);
     }
 
-    private async UniTaskVoid PlayAsync(RevealContext ctx, CancellationToken ct)
+    private void Show(RaidResults results)
     {
-        _sequence.ResetVisuals();
-        SetVisible(true, _fadeInSeconds);
+        ClearTexts();
 
-        try
-        {
-            await _sequence.Play(ctx, ct);
-        }
-        catch (System.OperationCanceledException)
-        {
-        }
-    }
-
-    private RevealContext BuildContext(RaidResults results)
-    {
         PlayerID local = NetworkManager.main ? NetworkManager.main.localPlayer : default;
-        if (!results.TryGetPlayer(local, out var me))
-            return new RevealContext(RevealOutcome.NoData, null, GetReturnSeconds);
+        bool hasPlayer = results.TryGetPlayer(local, out var me);
 
-        var ctx = new RevealContext(ToRevealOutcome(results.Outcome, me.Extracted), BuildItems(me), GetReturnSeconds);
-        ctx.SetThreat(results.Stealth, results.CivilianKills)
-           .SetNumber("take", me.RunValue)
-           .SetNumber("payout", me.Payout)
-           .SetNumber("stealthBonus", me.StealthBonus)
-           .SetNumber("civilianPenalty", me.CivilianPenalty)
-           .SetNumber("banked", me.BankedTotal)
-           .SetNumber("bankedBefore", me.BankedTotal - me.Payout)
-           .SetNumber("civilianKills", results.CivilianKills)
-           .SetNumber("assaults", results.AssaultsReached)
-           .SetText("alarmReason", AlarmReasonText(results));
-        return ctx;
+        SetText(_outcomeText, hasPlayer ? HeaderFor(results.Outcome, me.Extracted) : _noDataHeader);
+        if (hasPlayer)
+        {
+            SetText(_itemsText, BuildItemsText(me));
+            SetText(_runValueText, me.Extracted ? $"TAKE  ${me.RunValue:N0}" : $"TAKE  ${me.RunValue:N0}  LOST");
+            SetText(_summaryText, BuildSummaryText(results));
+            SetText(_bonusText, BuildBonusText(me));
+            SetText(_bankedText, $"BANKED  ${me.BankedTotal:N0}");
+        }
+
+        _shownReturnSeconds = -1;
+        SetVisible(true);
+        UpdateReturnText();
     }
 
-    private string AlarmReasonText(RaidResults results)
+    private string HeaderFor(RaidOutcome outcome, bool extracted) => outcome switch
     {
-        if (results.Stealth) return _noAlarmText;
-
-        int index = results.AlarmReason;
-        bool known = _alarmReasonTexts != null && index < _alarmReasonTexts.Length && !string.IsNullOrEmpty(_alarmReasonTexts[index]);
-        return known ? _alarmReasonTexts[index] : _unknownAlarmReasonText;
-    }
-
-    private static RevealOutcome ToRevealOutcome(RaidOutcome outcome, bool extracted) => outcome switch
-    {
-        RaidOutcome.Extracted => extracted ? RevealOutcome.Extracted : RevealOutcome.LeftBehind,
-        RaidOutcome.NobodyExtracted => RevealOutcome.NobodyExtracted,
-        RaidOutcome.Wiped => RevealOutcome.Wiped,
-        RaidOutcome.TimedOut => RevealOutcome.TimedOut,
-        _ => RevealOutcome.NoData
+        RaidOutcome.Extracted => extracted ? _extractedHeader : _leftBehindHeader,
+        RaidOutcome.NobodyExtracted => _nobodyExtractedHeader,
+        RaidOutcome.Wiped => _wipedHeader,
+        RaidOutcome.TimedOut => _timedOutHeader,
+        _ => _noDataHeader
     };
 
-    private static List<RevealItem> BuildItems(RaidPlayerResult me)
+    private static string BuildItemsText(RaidPlayerResult me)
     {
-        var items = new List<RevealItem>();
         int count = me.ItemIds?.Length ?? 0;
-        var registry = GameContent.LootRegistry;
+        if (count == 0) return "HAUL\nEmpty bag";
 
+        var sb = new StringBuilder(me.Extracted ? "HAUL\n" : "HAUL (lost)\n");
+        var registry = GameContent.LootRegistry;
         for (int i = 0; i < count; i++)
         {
             string id = me.ItemIds[i];
@@ -180,16 +151,50 @@ public class RaidResultsUI : MonoBehaviour
 
             string name = id;
             int value = 0;
-            if (registry && registry.TryGetById(id, out var def))
+            if (registry && registry.TryGetById(id, out var definition))
             {
-                name = def.Name;
-                value = def.BaseValue * quantity;
+                name = definition.Name;
+                value = definition.BaseValue * quantity;
             }
 
-            items.Add(new RevealItem(name, quantity, value));
+            sb.Append(name).Append("  x").Append(quantity).Append("   $").Append(value.ToString("N0")).Append('\n');
         }
 
-        return items;
+        return sb.ToString().TrimEnd();
+    }
+
+    private string BuildSummaryText(RaidResults results)
+    {
+        if (results.Stealth)
+            return $"STEALTH - {_noAlarmText}";
+
+        return $"LOUD - {AlarmReasonText(results.AlarmReason)}\n" +
+               $"Assaults survived {results.AssaultsReached}   Civilians killed {results.CivilianKills}";
+    }
+
+    private static string BuildBonusText(RaidPlayerResult me)
+    {
+        if (me.StealthBonus > 0) return $"Stealth bonus  +${me.StealthBonus:N0}";
+        if (me.CivilianPenalty > 0) return $"Civilian penalty  -${me.CivilianPenalty:N0}";
+        return string.Empty;
+    }
+
+    private string AlarmReasonText(byte reason)
+    {
+        bool known = _alarmReasonTexts != null && reason < _alarmReasonTexts.Length &&
+                     !string.IsNullOrEmpty(_alarmReasonTexts[reason]);
+        return known ? _alarmReasonTexts[reason] : _unknownAlarmReasonText;
+    }
+
+    private void UpdateReturnText()
+    {
+        if (!_returnText) return;
+
+        int seconds = Mathf.CeilToInt(GetReturnSeconds());
+        if (seconds == _shownReturnSeconds) return;
+
+        _shownReturnSeconds = seconds;
+        _returnText.text = seconds > 0 ? $"Back to the hideout in {seconds}" : string.Empty;
     }
 
     private float GetReturnSeconds()
@@ -202,23 +207,28 @@ public class RaidResultsUI : MonoBehaviour
         return 0f;
     }
 
-    private void SetVisible(bool visible, float fadeSeconds)
+    private void ClearTexts()
     {
-        _visible = visible;
-        _canvasGroup.blocksRaycasts = visible;
-        _canvasGroup.interactable = visible;
-
-        _fadeTween.Stop();
-        if (fadeSeconds <= 0f) _canvasGroup.alpha = visible ? 1f : 0f;
-        else _fadeTween = Tween.Alpha(_canvasGroup, visible ? 1f : 0f, fadeSeconds, useUnscaledTime: true);
+        SetText(_outcomeText, string.Empty);
+        SetText(_itemsText, string.Empty);
+        SetText(_runValueText, string.Empty);
+        SetText(_summaryText, string.Empty);
+        SetText(_bonusText, string.Empty);
+        SetText(_bankedText, string.Empty);
+        SetText(_returnText, string.Empty);
     }
 
-    private void CancelSequence()
+    private static void SetText(TMP_Text text, string value)
     {
-        if (_cts == null) return;
-        _cts.Cancel();
-        _cts.Dispose();
-        _cts = null;
+        if (text) text.text = value;
+    }
+
+    private void SetVisible(bool visible)
+    {
+        _visible = visible;
+        _canvasGroup.alpha = visible ? 1f : 0f;
+        _canvasGroup.blocksRaycasts = visible;
+        _canvasGroup.interactable = visible;
     }
 
 #if UNITY_EDITOR

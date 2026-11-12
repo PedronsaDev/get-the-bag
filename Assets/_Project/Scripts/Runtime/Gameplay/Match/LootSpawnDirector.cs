@@ -20,11 +20,8 @@ public class LootSpawnDirector : MonoBehaviour
 {
     public enum SpawnTrigger
     {
-        /// <summary>When the LevelReadyGate goes live (everyone loaded).</summary>
         LevelLive,
-        /// <summary>As soon as the server starts the scene.</summary>
         ServerStart,
-        /// <summary>Only when SpawnAll() is called.</summary>
         Manual
     }
 

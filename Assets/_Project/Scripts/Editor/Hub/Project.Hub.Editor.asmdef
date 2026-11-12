@@ -8,8 +8,7 @@
     "Project.UI",
     "Project.Definitions",
     "PurrNet.Runtime",
-    "Unity.TextMeshPro",
-    "TMPEffects"
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [
     "Editor"

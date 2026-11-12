@@ -6,7 +6,7 @@ namespace Plugins.Outline
     public sealed class MeshOutlineStyle : ScriptableObject
     {
         [SerializeField] internal MeshOutline.Mode outlineMode = MeshOutline.Mode.OutlineVisible;
-        [SerializeField, ColorUsage(true, true)] internal Color outlineColor = Color.white;
+        [SerializeField, ColorUsage(true, false)] internal Color outlineColor = Color.white;
         [SerializeField, Min(0f)] internal float outlineWidth = 5f;
         [SerializeField] internal MeshOutline.WidthMode widthMode = MeshOutline.WidthMode.ScreenSpacePixels;
         [SerializeField] internal bool enableSurfaceFill = false;

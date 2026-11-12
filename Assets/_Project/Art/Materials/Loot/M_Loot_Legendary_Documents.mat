@@ -59,7 +59,7 @@ Material:
     - _BLEND_MODE: 0
     - _BUILTIN_QueueControl: -1
     - _BUILTIN_QueueOffset: 0
-    - _Emission: 1
+    - _Emission: 0
     - _Metallic: 0.705
     - _QueueControl: 0
     - _QueueOffset: 0

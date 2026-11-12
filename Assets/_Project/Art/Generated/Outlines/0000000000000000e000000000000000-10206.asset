@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d1dff1273057ed4c9c4ce07dfac668b, type: 3}
-  m_Name: Cylinder Outline Data
+  m_Name: 0000000000000000e000000000000000-10206
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.OutlinePreparedMesh
   source: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
   readableCopy: {fileID: 8417305712170003028}

@@ -34,8 +34,8 @@ namespace Plugins.Outline
         private Bounds _originalBounds;
         private Bounds _appliedBounds;
         private int _slots;
+        private Vector3Int _scaleKey;
         private bool _applied;
-        private bool _preparedNormals;
         private bool _originalOcclusion;
 
         public OutlineRendererBinding(Renderer renderer)
@@ -64,14 +64,15 @@ namespace Plugins.Outline
             bool sameEffects = _effects != null && _effects.Length == effects.Length;
             for (int i = 0; sameEffects && i < effects.Length; i++) sameEffects = _effects[i] == effects[i];
             int slots = Mathf.Max(source.subMeshCount, _original.Length);
-            if (_source != source || _preparationSource != preparationSource || _slots != slots || !_owned)
+            var scaleKey = CurrentScaleKey();
+            if (_source != source || _preparationSource != preparationSource || _slots != slots || _scaleKey != scaleKey || !_owned)
             {
                 ReleaseMesh();
                 _source = source;
                 _preparationSource = preparationSource;
                 _slots = slots;
-                _preparedNormals = preparationSource != source;
-                _owned = OutlineMeshCache.Acquire(preparationSource, slots, _skin, _preparedNormals);
+                _scaleKey = scaleKey;
+                _owned = OutlineMeshCache.Acquire(preparationSource, slots, _skin, scaleKey);
             }
             _effects = effects;
             if (!sameBase || !sameEffects || _outlined == null || _outlined.Length != slots + effects.Length)
@@ -97,6 +98,19 @@ namespace Plugins.Outline
             for (int i = 0; i < _scratch.Count; i++)
                 if (_scratch[i] != _outlined[i]) return true;
             return false;
+        }
+
+        // Runs per frame per binding: one matrix read and three square roots, no allocation.
+        public bool ScaleChanged()
+        {
+            if (!Renderer || !_applied || _skin) return false;
+            return CurrentScaleKey() != _scaleKey;
+        }
+
+        // Skinned copies carry no smoothed directions, so scale never affects them.
+        private Vector3Int CurrentScaleKey()
+        {
+            return _skin ? OutlineScaleKey.Uniform : OutlineScaleKey.From(Renderer.localToWorldMatrix);
         }
 
         public void ExpandBounds(float worldPadding)
@@ -139,7 +153,7 @@ namespace Plugins.Outline
 
         private void ReleaseMesh()
         {
-            if (_owned) OutlineMeshCache.Release(_preparationSource, _slots, _skin, _preparedNormals);
+            if (_owned) OutlineMeshCache.Release(_preparationSource, _slots, _skin, _scaleKey);
             _owned = null;
         }
 

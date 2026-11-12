@@ -22,9 +22,9 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
     [SerializeField] private SyncVar<int> _netItemCount = new(0);
     
     [Header("Visual Settings")]
-    [SerializeField, ColorUsage(true, true)]
+    [SerializeField, ColorUsage(true, false)]
     private Color _outlineColor = new Color(1f, 0.85f, 0.2f);
-    [SerializeField, ColorUsage(true, true)] 
+    [SerializeField, ColorUsage(true, false)] 
     private Color _hoverOutlineColor = new Color(1f, 1f, 1f);
 
     private DuffleBagSnapshot _snapshot;

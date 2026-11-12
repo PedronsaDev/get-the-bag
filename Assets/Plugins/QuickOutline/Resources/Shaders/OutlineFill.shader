@@ -8,6 +8,7 @@ Shader "Custom/Outline/Fill" {
     [ColorUsage(true, true)] _OutlineColor("Outline Color (HDR)", Color) = (1, 1, 1, 1)
     _OutlineWidth("Outline Width", Range(0, 50)) = 5
     [Enum(ScreenSpacePixels,0,WorldSpaceCentimeters,1,WorldSpaceMeters,2)] _WidthMode("Width Mode", Float) = 0
+    [HideInInspector] _AnimationPhase("Animation Phase", Float) = 0
 
     [Header(Animation and Pulse)]
     [Toggle] _PulseEnabled("Pulse Enabled", Float) = 0
@@ -62,7 +63,9 @@ Shader "Custom/Outline/Fill" {
       struct Attributes {
         float4 positionOS   : POSITION;
         float3 normalOS     : NORMAL;
-        float3 smoothNormal : TEXCOORD3;
+        // xyz: smoothed direction, encoded as an object-space normal for this renderer's
+        // scale ratio. w: miter length. Zero xyz means "use the native normal".
+        float4 extrusion    : TEXCOORD3;
         UNITY_VERTEX_INPUT_INSTANCE_ID
       };
 
@@ -121,7 +124,9 @@ Shader "Custom/Outline/Fill" {
         UNITY_TRANSFER_INSTANCE_ID(input, output);
         UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-        float3 normalOS = any(input.smoothNormal) ? input.smoothNormal : input.normalOS;
+        bool hasSmoothedDirection = any(input.extrusion.xyz);
+        float3 normalOS = hasSmoothedDirection ? input.extrusion.xyz : input.normalOS;
+        float miterLength = hasSmoothedDirection ? input.extrusion.w : 1.0;
         float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
 
         float3 normalWS = TransformObjectToWorldNormal(normalOS);
@@ -156,19 +161,25 @@ Shader "Custom/Outline/Fill" {
 
         float4 positionCS;
         if (_WidthMode > 0.5) {
-          // World space meters mode
-          float3 extrudedWS = positionWS + normalWS * (currentWidth * (_WidthMode > 1.5 ? 1.0 : 0.01));
+          // World space modes: value 1 is centimeters, value 2 is meters.
+          float metersPerUnit = _WidthMode > 1.5 ? 1.0 : 0.01;
+          float3 extrudedWS = positionWS + normalWS * (currentWidth * metersPerUnit * miterLength);
           positionCS = TransformWorldToHClip(extrudedWS);
         } else {
           // Screen space pixels mode (scale-invariant)
           positionCS = TransformWorldToHClip(positionWS);
           float3 normalVS = mul((float3x3)UNITY_MATRIX_V, normalWS);
 
+          // The miter seen on screen is the 3D miter projected onto the view plane. It
+          // lengthens hard corners so both silhouette edges reach the full width;
+          // smooth surfaces stay at exactly 1.
+          float screenMiter = max(1.0, length(normalVS.xy) * miterLength);
+
           float2 projectedNormal = mul((float2x2)UNITY_MATRIX_P, normalVS.xy);
           float2 pixelDirection = projectedNormal * _ScaledScreenParams.xy;
           float magnitude = length(pixelDirection);
           pixelDirection = magnitude > 0.0001 ? pixelDirection / magnitude : float2(0.0, 0.0);
-          positionCS.xy += pixelDirection * (2.0 * currentWidth / _ScaledScreenParams.xy) * positionCS.w;
+          positionCS.xy += pixelDirection * (2.0 * currentWidth * screenMiter / _ScaledScreenParams.xy) * positionCS.w;
         }
 
         output.positionCS = positionCS;

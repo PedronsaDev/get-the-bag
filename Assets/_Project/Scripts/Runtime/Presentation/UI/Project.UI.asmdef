@@ -13,8 +13,7 @@
     "Project.Definitions",
     "Project.Match",
     "Project.Logging",
-    "Project.Content",
-    "TMPEffects"
+    "Project.Content"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

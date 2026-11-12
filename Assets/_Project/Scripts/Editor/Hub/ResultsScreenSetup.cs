@@ -43,13 +43,6 @@ public static class ResultsScreenSetup
     [MenuItem(PreviewMenu + "Extracted, Empty Bag")]
     private static void PreviewEmpty() => Preview(RaidOutcome.Extracted, true, 0);
 
-    [MenuItem(PreviewMenu + "Skip", false, 100)]
-    private static void PreviewSkip()
-    {
-        var ui = Object.FindAnyObjectByType<RaidResultsUI>();
-        if (ui) ui.Skip();
-    }
-
     [MenuItem(PreviewMenu + "Hide", false, 101)]
     private static void PreviewHide()
     {
@@ -57,7 +50,6 @@ public static class ResultsScreenSetup
         if (ui) ui.Hide();
     }
 
-    [MenuItem(PreviewMenu + "Skip", true)]
     [MenuItem(PreviewMenu + "Hide", true)]
     [MenuItem(PreviewMenu + "Extracted, Stealth", true)]
     [MenuItem(PreviewMenu + "Extracted, Loud", true)]

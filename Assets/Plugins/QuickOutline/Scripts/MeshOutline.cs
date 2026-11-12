@@ -11,7 +11,6 @@ namespace Plugins.Outline
     public partial class MeshOutline : MonoBehaviour
     {
         public enum Mode { OutlineAll, OutlineVisible, OutlineHidden, OutlineAndSilhouette, SilhouetteOnly }
-        // Value 1 retains the existing serialized centimeter behavior.
         public enum WidthMode { ScreenSpacePixels = 0, WorldSpaceCentimeters = 1, WorldSpaceMeters = 2 }
         public enum PatternType { Solid, Stripes, Grid, Texture, FresnelRim }
         public enum CoordSpace { ObjectUV, ScreenSpace, WorldSpace }
@@ -22,7 +21,7 @@ namespace Plugins.Outline
         [SerializeField]
         private Mode outlineMode = Mode.OutlineVisible;
 
-        [SerializeField, ColorUsage(true, true)]
+        [SerializeField, ColorUsage(true, false)]
         private Color outlineColor = Color.white;
 
         [SerializeField, Range(0f, 50f)]
@@ -390,7 +389,7 @@ namespace Plugins.Outline
             }
             if (_needsPassApply) ApplyBindings();
             foreach (var binding in _bindings)
-                if (binding.HasExternalChanges()) ApplyBinding(binding);
+                if (binding.HasExternalChanges() || binding.ScaleChanged()) ApplyBinding(binding);
             if (_needsUpdate) UpdateMaterialProperties();
             if (_isPinging || _isFlashing)
             {
@@ -454,8 +453,11 @@ namespace Plugins.Outline
             var color = Color.Lerp(outlineColor, _pingTargetColor, ping);
             if (_isFlashing) color = Color.Lerp(_flashOverrideColor, color, _flashElapsed / _flashDuration);
             _fillMaterial.SetColor(ShaderIds.OutlineColor, color);
-            _fillMaterial.SetFloat(ShaderIds.OutlineWidth, outlineMode == Mode.SilhouetteOnly ? 0f : Mathf.Max(0f, outlineWidth) * (1f + ping * 0.8f));
+            _fillMaterial.SetFloat(ShaderIds.OutlineWidth, outlineMode == Mode.SilhouetteOnly ? 0f : Mathf.Max(0f, outlineWidth) * (1f + ping * PingWidthBoost));
         }
+
+        // Extra width at the start of a ping, as a fraction of the base width.
+        private const float PingWidthBoost = 0.8f;
 
         public void RequestRendererRefresh() => _needsRendererRefresh = true;
 
@@ -535,7 +537,7 @@ namespace Plugins.Outline
             {
                 if (renderer.isPartOfStaticBatch) throw new InvalidOperationException("Disable static batching for outlined renderers.");
                 binding.Apply(_effectMaterials, PreparationSource(mesh));
-                binding.SetXRay(outlineMode != Mode.OutlineVisible || (HasSurface && fillOcclusion != FillOcclusion.WhenVisibleOnly));
+                binding.SetXRay(DrawsThroughOccluders);
             }
             catch (InvalidOperationException error)
             {
@@ -566,27 +568,68 @@ namespace Plugins.Outline
             return true;
         }
 
+        // True when some pass can draw where the object is hidden, so CPU occlusion
+        // culling must not discard the renderer.
+        private bool DrawsThroughOccluders => outlineMode != Mode.OutlineVisible || (HasSurface && fillOcclusion != FillOcclusion.WhenVisibleOnly);
+
+        private void ApplyXRayToBindings()
+        {
+            foreach (var binding in _bindings) binding.SetXRay(DrawsThroughOccluders);
+        }
+
         private void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
-            bool draw = camera.cameraType == CameraType.Game || (showInSceneView && camera.cameraType == CameraType.SceneView) || (showInReflections && camera.cameraType == CameraType.Reflection);
             if (_effectMaterials == null) return;
+            bool draw = ShouldDrawFor(camera);
             foreach (var material in _effectMaterials) material.SetFloat(ShaderIds.CameraEnabled, draw ? 1f : 0f);
             if (!draw) return;
-            float width = Mathf.Max(0f, outlineWidth) * (1f + Mathf.Clamp01(pulseAmplitude)) * (1f + Mathf.Clamp01(jitterScale)) * (_isPinging ? 1.8f : 1f);
+
+            float width = MaxExtrusionWidth();
             foreach (var binding in _bindings)
             {
                 if (!binding.Renderer) continue;
-                binding.SetXRay(outlineMode != Mode.OutlineVisible || (HasSurface && fillOcclusion != FillOcclusion.WhenVisibleOnly));
-                float padding = widthMode == WidthMode.ScreenSpacePixels ? screenSpaceBoundsPadding : width * (widthMode == WidthMode.WorldSpaceCentimeters ? 0.01f : 1f);
-                if (widthMode == WidthMode.ScreenSpacePixels)
-                {
-                    var bounds = binding.BaseWorldBounds;
-                    float depth = Mathf.Abs(Vector3.Dot(bounds.center - camera.transform.position, camera.transform.forward)) + bounds.extents.magnitude;
-                    float unitsPerPixel = 2f * (camera.orthographic ? 1f : depth) / Mathf.Max(0.001f, Mathf.Abs(camera.projectionMatrix.m11) * camera.scaledPixelHeight);
-                    padding = Mathf.Max(padding, unitsPerPixel * width);
-                }
-                binding.ExpandBounds(padding);
+                binding.ExpandBounds(BoundsPadding(binding, camera, width));
             }
+        }
+
+        private bool ShouldDrawFor(Camera camera)
+        {
+            switch (camera.cameraType)
+            {
+                case CameraType.Game: return true;
+                case CameraType.SceneView: return showInSceneView;
+                case CameraType.Reflection: return showInReflections;
+                default: return false;
+            }
+        }
+
+        // Largest width any vertex can reach this frame, in the current width unit:
+        // corner miters, pulse and jitter only when enabled, and the ping boost.
+        private float MaxExtrusionWidth()
+        {
+            float width = Mathf.Max(0f, outlineWidth) * OutlineMeshPreparation.MaxMiterLength;
+            if (pulseEnabled) width *= 1f + pulseAmplitude;
+            if (jitterEnabled) width *= 1f + jitterScale;
+            if (_isPinging) width *= 1f + PingWidthBoost;
+            return width;
+        }
+
+        // World-space padding that keeps the extruded outline inside the culling bounds.
+        private float BoundsPadding(OutlineRendererBinding binding, Camera camera, float width)
+        {
+            switch (widthMode)
+            {
+                case WidthMode.WorldSpaceCentimeters: return width * 0.01f;
+                case WidthMode.WorldSpaceMeters: return width;
+            }
+
+            // Pixel widths grow in world units with distance; size them at the far side of the bounds.
+            var bounds = binding.BaseWorldBounds;
+            var cameraTransform = camera.transform;
+            float depth = Mathf.Abs(Vector3.Dot(bounds.center - cameraTransform.position, cameraTransform.forward)) + bounds.extents.magnitude;
+            float viewHeightAtDepth = camera.orthographic ? 1f : depth;
+            float unitsPerPixel = 2f * viewHeightAtDepth / Mathf.Max(0.001f, Mathf.Abs(camera.projectionMatrix.m11) * camera.scaledPixelHeight);
+            return Mathf.Max(screenSpaceBoundsPadding, unitsPerPixel * width);
         }
     }
 }

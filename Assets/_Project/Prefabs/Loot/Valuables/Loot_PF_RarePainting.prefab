@@ -295,22 +295,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.MeshOutline
-  outlineMode: 1
-  outlineColor: {r: 2, g: 2, b: 2, a: 1}
-  outlineWidth: 4
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 1.4
   widthMode: 1
   stencilReference: 1
   enableSurfaceFill: 0
-  fillColor: {r: 1, g: 0.35, b: 0.05, a: 0.35}
+  fillColor: {r: 0.9265444, g: 1.0931598, b: 1.1486983, a: 0.5019608}
   fillSecondaryColor: {r: 0, g: 0, b: 0, a: 0}
-  fillPattern: 1
+  fillPattern: 4
   fillTexture: {fileID: 0}
-  fillTiling: {x: 16, y: 16}
+  fillTiling: {x: 10, y: 10}
   fillAngle: 45
-  fillScrollSpeed: 2
+  fillScrollSpeed: 1
   fresnelPower: 2.5
   fillSpace: 0
-  fillOcclusion: 1
+  fillOcclusion: 0
   pulseEnabled: 0
   pulseSpeed: 2.5
   pulseAmplitude: 0.35
@@ -318,10 +318,10 @@ MonoBehaviour:
   fadeMinDistance: 15
   fadeMaxDistance: 45
   jitterEnabled: 1
-  jitterSpeed: 2
-  jitterFrequency: 3
-  jitterScale: 0.5
-  jitterFramerate: 4
+  jitterSpeed: 6
+  jitterFrequency: 4
+  jitterScale: 0.4
+  jitterFramerate: 10
   includeLayers:
     serializedVersion: 2
     m_Bits: 4294967295
