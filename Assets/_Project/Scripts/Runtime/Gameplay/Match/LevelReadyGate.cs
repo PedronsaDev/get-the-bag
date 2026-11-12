@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Cysharp.Threading.Tasks;
 using Project.Core.Player;
+using Project.Core.Raid;
 using Project.Logging;
 using Project.Networking.Scenes;
 using PurrNet;
@@ -63,6 +64,8 @@ public class LevelReadyGate : NetworkBehaviour
         if (!Instance) Instance = this;
         else if (Instance != this) { Destroy(gameObject); return; }
 
+        // Before any Update in this scene, so AI never sees the level as live while it loads.
+        RaidLifecycle.BeginLoading(gameObject.scene);
         Phase.onChanged += HandlePhaseChanged;
     }
 
@@ -86,6 +89,7 @@ public class LevelReadyGate : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
+        PublishToLifecycle(Phase.value);
         if (!isServer) return;
 
         _serverStartTime = Time.time;
@@ -214,14 +218,22 @@ public class LevelReadyGate : NetworkBehaviour
     {
         if (_localPhase == phase) return;
         _localPhase = phase;
+        PublishToLifecycle(phase);
         OnPhaseChanged?.Invoke(phase);
     }
 
     private void HandlePhaseChanged(LevelPhase phase)
     {
         _localPhase = phase;
+        PublishToLifecycle(phase);
         AppLog.Log(LogChannel.Match, $"Level phase: {phase}", this);
         OnPhaseChanged?.Invoke(phase);
+    }
+
+    private static void PublishToLifecycle(LevelPhase phase)
+    {
+        if (phase == LevelPhase.Live) RaidLifecycle.MarkLive();
+        else if (phase == LevelPhase.Failed) RaidLifecycle.MarkEnded();
     }
 
     internal void HoldLoadingScreen()

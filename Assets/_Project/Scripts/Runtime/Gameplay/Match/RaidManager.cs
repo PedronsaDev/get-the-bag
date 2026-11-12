@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Core.Player;
+using Project.Core.Raid;
 using Project.Logging;
 using Project.Loot;
 using Project.Definitions.Loot;
@@ -314,6 +315,8 @@ public class RaidManager : NetworkBehaviour
 
     private void HandleNetworkStateChanged(RaidState newState)
     {
+        PublishToLifecycle(newState);
+
         if (!_raidEvents)
             return;
 
@@ -328,6 +331,21 @@ public class RaidManager : NetworkBehaviour
         }
 
         _raidEvents.RaiseStateChanged(newState);
+    }
+
+    // Runs on every peer (SyncVar change), so the lifecycle is correct on clients too.
+    private static void PublishToLifecycle(RaidState state)
+    {
+        switch (state)
+        {
+            case RaidState.ExtractionHoldout:
+                RaidLifecycle.MarkExtraction();
+                break;
+            case RaidState.Completed:
+            case RaidState.Failed:
+                RaidLifecycle.MarkEnded();
+                break;
+        }
     }
 
     private void HandleResultsChanged(RaidResults results)
