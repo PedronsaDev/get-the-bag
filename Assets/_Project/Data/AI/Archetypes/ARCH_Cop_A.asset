@@ -15,9 +15,11 @@ MonoBehaviour:
   _archetypeName: Cop A
   _role: 1
   _movementConfig:
-    PatrolSpeed: 1
+    PatrolSpeed: 1.2
     InvestigateSpeed: 1.8
     CombatRunSpeed: 1.6
+    FleeSpeed: 5
+    FleeDistance: 15
     MinCombatDistance: 6
     IdealCombatDistance: 12
     MaxCombatDistance: 20
@@ -56,6 +58,8 @@ MonoBehaviour:
     FacingWeight: 0.3
     PeekWeight: 0.15
     IdealRangeWeight: 0.15
+    QualityInfluence: 0.15
+    ApproachExposurePenalty: 0.4
     MinFacingAlignment: 0.5
   _coverExecutionConfig:
     _maxLateralPeekDistance: 1.5
