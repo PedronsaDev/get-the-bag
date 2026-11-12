@@ -1,107 +1,87 @@
 using System.Collections.Generic;
 using Project.AI.Alarm;
+using Project.AI.Decision;
 using Project.Combat.Health;
 using Project.Core.Player;
+using Project.Core.Raid;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
 namespace Project.AI.Waves
 {
+/// <summary>
+/// Server: runs the police assault through <see cref="AssaultCoordinator"/> and spawns its enemies.
+/// Every peer: publishes the level's threat as <see cref="IThreatStatus"/>, read from SyncVars, for the HUD
+/// and the results.
+/// </summary>
 [DisallowMultipleComponent]
-public class AssaultDirector : NetworkBehaviour
+public class AssaultDirector : NetworkBehaviour, IThreatStatus
 {
     [SerializeField] private AIWaveConfig _config;
 
+    private readonly SyncVar<byte> _syncedPhase = new((byte)ThreatPhase.Stealth);
+    private readonly SyncVar<int> _syncedSeconds = new(0);
     private readonly SyncVar<int> _syncedAssault = new(0);
-    private readonly AIWaveScheduler _scheduler = new();
+    private readonly SyncVar<int> _syncedEnemiesAlive = new(0);
     private readonly List<HealthComponent> _spawned = new(32);
-    private readonly Queue<GameObject> _spawnQueue = new(16);
-    private readonly List<int> _plan = new(16);
     private readonly List<Vector3> _playerPositions = new(4);
     private readonly System.Random _random = new();
 
+    private AssaultCoordinator _coordinator;
     private float _staggerTimer;
     private bool _configChecked;
     private bool _configValid;
 
+    public ThreatPhase Phase => (ThreatPhase)_syncedPhase.value;
+    public float SecondsInPhase => _syncedSeconds.value;
     public int AssaultNumber => _syncedAssault.value;
-    public AIWaveScheduler.Phase CurrentPhase => _scheduler.CurrentPhase;
+    public int EnemiesAlive => _syncedEnemiesAlive.value;
+    public int CivilianKills => AlarmDirector.Instance ? AlarmDirector.Instance.CivilianKills : 0;
+    byte IThreatStatus.AlarmReason => AlarmDirector.Instance ? AlarmDirector.Instance.ReasonByte : ThreatStatus.NoAlarmReason;
+
+    protected override void OnSpawned() => ThreatStatus.Current = this;
+
+    protected override void OnDespawned() => ClearCurrentStatus();
+
+    protected override void OnDestroy()
+    {
+        ClearCurrentStatus();
+        base.OnDestroy();
+    }
 
     private void Update()
     {
         if (!isServer || !ConfigIsValid())
             return;
 
-        UpdateScheduleFromAlarm();
-        if (_scheduler.CurrentPhase == AIWaveScheduler.Phase.Inactive)
-            return;
+        _coordinator ??= new AssaultCoordinator(_config, _random);
 
-        int players = Mathf.Max(1, PlayerIdentifier.ActivePlayers.Count);
-        HandleChange(_scheduler.Tick(Time.deltaTime), players);
-        UpdateSpawning(Time.deltaTime, AIWavePlanner.MaxAlive(_config, players));
-    }
-
-    private void UpdateScheduleFromAlarm()
-    {
         var alarm = AlarmDirector.Instance;
         bool alarmed = alarm && alarm.State == AlarmState.Alarmed;
+        int players = Mathf.Max(1, PlayerIdentifier.ActivePlayers.Count);
+        _coordinator.Advance(Time.deltaTime, RaidLifecycle.Phase, alarmed, players);
 
-        if (alarmed && _scheduler.CurrentPhase == AIWaveScheduler.Phase.Inactive)
-        {
-            _scheduler.Start(_config.FirstWaveDelay, _config.AssaultSeconds, _config.BreakSeconds);
-            AppLog.Log(LogChannel.AI, "Assault starts in {0} seconds.", _config.FirstWaveDelay, this);
-        }
-        else if (!alarmed && _scheduler.CurrentPhase != AIWaveScheduler.Phase.Inactive)
-        {
-            _scheduler.Stop();
-            _spawnQueue.Clear();
-            _syncedAssault.value = 0;
-        }
-    }
+        if (!_coordinator.HasEnded)
+            UpdateSpawning(Time.deltaTime, AIWavePlanner.MaxAlive(_config, players));
 
-    private void HandleChange(AIWaveScheduler.Change change, int players)
-    {
-        switch (change)
-        {
-            case AIWaveScheduler.Change.AssaultStarted:
-                QueueAssault(AIWavePlanner.Budget(_config, _scheduler.AssaultNumber, players));
-                break;
-            case AIWaveScheduler.Change.FinalPushStarted:
-                QueueAssault(AIWavePlanner.FinalPushBudget(_config, _scheduler.AssaultNumber, players));
-                break;
-            case AIWaveScheduler.Change.BreakStarted:
-                _spawnQueue.Clear();
-                AppLog.Log(LogChannel.AI, "Break for {0} seconds.", _config.BreakSeconds, this);
-                break;
-        }
-    }
-
-    private void QueueAssault(int budget)
-    {
-        int assault = _scheduler.AssaultNumber;
-        _spawnQueue.Clear();
-        AIWavePlanner.Plan(_config.Entries, assault, budget, _random, _plan);
-        foreach (int index in _plan)
-            _spawnQueue.Enqueue(_config.Entries[index].Prefab);
-
-        _syncedAssault.value = assault;
-        AppLog.Log(LogChannel.AI, "Assault {0}: {1} enemies from a budget of {2}.", assault, _plan.Count, budget, this);
+        PublishStatus();
     }
 
     private void UpdateSpawning(float deltaTime, int maxAlive)
     {
-        if (_spawnQueue.Count == 0)
+        var queue = _coordinator.SpawnQueue;
+        if (queue.Count == 0)
             return;
 
         _staggerTimer -= deltaTime;
-        if (_staggerTimer > 0f || CountAlive() >= maxAlive)
+        if (_staggerTimer > 0f || CountSpawnedAlive() >= maxAlive)
             return;
 
         _staggerTimer = _config.SpawnStagger;
-        if (!TrySpawn(_spawnQueue.Peek()))
+        if (!TrySpawn(queue.Peek()))
             return;
-        _spawnQueue.Dequeue();
+        queue.Dequeue();
     }
 
     private bool TrySpawn(GameObject prefab)
@@ -133,7 +113,7 @@ public class AssaultDirector : NetworkBehaviour
         }
     }
 
-    private int CountAlive()
+    private int CountSpawnedAlive()
     {
         int alive = 0;
         for (int i = _spawned.Count - 1; i >= 0; i--)
@@ -144,6 +124,40 @@ public class AssaultDirector : NetworkBehaviour
                 alive++;
         }
         return alive;
+    }
+
+    private static int CountLivingFighters()
+    {
+        int alive = 0;
+        var brains = AIBrain.All;
+        for (int i = 0; i < brains.Count; i++)
+        {
+            if (brains[i].IsLivingFighter)
+                alive++;
+        }
+        return alive;
+    }
+
+    // SyncVars ignore a write of the value they already hold, so this can run every frame.
+    private void PublishStatus()
+    {
+        _syncedPhase.value = (byte)_coordinator.CurrentThreatPhase;
+        _syncedSeconds.value = SecondsToShow();
+        _syncedAssault.value = _coordinator.Scheduler.AssaultNumber;
+        _syncedEnemiesAlive.value = CountLivingFighters();
+    }
+
+    private int SecondsToShow()
+    {
+        if (_coordinator.HasEnded)
+            return 0;
+        return Mathf.CeilToInt(_coordinator.Scheduler.SecondsInPhase);
+    }
+
+    private void ClearCurrentStatus()
+    {
+        if (ReferenceEquals(ThreatStatus.Current, this))
+            ThreatStatus.Current = null;
     }
 
     private bool ConfigIsValid()

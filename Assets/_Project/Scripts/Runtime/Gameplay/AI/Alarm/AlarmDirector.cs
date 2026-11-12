@@ -1,4 +1,5 @@
 using Project.AI.Perception;
+using Project.Core.Raid;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
@@ -18,10 +19,12 @@ public class AlarmDirector : NetworkBehaviour
 
     private readonly SyncVar<AlarmState> _syncedState = new(AlarmState.Stealth);
     private readonly SyncVar<int> _syncedCivilianKills = new(0);
+    private readonly SyncVar<byte> _syncedReason = new(ThreatStatus.NoAlarmReason);
     private readonly AlarmStateMachine _machine = new();
 
     public AlarmState State => _syncedState.value;
     public int CivilianKills => _syncedCivilianKills.value;
+    public byte ReasonByte => _syncedReason.value;
     public bool BodyFoundRaisesAlarm => _bodyFoundRaisesAlarm;
 
     private void Awake()
@@ -50,10 +53,17 @@ public class AlarmDirector : NetworkBehaviour
             ResetAlarm();
     }
 
+    private void Update()
+    {
+        if (isServer)
+            FollowRaid();
+    }
+
     public bool Raise(AlarmReason reason, Vector3 position)
     {
         if (!isServer)
             return false;
+        FollowRaid();
         return _machine.TryRaise(reason, position);
     }
 
@@ -61,6 +71,7 @@ public class AlarmDirector : NetworkBehaviour
     {
         if (!isServer)
             return;
+        FollowRaid();
         _machine.RecordCivilianKill(position);
         _syncedCivilianKills.value = _machine.CivilianKills;
     }
@@ -70,13 +81,26 @@ public class AlarmDirector : NetworkBehaviour
         if (!isServer)
             return;
         _machine.Reset();
+        PublishCleared();
+    }
+
+    private void FollowRaid()
+    {
+        if (_machine.FollowRaid(RaidLifecycle.Phase))
+            PublishCleared();
+    }
+
+    private void PublishCleared()
+    {
         _syncedState.value = AlarmState.Stealth;
         _syncedCivilianKills.value = 0;
+        _syncedReason.value = ThreatStatus.NoAlarmReason;
     }
 
     private void HandleRaised(AlarmReason reason, Vector3 position)
     {
         _syncedState.value = AlarmState.Alarmed;
+        _syncedReason.value = (byte)reason;
         AppLog.Log(LogChannel.AI, "Alarm raised: {0} at {1}", reason, position, this);
         AIPerceptionBus.Emit(new StimulusPayload(StimulusType.Tactical, position, null, LevelWideRadius));
     }

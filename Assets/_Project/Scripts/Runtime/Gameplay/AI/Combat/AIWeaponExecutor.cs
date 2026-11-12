@@ -5,6 +5,7 @@ using Project.AI.Perception;
 using Project.Combat;
 using Project.Combat.Core;
 using Project.Combat.Health;
+using Project.Core.Raid;
 using PurrNet;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -65,7 +66,8 @@ public class AIWeaponExecutor : NetworkBehaviour
 
     private void Update()
     {
-        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady || !_aimController || (_health && _health.IsDead))
+        if (!isServer || !RaidLifecycle.AllowsAI || !_blackboard || !_blackboard.IsArchetypeReady || !_aimController ||
+            (_health && _health.IsDead))
             return;
 
         UpdateBurstCadence(Time.deltaTime);

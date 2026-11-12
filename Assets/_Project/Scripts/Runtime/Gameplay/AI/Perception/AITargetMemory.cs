@@ -5,6 +5,7 @@ using Project.AI.Configuration;
 using Project.Combat.Core;
 using Project.Combat.Health;
 using Project.Core.Player;
+using Project.Core.Raid;
 using PurrNet;
 using UnityEngine;
 
@@ -77,7 +78,7 @@ public class AITargetMemory : NetworkBehaviour
 
     private void Update()
     {
-        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady)
+        if (!isServer || !RaidLifecycle.AllowsAI || !_blackboard || !_blackboard.IsArchetypeReady)
             return;
         UpdateMemory(Time.deltaTime);
     }
@@ -287,7 +288,8 @@ public class AITargetMemory : NetworkBehaviour
         SyncToBlackboard();
     }
 
-    private bool CanReceiveReports => isServer && isActiveAndEnabled && _blackboard && _blackboard.IsArchetypeReady;
+    private bool CanReceiveReports =>
+        isServer && RaidLifecycle.AllowsAI && isActiveAndEnabled && _blackboard && _blackboard.IsArchetypeReady;
 
     private void ChangeState(AlertState newState)
     {

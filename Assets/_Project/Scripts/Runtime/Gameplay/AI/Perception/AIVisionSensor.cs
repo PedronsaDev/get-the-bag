@@ -2,6 +2,7 @@ using Project.AI.Alarm;
 using Project.AI.Blackboard;
 using Project.AI.Configuration;
 using Project.Core.Player;
+using Project.Core.Raid;
 using PurrNet;
 using UnityEngine;
 
@@ -93,7 +94,7 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 
     private void Update()
     {
-        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady || !_targetMemory)
+        if (!isServer || !RaidLifecycle.AllowsAI || !_blackboard || !_blackboard.IsArchetypeReady || !_targetMemory)
             return;
         _tickTimer -= Time.deltaTime;
         if (_tickTimer > 0f)
@@ -245,7 +246,7 @@ public class AIVisionSensor : NetworkBehaviour, IAISensoryReceiver
 
     public void ReceiveStimulus(in StimulusPayload stimulus)
     {
-        if (!isServer || !isActiveAndEnabled || !_blackboard || !_blackboard.IsArchetypeReady || !_targetMemory)
+        if (!isServer || !RaidLifecycle.AllowsAI || !isActiveAndEnabled || !_blackboard || !_blackboard.IsArchetypeReady || !_targetMemory)
             return;
         switch (stimulus.Type)
         {

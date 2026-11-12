@@ -1,10 +1,12 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using Project.AI.Alarm;
 using Project.AI.Blackboard;
 using Project.AI.Configuration;
 using Project.AI.Decision.States;
 using Project.AI.Perception;
 using Project.Combat.Health;
+using Project.Core.Raid;
 using Project.Logging;
 using PurrNet;
 using UnityEngine;
@@ -22,10 +24,17 @@ public class AIBrain : NetworkBehaviour
     private readonly AIInvestigateState _investigationState = new();
     private readonly AICombatState _combatState = new();
 
+    private static readonly List<AIBrain> _all = new(32);
+
+    public static IReadOnlyList<AIBrain> All => _all;
+
+
     public IAIState CurrentState { get; private set; }
     [SerializeField, Min(0f)] private float _corpseSeconds = 15f;
 
     private bool _running;
+    private bool _waitingForRaid;
+    private bool _standingDown;
     private HealthComponent _health;
     private float _despawnAt;
 
@@ -36,10 +45,17 @@ public class AIBrain : NetworkBehaviour
             _blackboard = GetComponent<AIBlackboard>();
     }
 
+    public bool IsLivingFighter =>
+        _blackboard && _blackboard.IsArchetypeReady && _blackboard.ArchetypeConfig.Role.Fights() &&
+        !(_health && _health.IsDead);
+
+    private void OnEnable() => _all.Add(this);
+
     protected override void OnSpawned()
     {
         StopBrain();
         _despawnAt = 0f;
+        _standingDown = false;
         if (!isServer)
         {
             enabled = false;
@@ -60,6 +76,12 @@ public class AIBrain : NetworkBehaviour
 
         _blackboard.ResetRuntimeState();
         enabled = true;
+        _waitingForRaid = true;
+    }
+
+    private void BeginThinking()
+    {
+        _waitingForRaid = false;
         _running = true;
         _blackboard.OnAlertStateChanged += HandleStateChanged;
         HandleStateChanged(_blackboard.CurrentAlertState);
@@ -69,7 +91,11 @@ public class AIBrain : NetworkBehaviour
         StopBrain();
     }
 
-    private void OnDisable() => StopBrain();
+    private void OnDisable()
+    {
+        _all.Remove(this);
+        StopBrain();
+    }
 
     private void StopBrain()
     {
@@ -89,7 +115,9 @@ public class AIBrain : NetworkBehaviour
             Despawn();
             return;
         }
-        if (!isServer || !_running || !_blackboard || !_blackboard.IsArchetypeReady)
+        if (!isServer || !_blackboard || !_blackboard.IsArchetypeReady || !RaidAllowsThinking())
+            return;
+        if (!_running)
             return;
         if (_health && _health.IsDead)
         {
@@ -100,6 +128,34 @@ public class AIBrain : NetworkBehaviour
             return;
         }
         CurrentState?.OnUpdate(_blackboard, Time.deltaTime);
+    }
+
+    // Nothing thinks while the level loads. When the raid ends, fighters stand down: they stop shooting and
+    // moving but stay where they are. Civilians keep their pose.
+    private bool RaidAllowsThinking()
+    {
+        if (RaidLifecycle.Phase == RaidPhase.Ended && _blackboard.ArchetypeConfig.Role.Fights())
+        {
+            StandDown();
+            return false;
+        }
+
+        if (!RaidLifecycle.AllowsAI && RaidLifecycle.Phase != RaidPhase.Ended)
+            return false;
+
+        if (_waitingForRaid)
+            BeginThinking();
+        return true;
+    }
+
+    private void StandDown()
+    {
+        if (_standingDown)
+            return;
+
+        _standingDown = true;
+        _waitingForRaid = false;
+        StopBrain();
     }
 
     private void HandleStateChanged(AlertState newState)

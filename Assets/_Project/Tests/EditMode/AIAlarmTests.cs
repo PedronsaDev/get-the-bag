@@ -3,6 +3,7 @@ using Project.AI.Alarm;
 using Project.AI.Configuration;
 using Project.AI.Decision;
 using Project.AI.Perception;
+using Project.Core.Raid;
 using UnityEditor;
 using UnityEngine;
 
@@ -65,6 +66,80 @@ public class AIAlarmTests
 
         machine.Reset();
         Assert.AreEqual(0, machine.CivilianKills);
+    }
+
+    [Test]
+    public void Machine_IgnoresEventsUntilTheRaidIsLive()
+    {
+        var machine = new AlarmStateMachine();
+        machine.FollowRaid(RaidPhase.Loading);
+
+        Assert.IsFalse(machine.TryRaise(AlarmReason.GuardAlerted, Vector3.zero));
+        Assert.IsFalse(machine.RecordCivilianKill(Vector3.zero));
+        Assert.AreEqual(0, machine.CivilianKills);
+
+        machine.FollowRaid(RaidPhase.Live);
+        Assert.IsTrue(machine.TryRaise(AlarmReason.GuardAlerted, Vector3.zero));
+    }
+
+    [Test]
+    public void Machine_AcceptsEventsDuringExtraction()
+    {
+        var machine = new AlarmStateMachine();
+        machine.FollowRaid(RaidPhase.Extraction);
+
+        Assert.IsTrue(machine.TryRaise(AlarmReason.BodyFound, Vector3.zero));
+    }
+
+    [Test]
+    public void Machine_KeepsItsCountersAfterTheRaidEnds()
+    {
+        var machine = new AlarmStateMachine();
+        machine.TryRaise(AlarmReason.CivilianCall, Vector3.zero);
+        machine.RecordCivilianKill(Vector3.zero);
+
+        bool cleared = machine.FollowRaid(RaidPhase.Ended);
+
+        Assert.IsFalse(cleared);
+        Assert.AreEqual(AlarmState.Alarmed, machine.State);
+        Assert.AreEqual(AlarmReason.CivilianCall, machine.Reason);
+        Assert.AreEqual(1, machine.CivilianKills);
+    }
+
+    [Test]
+    public void Machine_CountsNothingAfterTheRaidEnds()
+    {
+        var machine = new AlarmStateMachine();
+        machine.FollowRaid(RaidPhase.Ended);
+
+        Assert.IsFalse(machine.RecordCivilianKill(Vector3.zero));
+        Assert.AreEqual(0, machine.CivilianKills);
+        Assert.IsFalse(machine.TryRaise(AlarmReason.GuardAlerted, Vector3.zero));
+    }
+
+    [Test]
+    public void Machine_ClearsWhenTheNextSceneLoads()
+    {
+        var machine = new AlarmStateMachine();
+        machine.TryRaise(AlarmReason.CivilianCall, Vector3.zero);
+        machine.FollowRaid(RaidPhase.Ended);
+
+        bool cleared = machine.FollowRaid(RaidPhase.Live);
+
+        Assert.IsTrue(cleared, "Leaving Ended (for example into the hub) starts a clean alarm.");
+        Assert.AreEqual(AlarmState.Stealth, machine.State);
+        Assert.IsNull(machine.Reason);
+    }
+
+    [Test]
+    public void Machine_ClearsWhenANewLevelStartsLoading()
+    {
+        var machine = new AlarmStateMachine();
+        machine.TryRaise(AlarmReason.GuardAlerted, Vector3.zero);
+
+        Assert.IsTrue(machine.FollowRaid(RaidPhase.Loading));
+        Assert.AreEqual(AlarmState.Stealth, machine.State);
+        Assert.IsFalse(machine.FollowRaid(RaidPhase.Loading), "Nothing left to clear.");
     }
 
     [TestCase(AIRole.Civilian, AlertState.Alerted, AIStateKind.Flee)]
