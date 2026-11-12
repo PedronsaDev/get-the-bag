@@ -244,6 +244,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _loadTimeoutSeconds: 60
+  _loadingScreenBufferSeconds: 0.15
 --- !u!1 &5015484153238893488
 GameObject:
   m_ObjectHideFlags: 0
