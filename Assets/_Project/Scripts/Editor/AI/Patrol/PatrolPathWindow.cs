@@ -68,6 +68,7 @@ public class PatrolPathWindow : EditorWindow
 
     private void OnEnable()
     {
+        Tools.hidden = false;
         SceneView.duringSceneGui += OnSceneGui;
         Selection.selectionChanged += OnSelectionChanged;
         Undo.undoRedoPerformed += Refresh;
@@ -184,7 +185,30 @@ public class PatrolPathWindow : EditorWindow
     private void OnSelectionChanged()
     {
         SelectRouteFromSelection();
+        if (_route && !SelectionTouchesRoute() && !SelectionHasGuards())
+        {
+            SetRoute(null);
+            return;
+        }
+
         Refresh();
+    }
+
+    // Guards stay selectable without losing the route, so Assign to Selected Guards still has one.
+    private static bool SelectionHasGuards()
+    {
+        foreach (var selected in Selection.gameObjects)
+        {
+            if (selected.GetComponentInChildren<AIBlackboard>())
+                return true;
+        }
+        return false;
+    }
+
+    private bool SelectionTouchesRoute()
+    {
+        var selected = Selection.activeGameObject;
+        return _route && selected && selected.transform.IsChildOf(_route.transform);
     }
 
     private void SelectRouteFromSelection()
@@ -200,8 +224,7 @@ public class PatrolPathWindow : EditorWindow
         if (route != _route)
             SetRoute(route);
 
-        if (selected.transform.parent == route.transform)
-            _sceneTool.SelectedIndex = selected.transform.GetSiblingIndex();
+        _sceneTool.SelectedIndex = selected.transform.parent == route.transform ? selected.transform.GetSiblingIndex() : -1;
     }
 
     private void CreateRouteAtSceneView()
@@ -225,6 +248,7 @@ public class PatrolPathWindow : EditorWindow
         }
         _sceneTool.AddMode = on;
         UpdateAddModeButton();
+        UpdateEditing();
         SceneView.RepaintAll();
     }
 
@@ -239,13 +263,22 @@ public class PatrolPathWindow : EditorWindow
     private void SelectPoint(int index)
     {
         _sceneTool.SelectedIndex = index;
+        SelectPointObject(index);
         SceneView.RepaintAll();
+    }
+
+    // The Hierarchy selection is what says the route is being edited, so selecting a point selects its object.
+    private void SelectPointObject(int index)
+    {
+        if (_route && index >= 0 && index < _route.PointCount)
+            Selection.activeGameObject = _route.GetPoint(index).gameObject;
     }
 
     private void OnScenePointSelected(int index)
     {
         if (_pointList == null)
             return;
+        SelectPointObject(index);
         _pointList.SetSelectionWithoutNotify(index >= 0 ? new[] { index } : new int[0]);
         if (index >= 0)
             _pointList.ScrollToItem(index);
@@ -379,7 +412,7 @@ public class PatrolPathWindow : EditorWindow
 
         UpdateAddModeButton();
         UpdateStats();
-        SetNativeToolsHidden(_route);
+        UpdateEditing();
     }
 
     private void UpdateStats()
@@ -429,6 +462,15 @@ public class PatrolPathWindow : EditorWindow
     {
         var archetype = _archetypeField.value as AIArchetypeConfig;
         return archetype ? archetype.MovementConfig.PatrolSpeed : new AIMovementConfig().PatrolSpeed;
+    }
+
+    // Editing only happens while the route or one of its points is selected, or while points are being added.
+    // Unity's own tools are hidden only when our handles replace them: a selected point or add mode.
+    private void UpdateEditing()
+    {
+        _sceneTool.Editable = SelectionTouchesRoute();
+        bool ourHandlesActive = _sceneTool.AddMode || (_sceneTool.Editable && _sceneTool.SelectedIndex >= 0);
+        SetNativeToolsHidden(_route && ourHandlesActive);
     }
 
     // Our own handles replace Unity's move tool while a route is being edited.

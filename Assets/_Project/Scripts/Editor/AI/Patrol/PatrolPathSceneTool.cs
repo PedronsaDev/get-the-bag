@@ -17,6 +17,8 @@ public sealed class PatrolPathSceneTool
     public AIPatrolRoute Route;
     public int SelectedIndex = -1;
     public bool AddMode;
+    /// <summary>Handles and clicks only work while true. The route is still drawn when it is false.</summary>
+    public bool Editable;
     public bool SnapToNavMesh = true;
     public float SnapRadius = 2f;
     public bool FaceAlongPath = true;
@@ -35,7 +37,7 @@ public sealed class PatrolPathSceneTool
 
         if (AddMode)
             HandleAddMode(view);
-        else
+        else if (Editable)
             HandlePointEditing();
     }
 
