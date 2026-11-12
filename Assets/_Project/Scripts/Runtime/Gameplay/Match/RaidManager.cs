@@ -28,6 +28,10 @@ public class RaidManager : NetworkBehaviour
     [Header("References")]
     [SerializeField] private RaidEventChannel _raidEvents;
 
+    [Header("Start")]
+    [Tooltip("Give every player without a bag an empty one when the raid goes live.")]
+    [SerializeField] private bool _giveBagsOnStart = true;
+
     [Header("Return")]
     [SerializeField] private string _hubSceneName = "Scene_Hub";
     [Tooltip("Seconds after the raid ends before everyone is sent back to the hub. 0 = only when the host calls ReturnToHub().")]
@@ -307,10 +311,32 @@ public class RaidManager : NetworkBehaviour
 
         if (CurrentState.value != newState)
         {
+            var previous = CurrentState.value;
             CurrentState.value = newState;
             if (newState == RaidState.WaitingAtPlatform)
                 TimeRemaining.value = 1200f;
+            if (newState == RaidState.InRaid && previous == RaidState.WaitingAtPlatform && _giveBagsOnStart)
+                GiveStartingBags();
         }
+    }
+
+    private void GiveStartingBags()
+    {
+        int given = 0;
+        var activePlayers = PlayerIdentifier.ActivePlayers;
+        for (int i = 0; i < activePlayers.Count; i++)
+        {
+            var pawn = activePlayers[i];
+            if (!pawn) continue;
+
+            var carrier = pawn.transform.root.GetComponentInChildren<IDuffleBagCarrier>(true);
+            if (carrier == null || carrier.HasBag) continue;
+
+            carrier.EquipBag(DuffleBagSnapshot.Empty);
+            given++;
+        }
+
+        AppLog.Log(LogChannel.Match, $"[RaidManager] Gave {given} starting bag(s).", this);
     }
 
     private void HandleNetworkStateChanged(RaidState newState)
