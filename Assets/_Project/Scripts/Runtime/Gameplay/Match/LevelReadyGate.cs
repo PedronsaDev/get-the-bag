@@ -45,6 +45,7 @@ public class LevelReadyGate : NetworkBehaviour
     private readonly HashSet<PlayerID> _reported = new();
     private float _serverStartTime;
     private float _serverStartUnscaled;
+    private bool _spawnHandled;
     private bool _clientReported;
     private int _clientSettle;
     private float _overlayDeadline;
@@ -90,6 +91,7 @@ public class LevelReadyGate : NetworkBehaviour
     {
         base.OnSpawned();
         PublishToLifecycle(Phase.value);
+        _spawnHandled = true;
         if (!isServer) return;
 
         _serverStartTime = Time.time;
@@ -109,7 +111,9 @@ public class LevelReadyGate : NetworkBehaviour
 
     private void Update()
     {
-        if (isSpawned && !IsOffline)
+        // On a repeat load of the same level, isSpawned can turn true a few frames before OnSpawned runs.
+        // Ticking then would time out against an unset start time and lose the host's ready report.
+        if (isSpawned && _spawnHandled && !IsOffline)
         {
             if (isServer) ServerTick();
             ClientTick();
