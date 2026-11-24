@@ -778,7 +778,11 @@ namespace KinematicCharacterController
             }
 
 #if UNITY_EDITOR
-            if (!Mathf.Approximately(_transform.lossyScale.x, 1f) || !Mathf.Approximately(_transform.lossyScale.y, 1f) || !Mathf.Approximately(_transform.lossyScale.z, 1f))
+            // Stacked rotations on the pawn root and the character drift lossyScale by about 1e-6,
+            // which Mathf.Approximately rejects. A real scaling mistake is far larger than this tolerance.
+            const float scaleTolerance = 1e-4f;
+            Vector3 lossyScale = _transform.lossyScale;
+            if (Mathf.Abs(lossyScale.x - 1f) > scaleTolerance || Mathf.Abs(lossyScale.y - 1f) > scaleTolerance || Mathf.Abs(lossyScale.z - 1f) > scaleTolerance)
             {
                 Debug.LogError("Character's lossy scale is not (1,1,1). This is not allowed. Make sure the character's transform and all of its parents have a (1,1,1) scale.", this.gameObject);
             }

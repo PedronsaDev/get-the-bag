@@ -11,9 +11,6 @@ internal static class AIArchetypeValidation
         if (string.IsNullOrWhiteSpace(archetype.ArchetypeName))
             return Fail("ArchetypeName must contain a name.", out error);
 
-        if (archetype.PreferredTokenType != CombatTokenType.RangedBurst)
-            return Fail("Only RangedBurst is currently supported by the combat executor and token director.", out error);
-
         var movement = archetype.MovementConfig;
         if (movement == null)
             return Fail("MovementConfig is required.", out error);
@@ -21,6 +18,9 @@ internal static class AIArchetypeValidation
         if (!NonNegative(movement.PatrolSpeed) || !NonNegative(movement.InvestigateSpeed) ||
             !NonNegative(movement.CombatRunSpeed))
             return Fail("Movement speeds must be finite and nonnegative.", out error);
+
+        if (!NonNegative(movement.FleeSpeed) || !Positive(movement.FleeDistance))
+            return Fail("Flee speed must be finite and nonnegative; flee distance must be finite and positive.", out error);
 
         if (!NonNegative(movement.MinCombatDistance) || !Positive(movement.IdealCombatDistance) ||
             !Positive(movement.MaxCombatDistance) || movement.MinCombatDistance > movement.IdealCombatDistance ||
@@ -42,6 +42,25 @@ internal static class AIArchetypeValidation
 
         if ((vision.ObstacleMask.value & vision.TargetMask.value) != 0)
             return Fail("Vision obstacle and target masks must not overlap.", out error);
+
+        if (!archetype.Role.Fights())
+        {
+            error = null;
+            return true;
+        }
+
+        if (archetype.PreferredTokenType != CombatTokenType.RangedBurst)
+            return Fail("Only RangedBurst is currently supported by the combat executor and token director.", out error);
+
+        var tuning = archetype.CombatTuning;
+        if (tuning == null)
+            return Fail("CombatTuning is required for fighting roles.", out error);
+
+        if (!Positive(tuning.CoverCheckInterval) || !NonNegative(tuning.ReflankMinDelay) ||
+            tuning.ReflankMinDelay > tuning.ReflankMaxDelay || !InRange(tuning.FlankAngleDegrees, 0f, 180f) ||
+            !Positive(tuning.FlankSampleRadius) || !Positive(tuning.RetreatStepDistance) ||
+            !Positive(tuning.RetreatSampleRadius))
+            return Fail("Combat tuning needs a positive cover interval, 0 <= reflank min <= max, flank angle in [0, 180], and positive step and sample distances.", out error);
 
         var weapon = archetype.WeaponConfig;
         if (weapon == null)
@@ -86,6 +105,9 @@ internal static class AIArchetypeValidation
             float sum = cover.ProximityWeight + cover.FacingWeight + cover.PeekWeight + cover.IdealRangeWeight;
             if (Mathf.Abs(sum - 1f) > 0.001f)
                 return Fail("Cover weights must sum to one within a tolerance of 0.001.", out error);
+
+            if (!InRange(cover.QualityInfluence, 0f, 0.5f) || !InRange(cover.ApproachExposurePenalty, 0f, 1f))
+                return Fail("Cover quality influence must be between 0 and 0.5 and approach exposure penalty between 0 and 1.", out error);
 
             if (!InRange(cover.MinFacingAlignment, -1f, 1f))
                 return Fail("Cover minimum facing alignment must be finite and between -1 and 1.", out error);

@@ -1,7 +1,7 @@
-using Project.Core.Data;
+using Project.Definitions;
 using UnityEngine;
 
-namespace Project.Loot.Data 
+namespace Project.Definitions.Loot 
 {
 [CreateAssetMenu(fileName = "LootRegistry", menuName = "Registries/Loot Registry")]
 public class LootRegistry : ScriptableRegistry<LootDefinition>

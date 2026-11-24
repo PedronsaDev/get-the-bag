@@ -18,6 +18,10 @@ public class SpringSettings
 
 public class Vector3Spring
 {
+    // Semi-implicit Euler goes unstable with large steps, so a long frame is split into small ones.
+    private const float MAX_STEP = 1f / 120f;
+    private const float MAX_FRAME = 0.1f;
+
     public Vector3 CurrentValue { get; private set; }
     public Vector3 TargetValue { get; set; }
 
@@ -32,13 +36,19 @@ public class Vector3Spring
 
     public void Update(float deltaTime, SpringSettings settings)
     {
-        Vector3 displacement = TargetValue - CurrentValue;
-        Vector3 springForce = displacement * settings.Stiffness;
-        Vector3 dampingForce = -_velocity * settings.Damping;
-        Vector3 acceleration = springForce + dampingForce;
+        if (!(deltaTime > 0f)) return;
 
-        _velocity += acceleration * deltaTime;
-        CurrentValue += _velocity * deltaTime;
+        deltaTime = Mathf.Min(deltaTime, MAX_FRAME);
+        int steps = Mathf.CeilToInt(deltaTime / MAX_STEP);
+        float step = deltaTime / steps;
+
+        for (int i = 0; i < steps; i++)
+        {
+            Vector3 displacement = TargetValue - CurrentValue;
+            Vector3 acceleration = displacement * settings.Stiffness - _velocity * settings.Damping;
+            _velocity += acceleration * step;
+            CurrentValue += _velocity * step;
+        }
     }
 
     public void AddVelocity(Vector3 velocityToAdd)

@@ -4,11 +4,6 @@ using UnityEngine;
 
 namespace Project.Core.UI
 {
-    /// <summary>
-    /// Central authority for tracking UI panels and modals that block gameplay inputs.
-    /// Decoupled from player pawn lifecycle, supports LIFO dismissal, auto-prunes dead/destroyed references,
-    /// and centrally coordinates hardware mouse cursor locking and visibility.
-    /// </summary>
     public static class UIBlockerSystem
     {
         private static readonly List<IInputBlocker> _activeBlockers = new();
@@ -24,9 +19,6 @@ namespace Project.Core.UI
         public static event Action<bool> OnBlockerStateChanged;
         public static event Action OnBlockerStackChanged;
 
-        /// <summary>
-        /// Returns all currently registered active blockers (auto-pruned of destroyed objects).
-        /// </summary>
         public static IReadOnlyList<IInputBlocker> ActiveBlockers
         {
             get
@@ -63,9 +55,6 @@ namespace Project.Core.UI
             }
         }
 
-        /// <summary>
-        /// Returns true if any active blocker suppresses locomotion (WASD, sprint, crouch, jump).
-        /// </summary>
         public static bool IsMovementBlocked
         {
             get
@@ -79,9 +68,6 @@ namespace Project.Core.UI
             }
         }
 
-        /// <summary>
-        /// Returns true if any active blocker suppresses camera look rotation.
-        /// </summary>
         public static bool IsLookBlocked
         {
             get
@@ -95,9 +81,6 @@ namespace Project.Core.UI
             }
         }
 
-        /// <summary>
-        /// Returns true if any active blocker suppresses combat, abilities, weapon switching, and interactions.
-        /// </summary>
         public static bool IsActionsBlocked
         {
             get
@@ -111,9 +94,6 @@ namespace Project.Core.UI
             }
         }
 
-        /// <summary>
-        /// Returns true if any active blocker demands an unlocked, visible mouse cursor.
-        /// </summary>
         public static bool IsCursorUnlocked
         {
             get
@@ -127,9 +107,6 @@ namespace Project.Core.UI
             }
         }
 
-        /// <summary>
-        /// Returns true if any gameplay input category is currently blocked.
-        /// </summary>
         public static bool IsInputBlocked => IsMovementBlocked || IsLookBlocked || IsActionsBlocked;
 
         /// <summary>
@@ -207,9 +184,6 @@ namespace Project.Core.UI
             return false;
         }
 
-        /// <summary>
-        /// Clears all blockers (useful during scene transitions or emergency resets).
-        /// </summary>
         public static void ClearAll()
         {
             bool wasBlocked = HasActiveBlocker;
@@ -224,9 +198,6 @@ namespace Project.Core.UI
             }
         }
 
-        /// <summary>
-        /// Re-evaluates and applies the current cursor lock and visibility state based on active blockers.
-        /// </summary>
         public static void RefreshCursorState()
         {
             if (IsCursorUnlocked)

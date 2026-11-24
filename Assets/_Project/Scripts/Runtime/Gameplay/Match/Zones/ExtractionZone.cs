@@ -6,7 +6,7 @@ using Project.Logging;
 using PurrNet;
 using UnityEngine;
 
-namespace Project.Core.Match.Zones
+namespace Project.Match.Zones
 {
 [RequireComponent(typeof(AreaPlayerDetector))]
 public class ExtractionZone : NetworkBehaviour
@@ -78,6 +78,9 @@ public class ExtractionZone : NetworkBehaviour
         if (IsActivated.value)
             return;
 
+        if (RaidManager.Instance && !RaidManager.Instance.IsRaidActive)
+            return;
+
         _detector.Activate();
         IsActivated.value = true;
 
@@ -113,6 +116,9 @@ public class ExtractionZone : NetworkBehaviour
 
         IsCountdownActive.value = false;
         CountdownRemaining.value = 0f;
+
+        if (RaidManager.Instance && !RaidManager.Instance.IsRaidActive)
+            return;
 
         var activePlayers = PlayerIdentifier.ActivePlayers;
         var extractedPlayers = new List<PlayerID>();
@@ -151,14 +157,8 @@ public class ExtractionZone : NetworkBehaviour
 
         if (RaidManager.Instance)
         {
-            if (extractedPlayers.Count > 0)
-            {
-                RaidManager.Instance.ChangeState(RaidState.Completed);
-            }
-            else
-            {
-                RaidManager.Instance.ChangeState(RaidState.Failed);
-            }
+            var outcome = extractedPlayers.Count > 0 ? RaidOutcome.Extracted : RaidOutcome.NobodyExtracted;
+            RaidManager.Instance.Resolve(outcome, extractedPlayers);
         }
 
         AppLog.Log(LogChannel.Match, $"[ExfilZone] Exfil countdown complete. {extractedPlayers.Count} extracted, {leftBehindPlayers.Count} left behind.");
@@ -168,7 +168,7 @@ public class ExtractionZone : NetworkBehaviour
     {
         if (PlayerIdentifier.TryGetPlayer(playerID, out var player))
         {
-            // apply ivunerability and extract
+            // TODO: make the player invulnerable while extracting.
         }
     }
     
@@ -202,13 +202,11 @@ public class ExtractionZone : NetworkBehaviour
 
     private void HandleLocalPlayerLeftBehind()
     {
-        // Clear player inventory, call raid summary and call playerInventorBridge
         AppLog.Log(LogChannel.Match, "[Extraction] <color=red>You were left behind and failed to extract.</color>");
     }
 
     private void HandleLocalPlayerExtracted()
     {
-        // call raid summary and call playerInventorBridge
         AppLog.Log(LogChannel.Match, "[Extraction] <color=green>You successfully extracted.</color>");
     }
 }

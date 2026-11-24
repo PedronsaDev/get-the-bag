@@ -10,10 +10,6 @@ using UnityEngine;
 
 namespace Project.Persistence
 {
-/// <summary>
-/// Gerencia o I/O de arquivos, caminhos de armazenamento em disco, criptografia XOR,
-/// criacao de backups e rollback de arquivos corrompidos.
-/// </summary>
 public class FileDataHandler
 {
     private readonly string _dataDirPath;
@@ -87,13 +83,17 @@ public class FileDataHandler
         {
             try
             {
-                string dataToLoad = await ReadAllTextAsync(fullPath, cancellationToken);
+                string dataToLoad = await File.ReadAllTextAsync(fullPath, cancellationToken);
                 if (_useEncryption)
                 {
                     dataToLoad = EncryptDecrypt(dataToLoad);
                 }
 
                 loadedData = JsonUtility.FromJson<GameData>(dataToLoad);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception e)
             {
@@ -178,7 +178,7 @@ public class FileDataHandler
                 dataToStore = EncryptDecrypt(dataToStore);
             }
 
-            await WriteAllTextAsync(fullPath, dataToStore, cancellationToken);
+            await File.WriteAllTextAsync(fullPath, dataToStore, cancellationToken);
 
             GameData verifiedGameData = await LoadAsync(profileId, true, cancellationToken);
             if (verifiedGameData != null)
@@ -190,10 +190,15 @@ public class FileDataHandler
                 throw new Exception("Save file could not be verified and backup could not be created.");
             }
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception e)
         {
             AppLog.LogError(LogChannel.Persistence,
                 $"[FileDataHandler] Error saving data async to file: {fullPath}\n{e}");
+            throw;
         }
     }
 
@@ -313,7 +318,7 @@ public class FileDataHandler
             {
                 File.Copy(backupFilePath, fullPath, true);
                 success = true;
-                Debug.LogWarning($"[FileDataHandler] Rolled back to backup file at: {backupFilePath}");
+                AppLog.LogWarning(LogChannel.Persistence, $"[FileDataHandler] Rolled back to backup file at: {backupFilePath}");
             }
             else
             {
@@ -322,32 +327,11 @@ public class FileDataHandler
         }
         catch (Exception e)
         {
-            Debug.LogError($"[FileDataHandler] Error rolling back to backup file at: {backupFilePath}\n{e}");
+            AppLog.LogError(LogChannel.Persistence, $"[FileDataHandler] Error rolling back to backup file at: {backupFilePath}\n{e}");
         }
 
         return success;
     }
 
-    private static async UniTask<string> ReadAllTextAsync(string fullPath, CancellationToken cancellationToken)
-    {
-        using (FileStream stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
-        using (StreamReader reader = new StreamReader(stream))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            return await reader.ReadToEndAsync().AsUniTask();
-        }
-    }
-
-    private static async UniTask WriteAllTextAsync(string fullPath, string dataToStore,
-        CancellationToken cancellationToken)
-    {
-        using (FileStream stream =
-               new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
-        using (StreamWriter writer = new StreamWriter(stream))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            await writer.WriteAsync(dataToStore).AsUniTask();
-        }
-    }
 }
 }

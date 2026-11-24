@@ -8,10 +8,6 @@ using UnityEngine;
 
 namespace Project.Persistence
 {
-/// <summary>
-/// Gerenciador central para carregar e salvar perfis de jogo e despachar estado para os
-/// ouvintes registrados de IDataPersistence no jogo.
-/// </summary>
 [DefaultExecutionOrder(-1000)]
 public class DataPersistenceManager : MonoBehaviour
 {
@@ -96,15 +92,6 @@ public class DataPersistenceManager : MonoBehaviour
         InitializeSelectedProfileId();
     }
 
-    private void Start()
-    {
-        //LoadGame();
-    }
-
-    /// <summary>
-    /// Registra um componente para receber chamadas LoadData e fornecer dados durante as chamadas SaveData.
-    /// Se os dados do jogo já estiverem carregados na memória, LoadData é chamado instantaneamente.
-    /// </summary>
     public void Register(IDataPersistence persistenceObj)
     {
         if (persistenceObj == null) return;
@@ -118,9 +105,6 @@ public class DataPersistenceManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Unregisters a component from the persistence lifecycle.
-    /// </summary>
     public void Unregister(IDataPersistence persistenceObj)
     {
         if (persistenceObj != null)
@@ -184,7 +168,6 @@ public class DataPersistenceManager : MonoBehaviour
             return;
         }
 
-        // Dispatch loaded data to all registered listeners
         foreach (var persistenceObj in _persistenceObjects)
         {
             persistenceObj.LoadData(_gameData);
@@ -195,7 +178,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void SaveGame()
     {
-        SaveGameAsync().Forget(Debug.LogException);
+        SaveGameAsync().Forget(exception => AppLog.LogException(LogChannel.Persistence, exception, this));
     }
 
     public async UniTask SaveGameAsync(CancellationToken cancellationToken = default)
@@ -214,7 +197,6 @@ public class DataPersistenceManager : MonoBehaviour
         await _saveSemaphore.WaitAsync(cancellationToken);
         try
         {
-            // Gather data from all registered listeners
             foreach (var persistenceObj in _persistenceObjects)
             {
                 persistenceObj.SaveData(_gameData);
@@ -222,11 +204,11 @@ public class DataPersistenceManager : MonoBehaviour
 
             _gameData.LastUpdated = DateTime.UtcNow.ToBinary();
             await _dataHandler.SaveAsync(_gameData, _selectedProfileId, cancellationToken);
+            AppLog.Log(LogChannel.Persistence, $"Saved profile '{_selectedProfileId}' successfully.", this);
         }
         finally
         {
             _saveSemaphore.Release();
-            AppLog.Log(LogChannel.Persistence, $"Saved profile '{_selectedProfileId}' successfully.");
         }
     }
 

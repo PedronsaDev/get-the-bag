@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e070140f55bacf44b8437a76869fddf, type: 3}
   m_Name: LOOT_Documents
   m_EditorClassIdentifier: Project.Loot::Project.Loot.LootItemDefinition
-  _id: Loot_Documents
+  _id: loot_documents
   _name: Documents
   _description: 'Company documents containing sensitive information.
 

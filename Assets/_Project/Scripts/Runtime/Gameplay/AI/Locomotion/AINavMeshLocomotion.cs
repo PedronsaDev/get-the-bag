@@ -10,6 +10,7 @@ namespace Project.AI.Locomotion
 public class AINavMeshLocomotion : NetworkBehaviour
 {
     private const float MinimumArrivalTolerance = 0.01f;
+    private const float SnapDistance = 1f;
 
     [Header("References")]
     [SerializeField] private AIBlackboard _blackboard;
@@ -122,7 +123,11 @@ public class AINavMeshLocomotion : NetworkBehaviour
         }
 
         _agent.isStopped = false;
-        _lastSetDestination = requestedDestination;
+        // Measure arrival against the NavMesh point the agent can reach, not the raw destination.
+        _lastSetDestination = NavMesh.SamplePosition(requestedDestination, out NavMeshHit onMesh, SnapDistance,
+            NavMesh.AllAreas)
+            ? onMesh.position
+            : requestedDestination;
         _submittedRequestVersion = requestedVersion;
         _submittedFrame = Time.frameCount;
         _hasRequestedPath = true;
@@ -143,7 +148,6 @@ public class AINavMeshLocomotion : NetworkBehaviour
             return;
         }
 
-        // Unity can consume a complete path millimetres short of its endpoint, even with a zero stopping distance.
         float stoppingDistance = Mathf.Max(_agent.stoppingDistance, MinimumArrivalTolerance);
         float remainingDistance = _agent.hasPath ? _agent.remainingDistance :
             Vector3.Distance(transform.position, _lastSetDestination);
@@ -154,7 +158,6 @@ public class AINavMeshLocomotion : NetworkBehaviour
             return;
         }
 
-        // Positive infinity means Unity has not established the remaining distance yet.
         bool arrived = remainingDistance <= stoppingDistance && _agent.velocity.sqrMagnitude < 0.01f;
         _blackboard.ReportMoveResult(_submittedRequestVersion, arrived ? MovementStatus.Arrived : MovementStatus.Moving);
     }

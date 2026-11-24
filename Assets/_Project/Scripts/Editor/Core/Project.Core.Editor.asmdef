@@ -6,7 +6,9 @@
     "PurrNet.Runtime",
     "Project.Logging",
     "Project.Definitions",
-    "Project.Match"
+    "Project.Match",
+    "Project.Player",
+    "KinematicCharacterController"
   ],
   "includePlatforms": [
     "Editor"

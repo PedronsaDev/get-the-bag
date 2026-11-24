@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Project.AI.Cover
 {
-/// <summary>A successful spatial query, not permission to shoot. Default values are invalid.</summary>
 public readonly struct CoverPeekResult
 {
     public bool IsValid { get; }

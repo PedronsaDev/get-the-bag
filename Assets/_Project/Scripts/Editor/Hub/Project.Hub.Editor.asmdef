@@ -1,0 +1,24 @@
+{
+  "name": "Project.Hub.Editor",
+  "rootNamespace": "Project.Hub.Editor",
+  "references": [
+    "Project.Core",
+    "Project.Match",
+    "Project.Combat",
+    "Project.UI",
+    "Project.Definitions",
+    "PurrNet.Runtime",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

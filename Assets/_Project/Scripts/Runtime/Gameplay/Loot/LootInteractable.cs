@@ -1,7 +1,7 @@
 using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using PurrNet;
 using UnityEngine;
 
@@ -12,6 +12,7 @@ public class LootInteractable : NetworkBehaviour, IInteractable
 {
     [Header("References")] 
     [SerializeField] private MeshOutline _outline;
+    [SerializeField] private Transform _meshRoot;
     
     private SyncVar<LootDefinition> _definition = new();
     
@@ -124,13 +125,13 @@ public class LootInteractable : NetworkBehaviour, IInteractable
     public void OnHoverEnter(IPlayerInteractor interactor)
     {
         if (_outline)
-            _outline.enabled = true;
+            _outline.SetHighlighted(true);
     }
 
     public void OnHoverExit(IPlayerInteractor interactor)
     {
         if (_outline)
-            _outline.enabled = false;
+            _outline.SetHighlighted(false);
     }
 
     private void SafeDespawn()
@@ -144,5 +145,13 @@ public class LootInteractable : NetworkBehaviour, IInteractable
             Destroy(gameObject);
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.darkRed;
+        Gizmos.DrawWireSphere(_meshRoot.position, 0.05f);
+    }
+#endif
 }
 }

@@ -1,5 +1,6 @@
 using Project.Combat.Health;
 using Project.Core.Input;
+using Project.Core.Player;
 using Project.Player.Combat;
 using Project.Player.Detection;
 using Project.Player.Input;
@@ -41,6 +42,28 @@ public class PlayerFacade : NetworkBehaviour
     public PlayerInputData CurrentInput { get; private set; }
 
     private IPlayerInputProvider _activeInputProvider;
+
+    // Console commands use the same lookup and then read this facade's cached components.
+    public static PlayerFacade Find(int playerId = -1)
+    {
+        if (playerId < 0)
+        {
+            if (LocalPlayerContext.Player) return LocalPlayerContext.Player;
+            return FindAnyObjectByType<PlayerFacade>();
+        }
+
+        foreach (var identifier in PlayerIdentifier.ActivePlayers)
+        {
+            if (!identifier || !identifier.PlayerID.HasValue || identifier.PlayerID.Value.id.value != (ulong)playerId)
+                continue;
+
+            var player = identifier.GetComponent<PlayerFacade>();
+            if (!player) player = identifier.GetComponentInParent<PlayerFacade>();
+            if (!player) player = identifier.transform.root.GetComponentInChildren<PlayerFacade>(true);
+            if (player) return player;
+        }
+        return null;
+    }
 
     private void Awake()
     {

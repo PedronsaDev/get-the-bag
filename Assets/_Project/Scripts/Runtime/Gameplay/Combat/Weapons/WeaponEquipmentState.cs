@@ -16,6 +16,12 @@ public enum WeaponActionState
     Reloading = 2
 }
 
+public enum ReloadVariant
+{
+    Normal = 0,
+    Empty = 1
+}
+
 [Serializable]
 public struct WeaponItemState : IPackedAuto
 {
@@ -32,6 +38,11 @@ public struct WeaponEquipmentState : IPackedAuto
     public WeaponItemState Secondary;
     public WeaponSlot ActiveSlot;
     public WeaponActionState Action;
+    public ReloadVariant ReloadType;
+
+    public uint ActionSequence;
+    public double ActionStartedAt;
+    public float ActionDuration;
 
     public uint EquipRevision;
 

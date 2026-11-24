@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Project.AI.Combat
+namespace Project.AI.Locomotion
 {
 [Serializable]
 public class AIMovementConfig
@@ -11,6 +11,10 @@ public class AIMovementConfig
     public float InvestigateSpeed = 3.5f;
     public float CombatRunSpeed = 5.5f;
     
+    [Header("Fleeing")]
+    public float FleeSpeed = 5.0f;
+    public float FleeDistance = 15.0f;
+
     [Header("Combat Distances")]
     public float MinCombatDistance = 6.0f;
     public float IdealCombatDistance = 12.0f;

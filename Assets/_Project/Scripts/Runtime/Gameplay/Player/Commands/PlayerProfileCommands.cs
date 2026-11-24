@@ -1,6 +1,7 @@
 using PedronsaDev.Console;
+using Project.Player.Profile;
 
-namespace Project.Player.Profile
+namespace Project.Player.Commands
 {
 [CommandGroup("PlayerProfile")]
 public static class PlayerProfileCommands

@@ -56,6 +56,16 @@ public class PlayerInteractor : NetworkBehaviour, IPlayerInteractor
             _cameraController = GetComponentInChildren<FPSCameraController>();
     }
 
+    private void OnDisable()
+    {
+        ResetHold();
+        var target = _currentTarget;
+        _currentTarget = null;
+        if (!(target is UnityEngine.Object unityTarget) || unityTarget)
+            target?.OnHoverExit(this);
+        if (target != null) OnTargetChanged?.Invoke(null);
+    }
+
     private void Update()
     {
         if (!isOwner)

@@ -4,10 +4,6 @@ using Object = UnityEngine.Object;
 
 namespace Project.Logging
 {
-    /// <summary>
-    /// High-performance static facade for subsystem-filtered logging across the project.
-    /// Supports channel bitmask filtering, zero-allocation overloads, rich text badging, and callstack hiding.
-    /// </summary>
     public static class AppLog
     {
         [HideInCallstack]

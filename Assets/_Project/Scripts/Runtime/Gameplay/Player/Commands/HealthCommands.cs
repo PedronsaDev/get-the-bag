@@ -261,53 +261,17 @@ namespace Project.Player.Commands
 
         private static bool TryResolveTarget(int playerId, out PlayerFacade player, out HealthComponent health, out PlayerDownedState downed, bool requireServer = true)
         {
-            player = null;
+            player = PlayerFacade.Find(playerId);
             health = null;
             downed = null;
-
-            if (playerId < 0)
+            if (!player)
             {
-                player = LocalPlayerContext.Player;
-                if (!player)
-                {
-                    player = Object.FindAnyObjectByType<PlayerFacade>();
-                }
-
-                if (!player)
-                {
-                    Console.LogError("[Combat & Health] No local player found in scene.");
-                    return false;
-                }
-
-                health = player.HealthComponent ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
-                downed = player.DownedState ?? player.GetComponent<PlayerDownedState>() ?? player.GetComponentInChildren<PlayerDownedState>(true) ?? player.GetComponentInParent<PlayerDownedState>(true);
-                return CheckAuthority(player, requireServer);
+                Console.LogError($"[Combat & Health] Could not find player {playerId} (negative ID selects the local player).");
+                return false;
             }
-
-            var activePlayers = PlayerIdentifier.ActivePlayers;
-            if (activePlayers != null)
-            {
-                for (int i = 0; i < activePlayers.Count; i++)
-                {
-                    var identifier = activePlayers[i];
-                    if (identifier && identifier.PlayerID.HasValue && identifier.PlayerID.Value.id.value == (ulong)playerId)
-                    {
-                        player = identifier.GetComponent<PlayerFacade>() ?? identifier.GetComponentInParent<PlayerFacade>() ?? identifier.GetComponentInChildren<PlayerFacade>(true);
-                        if (!player)
-                            player = identifier.transform.root.GetComponentInChildren<PlayerFacade>(true);
-
-                        if (player)
-                        {
-                            health = player.HealthComponent ?? player.GetComponent<HealthComponent>() ?? player.GetComponentInChildren<HealthComponent>(true) ?? player.GetComponentInParent<HealthComponent>(true);
-                            downed = player.DownedState ?? player.GetComponent<PlayerDownedState>() ?? player.GetComponentInChildren<PlayerDownedState>(true) ?? player.GetComponentInParent<PlayerDownedState>(true);
-                            return CheckAuthority(player, requireServer);
-                        }
-                    }
-                }
-            }
-
-            Console.LogError($"[Combat & Health] Could not find player with ID {playerId}.");
-            return false;
+            health = player.HealthComponent;
+            downed = player.DownedState;
+            return CheckAuthority(player, requireServer);
         }
     }
 }

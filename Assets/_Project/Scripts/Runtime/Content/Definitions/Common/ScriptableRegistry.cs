@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Project.Logging;
 using UnityEngine;
 
-namespace Project.Core.Data
+namespace Project.Definitions
 {
 public interface IRegistryItem
 {

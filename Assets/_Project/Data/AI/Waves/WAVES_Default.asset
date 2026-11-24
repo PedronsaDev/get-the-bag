@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49c023a59a8b95b418617b3de42e69af, type: 3}
+  m_Name: WAVES_Default
+  m_EditorClassIdentifier: Project.AI::Project.AI.Waves.AIWaveConfig
+  _firstWaveDelay: 45
+  _waveInterval: 60
+  _spawnStagger: 0.5
+  _baseBudget: 6
+  _budgetGrowthPerWave: 2
+  _budgetPerExtraPlayer: 3
+  _maxAlive: 12
+  _maxAlivePerExtraPlayer: 4
+  _minSpawnDistance: 18
+  _entries:
+  - Prefab: {fileID: 998437978610959821, guid: c5228c25522244046acf772fa1ade5ed, type: 3}
+    Cost: 1
+    FirstWave: 1
+    Weight: 1
+  - Prefab: {fileID: 3606772196738273186, guid: ba0cffc3afc367844bc6a4e1628a351b, type: 3}
+    Cost: 2
+    FirstWave: 2
+    Weight: 1

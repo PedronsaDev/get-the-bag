@@ -1,10 +1,12 @@
 using Project.Core.Interaction;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using Project.Loot.World;
 using System.Collections;
 using PurrNet;
 using UnityEngine;
 
+namespace Project.Development.Spawners
+{
 public class DEV_DufflebagSpawner : MonoBehaviour, IInteractable
 {
     [SerializeField] private GameObject _dufflebagPrefab;
@@ -59,4 +61,5 @@ public class DEV_DufflebagSpawner : MonoBehaviour, IInteractable
     {
 
     }
+}
 }

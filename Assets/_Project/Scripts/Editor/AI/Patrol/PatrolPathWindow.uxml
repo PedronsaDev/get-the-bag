@@ -1,0 +1,49 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+  <ui:Style src="PatrolPathWindow.uss" />
+  <ui:ScrollView name="root" class="patrol-root">
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Route" class="section-title" />
+      <uie:ObjectField name="routeField" label="Route" />
+      <ui:Button name="newRouteButton" text="New Route" />
+      <ui:VisualElement name="routeSettings" class="settings" />
+    </ui:VisualElement>
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Place Waypoints" class="section-title" />
+      <ui:Button name="addModeButton" text="Add Points in Scene View" class="mode-button" />
+      <ui:Label text="Click: add at end. Ctrl+click: insert on the nearest segment. Esc: stop." class="hint" />
+      <ui:Toggle name="snapToggle" label="Snap to NavMesh" value="true" />
+      <uie:FloatField name="snapRadiusField" label="Snap Radius" value="2" />
+      <ui:Toggle name="faceToggle" label="Face Along Path" value="true" />
+    </ui:VisualElement>
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Waypoints" class="section-title" />
+      <ui:ListView name="pointList" class="point-list" />
+      <ui:VisualElement class="button-row">
+        <ui:Button name="frameButton" text="Frame" />
+        <ui:Button name="deleteButton" text="Delete" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Tools" class="section-title" />
+      <ui:VisualElement class="button-row">
+        <ui:Button name="snapAllButton" text="Snap All" />
+        <ui:Button name="faceButton" text="Face Path" />
+        <ui:Button name="reverseButton" text="Reverse" />
+      </ui:VisualElement>
+      <ui:Button name="assignButton" text="Assign to Selected Guards" />
+      <ui:Label name="assignResult" class="hint" />
+    </ui:VisualElement>
+
+    <ui:VisualElement class="section">
+      <ui:Label text="Check" class="section-title" />
+      <uie:ObjectField name="archetypeField" label="Speed From" />
+      <ui:Label name="statsLabel" class="stats" />
+      <ui:VisualElement name="issueList" />
+    </ui:VisualElement>
+
+  </ui:ScrollView>
+</ui:UXML>

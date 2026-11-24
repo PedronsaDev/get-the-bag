@@ -29,6 +29,7 @@ public class DuffleBagUI : MonoBehaviour
     
     private PlayerDuffleBagController _controller;
     private Tween _fadeTween;
+    private bool _isHidden = true;
 
     private void OnEnable()
     {
@@ -117,7 +118,7 @@ public class DuffleBagUI : MonoBehaviour
 
     private void ShowIndicator()
     {
-        if (!_bagRootContainer)
+        if (!_bagRootContainer || !_isHidden)
             return;
         
         StopAnimations();
@@ -126,11 +127,12 @@ public class DuffleBagUI : MonoBehaviour
         _canvasGroup.blocksRaycasts = true;
         _canvasGroup.interactable = true;
         _fadeTween = Tween.Alpha(_canvasGroup, 1f, _fadeDuration);
+        _isHidden = false;
     }
 
     private void HideIndicator()
     {
-        if (!_bagRootContainer)
+        if (!_bagRootContainer || _isHidden)
             return;
         
         StopAnimations();
@@ -141,6 +143,7 @@ public class DuffleBagUI : MonoBehaviour
             _canvasGroup.blocksRaycasts = false;
             _canvasGroup.interactable = false;    
         });
+        _isHidden = true;
     }
 
     private void StopAnimations()

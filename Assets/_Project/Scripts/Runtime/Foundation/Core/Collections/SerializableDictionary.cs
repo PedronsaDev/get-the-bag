@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace Project.Core.Collections
 {
-    /// <summary>
-    /// Generic dictionary that serializes via Unity's ISerializationCallbackReceiver.
-    /// Allows dictionaries to be saved by JsonUtility and inspected in the Unity Inspector.
-    /// </summary>
     [Serializable]
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Project.Logging;
 
 namespace Project.UI.Core
 {
@@ -44,7 +45,7 @@ public class UIRoot : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning(
+            AppLog.LogWarning(LogChannel.UI,
                 "[UIRoot] Resources/UI/UIRoot prefab not found. UIRoot will not auto-bootstrap until the prefab is created in Resources/UI/.");
         }
     }

@@ -4,6 +4,8 @@ using Project.Content;
 using Project.Logging;
 using UnityEngine;
 
+namespace Project.Game
+{
 public class GameLifetime : MonoBehaviour
 {
     public static GameLifetime Instance { get; private set; }
@@ -73,4 +75,5 @@ public class GameLifetime : MonoBehaviour
         Instance = null;
         GameContent.RequestShutdown();
     }
+}
 }

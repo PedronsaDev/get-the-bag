@@ -2,10 +2,6 @@ using System;
 
 namespace Project.Logging
 {
-    /// <summary>
-    /// Bitmask flags representing distinct logging channels/sources across the game.
-    /// Allows fine-grained filtering with single-instruction CPU checks.
-    /// </summary>
     [Flags]
     public enum LogChannel
     {
@@ -20,6 +16,7 @@ namespace Project.Logging
         Persistence = 1 << 7,
         Audio       = 1 << 8,
         Editor       = 1 << 9,
+        Animation   = 1 << 10,
         All         = ~0
     }
 }

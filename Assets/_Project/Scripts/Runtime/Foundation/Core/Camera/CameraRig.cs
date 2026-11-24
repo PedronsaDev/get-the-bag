@@ -1,4 +1,5 @@
 using UnityEngine;
+using Project.Logging;
 
 namespace Project.Core
 {
@@ -20,7 +21,7 @@ public class CameraRig : MonoBehaviour
             return;
         }
 
-        Debug.LogWarning($"CameraRig instance already exists. Destroying duplicate on {gameObject.name}");
+        AppLog.LogWarning(LogChannel.Player, $"CameraRig instance already exists. Destroying duplicate on {gameObject.name}", this);
         Destroy(gameObject);
     }
 

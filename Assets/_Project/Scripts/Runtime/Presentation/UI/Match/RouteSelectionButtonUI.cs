@@ -11,12 +11,12 @@ namespace Project.UI.Match
         [Header("Route Data")]
         [SerializeField] private string _routeSceneName = "LevelScene_00";
         [SerializeField] private string _routeDisplayName = "Sector 01: Deep Shafts";
-        [SerializeField] private string _hazardLevel = "Hazard 1";
+        [SerializeField] private string _difficultyLevel = "Hazard 1";
 
         [Header("Visual Elements")]
         [SerializeField] private GameObject _selectionHighlight;
         [SerializeField] private TMP_Text _routeNameText;
-        [SerializeField] private TMP_Text _hazardText;
+        [SerializeField] private TMP_Text _difficultyText;
         [SerializeField] private Image _backgroundImage;
         [SerializeField] private Color _normalColor = new Color(0.12f, 0.12f, 0.14f, 0.9f);
         [SerializeField] private Color _hoverColor = new Color(0.2f, 0.22f, 0.28f, 0.95f);
@@ -44,8 +44,8 @@ namespace Project.UI.Match
             if (_routeNameText && !string.IsNullOrEmpty(_routeDisplayName))
                 _routeNameText.text = _routeDisplayName;
 
-            if (_hazardText && !string.IsNullOrEmpty(_hazardLevel))
-                _hazardText.text = _hazardLevel;
+            if (_difficultyText && !string.IsNullOrEmpty(_difficultyLevel))
+                _difficultyText.text = _difficultyLevel;
         }
 
         public void SetHighlighted(bool highlighted)

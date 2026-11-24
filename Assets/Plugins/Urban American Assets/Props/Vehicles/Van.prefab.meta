@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 69218bbca8d800c4bb9d56d77816fe24
+timeCreated: 1528345110
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 120339
+  packageName: UAA - City Props - Vehicles
+  packageVersion: 2.0
+  assetPath: Assets/Urban American Assets/Props/Vehicles/Van.prefab
+  uploadId: 332187

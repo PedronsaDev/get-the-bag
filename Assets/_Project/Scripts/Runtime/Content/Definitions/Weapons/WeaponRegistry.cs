@@ -1,7 +1,7 @@
-﻿using Project.Core.Data;
+﻿using Project.Definitions;
 using UnityEngine;
 
-namespace Project.Combat.Data
+namespace Project.Definitions.Weapons
 {
 [CreateAssetMenu(fileName = "WeaponRegistry", menuName = "Registries/Weapon Registry")]
 public class WeaponRegistry : ScriptableRegistry<WeaponDefinition>

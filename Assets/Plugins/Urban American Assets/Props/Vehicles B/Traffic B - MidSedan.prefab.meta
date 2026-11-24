@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ac9b34f61c042ed45b9d4c7da1e4cd93
+timeCreated: 1562868855
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 120339
+  packageName: UAA - City Props - Vehicles
+  packageVersion: 2.0
+  assetPath: Assets/Urban American Assets/Props/Vehicles B/Traffic B - MidSedan.prefab
+  uploadId: 332187

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Cysharp.Threading.Tasks;
 using PurrNet;
 using PurrNet.Modules;
@@ -17,41 +18,54 @@ namespace Project.Networking.Scenes
 
         public static event Action<Scene> OnAllClientsLoadedScene;
 
+        public static event Action<string> OnLoadingScreenRequested;
+        public static event Action<float> OnLoadingProgress;
+        public static event Action OnLoadingScreenReleased;
+
+        /// <summary>
+        /// How long the loading screen needs to cover the view. Whoever shows the screen sets this while handling
+        /// <see cref="OnLoadingScreenRequested"/>; the host waits this long before it starts loading the scene.
+        /// </summary>
+        public static float LoadingScreenFadeInSeconds { get; set; }
+
         public event Action<string> OnSceneTransitionStarted;
         public event Action<float> OnLocalLoadProgress;
         public event Action OnAllClientsReady;
 
+        [Tooltip("Host gives up waiting for the other players to load the scene after this long.")]
+        [SerializeField, Min(5f)] private float _loadTimeoutSeconds = 60f;
+
+        [Tooltip("Extra wait on top of the loading screen's fade-in, so clients (who hear about the load slightly later) are covered too.")]
+        [SerializeField, Min(0f)] private float _loadingScreenBufferSeconds = 0.15f;
+
+        private readonly HashSet<PlayerID> _expectedClients = new();
         private readonly HashSet<PlayerID> _readyClients = new();
+        private UniTaskCompletionSource<bool> _pending;
+        private string _targetSceneName;
         private bool _isTransitioning;
+        private bool _completing;
         public bool IsTransitioning => _isTransitioning;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
             Instance = null;
+            LoadingScreenFadeInSeconds = 0f;
         }
 
-        private void Awake()
-        {
-            if (!Instance)
-            {
-                Instance = this;
-                //DontDestroyOnLoad(gameObject);
-            }
-            else if (Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-        }
+        private void Awake() => RegisterInstance();
 
         protected override void OnSpawned()
         {
             base.OnSpawned();
+            RegisterInstance();
+        }
+
+        private void RegisterInstance()
+        {
             if (!Instance)
             {
                 Instance = this;
-                //DontDestroyOnLoad(gameObject);
             }
             else if (Instance != this)
             {
@@ -63,71 +77,111 @@ namespace Project.Networking.Scenes
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            UnsubscribeScenePlayerEvents();
+            UnsubscribeServerEvents();
 
             if (Instance == this)
             {
                 Instance = null;
             }
         }
-        
+
         public void TransitionToScene(string sceneName)
         {
             TransitionToSceneAsync(sceneName).Forget();
         }
-        
-        public async UniTask TransitionToSceneAsync(string sceneName)
+
+        public async UniTask<bool> TransitionToSceneAsync(string sceneName)
         {
             bool isOffline = !networkManager || networkManager.isOffline;
             if (!isServer && !isOffline)
             {
                 AppLog.LogWarning(LogChannel.Network, "Only the Host can initiate scene transitions!", this);
-                return;
+                return false;
             }
 
             if (_isTransitioning)
             {
                 AppLog.LogWarning(LogChannel.Network, "Scene transition already in progress.", this);
-                return;
+                return false;
             }
 
-            var allReadyUcs = new UniTaskCompletionSource();
-            Action onReady = () => allReadyUcs.TrySetResult();
-            OnAllClientsReady += onReady;
+            _targetSceneName = Path.GetFileNameWithoutExtension(sceneName);
+            var pending = new UniTaskCompletionSource<bool>();
+            _pending = pending;
 
-            try
+            if (isOffline)
             {
-                if (isOffline)
+                _isTransitioning = true;
+                OnSceneTransitionStarted?.Invoke(sceneName);
+                OnLoadingScreenRequested?.Invoke(sceneName);
+                if (!await WaitForLoadingScreen())
                 {
-                    _isTransitioning = true;
-                    OnSceneTransitionStarted?.Invoke(sceneName);
-                    StartCoroutine(LoadSceneAsyncRoutineOffline(sceneName));
+                    _isTransitioning = false;
+                    _pending = null;
+                    return false;
                 }
-                else
-                {
-                    TransitionToSceneOnline(sceneName, allReadyUcs);
-                }
-
-                await allReadyUcs.Task;
+                StartCoroutine(LoadSceneAsyncRoutineOffline(sceneName, pending));
             }
-            finally
+            else if (!await BeginOnlineTransitionAsync(sceneName, pending))
             {
-                OnAllClientsReady -= onReady;
+                _pending = null;
+                return false;
             }
+
+            var (timedOut, success) = await pending.Task.TimeoutWithoutException(TimeSpan.FromSeconds(_loadTimeoutSeconds));
+            if (timedOut)
+            {
+                AppLog.LogError(LogChannel.Network,
+                    $"Timed out loading '{_targetSceneName}'. Still waiting for {DescribeMissing()}.", this);
+                AbortTransition();
+                return false;
+            }
+
+            _pending = null;
+            return success;
         }
 
-        private void TransitionToSceneOnline(string sceneName, UniTaskCompletionSource ucs)
+        // Lets the loading screen become fully opaque before the old scene is replaced.
+        private async UniTask<bool> WaitForLoadingScreen()
         {
-            _isTransitioning = true;
-            _readyClients.Clear();
+            float wait = LoadingScreenFadeInSeconds + _loadingScreenBufferSeconds;
+            if (wait <= 0f) return true;
 
-            AppLog.Log(LogChannel.Network, $"Host initiating PurrNet transition to scene: {sceneName}", this);
-            OnSceneTransitionStarted?.Invoke(sceneName);
-            
-            RpcInstructTransitionStarted(sceneName);
+            bool cancelled = await UniTask.Delay(TimeSpan.FromSeconds(wait), ignoreTimeScale: true,
+                cancellationToken: destroyCancellationToken).SuppressCancellationThrow();
+            return !cancelled;
+        }
 
+        private async UniTask<bool> BeginOnlineTransitionAsync(string sceneName, UniTaskCompletionSource<bool> pending)
+        {
             var nm = networkManager ? networkManager : NetworkManager.main;
-            SubscribeScenePlayerEvents(nm);
+
+            _isTransitioning = true;
+            _completing = false;
+            _readyClients.Clear();
+            _expectedClients.Clear();
+            if (nm && nm.playerModule != null)
+            {
+                foreach (var p in nm.playerModule.players)
+                    _expectedClients.Add(p);
+            }
+
+            AppLog.Log(LogChannel.Network,
+                $"Host initiating PurrNet transition to '{sceneName}' for {_expectedClients.Count} player(s).", this);
+            OnSceneTransitionStarted?.Invoke(sceneName);
+            OnLoadingScreenRequested?.Invoke(sceneName);
+
+            RpcInstructTransitionStarted(sceneName);
+            SubscribeServerEvents(nm);
+
+            if (!await WaitForLoadingScreen() || !nm)
+            {
+                UnsubscribeServerEvents();
+                _isTransitioning = false;
+                OnLoadingScreenReleased?.Invoke();
+                pending.TrySetResult(false);
+                return false;
+            }
 
             var asyncOp = nm.sceneModule.LoadSceneAsync(sceneName, new PurrSceneSettings
             {
@@ -136,60 +190,108 @@ namespace Project.Networking.Scenes
                 physicsMode = LocalPhysicsMode.None
             });
 
-            if (asyncOp != null)
-            {
-                StartCoroutine(TrackLocalLoadProgress(asyncOp));
-            }
-            else
+            if (asyncOp == null)
             {
                 AppLog.LogError(LogChannel.Network, $"Failed to initiate PurrNet scene load for {sceneName}!", this);
+                UnsubscribeServerEvents();
                 _isTransitioning = false;
-                ucs.TrySetResult();
+                OnLoadingScreenReleased?.Invoke();
+                pending.TrySetResult(false);
+                return false;
             }
+
+            StartCoroutine(TrackLocalLoadProgress(asyncOp));
+            return true;
+        }
+
+        private void AbortTransition()
+        {
+            UnsubscribeServerEvents();
+            _isTransitioning = false;
+            _completing = false;
+            _pending = null;
+            OnLoadingScreenReleased?.Invoke();
+        }
+
+        private string DescribeMissing()
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (var p in _expectedClients)
+            {
+                if (_readyClients.Contains(p)) continue;
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append(p);
+            }
+            return sb.Length == 0 ? "nobody" : sb.ToString();
         }
 
         [ObserversRpc(runLocally: false)]
         private void RpcInstructTransitionStarted(string sceneName)
         {
+            // The host is also an observer. It already tracks its own load, and running the client tracker here
+            // would clear _isTransitioning before the host's own "finished loading" message reaches the server,
+            // so the server would ignore it and time out waiting for the host.
+            if (isServer)
+                return;
+
             AppLog.Log(LogChannel.Network, $"Received scene transition notice from Host: {sceneName}", this);
             _isTransitioning = true;
             OnSceneTransitionStarted?.Invoke(sceneName);
-            StartCoroutine(TrackClientLoadProgress(sceneName));
+            OnLoadingScreenRequested?.Invoke(sceneName);
+            StartCoroutine(TrackClientLoadProgress(Path.GetFileNameWithoutExtension(sceneName)));
         }
 
         private IEnumerator TrackLocalLoadProgress(AsyncOperation asyncOp)
         {
             while (!asyncOp.isDone)
             {
-                OnLocalLoadProgress?.Invoke(asyncOp.progress);
+                ReportProgress(asyncOp.progress);
                 yield return null;
             }
 
-            OnLocalLoadProgress?.Invoke(1f);
+            ReportProgress(1f);
+            OnLoadingScreenReleased?.Invoke();
             AppLog.Log(LogChannel.Network, "Local scene load completed via PurrNet.", this);
         }
 
         private IEnumerator TrackClientLoadProgress(string targetSceneName)
         {
             var nm = networkManager ? networkManager : NetworkManager.main;
+            float deadline = Time.unscaledTime + _loadTimeoutSeconds + 5f;
+
             while (SceneManager.GetActiveScene().name != targetSceneName)
             {
+                if (Time.unscaledTime > deadline)
+                {
+                    AppLog.LogError(LogChannel.Network, $"Gave up waiting to load '{targetSceneName}'.", this);
+                    _isTransitioning = false;
+                    OnLoadingScreenReleased?.Invoke();
+                    yield break;
+                }
+
                 if (nm && nm.sceneModule != null)
                 {
                     var ops = nm.sceneModule.GetPendingOperations();
                     if (ops.Count > 0 && ops[0].operation != null)
                     {
-                        OnLocalLoadProgress?.Invoke(ops[0].operation.progress);
+                        ReportProgress(ops[0].operation.progress);
                     }
                 }
                 yield return null;
             }
 
-            OnLocalLoadProgress?.Invoke(1f);
+            ReportProgress(1f);
+            OnLoadingScreenReleased?.Invoke();
             _isTransitioning = false;
         }
 
-        private void SubscribeScenePlayerEvents(NetworkManager nm)
+        private void ReportProgress(float progress)
+        {
+            OnLocalLoadProgress?.Invoke(progress);
+            OnLoadingProgress?.Invoke(progress);
+        }
+
+        private void SubscribeServerEvents(NetworkManager nm)
         {
             if (!nm) return;
             if (nm.TryGetModule(out ScenePlayersModule scenePlayers, true))
@@ -197,33 +299,63 @@ namespace Project.Networking.Scenes
                 scenePlayers.onPlayerLoadedScene -= HandlePlayerLoadedScene;
                 scenePlayers.onPlayerLoadedScene += HandlePlayerLoadedScene;
             }
+
+            if (nm.playerModule != null)
+            {
+                nm.playerModule.onPlayerLeft -= HandlePlayerLeft;
+                nm.playerModule.onPlayerLeft += HandlePlayerLeft;
+            }
         }
 
-        private void UnsubscribeScenePlayerEvents()
+        private void UnsubscribeServerEvents()
         {
             var nm = networkManager ? networkManager : NetworkManager.main;
-            if (nm && nm.TryGetModule(out ScenePlayersModule scenePlayers, true))
-            {
+            if (!nm) return;
+
+            if (nm.TryGetModule(out ScenePlayersModule scenePlayers, true))
                 scenePlayers.onPlayerLoadedScene -= HandlePlayerLoadedScene;
-            }
+
+            if (nm.playerModule != null)
+                nm.playerModule.onPlayerLeft -= HandlePlayerLeft;
         }
 
         private void HandlePlayerLoadedScene(PlayerID player, SceneID scene, bool asServer)
         {
-            if (!isServer) return;
+            if (!isServer || !asServer || !_isTransitioning) return;
+
+            // Only a callback for the requested scene counts.
+            var nm = networkManager ? networkManager : NetworkManager.main;
+            if (!nm || !nm.sceneModule.TryGetSceneState(scene, out var state) || state.scene.name != _targetSceneName)
+                return;
 
             _readyClients.Add(player);
+            AppLog.Log(LogChannel.Network,
+                $"Player {player} loaded '{_targetSceneName}'. ({_readyClients.Count}/{_expectedClients.Count})", this);
 
-            var nm = networkManager ? networkManager : NetworkManager.main;
-            int totalPlayers = (nm && nm.playerModule != null) ? nm.playerModule.players.Count : 1;
+            TryComplete();
+        }
 
-            AppLog.Log(LogChannel.Network, $"Player {player} loaded target scene. ({_readyClients.Count}/{totalPlayers})", this);
+        private void HandlePlayerLeft(PlayerID player, bool asServer)
+        {
+            if (!asServer || !_isTransitioning) return;
 
-            if (_readyClients.Count >= totalPlayers)
-            {
-                UnsubscribeScenePlayerEvents();
-                StartCoroutine(CompleteTransitionRoutine());
-            }
+            _expectedClients.Remove(player);
+            _readyClients.Remove(player);
+            AppLog.LogWarning(LogChannel.Network, $"Player {player} left during the scene load; no longer waiting for them.", this);
+
+            TryComplete();
+        }
+
+        private void TryComplete()
+        {
+            if (_completing || _expectedClients.Count == 0) return;
+
+            foreach (var p in _expectedClients)
+                if (!_readyClients.Contains(p)) return;
+
+            _completing = true;
+            UnsubscribeServerEvents();
+            StartCoroutine(CompleteTransitionRoutine());
         }
 
         private IEnumerator CompleteTransitionRoutine()
@@ -236,32 +368,36 @@ namespace Project.Networking.Scenes
 
             OnAllClientsLoadedScene?.Invoke(activeScene);
             OnAllClientsReady?.Invoke();
+            _pending?.TrySetResult(true);
         }
 
-        private IEnumerator LoadSceneAsyncRoutineOffline(string sceneName)
+        private IEnumerator LoadSceneAsyncRoutineOffline(string sceneName, UniTaskCompletionSource<bool> pending)
         {
             var asyncOp = SceneManager.LoadSceneAsync(sceneName);
             if (asyncOp == null)
             {
                 AppLog.LogError(LogChannel.Network, $"Failed to load scene offline: {sceneName}!", this);
                 _isTransitioning = false;
-                OnAllClientsReady?.Invoke();
+                OnLoadingScreenReleased?.Invoke();
+                pending.TrySetResult(false);
                 yield break;
             }
 
             while (!asyncOp.isDone)
             {
-                OnLocalLoadProgress?.Invoke(asyncOp.progress);
+                ReportProgress(asyncOp.progress);
                 yield return null;
             }
 
-            OnLocalLoadProgress?.Invoke(1f);
+            ReportProgress(1f);
             yield return null;
 
             _isTransitioning = false;
+            OnLoadingScreenReleased?.Invoke();
             Scene activeScene = SceneManager.GetActiveScene();
             OnAllClientsLoadedScene?.Invoke(activeScene);
             OnAllClientsReady?.Invoke();
+            pending.TrySetResult(true);
         }
     }
 }

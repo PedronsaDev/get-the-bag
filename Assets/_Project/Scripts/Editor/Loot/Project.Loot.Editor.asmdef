@@ -1,0 +1,21 @@
+{
+  "name": "Project.Loot.Editor",
+  "rootNamespace": "Project.Loot.Editor",
+  "references": [
+    "Project.Loot",
+    "Project.Definitions",
+    "Project.Match",
+    "Project.Core"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

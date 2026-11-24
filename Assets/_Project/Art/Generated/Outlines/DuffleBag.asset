@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca68fc4e22ddb554998ecef6ec0a5dd0, type: 3}
+  m_Name: DuffleBag
+  m_EditorClassIdentifier: Plugins.Outline::Plugins.Outline.MeshOutlineStyle
+  outlineMode: 0
+  outlineColor: {r: 1.9433962, g: 0.87326825, b: 0, a: 1}
+  outlineWidth: 4
+  widthMode: 1
+  enableSurfaceFill: 0
+  fillColor: {r: 0.9716981, g: 0.49508283, b: 0.14208792, a: 0.5529412}
+  fillSecondaryColor: {r: 0, g: 0, b: 0, a: 0}
+  fillPattern: 0
+  fillTexture: {fileID: 0}
+  fillTiling: {x: 10, y: 10}
+  fillAngle: 45
+  fillScrollSpeed: 1
+  fresnelPower: 2.5
+  fillSpace: 0
+  fillOcclusion: 0
+  pulseEnabled: 0
+  pulseSpeed: 2.5
+  pulseAmplitude: 0.35
+  distanceFadeEnabled: 0
+  fadeMinDistance: 15
+  fadeMaxDistance: 45
+  jitterEnabled: 1
+  jitterSpeed: 2
+  jitterFrequency: 3
+  jitterScale: 0.5
+  jitterFramerate: 5
+  unscaledEffects: 0
+  twoSidedSurface: 0
+  patternLineWidth: 0.12
+  animationPhase: 0

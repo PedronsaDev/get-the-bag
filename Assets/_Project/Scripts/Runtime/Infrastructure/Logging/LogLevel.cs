@@ -1,8 +1,5 @@
 namespace Project.Logging
 {
-    /// <summary>
-    /// Log severity levels for threshold filtering.
-    /// </summary>
     public enum LogLevel
     {
         Verbose = 0,

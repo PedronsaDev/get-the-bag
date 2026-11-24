@@ -1,7 +1,7 @@
 using Plugins.Outline;
 using Project.Core.Interaction;
 using Project.Core.Player;
-using Project.Loot.Data;
+using Project.Definitions.Loot;
 using PurrNet;
 using UnityEngine;
 
@@ -22,9 +22,9 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
     [SerializeField] private SyncVar<int> _netItemCount = new(0);
     
     [Header("Visual Settings")]
-    [SerializeField, ColorUsage(true, true)]
+    [SerializeField, ColorUsage(true, false)]
     private Color _outlineColor = new Color(1f, 0.85f, 0.2f);
-    [SerializeField, ColorUsage(true, true)] 
+    [SerializeField, ColorUsage(true, false)] 
     private Color _hoverOutlineColor = new Color(1f, 1f, 1f);
 
     private DuffleBagSnapshot _snapshot;
@@ -59,7 +59,7 @@ public class WorldDuffleBag : NetworkBehaviour, IInteractable
         _netValue.value = snapshot.TotalValue;
         _netItemCount.value = snapshot.Items?.Count ?? 0;
         _isClaimed = false;
-        _outline.OutlineColor = _outlineColor;
+        if (_outline) _outline.OutlineColor = _outlineColor;
     }
     
     public void Throw(Vector3 velocity)

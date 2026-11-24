@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using PrimeTween;
-using Project.Core.Events;
-using Project.Core.Match;
+using Project.Match;
 using Project.Core.UI;
 using TMPro;
 using UnityEngine;
@@ -24,7 +23,7 @@ public class RouteSelectionUI : InputBlockerUI
     private float _fadeDuration = 0.3f;
 
     private Tween _fadeTween;
-    private TrainRouteConsole _console;
+    private LevelSelectorConsole _console;
     private RouteSelectionButtonUI _selectedRouteButton;
     private bool _hasRouteSelected => _selectedRouteButton;
 
@@ -38,7 +37,7 @@ public class RouteSelectionUI : InputBlockerUI
         if (!_routeSelectionEventChannel)
         {
             _routeSelectionEventChannel =
-                Resources.Load<RouteSelectionEventChannel>("Event Channels/RouteSelectionChannel");
+                Resources.Load<RouteSelectionEventChannel>(RouteSelectionEventChannel.ResourcePath);
         }
 
         if (_routeButtons == null || _routeButtons.Count == 0)
@@ -106,7 +105,7 @@ public class RouteSelectionUI : InputBlockerUI
         base.OnDisable();
     }
 
-    private void HandleConsoleInteracted(TrainRouteConsole console)
+    private void HandleConsoleInteracted(LevelSelectorConsole console)
     {
         BindConsole(console);
         Open();
@@ -148,7 +147,7 @@ public class RouteSelectionUI : InputBlockerUI
         if (!_hasRouteSelected || !_console)
             return;
 
-        _console.LaunchRoute(_selectedRouteButton.SceneName);
+        _console.SelectLevel(_selectedRouteButton.SceneName);
         Close();
     }
 
@@ -202,7 +201,7 @@ public class RouteSelectionUI : InputBlockerUI
         _canvasGroup.interactable = false;
     }
     
-    private void BindConsole(TrainRouteConsole console)
+    private void BindConsole(LevelSelectorConsole console)
     {
         _console = console;
     }

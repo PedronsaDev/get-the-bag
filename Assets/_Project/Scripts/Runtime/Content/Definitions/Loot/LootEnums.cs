@@ -1,4 +1,4 @@
-namespace Project.Loot.Data
+namespace Project.Definitions.Loot
 {
 public enum LootRarity
 {

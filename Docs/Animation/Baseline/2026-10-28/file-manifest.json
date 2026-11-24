@@ -1,0 +1,544 @@
+{
+  "capturedUtc": "2026-10-28T18:54:19.1802795Z",
+  "branch": "codex/character-animation-system",
+  "head": "e6d5819ee855f3cfb14bd10b3ecd95b762f6a0fa",
+  "workingTree": "Uncommitted cleanup and pre-existing developer changes; hashes identify captured content.",
+  "files": [
+    {
+      "path": "Assets/_Project/Art/Animations/AI/AI Animation Controller.controller",
+      "sha256": "42bdb653eeb026cbf9d13abeaf5fa42fae374a465c764b37e6880619295e77e3"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/AI/AI Animation Controller.controller.meta",
+      "sha256": "d3f09a052f587d420d8f3b3f87c89912b8534c288ce333ad6a28ce4e2bef0f30"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Controller.controller",
+      "sha256": "2799e9f94abea80445289e22194c30d3179e78757033b1f3a81688d033bb6cd5"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Controller.controller.meta",
+      "sha256": "01baff7518668a0a7e776d6a4cc7d871676d013ec7ceae73f250722bc0ea3729"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Fire.fbx",
+      "sha256": "962fd2ac168e676a46222f7b9fb5dc229e86653e770aa54ec9e2f721d009d0a2"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Fire.fbx.meta",
+      "sha256": "74cc4a788db6ec2d0bb5803b2b2dd43f04225d82e98710a02dd41fa323c12308"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Idle.fbx",
+      "sha256": "f38e06cded93e3b98a923b350212c8944712ec67d16fa753deedceb769458e62"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Idle.fbx.meta",
+      "sha256": "756a9fb213ec259bd2287f4e9dc5dd398282bf733e97fea7b7387873cba8efb4"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Reload.fbx",
+      "sha256": "c40016fd0356278954f4f63d756cdb414c2e27c2370d39d0d5ee933d5a42e627"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/FPS/Pistol_A/Pistol_A_Reload.fbx.meta",
+      "sha256": "beea62332be129bec0dae09a3317eaa09f8c96699a15a3505847ec6406076457"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Interactables/Button/Button.controller",
+      "sha256": "05b63d52a0743f5d84dd3e2dcc1e44a538402435cd75de78d4f9c80dec378e60"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Interactables/Button/Button.controller.meta",
+      "sha256": "ae6722512cf4f23f40186f98192c09039c0f04aa218dc2bef0cbbd795a86ff09"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Interactables/Button/ExtractionActivator.controller",
+      "sha256": "67f7a2ba6ff8f9ba32a90e79407acc28521aba339160a1e1a47b7d818d8b18fe"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Interactables/Button/ExtractionActivator.controller.meta",
+      "sha256": "40de847c420795b54545aa734bc7ebaa20bdc24cca477a8dab16e972a984799e"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Crouch Idle.fbx",
+      "sha256": "a36985bf79768a054e4c7022a6a39575c3e70b1699160211dd6d886ea7f4b29c"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Crouch Idle.fbx.meta",
+      "sha256": "23e381e23896eb8af50c059d26db6a6ca67134a7901e60a34a9cefafed949832"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Backward.fbx",
+      "sha256": "32d29beb5aab43353d12b50c49621f345b770261d14133a18475f9c4caad626a"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Backward.fbx.meta",
+      "sha256": "e40c6f089120c68977a8939a2a6c63e30227e063b993f82e8dac47bcafa53e95"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Forward.fbx",
+      "sha256": "51f121439474fb77da7d6b04221c2bdd531cef7a7e1d620616851308ce9fc070"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Forward.fbx.meta",
+      "sha256": "732b63b99bf4e2b5065df285ba85560fb3b6a4f40ea49d9352a7b4acfe5eaf46"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Left.fbx",
+      "sha256": "b7fd8b83fe49ba0340ef0a27348c40bf8412f8e54be5fa95d60941aba3548f8a"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Left.fbx.meta",
+      "sha256": "35268224adae3d3dfecfc50442dc54408bb1038de6a24c8cc5cf068cab65a9f4"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Right.fbx",
+      "sha256": "075cb3fb8e7726a20bd7b0d46cea9e90f82ae47436a8718cf4a9ab7cf3bafb5d"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Crouch/Walk Crouching Right.fbx.meta",
+      "sha256": "786b7f19f8bc676fbea8bceea04e4dec7a2dd91d33877008862299df9b50baf1"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Pistol Hold.fbx",
+      "sha256": "fb8edd84f0d71fcacbb5abe0f33a6d54f8960c8ea0ff5ff4b65ada445bf2b8ce"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Pistol Hold.fbx.meta",
+      "sha256": "07a81aba66ab22a7014129f1b52566faec6eeebdb15c6f837aa7fd37cdf43a28"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Player Animation Controller.controller",
+      "sha256": "fedb02dcbce317d63293a9b69155f79bba7f773d187cb29e254381e303fe654e"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Player Animation Controller.controller.meta",
+      "sha256": "e3a2d8ee1718478de283ad361b2d3a5e81056062a666d57ee28f2ff1eca9900f"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Player_UpperBody.mask",
+      "sha256": "e5ffba3ecf89137c52035731473fe023ef624bd28f8ba358d41313077c42075e"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Player_UpperBody.mask.meta",
+      "sha256": "9d7a415ed52878c3c809d8a2f6fb5aa1cde9b40e5d676de5936a691b455a2916"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Slide.fbx",
+      "sha256": "5b0513a336bec5da906adfb072395e4a551258594dae54b2e0ecc9319c7c3c41"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Slide.fbx.meta",
+      "sha256": "a913ee8a11ea93a683396e8cb7eadf5f007e5bf9506223b01d3d06316367d3d0"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Two Cycle Sprint.fbx",
+      "sha256": "105cc7c24d1baca9f3d9f96f8cee52ba93dc081d115075408fe211d28ffe7c92"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Two Cycle Sprint.fbx.meta",
+      "sha256": "ea0526bade6589cbf84f6931c046cbf09a0a7d2f749448a153d3757668f50e53"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Idle.fbx",
+      "sha256": "14999b780daf7e64d71c9ccbc041cedf8dcab136028c8dd48a7c1ceb5803f393"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Idle.fbx.meta",
+      "sha256": "1125b696c9dbc0865482fdbaae68d02f75932b8436c1a49bba36f1fcbcb87d07"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Jog Forward.fbx",
+      "sha256": "585a8cb86fe80b561430a337641cb610f81ebcf696b6aca71a6e072cba508fb0"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Jog Forward.fbx.meta",
+      "sha256": "556e92c983b1615cb325c98452eac50e17659b8b82fa1b76296c8d2181eac2d8"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Left Strafe Walk.fbx",
+      "sha256": "ac7fdeb23cdc3e6d46278c2d2e5d1fbed7888a2d8909c64372799315be812b67"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Left Strafe Walk.fbx.meta",
+      "sha256": "dfbc4cfe790c8b0843d953144c3df8787a4bdcfa5aba4f1885133a79f8c72853"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Right Strafe Walk.fbx",
+      "sha256": "283f951b8aa41efd8453b735b890acaa389fe33ce3b0cdca7d2669e6aceee5ac"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Right Strafe Walk.fbx.meta",
+      "sha256": "de29aa2b299857b4d9190762dc6df4bdb4b1198681d2154bca47edf2041dd490"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Walking Backwards.fbx",
+      "sha256": "46b9e6c80b1cbf226b812d2bdae0b5a004cba15986526eb03e3ffbf6d963e8f0"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Walking Backwards.fbx.meta",
+      "sha256": "7e7d82200bb700ceffe3ea0156efc99797759de6527521b0554ee0178e628170"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Walking.fbx",
+      "sha256": "fd9187d7d31f9d3dae499ff99e388f6eec2f8cd722a61eeb855aec327d1619d8"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/Player/Walk/Walking.fbx.meta",
+      "sha256": "301855e53b23c49d0d77abf67036e6f8e87a807df842f75cee966da94510491d"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/World/BasicDoor.controller",
+      "sha256": "6ee1b65dc34981b300da8d6ac7ef0cffe66b31de049fba79dee3291b5e5e2b25"
+    },
+    {
+      "path": "Assets/_Project/Art/Animations/World/BasicDoor.controller.meta",
+      "sha256": "c049d9e5b4fefa9d3f4f41cdff59ad26bcf8ed3bfe40affbd0755afbd0b500dc"
+    },
+    {
+      "path": "Assets/_Project/Art/Models/Player/Player-Body.fbx",
+      "sha256": "358737c094aa736caa2c67fdaa9e5c3b1056ba87db7ccdfad3a50e5cbdf2c183"
+    },
+    {
+      "path": "Assets/_Project/Art/Models/Player/Player-Body.fbx.meta",
+      "sha256": "ee8c1b9a8fe5ce87b95c4fc2bbc95159c2b69e450cf65200456ddc51c2ebd94c"
+    },
+    {
+      "path": "Assets/_Project/Data/Weapons/Weapon Definitions/Pistols/WEAP_Pistol_A.asset",
+      "sha256": "8967eadcc4cb31e26af8b07d166c9eba8ff8b45376e1314a39de32342c4f14bb"
+    },
+    {
+      "path": "Assets/_Project/Data/Weapons/Weapon Definitions/Pistols/WEAP_Pistol_A.asset.meta",
+      "sha256": "e61173ebcd98e6b52a5ce7fe35aa408d577dc798fbdccdd9ee0f8d247d29d88a"
+    },
+    {
+      "path": "Assets/_Project/Data/Weapons/Weapon Definitions/Rifles/WEAP_Rifle_Debug.asset",
+      "sha256": "b557a57cfcf356315f37d42350b0ac5fdec64be6e548d5a103fb9bf190ad49bf"
+    },
+    {
+      "path": "Assets/_Project/Data/Weapons/Weapon Definitions/Rifles/WEAP_Rifle_Debug.asset.meta",
+      "sha256": "1ad451c1032fc6814ffb2d3d3f02f89c0216a0c7e3dbd6b89456a8fb0cb1c344"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Player/Player.prefab",
+      "sha256": "965ab9955f97fd4a178bfd8b81f2ee7d1af1cf7937983d699a49d55e039dd684"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Player/Player.prefab.meta",
+      "sha256": "75f22e4db66639cd3d6631d59ddfb9148dfca96b350ce3edc161270c62d72129"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Weapons/Pistols/WEAP_FP_Pistol_A.prefab",
+      "sha256": "c54a5542fd58029cadf15db47873ff57d502d78ae8876c30ba1fab53724020b4"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Weapons/Pistols/WEAP_FP_Pistol_A.prefab.meta",
+      "sha256": "434ab54814cba802ce57316020dc03a7eff3da0f26fa7b274e15efea4612759b"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Weapons/Rifles/WEAP_PF_Rifle_Debug.prefab",
+      "sha256": "f500c60eadf955f0b4d4a766a63eced385c305368108cfe548d5c6a15f4af93a"
+    },
+    {
+      "path": "Assets/_Project/Prefabs/Weapons/Rifles/WEAP_PF_Rifle_Debug.prefab.meta",
+      "sha256": "592cc901a2a181be74d355bf1ff4735aa48397d7ccce6a52ac8eab7e3e4a612e"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Editor/Weapons/Presentation/WeaponAimPoseEditor.cs",
+      "sha256": "f54faee9459a44a8a43fdfff328e2b4d774bf78e1e1a1aa0f7a3b45bbcda9a29"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Editor/Weapons/Presentation/WeaponAimPoseEditor.cs.meta",
+      "sha256": "1ed93d6d1335b8dffe919114b576e19a77c91f39126f2dd101da88d08cbceef2"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponAimPose.cs",
+      "sha256": "0813e375ba2bc18a14ad809b7cf967992eb22204e10be9022a2f299661a0b92d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponAimPose.cs.meta",
+      "sha256": "cf6075c6350bfdd8d5ff0d4b8b8dc120aee70e8c24b4ccdbe6a70cd82e31537f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponAnimator.cs",
+      "sha256": "24c0cab7bda8c349c1b92eb8f0cf6137b2746f2e311491e4dd41cb01ec9d3b04"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponAnimator.cs.meta",
+      "sha256": "9b48d632f5d485927ec27a48d5a54b80ec7085f934d071d8e6f10bcbb7ab44a1"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponLookSway.cs",
+      "sha256": "840bd9c45711097320896d91adfd98913a1d1af1445513280c77393599219ddc"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponLookSway.cs.meta",
+      "sha256": "35fdf9593c2f5cb67b0b10fcfcd907f444635cb75901db2ce7d6373efb7473a8"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponMovementSway.cs",
+      "sha256": "ec8d5e2c2e3fa1733ab505fbcfbd45b6cff5dd5e9fcf51d5376cbc9181c777ae"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponMovementSway.cs.meta",
+      "sha256": "58911caaed612d428bf66405199a816c19fe09b1be5fc1fb18438f15049e9adf"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponRecoil.cs",
+      "sha256": "3448929c19ed2f9124c959ee81ae4e1a7c10301fa308a835354d81868f21fd33"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponRecoil.cs.meta",
+      "sha256": "1dbe9e329e2871177ba133e2307c05328b1258154d5c163a98ba6deff29c87f2"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponSpring.cs",
+      "sha256": "6243a457b77071262fb2d980f6784067701976cfcc8045ee9c68654116efb975"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/Presentation/WeaponSpring.cs.meta",
+      "sha256": "c26dbddc08021d434764920ae79b0b06726ed3f9f8a1a5c03688ba55de11f093"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponEquipmentState.cs",
+      "sha256": "b39ab7a4544b61c9781fd7782917a111bf281df2c06e39cb475077707c80b2c4"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponEquipmentState.cs.meta",
+      "sha256": "4e15bb7bd33c25a45bd7260cd3f8d121ddf3dce6a79f25ee0c25d4c974643daa"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponFireStrategies.cs",
+      "sha256": "f78ddec8af069967bfa0e59aea9123a95e934eb00c738fbdcb77a29407d6491f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponFireStrategies.cs.meta",
+      "sha256": "53fc057d0b7f27f2a8c679d8e260e8a7f8d3f1ab9a1709668c6b0779e2c6de96"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponHitscan.cs",
+      "sha256": "164a7d1233b6e2b04decf709fe888ef1df000a44033cc8af8fac7dae85f1fb76"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponHitscan.cs.meta",
+      "sha256": "830faa910edfbbcfce99887f464f9033ea1ccc79cf7e6de7217b114441a82c2d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponInstance.cs",
+      "sha256": "cb823051d5aaecc0becdfbb5954c6d1d5872bf494c40c26558c7797abb6ba5ee"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponInstance.cs.meta",
+      "sha256": "c2fcf39033d5a31d072efa5630712193684f262079d89f75c954b3d0b374a9b0"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponShot.cs",
+      "sha256": "7c242ae3f0654ce95f89e22d08ba1a2cb042e69ef0c31401435590d8d4ee5fb8"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Combat/Weapons/WeaponShot.cs.meta",
+      "sha256": "0229df8fe59f2dea1be30d61e758dbc4a0831d07b0897aede103313d22b7009f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Animation/FirstPersonWeaponMotion.cs",
+      "sha256": "34c9416120c84ad2a0740f1ade33c929d5e6d70bf8126827d4b966168beef623"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Animation/FirstPersonWeaponMotion.cs.meta",
+      "sha256": "d38dc8571279490ff0706b2fe4e3d50a67f732bc8fd1c10ad9dd226b9f32ee28"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Animation/PlayerAimTarget.cs",
+      "sha256": "614196ac66f9762615af65385f8d329183d8e61736339fceaf09b741a2e58cdc"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Animation/PlayerAimTarget.cs.meta",
+      "sha256": "fb284a28e2e31405678b5ada55c4e940103aa2769433dd3f6b7f9fc7a470da84"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/FPSCameraController.cs",
+      "sha256": "61ea81175a8bb58b65294a5dc74ee0016527b54da196e0b445a2530b1bded299"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/FPSCameraController.cs.meta",
+      "sha256": "ce7640acea1611d0cc8065396494bde31137702697215146933d3c9c22c09c80"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/FPSCameraImpact.cs",
+      "sha256": "5aacd407ca9c1ed5a1d3af25aead7c02cb31f64c7be01f1336d09b0840da5580"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/FPSCameraImpact.cs.meta",
+      "sha256": "8bf660d19d97e58c6816dbc67803c60bade94556b90e7cd59f8a049595669731"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/FPSCameraTilt.cs",
+      "sha256": "d82d6c965cb432e6f6b5ea05ad4f9546edcb38d00171541341022ff6fb755710"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/FPSCameraTilt.cs.meta",
+      "sha256": "b4a3835c68da75a2f2f538d9de006bcbe0640059505b3393865aaba4d78acf90"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/Helpers/Vector3Spring.cs",
+      "sha256": "2f05fac80fbf8ed6532c0d63da3c58af99451c8c5e18536b8847139a5766080c"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Camera/Helpers/Vector3Spring.cs.meta",
+      "sha256": "ebfdcaf98add9d7c6fab7eef53c7631caf7dc00fe67497ef5459b1bca5093b6f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Combat/PlayerWeaponController.cs",
+      "sha256": "00774656f6e96ecae4f340513fa29f17a54fe0447f5dea88bdc133563353608f"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Combat/PlayerWeaponController.cs.meta",
+      "sha256": "a27a429fe77c8839322d518c0207ac34fe136d4e02a9a23b2ca5c8e170ac6ffd"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Combat/PlayerWeaponPresenter.cs",
+      "sha256": "2ee39de2a3aa4ca9bfa86013399e1e59eb8538963399ed960670d69685bf274b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Combat/PlayerWeaponPresenter.cs.meta",
+      "sha256": "fb02948b015097cca2e41e814d78d9a803b2f1d3a7f9c6f8312e51266d62126a"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Combat/RuntimeWeapon.cs",
+      "sha256": "55653fbea354846f5737318a51331f27e4b5168cd70386f4063c508c6682471a"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Combat/RuntimeWeapon.cs.meta",
+      "sha256": "d072bdf4371dfd3dca36eddf17adef4b8635c9ea8d8d4a41f98267b3281232ce"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Commands/HealthCommands.cs",
+      "sha256": "6336a150917767ebf05901fbb0d667ceeeee7f431703af01311be322f178632c"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Commands/HealthCommands.cs.meta",
+      "sha256": "3f3d9de804bc39b0c4f1b91e7b3dbbfa9c734cb3545ec6000e05994ea7b8a489"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Commands/MovementCommands.cs",
+      "sha256": "577a93e1cac360846c736d53acc23dcd222397bced8c8a6adc9b69aa25e30171"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Commands/MovementCommands.cs.meta",
+      "sha256": "e55926f570908438cceae7b3cf431f0c02ce8f6952a0480a0274896c2985846b"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Commands/PlayerProfileCommands.cs",
+      "sha256": "71109b7f59e2e668ec8f36e621f1fb67ca67b0bc6375a50ea9bde08cb7fc5ab3"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Commands/PlayerProfileCommands.cs.meta",
+      "sha256": "74f9fb6774a0256e4174baf5ca70da381d4b5e60ffee2f765c32fad27d83e9b7"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Context/LocalPlayerContext.cs",
+      "sha256": "e7aa1858d3dc78340d3187fd755b9ba3016039b8ba5eb39d0a94665e34f82c44"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Context/LocalPlayerContext.cs.meta",
+      "sha256": "0a2e6319c4d6befb913d6ee65c9a8d6746a18686b0cf61efb934f1c09bb37934"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Context/PlayerFacade.cs",
+      "sha256": "b03661deccf3cc16b7b9bb73d858a3b6ea64bdc7169b429d9d0d9e01c322d51d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Context/PlayerFacade.cs.meta",
+      "sha256": "d6998b1275abc28bc599a7a5275866d483a7c67b3da44ddde2cbddfa3926063a"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Detection/PlayerTargetDetector.cs",
+      "sha256": "eec676b59810bc77029d3ca2a1b4bf0d1ce13ed94c1d1cac9111401f65452857"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Detection/PlayerTargetDetector.cs.meta",
+      "sha256": "509bb75790cee20ee445805298fc31c116580ae7905b9f9ded9ae92dfb9e4df2"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Input/LocalPlayerInputProvider.cs",
+      "sha256": "f2da6e59231975fd0a674883a2ea360009abaf868f41133637ca24ce33b17d82"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Input/LocalPlayerInputProvider.cs.meta",
+      "sha256": "af7d0daeab858ad8611e5ac3a6e02b5a37421c32ddc0b4432afe5b8227f490d4"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Input/RemotePlayerInputProvider.cs",
+      "sha256": "2b3e52027d88bd7bf23077fc032d2dbf04d72e6f5615de8bae8770fe12ecf3f0"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Input/RemotePlayerInputProvider.cs.meta",
+      "sha256": "2c7e61140b4320f025ae557cc230f3fdef17f6519694061f83d4b51b7841a934"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Interaction/PlayerDownedInteractable.cs",
+      "sha256": "98508bda7933fdc319b13493871c75169dbbcb7e7142e4d1176963e07f39e657"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Interaction/PlayerDownedInteractable.cs.meta",
+      "sha256": "272a971f0635b268ed86d3437d62ffb7f507e7d63dcc19be4c58b6401276b733"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Interaction/PlayerInteractor.cs",
+      "sha256": "25265dbb897e5d0540e37c9ee5d39f56ee1b3f2d92da5870ae980e5a27b77ec4"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Interaction/PlayerInteractor.cs.meta",
+      "sha256": "75457351f95324085bda4b38adcf6ddb6a701a52e8bf9514478ac73a4091f999"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Locomotion/LocomotionController.cs",
+      "sha256": "e7bcd8c048180ebe67400e9a59996610a4699ec21633a6aa0e0250d5ce59bdb6"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Locomotion/LocomotionController.cs.meta",
+      "sha256": "c98e377732657b63d66160b672c0c4159b91a7f7211ba3d0440d948090ceab3c"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Locomotion/PlayerDownedState.cs",
+      "sha256": "366577f03aefa5ef3e108fccfbc4b2ec0e43223de0df3c9f9757543023a3caae"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Locomotion/PlayerDownedState.cs.meta",
+      "sha256": "20f29f80f7be52fbe5049021921619bc4d9cf8ca8e64af172990f7794446561a"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Loot/InventoryPersistenceBridge.cs",
+      "sha256": "eb60b1ecc1d38e49991bfb905738b9a2d4b1f90efecf48314ac677073d5ee715"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Loot/InventoryPersistenceBridge.cs.meta",
+      "sha256": "33990746d476bccee67996b50a719995ab60bb0c14a5dff4a30b7b0072308f04"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Loot/PlayerDuffleBagController.cs",
+      "sha256": "940e91bb1d7be4511e7f7552b559c3c8cb6de1a0dd694600d180aa821584477d"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Loot/PlayerDuffleBagController.cs.meta",
+      "sha256": "270ace379d8373034ecdc2a7b80694a644785ab76a489fbc30f4b5952951db6e"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Profile/PlayerProfileManager.cs",
+      "sha256": "fc5238a1f821c25641454d083599d03acd6865d0221a68b32fcdb977bc35e041"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Profile/PlayerProfileManager.cs.meta",
+      "sha256": "d65dceca648391db2534b66f5e300d8917e5d04fa76d7389826c49be92d0af2a"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Profile/RuntimePlayerProfile.cs",
+      "sha256": "9f3236136b2cf4c86ca1ab9d54895a38654f9e9260463dce88ab0388e7a6eef0"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Runtime/Gameplay/Player/Profile/RuntimePlayerProfile.cs.meta",
+      "sha256": "1e9607dd6ed9f4709699496ca0619c074109f6ef8e7aee386136c9e0c17508d1"
+    }
+  ]
+}
